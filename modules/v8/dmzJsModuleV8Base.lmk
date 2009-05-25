@@ -1,0 +1,11 @@
+require "lmkV8"
+
+lmkV8.set_name "dmzJsModuleV8Base"
+lmk.set_type "plugin"
+lmk.add_files {"dmzJsModuleV8Base.cpp",}
+lmk.add_libs {
+   "dmzKernel",
+}
+lmk.add_preqs {"dmzJsFramework",}
+
+lmkV8.add_libs ()
