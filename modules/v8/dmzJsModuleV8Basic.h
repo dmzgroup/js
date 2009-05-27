@@ -1,19 +1,20 @@
-#ifndef DMZ_JS_MODULE_V8_BASE_DOT_H
-#define DMZ_JS_MODULE_V8_BASE_DOT_H
+#ifndef DMZ_JS_MODULE_V8_BASIC_DOT_H
+#define DMZ_JS_MODULE_V8_BASIC_DOT_H
 
 #include <dmzJsModuleV8.h>
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
+#include <dmzRuntimeResources.h>
 
 namespace dmz {
 
-   class JsModuleV8Base :
+   class JsModuleV8Basic :
          public Plugin,
          public JsModuleV8 {
 
       public:
-         JsModuleV8Base (const PluginInfo &Info, Config &local);
-         ~JsModuleV8Base ();
+         JsModuleV8Basic (const PluginInfo &Info, Config &local);
+         ~JsModuleV8Basic ();
 
          // Plugin Interface
          virtual void update_plugin_state (
@@ -30,15 +31,16 @@ namespace dmz {
          void _init (Config &local);
 
          Log _log;
+         Resources _rc;
 
          v8::Persistent<v8::Context> _context;
 
       private:
-         JsModuleV8Base ();
-         JsModuleV8Base (const JsModuleV8Base &);
-         JsModuleV8Base &operator= (const JsModuleV8Base &);
+         JsModuleV8Basic ();
+         JsModuleV8Basic (const JsModuleV8Basic &);
+         JsModuleV8Basic &operator= (const JsModuleV8Basic &);
 
    };
 };
 
-#endif // DMZ_JS_MODULE_V8_BASE_DOT_H
+#endif // DMZ_JS_MODULE_V8_BASIC_DOT_H
