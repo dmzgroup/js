@@ -5,6 +5,7 @@
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
 #include <dmzRuntimeResources.h>
+#include <dmzSystemFile.h>
 
 namespace dmz {
 
@@ -32,6 +33,8 @@ namespace dmz {
 
          Log _log;
          Resources _rc;
+
+         PathContainer _localPaths;
 
          v8::Persistent<v8::Context> _context;
 

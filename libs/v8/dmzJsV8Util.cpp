@@ -60,5 +60,5 @@ dmz::V8ScriptBuffer::data () const { return _state.buffer; }
 
 
 size_t
-dmz::V8ScriptBuffer::length () { return _state.length; }
+dmz::V8ScriptBuffer::length () const { return _state.length; }
 

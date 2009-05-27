@@ -19,7 +19,7 @@ class DMZ_JS_V8_UTIL_LINK_SYMBOL V8ScriptBuffer :
       String get_file_name () const;
       // ExternalAsciiStringResource Interface.
       virtual const char* data () const;
-      virtual size_t length ();
+      virtual size_t length () const;
 
    protected:
       struct State;

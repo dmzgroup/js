@@ -1,4 +1,8 @@
 #include "dmzJsModuleV8Basic.h"
+#include <dmzJsV8Util.h>
+#include <dmzRuntimeConfig.h>
+#include <dmzRuntimeConfigToTypesBase.h>
+#include <dmzRuntimeConfigToPathContainer.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
 
@@ -45,7 +49,7 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (const PluginInfo &Info, Config &local) :
       Plugin (Info),
       JsModuleV8 (Info),
       _log (Info),
-      _rc (Info, &_log) {
+      _rc (Info) {
 
    _init (local);
 }
@@ -112,6 +116,44 @@ dmz::JsModuleV8Basic::_init (Config &local) {
          v8::FunctionTemplate::New (local_print)->GetFunction ());
    }
    else { _log.error << "No global object." << endl; }
+
+   _localPaths = config_to_path_container (local);
+
+   Config scriptList;
+
+   if (local.lookup_all_config ("script", scriptList)) {
+
+      ConfigIterator it;
+      Config script;
+
+      while (scriptList.get_next_config (it, script)) {
+
+         const String Name = config_to_string ("name", script);
+
+         if (Name) {
+
+            String scriptPath = _rc.find_file (Name);
+
+            if (!scriptPath && (_localPaths.get_count () > 0)) {
+
+               find_file (_localPaths, Name + ".js", scriptPath);
+            }
+
+            if (scriptPath) {
+
+               V8ScriptBuffer *sptr = new V8ScriptBuffer (scriptPath);
+
+               v8::Local<v8::Script> jsscript = v8::Script::Compile (v8::String::NewExternal (sptr));
+
+               jsscript->Run ();
+            }
+            else {
+
+               _log.error << "Failed to find script resource: " << Name << endl;
+            }
+         }
+      }
+   }
 }
 
 

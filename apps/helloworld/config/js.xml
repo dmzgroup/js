@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dmz>
 <plugin-list>
-   <plugin name="dmzJsModuleV8Basic"/>
+   <plugin name="dmzJsModuleV8Basic" scope="javascript"/>
 </plugin-list>
+<javascript>
+   <path value="./scripts"/>
+   <script name="helloworld"/>
+</javascript>
 </dmz>
