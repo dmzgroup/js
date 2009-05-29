@@ -43,8 +43,8 @@ local_print (const v8::Arguments& args) {
    return v8::Undefined();
 }
 
-
 };
+
 
 dmz::JsModuleV8Basic::JsModuleV8Basic (const PluginInfo &Info, Config &local) :
       Plugin (Info),

@@ -1,0 +1,11 @@
+lmk.set_name "dmzJsKernelEmbed"
+lmk.set_type "shared"
+lmk.add_files ({
+   "dmz-core.js",
+   "dmz-vector.js",
+}, { src="embed", })
+lmk.add_libs {"dmzKernel",}
+lmk.add_vars {
+   embedRoot="embedded_js",
+}
+
