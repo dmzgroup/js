@@ -6,8 +6,6 @@
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
 
-#include <stdio.h>
-
 namespace {
 
 static const char LocalDMZName[] = "DMZ";
@@ -22,22 +20,25 @@ to_c_string (const v8::String::Utf8Value& value) {
 v8::Handle<v8::Value>
 local_print (const v8::Arguments& args) {
 
-   bool first = true;
+   v8::HandleScope scope;
 
-   for (int i = 0; i < args.Length(); i++) {
+   dmz::StreamLog *out = (dmz::StreamLog *)v8::External::Unwrap (args.Data ());
 
-      v8::HandleScope handle_scope;
+   if (out) {
 
-      if (first) { first = false; }
-      else { printf(" "); }
+      const int Length = args.Length ();
 
-      v8::String::Utf8Value str(args[i]);
-      const char* cstr = to_c_string(str);
-      printf("%s", cstr);
+      for (int ix = 0; ix < Length; ix++) {
+
+         if (ix > 0) { *out << " "; }
+
+         v8::String::Utf8Value str (args[ix]);
+         const char *cstr = to_c_string (str);
+         *out << cstr;
+      }
+
+      *out << dmz::endl;
    }
-
-   printf("\n");
-   fflush(stdout);
 
    return v8::Undefined();
 }
@@ -49,6 +50,7 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (const PluginInfo &Info, Config &local) :
       Plugin (Info),
       JsModuleV8 (Info),
       _log (Info),
+      _out ("", LogLevelOut, Info.get_context ()),
       _rc (Info) {
 
    _init (local);
@@ -113,7 +115,9 @@ dmz::JsModuleV8Basic::_init (Config &local) {
 
       global->Set (
          v8::String::New ("print"),
-         v8::FunctionTemplate::New (local_print)->GetFunction ());
+         v8::FunctionTemplate::New (
+            local_print,
+            v8::External::Wrap (&_out))->GetFunction ());
    }
    else { _log.error << "No global object." << endl; }
 

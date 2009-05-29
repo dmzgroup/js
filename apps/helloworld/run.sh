@@ -2,4 +2,4 @@
 
 . ../../../scripts/envsetup.sh
 
-$RUN_DEBUG$BIN_HOME/dmzAppQt -f config/js.xml $*
+$RUN_DEBUG$BIN_HOME/dmzAppQt -f config/helloworld.xml $*

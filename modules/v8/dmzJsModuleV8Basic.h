@@ -32,6 +32,7 @@ namespace dmz {
          void _init (Config &local);
 
          Log _log;
+         StreamLog _out;
          Resources _rc;
 
          PathContainer _localPaths;
