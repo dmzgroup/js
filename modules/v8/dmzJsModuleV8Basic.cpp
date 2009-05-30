@@ -1,4 +1,5 @@
 #include "dmzJsModuleV8Basic.h"
+#include <dmzJsKernelEmbed.h>
 #include <dmzJsV8Util.h>
 #include <dmzRuntimeConfig.h>
 #include <dmzRuntimeConfigToTypesBase.h>

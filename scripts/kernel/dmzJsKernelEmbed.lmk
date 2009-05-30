@@ -7,5 +7,6 @@ lmk.add_files ({
 lmk.add_libs {"dmzKernel",}
 lmk.add_vars {
    embedRoot="embedded_js",
+   embedNamespace="dmz",
 }
 

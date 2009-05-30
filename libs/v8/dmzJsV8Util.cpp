@@ -1,6 +1,8 @@
 #include <dmzJsV8Util.h>
 #include <dmzSystemFile.h>
 
+#include <string.h>
+
 struct dmz::V8ScriptBuffer::State {
 
    const String FileName;
@@ -61,4 +63,32 @@ dmz::V8ScriptBuffer::data () const { return _state.buffer; }
 
 size_t
 dmz::V8ScriptBuffer::length () const { return _state.length; }
+
+
+struct dmz::V8EmbeddedBuffer::State {
+
+   const char *Buffer;
+   size_t length;
+
+   State (const char *TheBuffer) :
+         Buffer (TheBuffer),
+         length (TheBuffer ? strlen (TheBuffer) : 0) {;}
+
+   ~State () {;}
+};
+
+
+dmz::V8EmbeddedBuffer::V8EmbeddedBuffer (const char *Buffer) :
+      _state (*(new State (Buffer))) {;}
+
+
+dmz::V8EmbeddedBuffer::~V8EmbeddedBuffer () { delete &_state; }
+
+
+const char *
+dmz::V8EmbeddedBuffer::data () const { return _state.Buffer; } 
+
+
+size_t
+dmz::V8EmbeddedBuffer::length () const { return _state.length; }
 
