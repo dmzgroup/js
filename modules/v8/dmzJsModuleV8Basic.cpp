@@ -52,13 +52,18 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (const PluginInfo &Info, Config &local) :
       JsModuleV8 (Info),
       _log (Info),
       _out ("", LogLevelOut, Info.get_context ()),
-      _rc (Info) {
+      _rc (Info),
+      _kernelList (0),
+      _scriptList (0) {
 
    _init (local);
 }
 
 
 dmz::JsModuleV8Basic::~JsModuleV8Basic () {
+
+   if (_scriptList) { delete _scriptList; _scriptList = 0; }
+   if (_kernelList) { delete _kernelList; _kernelList = 0; }
 
    _context.Dispose ();
 }
@@ -72,6 +77,11 @@ dmz::JsModuleV8Basic::update_plugin_state (
 
    if (State == PluginStateInit) {
 
+      _init_context ();
+      _load_kernel ();
+      _run_scripts (_kernelList);
+      _load_scripts ();
+      _run_scripts (_scriptList);
    }
    else if (State == PluginStateStart) {
 
@@ -100,12 +110,13 @@ dmz::JsModuleV8Basic::discover_plugin (
 
 
 void
-dmz::JsModuleV8Basic::_init (Config &local) {
+dmz::JsModuleV8Basic::_init_context () {
+
+   if (!_context.IsEmpty ()) { _context.Dispose (); _context.Clear (); }
 
    _context = v8::Context::New ();
 
    v8::Context::Scope scope (_context);
-
    v8::HandleScope hscope;
 
    v8::Handle<v8::Object> global = _context->Global ();
@@ -121,6 +132,146 @@ dmz::JsModuleV8Basic::_init (Config &local) {
             v8::External::Wrap (&_out))->GetFunction ());
    }
    else { _log.error << "No global object." << endl; }
+}
+
+
+void
+dmz::JsModuleV8Basic::_handle_exception (v8::TryCatch &tc) {
+
+   v8::Context::Scope cscope (_context);
+   v8::HandleScope hscope;
+
+   v8::String::Utf8Value exception (tc.Exception ());
+   const String ExStr = to_c_string (exception);
+
+   v8::Handle<v8::Message> message = tc.Message ();
+
+   if (message.IsEmpty()) {
+
+      _log.error << "Unhandled exception: " << ExStr << endl;
+   }
+   else {
+
+      v8::String::Utf8Value fptr (message->GetScriptResourceName ());
+      const String FileName = to_c_string (fptr);
+      const Int32 Line = message->GetLineNumber ();
+      _log.error << FileName << ":" << Line << ": " << ExStr << endl;
+
+      // Print line of source code.
+      v8::String::Utf8Value sptr (message->GetSourceLine ());
+      _log.error << to_c_string (sptr) << endl;
+
+      // Print wavy underline (GetUnderline is deprecated).
+      int start = message->GetStartColumn ();
+      int end = message->GetEndColumn ();
+
+      String space;
+      space.repeat (" ", start);
+      String line;
+      line.repeat ("^", end - start);
+
+      _log.error << space << line << endl;
+   }
+}
+
+
+void
+dmz::JsModuleV8Basic::_load_kernel () {
+
+   v8::Context::Scope cscope (_context);
+   v8::HandleScope hscope;
+
+   if (_kernelList) { delete _kernelList; _kernelList = 0; }
+
+   ScriptStruct *last (0);
+
+   const int Count = get_embedded_js_count ();
+
+   for (int ix = 0; ix < Count; ix++) {
+
+      V8EmbeddedBuffer *buffer = new V8EmbeddedBuffer (
+         get_embedded_js_text (ix),
+         get_embedded_js_length (ix));
+
+      ScriptStruct *ss = new ScriptStruct (get_embedded_js_file_name (ix));
+
+      if (ss) {
+
+         v8::TryCatch tc;
+
+         v8::Handle<v8::Script> script = v8::Script::Compile (
+            v8::String::NewExternal (buffer),
+            v8::String::New (get_embedded_js_file_name (ix)));
+
+         if (script.IsEmpty ()) { _handle_exception (tc); }
+         else {
+
+            ss->script = v8::Persistent<v8::Script>::New (script);
+            if (last) { last->next = ss; last = ss; }
+            else { _kernelList = last = ss; }
+         }
+      }
+   }
+}
+
+
+void
+dmz::JsModuleV8Basic::_load_scripts () {
+
+   v8::Context::Scope cscope (_context);
+   v8::HandleScope hscope;
+
+   ScriptStruct *current (_scriptList);
+
+   while (current) {
+
+      current->clear ();
+      
+      v8::TryCatch tc;
+      V8FileBuffer *sptr = new V8FileBuffer (current->FileName);
+
+      v8::Handle<v8::Script> script = v8::Script::Compile (
+         v8::String::NewExternal (sptr),
+         v8::String::New (current->FileName.get_buffer ()));
+
+      if (script.IsEmpty ()) { _handle_exception (tc); }
+      else { current->script = v8::Persistent<v8::Script>::New (script); }
+
+      current = current->next;
+   }
+}
+
+
+void
+dmz::JsModuleV8Basic::_run_scripts (ScriptStruct *list) {
+
+   v8::Context::Scope cscope (_context);
+   v8::HandleScope hscope;
+
+   ScriptStruct *current (list);
+
+   while (current) {
+
+      if (!current->script.IsEmpty ()) {
+
+         v8::TryCatch tc;
+
+         v8::Handle<v8::Value> value = current->script->Run ();
+
+         if (value.IsEmpty ()) {
+
+            _handle_exception (tc);
+            current->clear ();
+         }
+      }
+
+      current = current->next;
+   }
+}
+
+
+void
+dmz::JsModuleV8Basic::_init (Config &local) {
 
    _localPaths = config_to_path_container (local);
 
@@ -128,6 +279,7 @@ dmz::JsModuleV8Basic::_init (Config &local) {
 
    if (local.lookup_all_config ("script", scriptList)) {
 
+      ScriptStruct *last (0);
       ConfigIterator it;
       Config script;
 
@@ -146,11 +298,10 @@ dmz::JsModuleV8Basic::_init (Config &local) {
 
             if (scriptPath) {
 
-               V8ScriptBuffer *sptr = new V8ScriptBuffer (scriptPath);
+               ScriptStruct *ss = new ScriptStruct (scriptPath);
 
-               v8::Local<v8::Script> jsscript = v8::Script::Compile (v8::String::NewExternal (sptr));
-
-               jsscript->Run ();
+               if (last) { last->next = ss; ss = last; }
+               else { _scriptList = last = ss; }
             }
             else {
 

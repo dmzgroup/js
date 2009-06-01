@@ -30,6 +30,8 @@ DMZ.Vector.prototype.fromArray = function (values) {
    this.x = values[0];
    this.y = values[1];
    this.z = values[2];
+
+   return this;
 };
 
 

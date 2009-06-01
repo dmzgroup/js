@@ -29,6 +29,38 @@ namespace dmz {
          // JsModuleV8 Interface
 
       protected:
+         struct ScriptStruct {
+
+            const String FileName;
+            v8::Persistent<v8::Script> script;
+            ScriptStruct *next;
+
+            void clear () {
+
+               if (!script.IsEmpty ()) {
+
+                  script.Dispose ();
+                  script.Clear ();
+               }
+            }
+
+            ScriptStruct (const String &TheFileName) :
+                  FileName (TheFileName),
+                  next (0) {;}
+
+            ~ScriptStruct () {
+
+               clear ();
+
+               if (next) { delete next; next = 0; }
+            }
+         };
+
+         void _init_context ();
+         void _handle_exception (v8::TryCatch &tc);
+         void _load_kernel ();
+         void _load_scripts ();
+         void _run_scripts (ScriptStruct *list);
          void _init (Config &local);
 
          Log _log;
@@ -38,6 +70,9 @@ namespace dmz {
          PathContainer _localPaths;
 
          v8::Persistent<v8::Context> _context;
+
+         ScriptStruct *_kernelList;
+         ScriptStruct *_scriptList;
 
       private:
          JsModuleV8Basic ();

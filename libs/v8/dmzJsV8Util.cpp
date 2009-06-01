@@ -3,7 +3,7 @@
 
 #include <string.h>
 
-struct dmz::V8ScriptBuffer::State {
+struct dmz::V8FileBuffer::State {
 
    const String FileName;
    char *buffer;
@@ -47,39 +47,39 @@ struct dmz::V8ScriptBuffer::State {
 };
 
 
-dmz::V8ScriptBuffer::V8ScriptBuffer (String &FileName) :
+dmz::V8FileBuffer::V8FileBuffer (const String &FileName) :
       _state (*(new State (FileName))) {;}
 
 
-dmz::V8ScriptBuffer::~V8ScriptBuffer () { delete &_state; }
+dmz::V8FileBuffer::~V8FileBuffer () { delete &_state; }
 
 dmz::String
-dmz::V8ScriptBuffer::get_file_name () const { return _state.FileName; }
+dmz::V8FileBuffer::get_file_name () const { return _state.FileName; }
 
 
 const char *
-dmz::V8ScriptBuffer::data () const { return _state.buffer; } 
+dmz::V8FileBuffer::data () const { return _state.buffer; } 
 
 
 size_t
-dmz::V8ScriptBuffer::length () const { return _state.length; }
+dmz::V8FileBuffer::length () const { return _state.length; }
 
 
 struct dmz::V8EmbeddedBuffer::State {
 
    const char *Buffer;
-   size_t length;
+   const size_t Length;
 
-   State (const char *TheBuffer) :
+   State (const char *TheBuffer, const size_t TheLength) :
          Buffer (TheBuffer),
-         length (TheBuffer ? strlen (TheBuffer) : 0) {;}
+         Length (TheLength ? TheLength : (TheBuffer ? strlen (TheBuffer) : 0)) {;}
 
    ~State () {;}
 };
 
 
-dmz::V8EmbeddedBuffer::V8EmbeddedBuffer (const char *Buffer) :
-      _state (*(new State (Buffer))) {;}
+dmz::V8EmbeddedBuffer::V8EmbeddedBuffer (const char *Buffer, const size_t Length) :
+      _state (*(new State (Buffer, Length))) {;}
 
 
 dmz::V8EmbeddedBuffer::~V8EmbeddedBuffer () { delete &_state; }
@@ -90,5 +90,5 @@ dmz::V8EmbeddedBuffer::data () const { return _state.Buffer; }
 
 
 size_t
-dmz::V8EmbeddedBuffer::length () const { return _state.length; }
+dmz::V8EmbeddedBuffer::length () const { return _state.Length; }
 

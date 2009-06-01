@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dmz>
+<runtime/>
 <plugin-list>
    <plugin name="dmzPluginExit"/>
    <plugin name="dmzJsModuleV8Basic" scope="javascript"/>

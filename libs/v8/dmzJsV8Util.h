@@ -9,12 +9,12 @@
 
 namespace dmz {
 
-class DMZ_JS_V8_UTIL_LINK_SYMBOL V8ScriptBuffer :
+class DMZ_JS_V8_UTIL_LINK_SYMBOL V8FileBuffer :
       public v8::String::ExternalAsciiStringResource {
 
    public:
-      V8ScriptBuffer (String &FileName);
-      virtual ~V8ScriptBuffer ();
+      V8FileBuffer (const String &FileName);
+      virtual ~V8FileBuffer ();
 
       String get_file_name () const;
       // ExternalAsciiStringResource Interface.
@@ -26,16 +26,16 @@ class DMZ_JS_V8_UTIL_LINK_SYMBOL V8ScriptBuffer :
       State &_state;
 
    private:
-      V8ScriptBuffer ();
-      V8ScriptBuffer (const V8ScriptBuffer &);
-      V8ScriptBuffer &operator= (const V8ScriptBuffer &);
+      V8FileBuffer ();
+      V8FileBuffer (const V8FileBuffer &);
+      V8FileBuffer &operator= (const V8FileBuffer &);
 };
 
 class DMZ_JS_V8_UTIL_LINK_SYMBOL V8EmbeddedBuffer :
       public v8::String::ExternalAsciiStringResource {
 
    public:
-      V8EmbeddedBuffer (const char *Buffer);
+      V8EmbeddedBuffer (const char *Buffer, const size_t Length);
       virtual ~V8EmbeddedBuffer ();
 
       // ExternalAsciiStringResource Interface.
