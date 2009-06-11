@@ -7,6 +7,9 @@
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
 
+#include <strings.h>
+#include <stdio.h>
+
 namespace {
 
 static const char LocalDMZName[] = "DMZ";
@@ -114,6 +117,9 @@ dmz::JsModuleV8Basic::_init_context () {
 
    if (!_context.IsEmpty ()) { _context.Dispose (); _context.Clear (); }
 
+   char flags[] = "--expose_debug_as debug";
+   v8::V8::SetFlagsFromString (flags, strlen (flags));
+
    _context = v8::Context::New ();
 
    v8::Context::Scope scope (_context);
@@ -166,7 +172,7 @@ dmz::JsModuleV8Basic::_handle_exception (v8::TryCatch &tc) {
       int end = message->GetEndColumn ();
 
       String space;
-      space.repeat (" ", start);
+      space.repeat (" ", start - 1);
       String line;
       line.repeat ("^", end - start);
 

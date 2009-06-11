@@ -3,6 +3,7 @@ lmk.set_type "shared"
 lmk.add_files ({
    "dmz-core.js",
    "dmz-vector.js",
+   "dmz-matrix.js",
 }, { src="embed", })
 lmk.add_libs {"dmzKernel",}
 lmk.add_vars {
