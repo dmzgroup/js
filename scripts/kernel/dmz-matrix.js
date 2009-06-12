@@ -1,4 +1,5 @@
 // Requires dmz-core.js
+// Requires dmz-vector.js
 
 DMZ.Matrix = function () {
 
