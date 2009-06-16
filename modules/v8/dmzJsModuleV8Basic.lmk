@@ -2,7 +2,13 @@ require "lmkV8"
 
 lmkV8.set_name "dmzJsModuleV8Basic"
 lmk.set_type "plugin"
+
+lmk.add_files ({
+   "listen.js",
+}, {src="embed"})
+
 lmk.add_files {"dmzJsModuleV8Basic.cpp",}
+
 lmk.add_libs {
    "dmzJsKernelEmbed",
    "dmzJsV8Util",
@@ -11,3 +17,11 @@ lmk.add_libs {
 lmk.add_preqs {"dmzJsFramework",}
 
 lmkV8.add_libs ()
+
+lmk.add_vars {
+   embedName="dmzV8IntenralEmbed",
+   embedRoot="v8_internal",
+   embedNamespace="dmz",
+   embedExport=false,
+}
+

@@ -6,6 +6,7 @@
 #include <dmzRuntimeConfigToPathContainer.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
+#include "dmzV8IntenralEmbed.h"
 
 #include <strings.h>
 #include <stdio.h>
@@ -22,7 +23,7 @@ to_c_string (const v8::String::Utf8Value& value) {
 
 
 v8::Handle<v8::Value>
-local_print (const v8::Arguments& args) {
+local_print (const v8::Arguments &args) {
 
    v8::HandleScope scope;
 
@@ -47,6 +48,28 @@ local_print (const v8::Arguments& args) {
    return v8::Undefined();
 }
 
+
+v8::Handle<v8::Value>
+local_add_stack_trace (const v8::Arguments &args) {
+
+   v8::HandleScope scope;
+
+   dmz::JsModuleV8Basic *module =
+      (dmz::JsModuleV8Basic *)v8::External::Unwrap (args.Data ());
+
+   if (module) {
+
+      module->add_stack_trace (
+         args[0]->Int32Value (), // Level
+         *(v8::String::Utf8Value (args[1])), // Script
+         args[2]->Int32Value () + 1, // Line, Add one since line count starts at zero.
+         args[3]->Int32Value (), // Column.
+         *(v8::String::Utf8Value (args[4]))); // Code
+   }
+
+   return v8::Undefined();
+}
+
 };
 
 
@@ -57,7 +80,9 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (const PluginInfo &Info, Config &local) :
       _out ("", LogLevelOut, Info.get_context ()),
       _rc (Info),
       _kernelList (0),
-      _scriptList (0) {
+      _scriptList (0),
+      _stHead (0),
+      _stTail (0) {
 
    _init (local);
 }
@@ -65,6 +90,8 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (const PluginInfo &Info, Config &local) :
 
 dmz::JsModuleV8Basic::~JsModuleV8Basic () {
 
+   if (_stHead) { delete _stHead; }
+   _stTail = 0;
    if (_scriptList) { delete _scriptList; _scriptList = 0; }
    if (_kernelList) { delete _kernelList; _kernelList = 0; }
 
@@ -112,6 +139,24 @@ dmz::JsModuleV8Basic::discover_plugin (
 }
 
 
+// JsModuleV8Basic Interface
+void
+dmz::JsModuleV8Basic::add_stack_trace (
+      const Int32 Level,
+      const String &Script,
+      const Int32 Line,
+      const Int32 Column,
+      const String &Code) {
+
+   if ((Level == 0) && _stHead) { delete _stHead; _stHead = _stTail = 0; }
+
+   StackTraceStruct *next = new StackTraceStruct (Level, Script, Line, Column, Code);
+
+   if (_stTail) { _stTail->next = next; _stTail = next; }
+   else { _stHead = _stTail = next; }
+}
+
+
 void
 dmz::JsModuleV8Basic::_init_context () {
 
@@ -129,13 +174,23 @@ dmz::JsModuleV8Basic::_init_context () {
 
    if (!global.IsEmpty ()) {
 
-      global->Set (v8::String::New (LocalDMZName), v8::Object::New ());
+      v8::Handle<v8::Object> obj = v8::Object::New ();
+      v8::Handle<v8::Object> debug = v8::Object::New ();
+      obj->Set (v8::String::New ("Debug"), debug);
+
+      global->Set (v8::String::New (LocalDMZName), obj);
 
       global->Set (
          v8::String::New ("print"),
          v8::FunctionTemplate::New (
             local_print,
             v8::External::Wrap (&_out))->GetFunction ());
+
+      debug->Set (
+         v8::String::New ("addStackTrace"),
+         v8::FunctionTemplate::New (
+            local_add_stack_trace,
+            v8::External::Wrap (this))->GetFunction ());
    }
    else { _log.error << "No global object." << endl; }
 }
@@ -163,20 +218,45 @@ dmz::JsModuleV8Basic::_handle_exception (v8::TryCatch &tc) {
       const Int32 Line = message->GetLineNumber ();
       _log.error << FileName << ":" << Line << ": " << ExStr << endl;
 
-      // Print line of source code.
-      v8::String::Utf8Value sptr (message->GetSourceLine ());
-      _log.error << to_c_string (sptr) << endl;
+      if (!_stHead) {
 
-      // Print wavy underline (GetUnderline is deprecated).
-      int start = message->GetStartColumn ();
-      int end = message->GetEndColumn ();
+         // Print line of source code.
+         v8::String::Utf8Value sptr (message->GetSourceLine ());
+         _log.error << to_c_string (sptr) << endl;
 
-      String space;
-      space.repeat ("-", start - 1);
-      String line;
-      line.repeat ("^", end - start);
+         // Print wavy underline (GetUnderline is deprecated).
+         int start = message->GetStartColumn ();
+         int end = message->GetEndColumn ();
 
-      _log.error << " " << space << line << endl;
+         String space;
+         space.repeat ("-", start - 1);
+         String line;
+         line.repeat ("^", end - start);
+
+         _log.error << " " << space << line << endl;
+      }
+   }
+
+   if (_stHead) {
+
+      _log.error << "Stack Trace:" << endl;
+
+      StackTraceStruct *current (_stHead);
+
+      while (current) {
+
+         _log.error << "-=-=-=-=-=-=-=-=-=-=- Level: " << current->Level
+            << " -=-=-=-=-=-=-=-=-=-=-" << endl;
+         _log.error << "Line:" << current->Line << ":" << current->Script << endl << endl;
+         _log.error << current->Code << endl;
+         String space;
+         space.repeat ("-", current->Column);
+         _log.error << space << "^" << endl;
+
+         current = current->next;
+      }
+
+      delete _stHead; _stHead = _stTail = 0;
    }
 }
 
@@ -218,6 +298,30 @@ dmz::JsModuleV8Basic::_load_kernel () {
          }
       }
    }
+
+ 
+   V8EmbeddedBuffer *buffer = new V8EmbeddedBuffer (
+      get_v8_internal_text (0),
+      get_v8_internal_length (0));
+
+   ScriptStruct *ss = new ScriptStruct (get_v8_internal_file_name (0));
+
+   if (ss) {
+
+      v8::TryCatch tc;
+
+      v8::Handle<v8::Script> script = v8::Script::Compile (
+         v8::String::NewExternal (buffer),
+         v8::String::New (get_v8_internal_file_name (0)));
+
+      if (script.IsEmpty ()) { _handle_exception (tc); }
+      else {
+
+         ss->script = v8::Persistent<v8::Script>::New (script);
+         if (last) { last->next = ss; last = ss; }
+         else { _kernelList = last = ss; }
+      }
+   }  
 }
 
 

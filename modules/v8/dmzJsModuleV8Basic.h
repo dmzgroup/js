@@ -28,6 +28,14 @@ namespace dmz {
 
          // JsModuleV8 Interface
 
+         // JsModuleV8Basic Interface
+         void add_stack_trace (
+            const Int32 Level,
+            const String &Script,
+            const Int32 Line,
+            const Int32 Column,
+            const String &Code);
+
       protected:
          struct ScriptStruct {
 
@@ -56,6 +64,41 @@ namespace dmz {
             }
          };
 
+         struct StackTraceStruct {
+
+            const Int32 Level;
+            const String Script;
+            const Int32 Line;
+            const Int32 Column;
+            const String Code;
+
+            StackTraceStruct *next;
+
+            StackTraceStruct (
+                  const Int32 TheLevel,
+                  const String &TheScript,
+                  const Int32 TheLine,
+                  const Int32 TheColumn,
+                  const String &TheCode) :
+                  Level (TheLevel),
+                  Script (TheScript),
+                  Line (TheLine),
+                  Column (TheColumn),
+                  Code (TheCode),
+                  next (0) {;}
+
+            ~StackTraceStruct () {
+
+               while (next) {
+
+                  StackTraceStruct *tmp = next;
+                  next = next->next;
+                  tmp->next = 0; // short circuit the recursive destructor.
+                  delete tmp; tmp = 0;
+               }
+            }
+         };
+
          void _init_context ();
          void _handle_exception (v8::TryCatch &tc);
          void _load_kernel ();
@@ -73,6 +116,9 @@ namespace dmz {
 
          ScriptStruct *_kernelList;
          ScriptStruct *_scriptList;
+
+         StackTraceStruct *_stHead;
+         StackTraceStruct *_stTail;
 
       private:
          JsModuleV8Basic ();
