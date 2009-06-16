@@ -1,13 +1,23 @@
 var DMZ = DMZ || {};
 
-DMZ.Epsilon = 0.000000001;
+DMZ.Core = DMZ.Core || {};
 
-DMZ.isArray = function (value) {
+DMZ.Core.Epsilon = 0.000000001;
+
+
+DMZ.Core.isZero = function (value) {
+
+   return Math.abs (value) < DMZ.Core.Epsilon;
+};
+
+
+DMZ.Core.isArray = function (value) {
 
    return Object.prototype.toString.apply(value) === '[object Array]';
-}
+};
 
-DMZ.hasFunction = function (obj, name) {
+
+DMZ.Core.hasFunction = function (obj, name) {
 
    return typeof obj[name] === "function";
-}
+};

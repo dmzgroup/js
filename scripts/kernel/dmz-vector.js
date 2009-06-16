@@ -54,8 +54,22 @@ DMZ.Vector.prototype.setXYZ = function (x, y, z) {
 DMZ.Vector.prototype.magnitude = function () {
 
    var result = Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z));
-   return result > DMZ.Epsilon ? result : 0.0;
+   return result > DMZ.Core.Epsilon ? result : 0.0;
 };
+
+
+DMZ.Vector.prototype.normalized = function () {
+
+   var mag = Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z));
+   var div = 0.0;
+
+   if (mag > DMZ.Core.Epsilon) {
+
+      div = 1 / mag;
+   }
+
+   return this.multiplyConst (div);
+}
 
 
 DMZ.Vector.prototype.add = function (vec) {
