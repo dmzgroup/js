@@ -1,3 +1,4 @@
+#include <dmzJsExtV8.h>
 #include "dmzJsModuleV8Basic.h"
 #include <dmzJsKernelEmbed.h>
 #include <dmzJsV8Util.h>
@@ -90,11 +91,14 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (const PluginInfo &Info, Config &local) :
 
 dmz::JsModuleV8Basic::~JsModuleV8Basic () {
 
+   _extTable.clear ();
+
    if (_stHead) { delete _stHead; }
    _stTail = 0;
    if (_scriptList) { delete _scriptList; _scriptList = 0; }
    if (_kernelList) { delete _kernelList; _kernelList = 0; }
 
+   _root.Dispose ();
    _context.Dispose ();
 }
 
@@ -110,6 +114,7 @@ dmz::JsModuleV8Basic::update_plugin_state (
       _init_context ();
       _load_kernel ();
       _run_scripts (_kernelList);
+      _init_ext ();
       _load_scripts ();
       _run_scripts (_scriptList);
    }
@@ -132,9 +137,23 @@ dmz::JsModuleV8Basic::discover_plugin (
 
    if (Mode == PluginDiscoverAdd) {
 
+      JsExtV8 *ext = JsExtV8::cast (PluginPtr);
+
+      if (ext && _extTable.store (ext->get_js_ext_v8_handle (), ext)) {
+
+         ext->store_js_module_v8 (*this);
+         if (!_context.IsEmpty ()) { ext->open_js_v8_extension (_context, _root); }
+      }
    }
    else if (Mode == PluginDiscoverRemove) {
 
+      JsExtV8 *ext = JsExtV8::cast (PluginPtr);
+
+      if (ext && _extTable.remove (ext->get_js_ext_v8_handle ())) {
+
+         if (!_context.IsEmpty ()) { ext->close_js_v8_extension (_context, _root); }
+         ext->remove_js_module_v8 (*this);
+      }
    }
 }
 
@@ -160,6 +179,7 @@ dmz::JsModuleV8Basic::add_stack_trace (
 void
 dmz::JsModuleV8Basic::_init_context () {
 
+   if (!_root.IsEmpty ()) { _root.Dispose (); _root.Clear (); }
    if (!_context.IsEmpty ()) { _context.Dispose (); _context.Clear (); }
 
    char flags[] = "--expose_debug_as V8";
@@ -174,11 +194,11 @@ dmz::JsModuleV8Basic::_init_context () {
 
    if (!global.IsEmpty ()) {
 
-      v8::Handle<v8::Object> obj = v8::Object::New ();
+      _root = v8::Persistent<v8::Object>::New (v8::Object::New ());
       v8::Handle<v8::Object> debug = v8::Object::New ();
-      obj->Set (v8::String::New ("Debug"), debug);
+      _root->Set (v8::String::New ("Debug"), debug);
 
-      global->Set (v8::String::New (LocalDMZName), obj);
+      global->Set (v8::String::New (LocalDMZName), _root);
 
       global->Set (
          v8::String::New ("print"),
@@ -193,6 +213,19 @@ dmz::JsModuleV8Basic::_init_context () {
             v8::External::Wrap (this))->GetFunction ());
    }
    else { _log.error << "No global object." << endl; }
+}
+
+
+void
+dmz::JsModuleV8Basic::_init_ext () {
+
+   HashTableHandleIterator it;
+   JsExtV8 *ext (0);
+
+   while (_extTable.get_next (it, ext)) {
+
+      ext->open_js_v8_extension (_context, _root);
+   }
 }
 
 
@@ -298,7 +331,6 @@ dmz::JsModuleV8Basic::_load_kernel () {
          }
       }
    }
-
  
    V8EmbeddedBuffer *buffer = new V8EmbeddedBuffer (
       get_v8_internal_text (0),

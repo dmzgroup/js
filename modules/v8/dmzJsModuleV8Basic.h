@@ -6,8 +6,11 @@
 #include <dmzRuntimePlugin.h>
 #include <dmzRuntimeResources.h>
 #include <dmzSystemFile.h>
+#include <dmzTypesHashTableHandleTemplate.h>
 
 namespace dmz {
+
+   class JsExtV8;
 
    class JsModuleV8Basic :
          public Plugin,
@@ -100,6 +103,7 @@ namespace dmz {
          };
 
          void _init_context ();
+         void _init_ext ();
          void _handle_exception (v8::TryCatch &tc);
          void _load_kernel ();
          void _load_scripts ();
@@ -112,7 +116,10 @@ namespace dmz {
 
          PathContainer _localPaths;
 
+         HashTableHandleTemplate<JsExtV8> _extTable;
+
          v8::Persistent<v8::Context> _context;
+         v8::Persistent<v8::Object> _root;
 
          ScriptStruct *_kernelList;
          ScriptStruct *_scriptList;

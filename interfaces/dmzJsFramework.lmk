@@ -1,4 +1,5 @@
 lmk.set_name "dmzJsFramework"
 lmk.add_files {
    "dmzJsModuleV8.h",
+   "dmzJsExtV8.h",
 }
