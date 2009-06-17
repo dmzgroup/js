@@ -1,5 +1,5 @@
-#ifndef DMZ_JS_V8_UTIL_DOT_H
-#define DMZ_JS_V8_UTIL_DOT_H
+#ifndef DMZ_JS_V8_UTIL_STRINGS_DOT_H
+#define DMZ_JS_V8_UTIL_STRINGS_DOT_H
 
 #include <dmzJsV8UtilExport.h>
 #include <dmzTypesBase.h>
@@ -9,12 +9,12 @@
 
 namespace dmz {
 
-class DMZ_JS_V8_UTIL_LINK_SYMBOL V8FileBuffer :
+class DMZ_JS_V8_UTIL_LINK_SYMBOL V8FileString :
       public v8::String::ExternalAsciiStringResource {
 
    public:
-      V8FileBuffer (const String &FileName);
-      virtual ~V8FileBuffer ();
+      V8FileString (const String &FileName);
+      virtual ~V8FileString ();
 
       String get_file_name () const;
       // ExternalAsciiStringResource Interface.
@@ -26,17 +26,17 @@ class DMZ_JS_V8_UTIL_LINK_SYMBOL V8FileBuffer :
       State &_state;
 
    private:
-      V8FileBuffer ();
-      V8FileBuffer (const V8FileBuffer &);
-      V8FileBuffer &operator= (const V8FileBuffer &);
+      V8FileString ();
+      V8FileString (const V8FileString &);
+      V8FileString &operator= (const V8FileString &);
 };
 
-class DMZ_JS_V8_UTIL_LINK_SYMBOL V8EmbeddedBuffer :
+class DMZ_JS_V8_UTIL_LINK_SYMBOL V8EmbeddedString :
       public v8::String::ExternalAsciiStringResource {
 
    public:
-      V8EmbeddedBuffer (const char *Buffer, const size_t Length);
-      virtual ~V8EmbeddedBuffer ();
+      V8EmbeddedString (const char *Buffer, const size_t Length);
+      virtual ~V8EmbeddedString ();
 
       // ExternalAsciiStringResource Interface.
       virtual const char *data () const;
@@ -47,11 +47,11 @@ class DMZ_JS_V8_UTIL_LINK_SYMBOL V8EmbeddedBuffer :
       State &_state;
 
    private:
-      V8EmbeddedBuffer ();
-      V8EmbeddedBuffer (const V8EmbeddedBuffer &);
-      V8EmbeddedBuffer &operator= (const V8EmbeddedBuffer &);
+      V8EmbeddedString ();
+      V8EmbeddedString (const V8EmbeddedString &);
+      V8EmbeddedString &operator= (const V8EmbeddedString &);
 };
 
 };
 
-#endif // DMZ_JS_V8_UTIL_DOT_H
+#endif // DMZ_JS_V8_UTIL_STRINGS_DOT_H

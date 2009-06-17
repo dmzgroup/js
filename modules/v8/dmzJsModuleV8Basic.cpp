@@ -1,7 +1,8 @@
 #include <dmzJsExtV8.h>
 #include "dmzJsModuleV8Basic.h"
 #include <dmzJsKernelEmbed.h>
-#include <dmzJsV8Util.h>
+#include <dmzJsV8UtilConvert.h>
+#include <dmzJsV8UtilStrings.h>
 #include <dmzRuntimeConfig.h>
 #include <dmzRuntimeConfigToTypesBase.h>
 #include <dmzRuntimeConfigToPathContainer.h>
@@ -46,7 +47,7 @@ local_print (const v8::Arguments &args) {
       *out << dmz::endl;
    }
 
-   return v8::Undefined();
+   return scope.Close (v8::Undefined());
 }
 
 
@@ -68,7 +69,7 @@ local_add_stack_trace (const v8::Arguments &args) {
          *(v8::String::Utf8Value (args[4]))); // Code
    }
 
-   return v8::Undefined();
+   return scope.Close (v8::Undefined());
 }
 
 };
@@ -195,6 +196,7 @@ dmz::JsModuleV8Basic::_init_context () {
    if (!global.IsEmpty ()) {
 
       _root = v8::Persistent<v8::Object>::New (v8::Object::New ());
+
       v8::Handle<v8::Object> debug = v8::Object::New ();
       _root->Set (v8::String::New ("Debug"), debug);
 
@@ -308,7 +310,7 @@ dmz::JsModuleV8Basic::_load_kernel () {
 
    for (int ix = 0; ix < Count; ix++) {
 
-      V8EmbeddedBuffer *buffer = new V8EmbeddedBuffer (
+      V8EmbeddedString *buffer = new V8EmbeddedString (
          get_embedded_js_text (ix),
          get_embedded_js_length (ix));
 
@@ -332,7 +334,7 @@ dmz::JsModuleV8Basic::_load_kernel () {
       }
    }
  
-   V8EmbeddedBuffer *buffer = new V8EmbeddedBuffer (
+   V8EmbeddedString *buffer = new V8EmbeddedString (
       get_v8_internal_text (0),
       get_v8_internal_length (0));
 
@@ -370,7 +372,7 @@ dmz::JsModuleV8Basic::_load_scripts () {
       current->clear ();
       
       v8::TryCatch tc;
-      V8FileBuffer *sptr = new V8FileBuffer (current->FileName);
+      V8FileString *sptr = new V8FileString (current->FileName);
 
       v8::Handle<v8::Script> script = v8::Script::Compile (
          v8::String::NewExternal (sptr),
@@ -452,6 +454,8 @@ dmz::JsModuleV8Basic::_init (Config &local) {
          }
       }
    }
+
+   _log.info << "Using V8 v" << v8::V8::GetVersion () << endl;
 }
 
 

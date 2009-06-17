@@ -1,9 +1,9 @@
-#include <dmzJsV8Util.h>
+#include <dmzJsV8UtilStrings.h>
 #include <dmzSystemFile.h>
 
 #include <string.h>
 
-struct dmz::V8FileBuffer::State {
+struct dmz::V8FileString::State {
 
    const String FileName;
    char *buffer;
@@ -47,25 +47,25 @@ struct dmz::V8FileBuffer::State {
 };
 
 
-dmz::V8FileBuffer::V8FileBuffer (const String &FileName) :
+dmz::V8FileString::V8FileString (const String &FileName) :
       _state (*(new State (FileName))) {;}
 
 
-dmz::V8FileBuffer::~V8FileBuffer () { delete &_state; }
+dmz::V8FileString::~V8FileString () { delete &_state; }
 
 dmz::String
-dmz::V8FileBuffer::get_file_name () const { return _state.FileName; }
+dmz::V8FileString::get_file_name () const { return _state.FileName; }
 
 
 const char *
-dmz::V8FileBuffer::data () const { return _state.buffer; } 
+dmz::V8FileString::data () const { return _state.buffer; } 
 
 
 size_t
-dmz::V8FileBuffer::length () const { return _state.length; }
+dmz::V8FileString::length () const { return _state.length; }
 
 
-struct dmz::V8EmbeddedBuffer::State {
+struct dmz::V8EmbeddedString::State {
 
    const char *Buffer;
    const size_t Length;
@@ -78,17 +78,17 @@ struct dmz::V8EmbeddedBuffer::State {
 };
 
 
-dmz::V8EmbeddedBuffer::V8EmbeddedBuffer (const char *Buffer, const size_t Length) :
+dmz::V8EmbeddedString::V8EmbeddedString (const char *Buffer, const size_t Length) :
       _state (*(new State (Buffer, Length))) {;}
 
 
-dmz::V8EmbeddedBuffer::~V8EmbeddedBuffer () { delete &_state; }
+dmz::V8EmbeddedString::~V8EmbeddedString () { delete &_state; }
 
 
 const char *
-dmz::V8EmbeddedBuffer::data () const { return _state.Buffer; } 
+dmz::V8EmbeddedString::data () const { return _state.Buffer; } 
 
 
 size_t
-dmz::V8EmbeddedBuffer::length () const { return _state.Length; }
+dmz::V8EmbeddedString::length () const { return _state.Length; }
 
