@@ -4,11 +4,18 @@
 #include <dmzJsV8UtilExport.h>
 #include <dmzJsV8UtilTypes.h>
 #include <dmzTypesMatrix.h>
+#include <dmzTypesUUID.h>
 #include <dmzTypesVector.h>
 
 #include <v8.h>
 
 namespace dmz {
+
+DMZ_JS_V8_UTIL_LINK_SYMBOL V8Value
+to_v8_uuid (const UUID &Value);
+
+DMZ_JS_V8_UTIL_LINK_SYMBOL UUID
+to_dmz_uuid (V8Value value);
 
 DMZ_JS_V8_UTIL_LINK_SYMBOL V8Value
 to_v8_vector (const Vector &Value, V8Object root = V8Object ());
@@ -21,6 +28,9 @@ to_v8_matrix (const Matrix &Value, V8Object root = V8Object ());
 
 DMZ_JS_V8_UTIL_LINK_SYMBOL Matrix
 to_dmz_matrix (V8Value value);
+
+String
+to_string (V8Value value);
 
 Float64
 to_number (V8Value value);
@@ -35,6 +45,21 @@ Boolean
 is_array (V8Value value);
 
 };
+
+
+inline dmz::String
+dmz::to_string (V8Value value) {
+
+   String result;
+
+   if ((value.IsEmpty () == false) && value->IsString ()) {
+
+      result = *(v8::String::AsciiValue (value->ToString ()));
+   }
+
+   return result;
+}
+
 
 inline dmz::Float64
 dmz::to_number (V8Value value) {

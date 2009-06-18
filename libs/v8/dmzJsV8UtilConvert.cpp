@@ -39,6 +39,25 @@ validate_root (dmz::V8Object &obj) {
 
 };
 
+
+dmz::V8Value
+dmz::to_v8_uuid (const UUID &Value) {
+
+   v8::HandleScope scope;
+
+   return scope.Close (v8::String::New (Value.to_string ().get_buffer ()));
+}
+
+
+dmz::UUID
+dmz::to_dmz_uuid (V8Value value) {
+
+   v8::HandleScope scope;
+
+   return UUID (to_string (value));
+}
+
+
 dmz::V8Value
 dmz::to_v8_vector (const Vector &Value, V8Object root) {
 
