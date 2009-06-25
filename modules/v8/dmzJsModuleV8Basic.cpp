@@ -8,7 +8,7 @@
 #include <dmzRuntimeConfigToPathContainer.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
-#include "dmzV8IntenralEmbed.h"
+#include <dmzV8IntenralEmbed.h>
 
 #include <strings.h>
 #include <stdio.h>
