@@ -5,7 +5,7 @@
 #include <dmzJsV8UtilStrings.h>
 #include <dmzRuntimeConfig.h>
 #include <dmzRuntimeConfigToTypesBase.h>
-#include <dmzRuntimeConfigToPathContainer.h>
+#include <dmzRuntimeConfigToStringContainer.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
 #include <dmzV8IntenralEmbed.h>
@@ -417,7 +417,7 @@ dmz::JsModuleV8Basic::_run_scripts (ScriptStruct *list) {
 void
 dmz::JsModuleV8Basic::_init (Config &local) {
 
-   _localPaths = config_to_path_container (local);
+   _localPaths = config_to_path_string_container (local);
 
    Config scriptList;
 

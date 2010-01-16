@@ -114,7 +114,7 @@ namespace dmz {
          StreamLog _out;
          Resources _rc;
 
-         PathContainer _localPaths;
+         StringContainer _localPaths;
 
          HashTableHandleTemplate<JsExtV8> _extTable;
 
