@@ -14,6 +14,12 @@ class DMZ_JS_V8_UTIL_LINK_SYMBOL V8FileString :
 
    public:
       V8FileString (const String &FileName);
+
+      V8FileString (
+         const String &FileName,
+         const String &Header,
+         const String &Footer);
+
       virtual ~V8FileString ();
 
       String get_file_name () const;
@@ -35,6 +41,7 @@ class DMZ_JS_V8_UTIL_LINK_SYMBOL V8EmbeddedString :
       public v8::String::ExternalAsciiStringResource {
 
    public:
+      V8EmbeddedString (String *ptr);
       V8EmbeddedString (const char *Buffer, const size_t Length);
       virtual ~V8EmbeddedString ();
 

@@ -15,6 +15,11 @@
 
 namespace {
 
+static const char LocalRequireHeader[] = "(function (exports, require) {\n";
+static const size_t LocalRequireHeaderLength = strlen (LocalRequireHeader);
+static const char LocalRequireFooter[] = "\n});";
+static const size_t LocalRequireFooterLength = strlen (LocalRequireFooter);
+
 static const char LocalDMZName[] = "DMZ";
 
 const char *
@@ -70,6 +75,25 @@ local_add_stack_trace (const v8::Arguments &args) {
    }
 
    return scope.Close (v8::Undefined());
+}
+
+
+v8::Handle<v8::Value>
+local_require (const v8::Arguments &args) {
+
+   v8::HandleScope scope;
+
+   dmz::JsModuleV8Basic *module =
+      (dmz::JsModuleV8Basic *)v8::External::Unwrap (args.Data ());
+
+   v8::Handle<v8::Value> result;
+
+   if (module) {
+
+      result = module->require (*(v8::String::Utf8Value (args[4])));
+   }
+
+   return scope.Close (result);
 }
 
 };
@@ -177,11 +201,58 @@ dmz::JsModuleV8Basic::add_stack_trace (
 }
 
 
+v8::Handle<v8::Object>
+dmz::JsModuleV8Basic::require (const String &Value) {
+
+   v8::HandleScope scope;
+
+   v8::Handle<v8::Object> result;
+
+   V8Object *ptr = _requireTable.lookup (Value);
+
+   if (ptr) { result = *ptr; }
+   else {
+
+      String scriptPath;
+      find_file (_localPaths, Value + ".js", scriptPath);
+
+      if (scriptPath) {
+
+      }
+      else if (Value.contains_sub ("dmz/")) {
+
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+void
+dmz::JsModuleV8Basic::_empty_require () {
+
+   HashTableStringIterator it;
+   v8::Persistent<v8::Object> *ptr (0);
+
+   while (_requireTable.get_next (it, ptr)) { ptr->Dispose (); ptr->Clear (); }
+
+   _requireTable.empty ();
+}
+
+
 void
 dmz::JsModuleV8Basic::_init_context () {
 
+   _empty_require ();
    if (!_root.IsEmpty ()) { _root.Dispose (); _root.Clear (); }
    if (!_context.IsEmpty ()) { _context.Dispose (); _context.Clear (); }
+   if (!_requireFunc.IsEmpty ()) { _requireFunc.Dispose (); _requireFunc.Clear (); }
+
+   if (_requireFuncTemplate.IsEmpty ()) {
+
+      _requireFuncTemplate = v8::Persistent<v8::FunctionTemplate>::New (
+         v8::FunctionTemplate::New (local_require, v8::External::Wrap (this)));
+   }
 
    char flags[] = "--expose_debug_as V8";
    v8::V8::SetFlagsFromString (flags, strlen (flags));
@@ -198,21 +269,24 @@ dmz::JsModuleV8Basic::_init_context () {
       _root = v8::Persistent<v8::Object>::New (v8::Object::New ());
 
       v8::Handle<v8::Object> debug = v8::Object::New ();
-      _root->Set (v8::String::New ("Debug"), debug);
+      _root->Set (v8::String::NewSymbol ("Debug"), debug);
 
-      global->Set (v8::String::New (LocalDMZName), _root);
+      global->Set (v8::String::NewSymbol (LocalDMZName), _root);
 
       global->Set (
-         v8::String::New ("print"),
+         v8::String::NewSymbol ("print"),
          v8::FunctionTemplate::New (
             local_print,
             v8::External::Wrap (&_out))->GetFunction ());
 
       debug->Set (
-         v8::String::New ("addStackTrace"),
+         v8::String::NewSymbol ("addStackTrace"),
          v8::FunctionTemplate::New (
             local_add_stack_trace,
             v8::External::Wrap (this))->GetFunction ());
+
+      _requireFunc = v8::Persistent<v8::Function>::New (
+         _requireFuncTemplate->GetFunction ());
    }
    else { _log.error << "No global object." << endl; }
 }

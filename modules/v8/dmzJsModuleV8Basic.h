@@ -7,6 +7,7 @@
 #include <dmzRuntimeResources.h>
 #include <dmzSystemFile.h>
 #include <dmzTypesHashTableHandleTemplate.h>
+#include <dmzTypesHashTableStringTemplate.h>
 
 namespace dmz {
 
@@ -38,6 +39,8 @@ namespace dmz {
             const Int32 Line,
             const Int32 Column,
             const String &Code);
+
+         v8::Handle<v8::Object> require (const String &Value);
 
       protected:
          struct ScriptStruct {
@@ -102,6 +105,7 @@ namespace dmz {
             }
          };
 
+         void _empty_require ();
          void _init_context ();
          void _init_ext ();
          void _handle_exception (v8::TryCatch &tc);
@@ -117,9 +121,12 @@ namespace dmz {
          StringContainer _localPaths;
 
          HashTableHandleTemplate<JsExtV8> _extTable;
+         HashTableStringTemplate<v8::Persistent<v8::Object> > _requireTable;
 
          v8::Persistent<v8::Context> _context;
          v8::Persistent<v8::Object> _root;
+         v8::Persistent<v8::FunctionTemplate> _requireFuncTemplate;
+         v8::Persistent<v8::Function> _requireFunc;
 
          ScriptStruct *_kernelList;
          ScriptStruct *_scriptList;
