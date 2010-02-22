@@ -7,6 +7,6 @@
 </plugin-list>
 <javascript>
    <path value="./scripts"/>
-   <script name="helloworld"/>
+   <instance name="helloworld"/>
 </javascript>
 </dmz>

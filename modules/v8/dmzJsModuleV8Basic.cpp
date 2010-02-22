@@ -15,10 +15,12 @@
 
 namespace {
 
+static const char LocalInstanceHeader[] = "(function (info, require) {\n";
+static const size_t LocalInstanceHeaderLength = strlen (LocalInstanceHeader);
 static const char LocalRequireHeader[] = "(function (exports, require) {\n";
 static const size_t LocalRequireHeaderLength = strlen (LocalRequireHeader);
-static const char LocalRequireFooter[] = "\n});";
-static const size_t LocalRequireFooterLength = strlen (LocalRequireFooter);
+static const char LocalFooter[] = "\n});";
+static const size_t LocalFooterLength = strlen (LocalFooter);
 
 static const char LocalDMZName[] = "DMZ";
 
@@ -105,8 +107,6 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (const PluginInfo &Info, Config &local) :
       _log (Info),
       _out ("", LogLevelOut, Info.get_context ()),
       _rc (Info),
-      _kernelList (0),
-      _scriptList (0),
       _stHead (0),
       _stTail (0) {
 
@@ -120,8 +120,6 @@ dmz::JsModuleV8Basic::~JsModuleV8Basic () {
 
    if (_stHead) { delete _stHead; }
    _stTail = 0;
-   if (_scriptList) { delete _scriptList; _scriptList = 0; }
-   if (_kernelList) { delete _kernelList; _kernelList = 0; }
 
    _root.Dispose ();
    _context.Dispose ();
@@ -137,11 +135,8 @@ dmz::JsModuleV8Basic::update_plugin_state (
    if (State == PluginStateInit) {
 
       _init_context ();
-      _load_kernel ();
-      _run_scripts (_kernelList);
       _init_ext ();
       _load_scripts ();
-      _run_scripts (_scriptList);
    }
    else if (State == PluginStateStart) {
 
@@ -207,20 +202,77 @@ dmz::JsModuleV8Basic::require (const String &Value) {
    v8::HandleScope scope;
 
    v8::Handle<v8::Object> result;
+   String scriptPath;
 
    V8Object *ptr = _requireTable.lookup (Value);
+
+   if (!ptr) {
+
+      find_file (_localPaths, Value + ".js", scriptPath);
+      if (scriptPath) { ptr = _requireTable.lookup (scriptPath); }
+   }
 
    if (ptr) { result = *ptr; }
    else {
 
-      String scriptPath;
-      find_file (_localPaths, Value + ".js", scriptPath);
+      v8::String::ExternalAsciiStringResource *sptr (0);
 
       if (scriptPath) {
-
+      
+         sptr = new V8FileString (scriptPath, LocalRequireHeader, LocalFooter);
       }
       else if (Value.contains_sub ("dmz/")) {
 
+      }
+
+      if (sptr) {
+
+         v8::TryCatch tc;
+
+         v8::Handle<v8::Script> script = v8::Script::Compile (
+            v8::String::NewExternal (sptr),
+            v8::String::New (scriptPath.get_buffer ()));
+
+         if (script.IsEmpty ()) { _handle_exception (tc); }
+         else {
+
+            v8::Handle<v8::Value> value = script->Run ();
+
+            if (value.IsEmpty ()) { _handle_exception (tc); }
+            else {
+
+               v8::Handle<v8::Function> func = v8::Handle<v8::Function>::Cast (value);
+
+               if (func.IsEmpty ()) {
+                  // Error! no function returned.
+                  _log.error << "No function returned from: " << scriptPath << endl;
+               }
+               else {
+
+                  v8::Persistent<v8::Object> *ptr = new v8::Persistent<v8::Object>;
+                  *ptr = v8::Persistent<v8::Object>::New (v8::Object::New ());
+
+                  if (_requireTable.store (scriptPath, ptr)) {
+
+                     result = *ptr;
+                     v8::Handle<v8::Value> argv[] = { result, _requireFunc };
+                     v8::Handle<v8::Value> value = func->Call (result, 2, argv);
+
+                     if (value.IsEmpty ()) { _handle_exception (tc); }
+                  }
+                  else {
+
+                     _log.error << "Failed to store require: " << scriptPath << endl;
+                     ptr->Dispose (); ptr->Clear ();
+                     delete ptr; ptr = 0;
+                  }
+               }
+            }
+         }
+      }
+      else {
+
+         _log.error << "Failed to load require script: " << Value << endl;
       }
    }
 
@@ -230,6 +282,8 @@ dmz::JsModuleV8Basic::require (const String &Value) {
 
 void
 dmz::JsModuleV8Basic::_empty_require () {
+
+   v8::HandleScope scope;
 
    HashTableStringIterator it;
    v8::Persistent<v8::Object> *ptr (0);
@@ -243,7 +297,10 @@ dmz::JsModuleV8Basic::_empty_require () {
 void
 dmz::JsModuleV8Basic::_init_context () {
 
+   v8::HandleScope scope;
+
    _empty_require ();
+
    if (!_root.IsEmpty ()) { _root.Dispose (); _root.Clear (); }
    if (!_context.IsEmpty ()) { _context.Dispose (); _context.Clear (); }
    if (!_requireFunc.IsEmpty ()) { _requireFunc.Dispose (); _requireFunc.Clear (); }
@@ -259,8 +316,7 @@ dmz::JsModuleV8Basic::_init_context () {
 
    _context = v8::Context::New ();
 
-   v8::Context::Scope scope (_context);
-   v8::HandleScope hscope;
+   v8::Context::Scope tmp (_context);
 
    v8::Handle<v8::Object> global = _context->Global ();
 
@@ -370,6 +426,7 @@ dmz::JsModuleV8Basic::_handle_exception (v8::TryCatch &tc) {
 }
 
 
+/*
 void
 dmz::JsModuleV8Basic::_load_kernel () {
 
@@ -431,6 +488,7 @@ dmz::JsModuleV8Basic::_load_kernel () {
       }
    }  
 }
+*/
 
 
 void
@@ -439,27 +497,69 @@ dmz::JsModuleV8Basic::_load_scripts () {
    v8::Context::Scope cscope (_context);
    v8::HandleScope hscope;
 
-   ScriptStruct *current (_scriptList);
+   HashTableStringIterator it;
+   ScriptStruct *info (0);
 
-   while (current) {
+   while (_scriptTable.get_next (it, info)) {
 
-      current->clear ();
+      info->clear ();
       
       v8::TryCatch tc;
-      V8FileString *sptr = new V8FileString (current->FileName);
+
+      V8FileString *sptr =
+         new V8FileString (info->FileName, LocalInstanceHeader, LocalFooter);
 
       v8::Handle<v8::Script> script = v8::Script::Compile (
          v8::String::NewExternal (sptr),
-         v8::String::New (current->FileName.get_buffer ()));
+         v8::String::New (info->FileName.get_buffer ()));
 
       if (script.IsEmpty ()) { _handle_exception (tc); }
-      else { current->script = v8::Persistent<v8::Script>::New (script); }
+      else {
 
-      current = current->next;
+         info->script = v8::Persistent<v8::Script>::New (script);
+         v8::Handle<v8::Value> value = info->script->Run ();
+
+         if (value.IsEmpty ()) { _handle_exception (tc); }
+         else {
+
+            v8::Handle<v8::Function> func = v8::Handle<v8::Function>::Cast (value);
+            if (func.IsEmpty ()) {
+               // Error! no function returned.
+               _log.error << "No function returned from: " << info->FileName << endl;
+            }
+            else {
+
+               info->ctor = v8::Persistent<v8::Function>::New (func);
+            }
+         }
+      }
+   }
+
+   it.reset ();
+   InstanceStruct *instance (0);
+
+   while (_instanceTable.get_next (it, instance)) {
+
+      if (!instance->script.ctor.IsEmpty ()) {
+
+         v8::TryCatch tc;
+
+         v8::Handle<v8::Object> info = v8::Object::New ();
+
+         info->Set (
+            v8::String::NewSymbol ("name"),
+            v8::String::New (instance->Name.get_buffer ()));
+
+         v8::Handle<v8::Value> argv[] = { info, _requireFunc };
+         v8::Handle<v8::Value> value = instance->script.ctor->Call (info, 2, argv);
+
+         if (value.IsEmpty ()) { _handle_exception (tc); }
+      }
    }
 }
 
 
+/*
 void
 dmz::JsModuleV8Basic::_run_scripts (ScriptStruct *list) {
 
@@ -486,6 +586,49 @@ dmz::JsModuleV8Basic::_run_scripts (ScriptStruct *list) {
       current = current->next;
    }
 }
+*/
+
+
+dmz::JsModuleV8Basic::ScriptStruct *
+dmz::JsModuleV8Basic::_find_script (Config &script) {
+
+   ScriptStruct *result (0);
+
+   const String Name = config_to_string ("name", script);
+
+   if (Name) {
+
+      String scriptPath = _rc.find_file (Name);
+
+      if (!scriptPath && (_localPaths.get_count () > 0)) {
+
+         find_file (_localPaths, Name + ".js", scriptPath);
+      }
+
+      if (scriptPath) {
+
+         result = _scriptTable.lookup (scriptPath);
+
+         if (!result) {
+
+            result = new ScriptStruct (Name, scriptPath);
+
+            if (!_scriptTable.store (scriptPath, result)) {
+
+               delete result; result = 0;
+               _log.error << "Failed to add script: " << scriptPath << endl
+                  << "Has script already been specified?" << endl;
+            }
+         }
+      }
+      else {
+
+         _log.error << "Failed to find script resource: " << Name << endl;
+      }
+   }
+
+   return result;
+}
 
 
 void
@@ -497,33 +640,34 @@ dmz::JsModuleV8Basic::_init (Config &local) {
 
    if (local.lookup_all_config ("script", scriptList)) {
 
-      ScriptStruct *last (0);
       ConfigIterator it;
       Config script;
 
-      while (scriptList.get_next_config (it, script)) {
+      while (scriptList.get_next_config (it, script)) { _find_script (script); }
+   }
 
-         const String Name = config_to_string ("name", script);
+   Config instanceList;
 
-         if (Name) {
+   if (local.lookup_all_config ("instance", instanceList)) {
 
-            String scriptPath = _rc.find_file (Name);
+      ConfigIterator it;
+      Config instance;
 
-            if (!scriptPath && (_localPaths.get_count () > 0)) {
+      while (instanceList.get_next_config (it, instance)) {
 
-               find_file (_localPaths, Name + ".js", scriptPath);
-            }
+         ScriptStruct *ss = _find_script (instance);
 
-            if (scriptPath) {
+         if (ss) {
 
-               ScriptStruct *ss = new ScriptStruct (scriptPath);
+            const String UniqueName = config_to_string ("unique", instance, ss->Name);
 
-               if (last) { last->next = ss; ss = last; }
-               else { _scriptList = last = ss; }
-            }
-            else {
+            InstanceStruct *ptr = new InstanceStruct (UniqueName, *ss);
 
-               _log.error << "Failed to find script resource: " << Name << endl;
+            if (!_instanceTable.store (UniqueName, ptr)) {
+
+               delete ptr; ptr = 0;
+               _log.error << "Script instance name: " << UniqueName << " is not unique."
+                  << endl;
             }
          }
       }

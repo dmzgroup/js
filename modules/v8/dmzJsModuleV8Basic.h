@@ -45,9 +45,10 @@ namespace dmz {
       protected:
          struct ScriptStruct {
 
+            const String Name;
             const String FileName;
             v8::Persistent<v8::Script> script;
-            ScriptStruct *next;
+            v8::Persistent<v8::Function> ctor;
 
             void clear () {
 
@@ -56,18 +57,29 @@ namespace dmz {
                   script.Dispose ();
                   script.Clear ();
                }
+
+               if (!ctor.IsEmpty ()) {
+
+                  ctor.Dispose ();
+                  ctor.Clear ();
+               }
             }
 
-            ScriptStruct (const String &TheFileName) :
-                  FileName (TheFileName),
-                  next (0) {;}
+            ScriptStruct (const String &TheName, const String &TheFileName) :
+                  Name (TheName),
+                  FileName (TheFileName) {;}
 
-            ~ScriptStruct () {
+            ~ScriptStruct () { clear (); }
+         };
 
-               clear ();
+         struct InstanceStruct {
 
-               if (next) { delete next; next = 0; }
-            }
+            const String Name;
+            ScriptStruct &script;
+
+            InstanceStruct (const String &TheName, ScriptStruct &theScript) :
+                  Name (TheName),
+                  script (theScript) {;}
          };
 
          struct StackTraceStruct {
@@ -109,9 +121,8 @@ namespace dmz {
          void _init_context ();
          void _init_ext ();
          void _handle_exception (v8::TryCatch &tc);
-         void _load_kernel ();
          void _load_scripts ();
-         void _run_scripts (ScriptStruct *list);
+         ScriptStruct *_find_script (Config &script);
          void _init (Config &local);
 
          Log _log;
@@ -120,6 +131,8 @@ namespace dmz {
 
          StringContainer _localPaths;
 
+         HashTableStringTemplate<ScriptStruct> _scriptTable;
+         HashTableStringTemplate<InstanceStruct> _instanceTable;
          HashTableHandleTemplate<JsExtV8> _extTable;
          HashTableStringTemplate<v8::Persistent<v8::Object> > _requireTable;
 
@@ -127,9 +140,6 @@ namespace dmz {
          v8::Persistent<v8::Object> _root;
          v8::Persistent<v8::FunctionTemplate> _requireFuncTemplate;
          v8::Persistent<v8::Function> _requireFunc;
-
-         ScriptStruct *_kernelList;
-         ScriptStruct *_scriptList;
 
          StackTraceStruct *_stHead;
          StackTraceStruct *_stTail;
