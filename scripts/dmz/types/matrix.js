@@ -1,6 +1,6 @@
-var util = require ('dmz/kernel/util')
+var util = require ('dmz/types/util')
 var Epsilon = util.constants.Epsilon
-var vector = require ('dmz/kernel/vector.js')
+var vector = require ('dmz/types/vector.js')
 
 var Matrix = function () 
 
@@ -14,6 +14,12 @@ exports.create = function () {
 
 
 Matrix.prototype.create = exports.create;
+
+
+Matrix.prototype.copy = function () {
+
+   return this.create().set(this);
+};
 
 
 Matrix.prototype.set = function () {

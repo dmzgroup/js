@@ -1,7 +1,7 @@
-var util = require('dmz/kernel/util')
+var util = require('dmz/types/util')
 var Epsilon = util.constants.Epsilon;
 
-Vector = function () {
+var Vector = function () {
 
    this.x = 0;
    this.y = 0;
@@ -15,6 +15,12 @@ exports.create = function () {
 
 
 Vector.prototype.create = exports.create;
+
+
+Vector.prototype.copy = function () {
+
+   return this.create().set(this);
+};
 
 
 Vector.prototype.toString = function () {
@@ -36,6 +42,39 @@ Vector.prototype.fromArray = function (values) {
 Vector.prototype.toArray = function () {
 
    return [this.x, this.y, this.z];
+};
+
+
+Vector.prototype.set = function () {
+
+   var vaules;
+
+   if (arguments.length === 1) {
+
+      var arg = arguments[0];
+
+      if (Vector.prototype.isPrototypeOf(arg)) {
+
+         values = [ arg.x, arg.y, arg.z ];
+      }
+      else if (Array.isArray(arg) && (arg.length === 3)) {
+
+         vaules = arg;
+      }
+      else { throw "Invalid Vector initialization value"; }
+   }
+   else if (arguments.length === 3) {
+
+      vaules = arguments;
+   } 
+   else { throw "Invalid number of parameters for Vector.set()"; }
+
+   if (vaules !== undefined) {
+
+      this.fromArray (vaules)
+   }
+
+   return this;
 };
 
 

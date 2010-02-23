@@ -70,7 +70,7 @@ local_require (const v8::Arguments &args) {
       result = module->require (*(v8::String::Utf8Value (args[0])));
    }
 
-   return scope.Close (result);
+   return result.IsEmpty () ? result : scope.Close (result);
 }
 
 };
