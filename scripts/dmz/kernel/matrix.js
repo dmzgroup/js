@@ -1,44 +1,42 @@
-// Requires dmz-core.js
-// Requires dmz-vector.js
+var util = require ('dmz/kernel/util')
+var Epsilon = util.constants.Epsilon
+var vector = require ('dmz/kernel/vector.js')
 
-DMZ.Matrix = function () {
+var Matrix = function () 
 
    this.v = [1, 0, 0, 0, 1, 0, 0, 0, 1];
 };
 
-DMZ.Matrix.create = function () {
+exports.create = function () {
 
-   return new DMZ.Matrix();
+   return new Matrix();
 };
 
 
-DMZ.Matrix.prototype.create = function () {
-
-   return new DMZ.Matrix();
-};
+Matrix.prototype.create = exports.create;
 
 
-DMZ.Matrix.prototype.set = function () {
+Matrix.prototype.set = function () {
 
    var vaules;
 
    if (arguments.length === 1) {
 
-      if (DMZ.Core.isArray (arguments[0].v)) {
+      if (Array.isArray (arguments[0].v)) {
 
          vaules = arguments[0].v;
       }
-      else if (DMZ.Core.isArray(arguments[0])) {
+      else if (Array.isArray(arguments[0])) {
 
          vaules = arguments[0];
       }
-      else { throw "Invalid DMZ.Matrix initialization value"; }
+      else { throw "Invalid Matrix initialization value"; }
    }
    else if (arguments.length === 9) {
 
       vaules = arguments;
    } 
-   else { throw "Invalid number of parameters for DMZ.Matrix.set()"; }
+   else { throw "Invalid number of parameters for Matrix.set()"; }
 
    if (vaules !== undefined) {
 
@@ -49,7 +47,7 @@ DMZ.Matrix.prototype.set = function () {
 };
 
 
-DMZ.Matrix.prototype.toString = function () {
+Matrix.prototype.toString = function () {
 
    return "[" + this.v[0] + ", " + this.v[1] + ", " + this.v[2] + ", " +
       this.v[3] + ", " + this.v[4] + ", " + this.v[5] + ", " +
@@ -57,7 +55,7 @@ DMZ.Matrix.prototype.toString = function () {
 };
 
 
-DMZ.Matrix.prototype.fromArray = function (values) {
+Matrix.prototype.fromArray = function (values) {
 
    if (values.length >= 9) {
 
@@ -68,7 +66,7 @@ DMZ.Matrix.prototype.fromArray = function (values) {
 };
 
 
-DMZ.Matrix.prototype.fromAxisAndAngle = function (axis, angle) {
+Matrix.prototype.fromAxisAndAngle = function (axis, angle) {
 
    var xyz = axis.normailized().toArray();
    var xx = xyz[0], yy = xyz[1], zz = xyz[2];A
@@ -91,7 +89,7 @@ DMZ.Matrix.prototype.fromAxisAndAngle = function (axis, angle) {
 };
 
 
-DMZ.Matrix.prototype.fromTwoVectors = function (fromVec, toVec) {
+Matrix.prototype.fromTwoVectors = function (fromVec, toVec) {
 
    var axis = fromVec.cross(toValue).normalized();
    var angle = toVec.getAngle(FromVec);
@@ -100,7 +98,7 @@ DMZ.Matrix.prototype.fromTwoVectors = function (fromVec, toVec) {
 };
 
 
-DMZ.Matrix.prototype.toArray = function () {
+Matrix.prototype.toArray = function () {
 
    return [this.v[0], this.v[1], this.v[2],
            this.v[3], this.v[4], this.v[5],
@@ -108,7 +106,7 @@ DMZ.Matrix.prototype.toArray = function () {
 };
 
 
-DMZ.Matrix.prototype.multiply = function (mat) {
+Matrix.prototype.multiply = function (mat) {
 
    var result = this.create();
    var sum = 0.0;
@@ -136,36 +134,40 @@ DMZ.Matrix.prototype.multiply = function (mat) {
 };
 
 
-DMZ.Matrix.prototype.transpose = function () {
+Matrix.prototype.transpose = function () {
 
    //0 1 2    0 3 6
    //3 4 5 => 1 4 7
    //6 7 8    2 5 8
 
-   return this.create().fromArray([this.v[0], this.v[3], this.v[6],
-                                   this.v[1], this.v[4], this.v[7],
-                                   this.v[2], this.v[5], this.v[8]]);
+   return this.create().fromArray(
+      [this.v[0], this.v[3], this.v[6],
+       this.v[1], this.v[4], this.v[7],
+       this.v[2], this.v[5], this.v[8]]);
 };
 
 
-DMZ.Matrix.prototype.negate = function () {
+Matrix.prototype.negate = function () {
 
-   return this.create().fromArray([-this.v[0], -this.v[1], -this.v[2],
-                                   -this.v[3], -this.v[4], -this.v[5],
-                                   -this.v[6], -this.v[7], -this.v[8]]);
+   return this.create().fromArray(
+      [-this.v[0], -this.v[1], -this.v[2],
+       -this.v[3], -this.v[4], -this.v[5],
+       -this.v[6], -this.v[7], -this.v[8]]);
 };
 
 
-DMZ.Matrix.prototype.transpose = function () {
+Matrix.prototype.invert = function () {
 
    var result;
-   var determinant = this.v[0] * (this.v[4] * this.v[8] - this.v[7] * this.v[5]) -
-                     this.v[1] * (this.v[3] * this.v[8] - this.v[6] * this.v[5]) +
-                     this.v[2] * (this.v[3] * this.v[7] - this.v[6] * this.v[4]);
 
-   if (Math.abs (determinant) >= DMZ.Core.Epsilon) {
+   var determinant =
+      this.v[0] * (this.v[4] * this.v[8] - this.v[7] * this.v[5]) -
+      this.v[1] * (this.v[3] * this.v[8] - this.v[6] * this.v[5]) +
+      this.v[2] * (this.v[3] * this.v[7] - this.v[6] * this.v[4]);
 
-      result = this.creat();
+   if (Math.abs (determinant) >= Epsilon) {
+
+      result = this.create();
       result.v[0] =  ((this.v[4] * this.v[8]) - (this.v[5] * this.v[7])) / determinant;
       result.v[1] = -((this.v[1] * this.v[8]) - (this.v[7] * this.v[2])) / determinant;
       result.v[2] =  ((this.v[1] * this.v[5]) - (this.v[4] * this.v[2])) / determinant;
@@ -181,18 +183,18 @@ DMZ.Matrix.prototype.transpose = function () {
 };
 
 
-DMZ.Matrix.prototype.transform = function (vec) {
+Matrix.prototype.transform = function (vec) {
 
-   var result = DMZ.Vector.create();
+   var result = vector.create();
 
-   if (DMZ.Core.hasFunction (vec, "toArray")) { 
+   if (util.hasFunction (vec, "toArray")) { 
 
       vec = vec.toArray();
    }
-   else if (DMZ.Core.isArray(vec) === false) {
+   else if (Array.isArray(vec) === false) {
 
       if (arguments.length >= 3) { vec = arguments; }
-      else { throw "Invalid argument(s) passed to DMZ.Matrix.transform"; }
+      else { throw "Invalid argument(s) passed to Matrix.transform"; }
    }
 
    return result.setXYZ (
@@ -202,15 +204,15 @@ DMZ.Matrix.prototype.transform = function (vec) {
 };
 
 
-DMZ.Matrix.prototype.isIdentity = function () {
+Matrix.prototype.isIdentity = function () {
 
-   return DMZ.Core.isZero(this.v[0] - 1.0) &&
-      DMZ.Core.isZero(this.v[1]) &&
-      DMZ.Core.isZero(this.v[2]) &&
-      DMZ.Core.isZero(this.v[3]) &&
-      DMZ.Core.isZero(this.v[4] - 1.0) &&
-      DMZ.Core.isZero(this.v[5]) &&
-      DMZ.Core.isZero(this.v[6]) &&
-      DMZ.Core.isZero(this.v[7]) &&
-      DMZ.Core.isZero(this.v[8] - 1.0);
+   return util.isZero(this.v[0] - 1.0) &&
+      util.isZero(this.v[1]) &&
+      util.isZero(this.v[2]) &&
+      util.isZero(this.v[3]) &&
+      util.isZero(this.v[4] - 1.0) &&
+      util.isZero(this.v[5]) &&
+      util.isZero(this.v[6]) &&
+      util.isZero(this.v[7]) &&
+      util.isZero(this.v[8] - 1.0);
 };

@@ -33,13 +33,6 @@ namespace dmz {
          // JsModuleV8 Interface
 
          // JsModuleV8Basic Interface
-         void add_stack_trace (
-            const Int32 Level,
-            const String &Script,
-            const Int32 Line,
-            const Int32 Column,
-            const String &Code);
-
          v8::Handle<v8::Object> require (const String &Value);
 
       protected:
@@ -82,43 +75,9 @@ namespace dmz {
                   script (theScript) {;}
          };
 
-         struct StackTraceStruct {
-
-            const Int32 Level;
-            const String Script;
-            const Int32 Line;
-            const Int32 Column;
-            const String Code;
-
-            StackTraceStruct *next;
-
-            StackTraceStruct (
-                  const Int32 TheLevel,
-                  const String &TheScript,
-                  const Int32 TheLine,
-                  const Int32 TheColumn,
-                  const String &TheCode) :
-                  Level (TheLevel),
-                  Script (TheScript),
-                  Line (TheLine),
-                  Column (TheColumn),
-                  Code (TheCode),
-                  next (0) {;}
-
-            ~StackTraceStruct () {
-
-               while (next) {
-
-                  StackTraceStruct *tmp = next;
-                  next = next->next;
-                  tmp->next = 0; // short circuit the recursive destructor.
-                  delete tmp; tmp = 0;
-               }
-            }
-         };
-
          void _empty_require ();
          void _init_context ();
+         void _init_builtins ();
          void _init_ext ();
          void _handle_exception (v8::TryCatch &tc);
          void _load_scripts ();
@@ -137,12 +96,8 @@ namespace dmz {
          HashTableStringTemplate<v8::Persistent<v8::Object> > _requireTable;
 
          v8::Persistent<v8::Context> _context;
-         v8::Persistent<v8::Object> _root;
          v8::Persistent<v8::FunctionTemplate> _requireFuncTemplate;
          v8::Persistent<v8::Function> _requireFunc;
-
-         StackTraceStruct *_stHead;
-         StackTraceStruct *_stTail;
 
       private:
          JsModuleV8Basic ();

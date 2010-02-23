@@ -1,31 +1,29 @@
-// Requires dmz-core.js
+var util = require('dmz/kernel/util')
+var Epsilon = util.constants.Epsilon;
 
-DMZ.Vector = function () {
+Vector = function () {
 
    this.x = 0;
    this.y = 0;
    this.z = 0;
 };
 
-DMZ.Vector.create = function () {
+exports.create = function () {
 
-   return new DMZ.Vector();
+   return new Vector();
 };
 
 
-DMZ.Vector.prototype.create = function () {
-
-   return new DMZ.Vector();
-};
+Vector.prototype.create = exports.create;
 
 
-DMZ.Vector.prototype.toString = function () {
+Vector.prototype.toString = function () {
 
    return "[" + this.x + ", " + this.y + ", " + this.z + "]";
 };
 
 
-DMZ.Vector.prototype.fromArray = function (values) {
+Vector.prototype.fromArray = function (values) {
 
    this.x = values[0];
    this.y = values[1];
@@ -35,13 +33,13 @@ DMZ.Vector.prototype.fromArray = function (values) {
 };
 
 
-DMZ.Vector.prototype.toArray = function () {
+Vector.prototype.toArray = function () {
 
    return [this.x, this.y, this.z];
 };
 
 
-DMZ.Vector.prototype.setXYZ = function (x, y, z) {
+Vector.prototype.setXYZ = function (x, y, z) {
    
    this.x = x;
    this.y = y;
@@ -51,19 +49,19 @@ DMZ.Vector.prototype.setXYZ = function (x, y, z) {
 };
 
 
-DMZ.Vector.prototype.magnitude = function () {
+Vector.prototype.magnitude = function () {
 
    var result = Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z));
-   return result > DMZ.Core.Epsilon ? result : 0.0;
+   return result > Epsilon ? result : 0.0;
 };
 
 
-DMZ.Vector.prototype.normalized = function () {
+Vector.prototype.normalized = function () {
 
    var mag = Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z));
    var div = 0.0;
 
-   if (mag > DMZ.Core.Epsilon) {
+   if (mag > Epsilon) {
 
       div = 1 / mag;
    }
@@ -72,31 +70,31 @@ DMZ.Vector.prototype.normalized = function () {
 }
 
 
-DMZ.Vector.prototype.add = function (vec) {
+Vector.prototype.add = function (vec) {
 
    return this.create().setXYZ(this.x + vec.x, this.y + vec.y, this.z + vec.z);
 };
 
 
-DMZ.Vector.prototype.subtract = function (vec) {
+Vector.prototype.subtract = function (vec) {
 
    return this.create().setXYZ(this.x - vec.x, this.y - vec.y, this.z - vec.z);
 };
 
 
-DMZ.Vector.prototype.multiplyConst = function (k) {
+Vector.prototype.multiplyConst = function (k) {
 
    return this.create().setXYZ(this.x * k, this.y * k, this.z * k)
 };
 
 
-DMZ.Vector.prototype.dot = function (vec) {
+Vector.prototype.dot = function (vec) {
 
    return (this.x * vec.x) + (this.y * vec.y) + (this.z * vec.z);
 };
 
 
-DMZ.Vector.prototype.cross = function (vec) {
+Vector.prototype.cross = function (vec) {
 
    return this.create().setXYZ(
       (this.y * vec.z) - (this.z * vec.y),
@@ -105,7 +103,7 @@ DMZ.Vector.prototype.cross = function (vec) {
 };
 
 
-DMZ.Vector.prototype.getAngle = function (vec) {
+Vector.prototype.getAngle = function (vec) {
 
    return Math.atan2(this.cross(vec).magnitude(), this.dot(vec));
 };

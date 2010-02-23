@@ -1,9 +1,6 @@
 #include <dmzJsV8UtilStrings.h>
 #include <dmzSystemFile.h>
 
-#include <qdb.h>
-static dmz::qdb out;
-
 #include <string.h>
 
 struct dmz::V8FileString::State {
@@ -25,6 +22,7 @@ struct dmz::V8FileString::State {
 
    void init () {
 
+      // size will be different than length if a Header and/or Footer is defined.
       size_t size  = get_file_size (FileName);
       length = size;
 
@@ -35,7 +33,6 @@ struct dmz::V8FileString::State {
 
          buffer = new char[length + 1];
 
-out << FileName << " " << length << endl;
          if (buffer) {
 
             buffer[length] = '\0';

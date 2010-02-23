@@ -8,7 +8,6 @@
 #include <dmzRuntimeConfigToStringContainer.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
-#include <dmzV8IntenralEmbed.h>
 
 #include <strings.h>
 #include <stdio.h>
@@ -21,8 +20,6 @@ static const char LocalRequireHeader[] = "(function (exports, require) {\n";
 static const size_t LocalRequireHeaderLength = strlen (LocalRequireHeader);
 static const char LocalFooter[] = "\n});";
 static const size_t LocalFooterLength = strlen (LocalFooter);
-
-static const char LocalDMZName[] = "DMZ";
 
 const char *
 to_c_string (const v8::String::Utf8Value& value) {
@@ -59,28 +56,6 @@ local_print (const v8::Arguments &args) {
 
 
 v8::Handle<v8::Value>
-local_add_stack_trace (const v8::Arguments &args) {
-
-   v8::HandleScope scope;
-
-   dmz::JsModuleV8Basic *module =
-      (dmz::JsModuleV8Basic *)v8::External::Unwrap (args.Data ());
-
-   if (module) {
-
-      module->add_stack_trace (
-         args[0]->Int32Value (), // Level
-         *(v8::String::Utf8Value (args[1])), // Script
-         args[2]->Int32Value () + 1, // Line, Add one since line count starts at zero.
-         args[3]->Int32Value (), // Column.
-         *(v8::String::Utf8Value (args[4]))); // Code
-   }
-
-   return scope.Close (v8::Undefined());
-}
-
-
-v8::Handle<v8::Value>
 local_require (const v8::Arguments &args) {
 
    v8::HandleScope scope;
@@ -92,7 +67,7 @@ local_require (const v8::Arguments &args) {
 
    if (module) {
 
-      result = module->require (*(v8::String::Utf8Value (args[4])));
+      result = module->require (*(v8::String::Utf8Value (args[0])));
    }
 
    return scope.Close (result);
@@ -106,9 +81,7 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (const PluginInfo &Info, Config &local) :
       JsModuleV8 (Info),
       _log (Info),
       _out ("", LogLevelOut, Info.get_context ()),
-      _rc (Info),
-      _stHead (0),
-      _stTail (0) {
+      _rc (Info) {
 
    _init (local);
 }
@@ -117,11 +90,6 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (const PluginInfo &Info, Config &local) :
 dmz::JsModuleV8Basic::~JsModuleV8Basic () {
 
    _extTable.clear ();
-
-   if (_stHead) { delete _stHead; }
-   _stTail = 0;
-
-   _root.Dispose ();
    _context.Dispose ();
 }
 
@@ -162,7 +130,7 @@ dmz::JsModuleV8Basic::discover_plugin (
       if (ext && _extTable.store (ext->get_js_ext_v8_handle (), ext)) {
 
          ext->store_js_module_v8 (*this);
-         if (!_context.IsEmpty ()) { ext->open_js_v8_extension (_context, _root); }
+//         if (!_context.IsEmpty ()) { ext->open_js_v8_extension (_context, _root); }
       }
    }
    else if (Mode == PluginDiscoverRemove) {
@@ -171,7 +139,7 @@ dmz::JsModuleV8Basic::discover_plugin (
 
       if (ext && _extTable.remove (ext->get_js_ext_v8_handle ())) {
 
-         if (!_context.IsEmpty ()) { ext->close_js_v8_extension (_context, _root); }
+//         if (!_context.IsEmpty ()) { ext->close_js_v8_extension (_context, _root); }
          ext->remove_js_module_v8 (*this);
       }
    }
@@ -179,23 +147,6 @@ dmz::JsModuleV8Basic::discover_plugin (
 
 
 // JsModuleV8Basic Interface
-void
-dmz::JsModuleV8Basic::add_stack_trace (
-      const Int32 Level,
-      const String &Script,
-      const Int32 Line,
-      const Int32 Column,
-      const String &Code) {
-
-   if ((Level == 0) && _stHead) { delete _stHead; _stHead = _stTail = 0; }
-
-   StackTraceStruct *next = new StackTraceStruct (Level, Script, Line, Column, Code);
-
-   if (_stTail) { _stTail->next = next; _stTail = next; }
-   else { _stHead = _stTail = next; }
-}
-
-
 v8::Handle<v8::Object>
 dmz::JsModuleV8Basic::require (const String &Value) {
 
@@ -227,6 +178,7 @@ dmz::JsModuleV8Basic::require (const String &Value) {
 
       if (sptr) {
 
+         _log.info << "Loaded required script: " << scriptPath << endl;
          v8::TryCatch tc;
 
          v8::Handle<v8::Script> script = v8::Script::Compile (
@@ -276,7 +228,7 @@ dmz::JsModuleV8Basic::require (const String &Value) {
       }
    }
 
-   return scope.Close (result);
+   return result.IsEmpty () ? result : scope.Close (result);
 }
 
 
@@ -301,7 +253,6 @@ dmz::JsModuleV8Basic::_init_context () {
 
    _empty_require ();
 
-   if (!_root.IsEmpty ()) { _root.Dispose (); _root.Clear (); }
    if (!_context.IsEmpty ()) { _context.Dispose (); _context.Clear (); }
    if (!_requireFunc.IsEmpty ()) { _requireFunc.Dispose (); _requireFunc.Clear (); }
 
@@ -311,52 +262,58 @@ dmz::JsModuleV8Basic::_init_context () {
          v8::FunctionTemplate::New (local_require, v8::External::Wrap (this)));
    }
 
-   char flags[] = "--expose_debug_as V8";
-   v8::V8::SetFlagsFromString (flags, strlen (flags));
+//   char flags[] = "--expose_debug_as V8";
+//   v8::V8::SetFlagsFromString (flags, strlen (flags));
 
    _context = v8::Context::New ();
 
    v8::Context::Scope tmp (_context);
 
-   v8::Handle<v8::Object> global = _context->Global ();
 
-   if (!global.IsEmpty ()) {
+   _init_builtins ();
 
-      _root = v8::Persistent<v8::Object>::New (v8::Object::New ());
+   _requireFunc = v8::Persistent<v8::Function>::New (
+      _requireFuncTemplate->GetFunction ());
+}
 
-      v8::Handle<v8::Object> debug = v8::Object::New ();
-      _root->Set (v8::String::NewSymbol ("Debug"), debug);
 
-      global->Set (v8::String::NewSymbol (LocalDMZName), _root);
+void
+dmz::JsModuleV8Basic::_init_builtins () {
 
-      global->Set (
-         v8::String::NewSymbol ("print"),
+   v8::HandleScope scope;
+
+   v8::Persistent<v8::Object> *ptr = new v8::Persistent<v8::Object>;
+
+   if (ptr) {
+
+      *ptr= v8::Persistent<v8::Object>::New (v8::Object::New ());
+
+      (*ptr)->Set (
+         v8::String::NewSymbol ("puts"),
          v8::FunctionTemplate::New (
             local_print,
             v8::External::Wrap (&_out))->GetFunction ());
 
-      debug->Set (
-         v8::String::NewSymbol ("addStackTrace"),
-         v8::FunctionTemplate::New (
-            local_add_stack_trace,
-            v8::External::Wrap (this))->GetFunction ());
+      if (!_requireTable.store ("sys", ptr)) {
 
-      _requireFunc = v8::Persistent<v8::Function>::New (
-         _requireFuncTemplate->GetFunction ());
+         ptr->Dispose (); ptr->Clear ();
+         delete ptr; ptr = 0;
+      }
    }
-   else { _log.error << "No global object." << endl; }
 }
 
 
 void
 dmz::JsModuleV8Basic::_init_ext () {
 
+   v8::HandleScope scope;
+
    HashTableHandleIterator it;
    JsExtV8 *ext (0);
 
    while (_extTable.get_next (it, ext)) {
 
-      ext->open_js_v8_extension (_context, _root);
+//      ext->open_js_v8_extension (_context, _root);
    }
 }
 
@@ -383,8 +340,6 @@ dmz::JsModuleV8Basic::_handle_exception (v8::TryCatch &tc) {
       const Int32 Line = message->GetLineNumber ();
       _log.error << FileName << ":" << Line << ": " << ExStr << endl;
 
-      if (!_stHead) {
-
          // Print line of source code.
          v8::String::Utf8Value sptr (message->GetSourceLine ());
          _log.error << to_c_string (sptr) << endl;
@@ -399,29 +354,9 @@ dmz::JsModuleV8Basic::_handle_exception (v8::TryCatch &tc) {
          line.repeat ("^", end - start);
 
          _log.error << " " << space << line << endl;
-      }
-   }
 
-   if (_stHead) {
-
-      _log.error << "Stack Trace:" << endl;
-
-      StackTraceStruct *current (_stHead);
-
-      while (current) {
-
-         _log.error << "-=-=-=-=-=-=-=-=-=-=- Level: " << current->Level
-            << " -=-=-=-=-=-=-=-=-=-=-" << endl;
-         _log.error << "Line:" << current->Line << ":" << current->Script << endl << endl;
-         _log.error << current->Code << endl;
-         String space;
-         space.repeat ("-", current->Column);
-         _log.error << space << "^" << endl;
-
-         current = current->next;
-      }
-
-      delete _stHead; _stHead = _stTail = 0;
+         v8::String::Utf8Value stack (tc.StackTrace());
+         _log.error << "Stack trace: " << endl << to_c_string (stack) << endl;
    }
 }
 
@@ -516,6 +451,8 @@ dmz::JsModuleV8Basic::_load_scripts () {
       if (script.IsEmpty ()) { _handle_exception (tc); }
       else {
 
+         _log.info << "Loaded script: " << info->FileName << endl;
+
          info->script = v8::Persistent<v8::Script>::New (script);
          v8::Handle<v8::Value> value = info->script->Run ();
 
@@ -554,6 +491,11 @@ dmz::JsModuleV8Basic::_load_scripts () {
          v8::Handle<v8::Value> value = instance->script.ctor->Call (info, 2, argv);
 
          if (value.IsEmpty ()) { _handle_exception (tc); }
+         else {
+
+            _log.info << "Created instance: " << instance->Name
+               << " from script: " << instance->script.FileName << endl;
+         }
       }
    }
 }
