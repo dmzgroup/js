@@ -27,19 +27,20 @@ Mask.prototype.clear = function () { this.bits = []; }
 
 Mask.prototype.toString = function () {
 
-   var size = (this.bits.length * 32) - 1,
+   var size = this.bits.length,
       bit = 0,
-      offset = 0,
-      place = size,
+      place = 0,
       result = '[';
 
-   for (place = size; place >= 0; place--) {
+   for (place = 0; place < size; place++) {
 
-      if ((place < size) && (((place + 1) % 32) === 0)) { result += " | "; }
-      else if ((((place + 1) % 4) === 0) && (result.length != 1)) { result += " "; }
-      bit = place % 32;
-      offset = Math.floor(place / 32);
-      result += this.bits[offset] & (1 << bit) ? "1" : "0";
+      if (place > 0) { result += " | "; }
+
+      for (bit = 31; bit >= 0; bit--) {
+
+         if ((bit < 31) && (((bit + 1) % 4) === 0)) { result += " "; }
+         result += this.bits[place] & (1 << bit) ? "1" : "0";
+      }
    }
 
    return result + "]";
