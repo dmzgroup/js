@@ -73,6 +73,22 @@ local_require (const v8::Arguments &args) {
    return result.IsEmpty () ? result : scope.Close (result);
 }
 
+
+v8::Handle<v8::Value>
+global_setter (
+      v8::Local<v8::String> property,
+      v8::Local<v8::Value> value,
+      const v8::AccessorInfo &info) {
+
+   v8::HandleScope scope;
+
+   dmz::String err ("Unable to create global variable: ");
+   v8::String::Utf8Value val (property);
+   err << to_c_string (val);
+
+   return v8::ThrowException (v8::String::New (err.get_buffer ()));
+}
+
 };
 
 
@@ -256,6 +272,14 @@ dmz::JsModuleV8Basic::_init_context () {
    if (!_context.IsEmpty ()) { _context.Dispose (); _context.Clear (); }
    if (!_requireFunc.IsEmpty ()) { _requireFunc.Dispose (); _requireFunc.Clear (); }
 
+   if (_globalTemplate.IsEmpty ()) {
+
+      _globalTemplate = v8::Persistent<v8::ObjectTemplate>::New (
+         v8::ObjectTemplate::New ());
+
+      _globalTemplate->SetNamedPropertyHandler (0, global_setter);
+   }
+
    if (_requireFuncTemplate.IsEmpty ()) {
 
       _requireFuncTemplate = v8::Persistent<v8::FunctionTemplate>::New (
@@ -265,10 +289,9 @@ dmz::JsModuleV8Basic::_init_context () {
 //   char flags[] = "--expose_debug_as V8";
 //   v8::V8::SetFlagsFromString (flags, strlen (flags));
 
-   _context = v8::Context::New ();
+   _context = v8::Context::New (0, _globalTemplate);
 
    v8::Context::Scope tmp (_context);
-
 
    _init_builtins ();
 

@@ -96,6 +96,7 @@ namespace dmz {
          HashTableStringTemplate<v8::Persistent<v8::Object> > _requireTable;
 
          v8::Persistent<v8::Context> _context;
+         v8::Persistent<v8::ObjectTemplate> _globalTemplate;
          v8::Persistent<v8::FunctionTemplate> _requireFuncTemplate;
          v8::Persistent<v8::Function> _requireFunc;
 

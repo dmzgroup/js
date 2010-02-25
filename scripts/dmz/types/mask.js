@@ -1,6 +1,4 @@
 var util = require('dmz/types/util');
-var Epsilon = util.constants.Epsilon;
-var puts = require('sys').puts;
 
 var Mask = function () {
 

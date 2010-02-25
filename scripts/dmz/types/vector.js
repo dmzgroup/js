@@ -1,5 +1,5 @@
 var util = require('dmz/types/util')
-var Epsilon = util.constants.Epsilon;
+var Epsilon = util.Epsilon;
 
 var Vector = function () {
 

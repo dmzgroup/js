@@ -22,3 +22,6 @@ puts(m1.bits.length);
 puts("Hello World: " + info.name);
 puts("v1 = " + v1.toString());
 puts("m1 = " + m1.toString());
+
+var date = new Date;
+puts(date.toString());
