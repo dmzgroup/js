@@ -36,13 +36,13 @@ Matrix.prototype.set = function () {
 
          vaules = arguments[0];
       }
-      else { throw "Invalid Matrix initialization value"; }
+      else { throw new Error("Invalid Matrix initialization value"); }
    }
    else if (arguments.length === 9) {
 
       vaules = arguments;
    } 
-   else { throw "Invalid number of parameters for Matrix.set()"; }
+   else { throw new Error("Invalid number of parameters for Matrix.set()"); }
 
    if (vaules !== undefined) {
 
@@ -200,7 +200,7 @@ Matrix.prototype.transform = function (vec) {
    else if (Array.isArray(vec) === false) {
 
       if (arguments.length >= 3) { vec = arguments; }
-      else { throw "Invalid argument(s) passed to Matrix.transform"; }
+      else { throw new Error("Invalid argument(s) passed to Matrix.transform"); }
    }
 
    return result.setXYZ (

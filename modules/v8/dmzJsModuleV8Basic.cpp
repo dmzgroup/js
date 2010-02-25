@@ -86,7 +86,7 @@ global_setter (
    v8::String::Utf8Value val (property);
    err << to_c_string (val);
 
-   return v8::ThrowException (v8::String::New (err.get_buffer ()));
+   return v8::ThrowException (v8::Exception::Error (v8::String::New (err.get_buffer ())));
 }
 
 };
@@ -378,7 +378,7 @@ dmz::JsModuleV8Basic::_handle_exception (v8::TryCatch &tc) {
 
          _log.error << " " << space << line << endl;
 
-         v8::String::Utf8Value stack (tc.StackTrace());
+         v8::String::Utf8Value stack (tc.StackTrace ());
          _log.error << "Stack trace: " << endl << to_c_string (stack) << endl;
    }
 }

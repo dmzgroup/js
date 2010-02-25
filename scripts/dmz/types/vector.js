@@ -61,13 +61,13 @@ Vector.prototype.set = function () {
 
          vaules = arg;
       }
-      else { throw "Invalid Vector initialization value"; }
+      else { throw new Error("Invalid Vector initialization value"); }
    }
    else if (arguments.length === 3) {
 
       vaules = arguments;
    } 
-   else { throw "Invalid number of parameters for Vector.set()"; }
+   else { throw new Error("Invalid number of parameters for Vector.set()"); }
 
    if (vaules !== undefined) {
 

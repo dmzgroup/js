@@ -4,7 +4,7 @@ Object.defineProperty(
    "Epsilon",
    {
       get: function () { return  0.000000001; },
-      set: function () { throw "Attempting to set constant value Epsilon."; }
+      set: function () { throw new Error("Attempting to set constant value Epsilon."); }
    }
 );
 

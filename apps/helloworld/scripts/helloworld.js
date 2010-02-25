@@ -6,7 +6,7 @@ var v1 = vector.create().set(1, 2, 3);
 
 var f1 = function () {
 
-   //foo.value = 1;
+   foo = 1;
 };
 
 var f2 = function () { f1(); };

@@ -87,7 +87,7 @@ Mask.prototype.set = function () {
 
       if (Array.isArray(arg)) { this.fromArray(arg); }
       else if (Array.isArray(arg.bits)) { this.fromArray(arg.bits); }
-      else { throw "Invalid values passed to Mask.set function."; }
+      else { throw new Error("Invalid values passed to Mask.set function."); }
    }
    
    return this;
