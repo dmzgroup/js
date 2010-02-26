@@ -1,15 +1,18 @@
-var util = require ('dmz/types/util')
-var Epsilon = util.Epsilon
-var vector = require ('dmz/types/vector.js')
+var util = require ('dmz/types/util');
+var Epsilon = util.Epsilon;
+var createError = util.createError;
+var vector = require ('dmz/types/vector.js');
 
-var Matrix = function () 
+var Matrix = function () {
 
    this.v = [1, 0, 0, 0, 1, 0, 0, 0, 1];
 };
 
 exports.create = function () {
 
-   return new Matrix();
+   var result = new Matrix();
+   if (arguments.length > 0) { result.set.apply(result, arguments); }
+   return result;
 };
 
 
@@ -18,7 +21,7 @@ Matrix.prototype.create = exports.create;
 
 Matrix.prototype.copy = function () {
 
-   return this.create().set(this);
+   return this.create(this);
 };
 
 
@@ -36,17 +39,17 @@ Matrix.prototype.set = function () {
 
          vaules = arguments[0];
       }
-      else { throw new Error("Invalid Matrix initialization value"); }
+      else { throw createError("Invalid Matrix initialization value"); }
    }
    else if (arguments.length === 9) {
 
       vaules = arguments;
    } 
-   else { throw new Error("Invalid number of parameters for Matrix.set()"); }
+   else { throw createError("Invalid number of parameters for Matrix.set()"); }
 
    if (vaules !== undefined) {
 
-      this.fromArray (vaules)
+      this.fromArray (vaules);
    }
 
    return this;
@@ -63,9 +66,11 @@ Matrix.prototype.toString = function () {
 
 Matrix.prototype.fromArray = function (values) {
 
+   var ix;
+
    if (values.length >= 9) {
 
-      for (var ix = 0; ix < 9; ix++) { this.v[ix] = values[ix] }
+      for (ix = 0; ix < 9; ix++) { this.v[ix] = values[ix]; }
    }
 
    return this;
@@ -74,12 +79,11 @@ Matrix.prototype.fromArray = function (values) {
 
 Matrix.prototype.fromAxisAndAngle = function (axis, angle) {
 
-   var xyz = axis.normailized().toArray();
-   var xx = xyz[0], yy = xyz[1], zz = xyz[2];A
-
-   var AngleSin = Math.sin(angle);
-   var AngleCos = Math.cos(angle);
-   var OneMinusAngleCos = 1.0 - AngleCos;
+   var xyz = axis.normailized().toArray(),
+      xx = xyz[0], yy = xyz[1], zz = xyz[2],
+      AngleSin = Math.sin(angle),
+      AngleCos = Math.cos(angle),
+      OneMinusAngleCos = 1.0 - AngleCos;
 
    this.v[0] =       (AngleCos) + (xx * xx * OneMinusAngleCos);
    this.v[1] = (-zz * AngleSin) + (xx * yy * OneMinusAngleCos);
@@ -97,8 +101,8 @@ Matrix.prototype.fromAxisAndAngle = function (axis, angle) {
 
 Matrix.prototype.fromTwoVectors = function (fromVec, toVec) {
 
-   var axis = fromVec.cross(toValue).normalized();
-   var angle = toVec.getAngle(FromVec);
+   var axis = fromVec.cross(toVec).normalized();
+   var angle = toVec.getAngle(fromVec);
 
    return this.fromAxisAndAngle(axis, angle);
 };
@@ -200,7 +204,7 @@ Matrix.prototype.transform = function (vec) {
    else if (Array.isArray(vec) === false) {
 
       if (arguments.length >= 3) { vec = arguments; }
-      else { throw new Error("Invalid argument(s) passed to Matrix.transform"); }
+      else { throw createError("Invalid argument(s) passed to Matrix.transform"); }
    }
 
    return result.setXYZ (

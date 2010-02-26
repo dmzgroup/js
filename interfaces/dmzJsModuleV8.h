@@ -21,7 +21,13 @@ namespace dmz {
          Handle get_js_module_v8_handle () const;
 
          // JsModuleV8 Interface
-         
+         virtual void reset () = 0;
+
+         virtual void add_require (
+            const String &Name,
+            v8::Persistent<v8::Object> object) = 0;
+
+         virtual v8::Handle<v8::Object> require (const String &Value) = 0;
 
       protected:
          JsModuleV8 (const PluginInfo &Info);

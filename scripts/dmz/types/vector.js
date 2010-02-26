@@ -1,4 +1,5 @@
-var util = require('dmz/types/util')
+var util = require('dmz/types/util');
+var createError = util.createError;
 var Epsilon = util.Epsilon;
 
 var Vector = function () {
@@ -10,7 +11,9 @@ var Vector = function () {
 
 exports.create = function () {
 
-   return new Vector();
+   var result = new Vector();
+   if (arguments.length > 0) { result.set.apply(result, arguments); }
+   return result;
 };
 
 
@@ -19,7 +22,7 @@ Vector.prototype.create = exports.create;
 
 Vector.prototype.copy = function () {
 
-   return this.create().set(this);
+   return this.create(this);
 };
 
 
@@ -47,11 +50,11 @@ Vector.prototype.toArray = function () {
 
 Vector.prototype.set = function () {
 
-   var vaules;
+   var values, arg;
 
    if (arguments.length === 1) {
 
-      var arg = arguments[0];
+      arg = arguments[0];
 
       if (Vector.prototype.isPrototypeOf(arg)) {
 
@@ -59,19 +62,19 @@ Vector.prototype.set = function () {
       }
       else if (Array.isArray(arg) && (arg.length === 3)) {
 
-         vaules = arg;
+         values = arg;
       }
-      else { throw new Error("Invalid Vector initialization value"); }
+      else { throw createError("Invalid Vector initialization value"); }
    }
    else if (arguments.length === 3) {
 
-      vaules = arguments;
+      values = arguments;
    } 
-   else { throw new Error("Invalid number of parameters for Vector.set()"); }
+   else { throw createError("Invalid number of parameters for Vector.set()"); }
 
-   if (vaules !== undefined) {
+   if (values !== undefined) {
 
-      this.fromArray (vaules)
+      this.fromArray (values);
    }
 
    return this;
@@ -97,8 +100,8 @@ Vector.prototype.magnitude = function () {
 
 Vector.prototype.normalized = function () {
 
-   var mag = Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z));
-   var div = 0.0;
+   var mag = Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z)),
+      div = 0.0;
 
    if (mag > Epsilon) {
 
@@ -106,7 +109,7 @@ Vector.prototype.normalized = function () {
    }
 
    return this.multiplyConst (div);
-}
+};
 
 
 Vector.prototype.add = function (vec) {
@@ -123,7 +126,7 @@ Vector.prototype.subtract = function (vec) {
 
 Vector.prototype.multiplyConst = function (k) {
 
-   return this.create().setXYZ(this.x * k, this.y * k, this.z * k)
+   return this.create().setXYZ(this.x * k, this.y * k, this.z * k);
 };
 
 

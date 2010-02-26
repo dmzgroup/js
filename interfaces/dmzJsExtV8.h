@@ -6,8 +6,6 @@
 #include <dmzTypesBase.h>
 #include <dmzTypesString.h>
 
-#include <v8.h>
-
 namespace dmz {
 
    class JsModuleV8;
@@ -24,15 +22,7 @@ namespace dmz {
 
          // JsExtV8 Interface
          virtual void store_js_module_v8 (JsModuleV8 &module) = 0;
-
-         virtual void open_js_v8_extension (
-            v8::Handle<v8::Context> &context,
-            v8::Handle<v8::Object> &root) = 0;
-
-         virtual void close_js_v8_extension (
-            v8::Handle<v8::Context> &context,
-            v8::Handle<v8::Object> &root) = 0;
-
+         virtual void init_js_v8_extension () = 0;
          virtual void remove_js_module_v8 (JsModuleV8 &module) = 0;
 
       protected:

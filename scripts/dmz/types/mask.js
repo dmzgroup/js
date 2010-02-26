@@ -1,4 +1,5 @@
 var util = require('dmz/types/util');
+var createError = util.createError;
 
 var Mask = function () {
 
@@ -7,7 +8,9 @@ var Mask = function () {
 
 exports.create = function () {
 
-   return new Mask();
+   var result = new Mask();
+   if (arguments.length > 0) { result.set.apply(result, arguments); }
+   return result;
 };
 
 
@@ -16,11 +19,11 @@ Mask.prototype.create = exports.create;
 
 Mask.prototype.copy = function () {
 
-   return this.create().set(this);
+   return this.create(this);
 };
 
 
-Mask.prototype.clear = function () { this.bits = []; }
+Mask.prototype.clear = function () { this.bits = []; };
 
 
 Mask.prototype.toString = function () {
@@ -79,7 +82,7 @@ Mask.prototype.toArray = function () {
 
 Mask.prototype.set = function () {
 
-   var arg = undefined;
+   var arg;
 
    if (arguments.length >= 1) {
 
@@ -87,7 +90,7 @@ Mask.prototype.set = function () {
 
       if (Array.isArray(arg)) { this.fromArray(arg); }
       else if (Array.isArray(arg.bits)) { this.fromArray(arg.bits); }
-      else { throw new Error("Invalid values passed to Mask.set function."); }
+      else { throw createError("Invalid values passed to Mask.set function."); }
    }
    
    return this;
@@ -106,13 +109,13 @@ Mask.prototype.bool = function () {
    }
 
    return result;
-}
+};
 
 
 Mask.prototype.contains = function (mask) {
 
    return this.and(mask).equals(mask).bool();
-}
+};
 
 
 Mask.prototype.unset = function (mask) {
@@ -130,7 +133,7 @@ Mask.prototype.unset = function (mask) {
    }
 
    return result;
-}
+};
 
 
 Mask.prototype.and = function (mask) {
@@ -138,7 +141,7 @@ Mask.prototype.and = function (mask) {
    var result = this.copy(),
       size = this.bits.length,
       ix = 0,
-      lenght = 0;
+      length = 0;
 
    if (Array.isArray(mask.bits)) {
 
@@ -151,7 +154,7 @@ Mask.prototype.and = function (mask) {
    }
 
    return result;
-}
+};
 
 
 Mask.prototype.or = function (mask) {
@@ -171,7 +174,7 @@ Mask.prototype.or = function (mask) {
    }
 
    return result;
-}
+};
 
 
 Mask.prototype.xor = function (mask) {
@@ -191,7 +194,7 @@ Mask.prototype.xor = function (mask) {
    }
 
    return result;
-}
+};
 
 
 Mask.prototype.not = function () {
@@ -205,7 +208,7 @@ Mask.prototype.not = function () {
    }
 
    return result;
-}
+};
 
 
 Mask.prototype.equal = function (mask) {
@@ -235,13 +238,13 @@ Mask.prototype.equal = function (mask) {
          else {
 
             count++;
-            if (count >= maxSize) { done = True; }
+            if (count >= maxSize) { done = true; }
          }
       }
    }
 
    return result;
-}
+};
 
 
 /*

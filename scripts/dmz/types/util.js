@@ -26,3 +26,8 @@ exports.hasFunction = function (obj, name) {
    return typeof obj[name] === "function";
 };
 
+
+exports.createError = function (message) {
+
+   return new Error (message);
+}

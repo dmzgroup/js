@@ -31,9 +31,13 @@ namespace dmz {
             const Plugin *PluginPtr);
 
          // JsModuleV8 Interface
+         virtual void reset ();
 
-         // JsModuleV8Basic Interface
-         v8::Handle<v8::Object> require (const String &Value);
+         virtual void add_require (
+            const String &Name,
+            v8::Persistent<v8::Object> object);
+
+         virtual v8::Handle<v8::Object> require (const String &Value);
 
       protected:
          struct ScriptStruct {
@@ -99,6 +103,9 @@ namespace dmz {
          v8::Persistent<v8::ObjectTemplate> _globalTemplate;
          v8::Persistent<v8::FunctionTemplate> _requireFuncTemplate;
          v8::Persistent<v8::Function> _requireFunc;
+
+         v8::Persistent<v8::FunctionTemplate> _logFuncTemplate;
+         v8::Persistent<v8::Function> _logFunc;
 
       private:
          JsModuleV8Basic ();

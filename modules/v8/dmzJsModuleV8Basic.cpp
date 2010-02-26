@@ -14,7 +14,7 @@
 
 namespace {
 
-static const char LocalInstanceHeader[] = "(function (info, require) {\n";
+static const char LocalInstanceHeader[] = "(function (self, require) {\n";
 static const size_t LocalInstanceHeaderLength = strlen (LocalInstanceHeader);
 static const char LocalRequireHeader[] = "(function (exports, require) {\n";
 static const size_t LocalRequireHeaderLength = strlen (LocalRequireHeader);
@@ -82,11 +82,168 @@ global_setter (
 
    v8::HandleScope scope;
 
-   dmz::String err ("Unable to create global variable: ");
+   dmz::String err ("Global variables forbidden. Unable to initialize: ");
    v8::String::Utf8Value val (property);
    err << to_c_string (val);
 
    return v8::ThrowException (v8::Exception::Error (v8::String::New (err.get_buffer ())));
+}
+
+
+dmz::Log *
+local_unwrap_log (v8::Handle<v8::Value> value) {
+
+   dmz::Log *result (0);
+   v8::Handle<v8::External> field = v8::Handle<v8::External>::Cast (value);
+   if (!field.IsEmpty ()) { result = (dmz::Log *)field->Value (); }
+
+   return result;
+}
+
+
+void
+local_to_log (dmz::StreamLog &log, const v8::Arguments &args) {
+
+   v8::HandleScope scope;
+
+   const int Length = args.Length ();
+   dmz::String out;
+
+   for (int ix = 0; ix < Length; ix++) {
+
+      if (ix > 0) { out << " "; }
+      v8::String::Utf8Value str (args[ix]->ToString ());
+      out << to_c_string (str);
+   }
+
+   log << out << dmz::endl;
+}
+
+
+v8::Handle<v8::Value>
+local_log_error (const v8::Arguments &args) {
+
+   v8::HandleScope scope;
+
+   dmz::Log *log = local_unwrap_log (args.This ()->GetInternalField (0));
+
+   if (log) { local_to_log (log->error, args); }
+
+   return args.This ();
+}
+
+
+v8::Handle<v8::Value>
+local_log_warn (const v8::Arguments &args) {
+
+   v8::HandleScope scope;
+
+   dmz::Log *log = local_unwrap_log (args.This ()->GetInternalField (0));
+
+   if (log) { local_to_log (log->warn, args); }
+
+   return args.This ();
+}
+
+
+v8::Handle<v8::Value>
+local_log_info (const v8::Arguments &args) {
+
+   v8::HandleScope scope;
+
+   dmz::Log *log = local_unwrap_log (args.This ()->GetInternalField (0));
+
+   if (log) { local_to_log (log->info, args); }
+
+   return args.This ();
+}
+
+
+v8::Handle<v8::Value>
+local_log_debug (const v8::Arguments &args) {
+
+   v8::HandleScope scope;
+
+   dmz::Log *log = local_unwrap_log (args.This ()->GetInternalField (0));
+
+   if (log) { local_to_log (log->debug, args); }
+
+   return args.This ();
+}
+
+
+v8::Handle<v8::Value>
+local_log_out (const v8::Arguments &args) {
+
+   v8::HandleScope scope;
+
+   dmz::Log *log = local_unwrap_log (args.This ()->GetInternalField (0));
+
+   if (log) { local_to_log (log->out, args); }
+
+   return args.This ();
+}
+
+
+v8::Persistent<v8::FunctionTemplate>
+local_create_log_template () {
+
+   v8::HandleScope scope;
+
+   v8::Handle<v8::FunctionTemplate> result = v8::FunctionTemplate::New ();
+
+   v8::Handle<v8::ObjectTemplate> instance = result->InstanceTemplate ();
+
+   instance->SetInternalFieldCount (1);
+
+   v8::Handle<v8::ObjectTemplate> proto = result->PrototypeTemplate ();
+
+   proto->Set ("error", v8::FunctionTemplate::New (local_log_error));
+   proto->Set ("warn", v8::FunctionTemplate::New (local_log_warn));
+   proto->Set ("info", v8::FunctionTemplate::New (local_log_info));
+   proto->Set ("debug", v8::FunctionTemplate::New (local_log_debug));
+   proto->Set ("out", v8::FunctionTemplate::New (local_log_out));
+
+   return v8::Persistent<v8::FunctionTemplate>::New (result);
+}
+
+
+void
+local_log_delete (v8::Persistent<v8::Value> object, void *param) {
+
+   if (param) {
+
+      dmz::Log *ptr = (dmz::Log *)param;
+
+      ptr->error << "Deleting Log" << dmz::endl;
+      delete ptr; ptr = 0;
+   }
+}
+
+
+v8::Handle<v8::Object>
+local_create_log_object (
+      const dmz::String &Name,
+      dmz::RuntimeContext *context,
+      v8::Handle<v8::Function> ctor) {
+
+   v8::HandleScope scope;
+
+   v8::Handle<v8::Object> result;
+
+   result = ctor->NewInstance ();
+
+   if (!result.IsEmpty ()) {
+
+      dmz::Log *log = new dmz::Log (Name, context);
+
+      result->SetInternalField (0, v8::External::New ((void *)log));
+
+      v8::Persistent<v8::Object> ptr = v8::Persistent<v8::Object>::New (result);
+      ptr.MakeWeak ((void *)log, local_log_delete);
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
 }
 
 };
@@ -106,7 +263,19 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (const PluginInfo &Info, Config &local) :
 dmz::JsModuleV8Basic::~JsModuleV8Basic () {
 
    _extTable.clear ();
+   _instanceTable.empty ();
+   _scriptTable.empty ();
+
+   _globalTemplate.Dispose ();
+   _requireFuncTemplate.Dispose ();
+   _requireFunc.Dispose ();
+   _logFuncTemplate.Dispose ();
+   _logFunc.Dispose ();
+
    _context.Dispose ();
+
+   while (!v8::V8::IdleNotification ()) {;}
+   v8::V8::Dispose ();
 }
 
 
@@ -146,7 +315,7 @@ dmz::JsModuleV8Basic::discover_plugin (
       if (ext && _extTable.store (ext->get_js_ext_v8_handle (), ext)) {
 
          ext->store_js_module_v8 (*this);
-//         if (!_context.IsEmpty ()) { ext->open_js_v8_extension (_context, _root); }
+         if (!_context.IsEmpty ()) { ext->init_js_v8_extension (); }
       }
    }
    else if (Mode == PluginDiscoverRemove) {
@@ -155,14 +324,27 @@ dmz::JsModuleV8Basic::discover_plugin (
 
       if (ext && _extTable.remove (ext->get_js_ext_v8_handle ())) {
 
-//         if (!_context.IsEmpty ()) { ext->close_js_v8_extension (_context, _root); }
          ext->remove_js_module_v8 (*this);
       }
    }
 }
 
 
-// JsModuleV8Basic Interface
+// JsModuleV8 Interface
+void
+dmz::JsModuleV8Basic::reset () {
+
+}
+
+
+void
+dmz::JsModuleV8Basic::add_require (            
+      const String &Name,
+      v8::Persistent<v8::Object> object) {
+
+}
+
+
 v8::Handle<v8::Object>
 dmz::JsModuleV8Basic::require (const String &Value) {
 
@@ -270,7 +452,9 @@ dmz::JsModuleV8Basic::_init_context () {
    _empty_require ();
 
    if (!_context.IsEmpty ()) { _context.Dispose (); _context.Clear (); }
-   if (!_requireFunc.IsEmpty ()) { _requireFunc.Dispose (); _requireFunc.Clear (); }
+
+   _requireFunc.Dispose (); _requireFunc.Clear ();
+   _logFunc.Dispose (); _logFunc.Clear ();
 
    if (_globalTemplate.IsEmpty ()) {
 
@@ -286,6 +470,11 @@ dmz::JsModuleV8Basic::_init_context () {
          v8::FunctionTemplate::New (local_require, v8::External::Wrap (this)));
    }
 
+   if (_logFuncTemplate.IsEmpty ()) {
+
+      _logFuncTemplate = local_create_log_template ();
+   }
+
 //   char flags[] = "--expose_debug_as V8";
 //   v8::V8::SetFlagsFromString (flags, strlen (flags));
 
@@ -297,6 +486,8 @@ dmz::JsModuleV8Basic::_init_context () {
 
    _requireFunc = v8::Persistent<v8::Function>::New (
       _requireFuncTemplate->GetFunction ());
+
+   _logFunc = v8::Persistent<v8::Function>::New (_logFuncTemplate->GetFunction ());
 }
 
 
@@ -336,7 +527,7 @@ dmz::JsModuleV8Basic::_init_ext () {
 
    while (_extTable.get_next (it, ext)) {
 
-//      ext->open_js_v8_extension (_context, _root);
+      ext->init_js_v8_extension ();
    }
 }
 
@@ -504,14 +695,22 @@ dmz::JsModuleV8Basic::_load_scripts () {
 
          v8::TryCatch tc;
 
-         v8::Handle<v8::Object> info = v8::Object::New ();
+         v8::Handle<v8::Object> self = v8::Object::New ();
 
-         info->Set (
+         self->Set (
             v8::String::NewSymbol ("name"),
             v8::String::New (instance->Name.get_buffer ()));
 
-         v8::Handle<v8::Value> argv[] = { info, _requireFunc };
-         v8::Handle<v8::Value> value = instance->script.ctor->Call (info, 2, argv);
+         self->Set (
+            v8::String::NewSymbol ("log"),
+            local_create_log_object (
+               instance->Name,
+               get_plugin_runtime_context (),
+               _logFunc));
+
+         v8::Handle<v8::Value> argv[] = { self, _requireFunc };
+
+         v8::Handle<v8::Value> value = instance->script.ctor->Call (self, 2, argv);
 
          if (value.IsEmpty ()) { _handle_exception (tc); }
          else {
