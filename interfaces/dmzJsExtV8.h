@@ -13,6 +13,16 @@ namespace dmz {
    class JsExtV8 {
 
       public:
+         enum StateEnum {
+            Register,
+            Init,
+         };
+
+         enum ModeEnum {
+            Store,
+            Remove,
+         };
+
          static JsExtV8 *cast (
             const Plugin *PluginPtr,
             const String &PluginName = "");
@@ -21,9 +31,8 @@ namespace dmz {
          Handle get_js_ext_v8_handle () const;
 
          // JsExtV8 Interface
-         virtual void store_js_module_v8 (JsModuleV8 &module) = 0;
-         virtual void init_js_v8_extension () = 0;
-         virtual void remove_js_module_v8 (JsModuleV8 &module) = 0;
+         virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module) = 0;
+         virtual void update_js_ext_v8_state (const StateEnum State) = 0;
 
       protected:
          JsExtV8 (const PluginInfo &Info);

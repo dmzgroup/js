@@ -11,24 +11,6 @@
 
 namespace dmz {
 
-DMZ_JS_V8_UTIL_LINK_SYMBOL V8Value
-to_v8_uuid (const UUID &Value);
-
-DMZ_JS_V8_UTIL_LINK_SYMBOL UUID
-to_dmz_uuid (V8Value value);
-
-DMZ_JS_V8_UTIL_LINK_SYMBOL V8Value
-to_v8_vector (const Vector &Value, V8Object root = V8Object ());
-
-DMZ_JS_V8_UTIL_LINK_SYMBOL Vector
-to_dmz_vector (V8Value value);
-
-DMZ_JS_V8_UTIL_LINK_SYMBOL V8Value
-to_v8_matrix (const Matrix &Value, V8Object root = V8Object ());
-
-DMZ_JS_V8_UTIL_LINK_SYMBOL Matrix
-to_dmz_matrix (V8Value value);
-
 String
 to_string (V8Value value);
 

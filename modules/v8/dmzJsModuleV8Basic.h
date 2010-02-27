@@ -5,6 +5,7 @@
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
 #include <dmzRuntimeResources.h>
+#include <dmzRuntimeTimeSlice.h>
 #include <dmzSystemFile.h>
 #include <dmzTypesHashTableHandleTemplate.h>
 #include <dmzTypesHashTableStringTemplate.h>
@@ -15,7 +16,8 @@ namespace dmz {
 
    class JsModuleV8Basic :
          public Plugin,
-         public JsModuleV8 {
+         public JsModuleV8,
+         public TimeSlice {
 
       public:
          JsModuleV8Basic (const PluginInfo &Info, Config &local);
@@ -30,10 +32,13 @@ namespace dmz {
             const PluginDiscoverEnum Mode,
             const Plugin *PluginPtr);
 
-         // JsModuleV8 Interface
-         virtual void reset ();
+         // TimeSlice Interface
+         virtual void update_time_slice (const Float64 DeltaTime);
 
-         virtual void add_require (
+         // JsModuleV8 Interface
+         virtual void reset_v8 ();
+
+         virtual Boolean register_interface (
             const String &Name,
             v8::Persistent<v8::Object> object);
 

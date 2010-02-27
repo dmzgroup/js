@@ -90,17 +90,6 @@ global_setter (
 }
 
 
-dmz::Log *
-local_unwrap_log (v8::Handle<v8::Value> value) {
-
-   dmz::Log *result (0);
-   v8::Handle<v8::External> field = v8::Handle<v8::External>::Cast (value);
-   if (!field.IsEmpty ()) { result = (dmz::Log *)field->Value (); }
-
-   return result;
-}
-
-
 void
 local_to_log (dmz::StreamLog &log, const v8::Arguments &args) {
 
@@ -125,7 +114,7 @@ local_log_error (const v8::Arguments &args) {
 
    v8::HandleScope scope;
 
-   dmz::Log *log = local_unwrap_log (args.This ()->GetInternalField (0));
+   dmz::Log *log = (dmz::Log *)args.This ()->GetPointerFromInternalField (0);
 
    if (log) { local_to_log (log->error, args); }
 
@@ -138,7 +127,7 @@ local_log_warn (const v8::Arguments &args) {
 
    v8::HandleScope scope;
 
-   dmz::Log *log = local_unwrap_log (args.This ()->GetInternalField (0));
+   dmz::Log *log = (dmz::Log *)args.This ()->GetPointerFromInternalField (0);
 
    if (log) { local_to_log (log->warn, args); }
 
@@ -151,7 +140,7 @@ local_log_info (const v8::Arguments &args) {
 
    v8::HandleScope scope;
 
-   dmz::Log *log = local_unwrap_log (args.This ()->GetInternalField (0));
+   dmz::Log *log = (dmz::Log *)args.This ()->GetPointerFromInternalField (0);
 
    if (log) { local_to_log (log->info, args); }
 
@@ -164,7 +153,7 @@ local_log_debug (const v8::Arguments &args) {
 
    v8::HandleScope scope;
 
-   dmz::Log *log = local_unwrap_log (args.This ()->GetInternalField (0));
+   dmz::Log *log = (dmz::Log *)args.This ()->GetPointerFromInternalField (0);
 
    if (log) { local_to_log (log->debug, args); }
 
@@ -177,7 +166,7 @@ local_log_out (const v8::Arguments &args) {
 
    v8::HandleScope scope;
 
-   dmz::Log *log = local_unwrap_log (args.This ()->GetInternalField (0));
+   dmz::Log *log = (dmz::Log *)args.This ()->GetPointerFromInternalField (0);
 
    if (log) { local_to_log (log->out, args); }
 
@@ -251,6 +240,7 @@ local_create_log_object (
 
 dmz::JsModuleV8Basic::JsModuleV8Basic (const PluginInfo &Info, Config &local) :
       Plugin (Info),
+      TimeSlice (Info, TimeSliceTypeRuntime, TimeSliceModeSingle, 0.0),
       JsModuleV8 (Info),
       _log (Info),
       _out ("", LogLevelOut, Info.get_context ()),
@@ -287,9 +277,7 @@ dmz::JsModuleV8Basic::update_plugin_state (
 
    if (State == PluginStateInit) {
 
-      _init_context ();
-      _init_ext ();
-      _load_scripts ();
+      reset_v8 ();
    }
    else if (State == PluginStateStart) {
 
@@ -314,8 +302,13 @@ dmz::JsModuleV8Basic::discover_plugin (
 
       if (ext && _extTable.store (ext->get_js_ext_v8_handle (), ext)) {
 
-         ext->store_js_module_v8 (*this);
-         if (!_context.IsEmpty ()) { ext->init_js_v8_extension (); }
+         ext->update_js_module_v8 (JsExtV8::Store, *this);
+
+         if (!_context.IsEmpty ()) {
+
+            ext->update_js_ext_v8_state (JsExtV8::Register);
+            ext->update_js_ext_v8_state (JsExtV8::Init);
+         }
       }
    }
    else if (Mode == PluginDiscoverRemove) {
@@ -324,24 +317,47 @@ dmz::JsModuleV8Basic::discover_plugin (
 
       if (ext && _extTable.remove (ext->get_js_ext_v8_handle ())) {
 
-         ext->remove_js_module_v8 (*this);
+         ext->update_js_module_v8 (JsExtV8::Remove, *this);
       }
    }
 }
 
 
-// JsModuleV8 Interface
+// TimeSlice Interface
 void
-dmz::JsModuleV8Basic::reset () {
+dmz::JsModuleV8Basic::update_time_slice (const Float64 DeltaTime) {
 
+   _init_context ();
+   _init_ext ();
+   _load_scripts ();
 }
 
 
+// JsModuleV8 Interface
 void
-dmz::JsModuleV8Basic::add_require (            
+dmz::JsModuleV8Basic::reset_v8 () { start_time_slice (); }
+
+
+dmz::Boolean
+dmz::JsModuleV8Basic::register_interface (            
       const String &Name,
       v8::Persistent<v8::Object> object) {
 
+   Boolean result (False);
+
+   v8::HandleScope scope;
+   v8::Persistent<v8::Object> *ptr = new v8::Persistent<v8::Object>;
+   *ptr = object;
+
+   if (_requireTable.store (Name, ptr)) { result = True; }
+   else {
+
+      delete ptr; ptr = 0;
+      _log.error << "Failed to register interface: " << Name
+         << ". Name not unique?" << endl;
+   }
+
+   return result;
 }
 
 
@@ -527,7 +543,15 @@ dmz::JsModuleV8Basic::_init_ext () {
 
    while (_extTable.get_next (it, ext)) {
 
-      ext->init_js_v8_extension ();
+      ext->update_js_ext_v8_state (JsExtV8::Register);
+   }
+
+   it.reset ();
+   ext = 0;
+
+   while (_extTable.get_next (it, ext)) {
+
+      ext->update_js_ext_v8_state (JsExtV8::Init);
    }
 }
 
