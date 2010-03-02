@@ -3,12 +3,13 @@ require "lmkV8"
 lmkV8.set_name "dmzJsV8Util"
 lmk.set_type "shared"
 lmk.add_files {
-   "dmzJsV8UtilTypes.h",
    "dmzJsV8UtilConvert.h",
-   "dmzJsV8UtilStrings.h",
    "dmzJsV8UtilExport.h",
+   "dmzJsV8UtilHelpers.h",
+   "dmzJsV8UtilStrings.h",
+   "dmzJsV8UtilTypes.h",
 }
-lmk.add_files {"dmzJsV8UtilStrings.cpp",}
+lmk.add_files {"dmzJsV8UtilHelpers.cpp", "dmzJsV8UtilStrings.cpp",}
 lmk.add_libs {
    "dmzKernel",
 }

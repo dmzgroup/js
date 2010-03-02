@@ -28,16 +28,17 @@ namespace dmz {
 
          // JsModuleTypesV8 Interface
          virtual v8::Handle<v8::Object> to_v8_vector (const Vector &Value);
-         virtual Vector to_dmz_vector (const v8::Handle<v8::Object> Value);
+         virtual Vector to_dmz_vector (const v8::Handle<v8::Value> Value);
 
          virtual v8::Handle<v8::Object> to_v8_matrix (const Matrix &Value);
-         virtual Matrix to_dmz_matrix (const v8::Handle<v8::Object> Value);
+         virtual Matrix to_dmz_matrix (const v8::Handle<v8::Value> Value);
 
          virtual v8::Handle<v8::Object> to_v8_mask (const Mask &Value);
-         virtual Mask to_dmz_mask (const v8::Handle<v8::Object> Value);
+         virtual Mask to_dmz_mask (const v8::Handle<v8::Value> Value);
 
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
+         virtual void update_js_context_v8 (v8::Handle<v8::Context> context) {;}
          virtual void update_js_ext_v8_state (const StateEnum State);
 
       protected:

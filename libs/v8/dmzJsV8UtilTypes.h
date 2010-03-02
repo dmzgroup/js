@@ -19,6 +19,8 @@ typedef v8::Handle<v8::Array> V8Array;
 typedef v8::Persistent<v8::Array> V8ArrayPersist;
 typedef v8::Handle<v8::Number> V8Number;
 typedef v8::Persistent<v8::Number> V8NumberPersist;
+typedef v8::Handle<v8::External> V8External;
+typedef v8::Persistent<v8::External> V8ExternalPersist;
 
 };
 

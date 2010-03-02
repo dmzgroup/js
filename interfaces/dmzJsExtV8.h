@@ -6,6 +6,8 @@
 #include <dmzTypesBase.h>
 #include <dmzTypesString.h>
 
+#include <v8.h>
+
 namespace dmz {
 
    class JsModuleV8;
@@ -16,6 +18,7 @@ namespace dmz {
          enum StateEnum {
             Register,
             Init,
+            Shutdown,
          };
 
          enum ModeEnum {
@@ -32,6 +35,7 @@ namespace dmz {
 
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module) = 0;
+         virtual void update_js_context_v8 (v8::Handle<v8::Context> context) = 0;
          virtual void update_js_ext_v8_state (const StateEnum State) = 0;
 
       protected:

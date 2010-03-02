@@ -92,23 +92,25 @@ dmz::JsModuleTypesV8Basic::to_v8_vector (const Vector &Value) {
 
 
 dmz::Vector
-dmz::JsModuleTypesV8Basic::to_dmz_vector (const v8::Handle<v8::Object> Value) {
+dmz::JsModuleTypesV8Basic::to_dmz_vector (const v8::Handle<v8::Value> Value) {
 
    v8::HandleScope scope;
 
    Vector result;
 
-   if (!Value.IsEmpty ()) {
+   V8Object obj = V8Object::Cast (Value);
+
+   if (!obj.IsEmpty ()) {
 
       Float64 theX = 0.0, theY = 0.0, theZ = 0.0;
 
-      V8Number xnum = v8::Handle<v8::Number>::Cast (Value->Get (_xStr));
+      V8Number xnum = v8::Handle<v8::Number>::Cast (obj->Get (_xStr));
       if (!xnum.IsEmpty ()) { theX = xnum->Value (); }
 
-      V8Number ynum = v8::Handle<v8::Number>::Cast (Value->Get (_yStr));
+      V8Number ynum = v8::Handle<v8::Number>::Cast (obj->Get (_yStr));
       if (!ynum.IsEmpty ()) { theY = ynum->Value (); }
 
-      V8Number znum = v8::Handle<v8::Number>::Cast (Value->Get (_zStr));
+      V8Number znum = v8::Handle<v8::Number>::Cast (obj->Get (_zStr));
       if (!znum.IsEmpty ()) { theZ = znum->Value (); }
 
       result.set_xyz (theX, theY, theZ);
@@ -151,15 +153,17 @@ dmz::JsModuleTypesV8Basic::to_v8_matrix (const Matrix &Value) {
 
 
 dmz::Matrix
-dmz::JsModuleTypesV8Basic::to_dmz_matrix (const v8::Handle<v8::Object> Value) {
+dmz::JsModuleTypesV8Basic::to_dmz_matrix (const v8::Handle<v8::Value> Value) {
 
    v8::HandleScope scope;
 
    Matrix result;
 
-   if (!Value.IsEmpty ()) {
+   V8Object obj = V8Object::Cast (Value);
 
-      V8Array array = v8::Handle<v8::Array>::Cast (Value->Get (_vStr));
+   if (!obj.IsEmpty ()) {
+
+      V8Array array = v8::Handle<v8::Array>::Cast (obj->Get (_vStr));
 
       if (!array.IsEmpty ()) {
 
@@ -213,15 +217,17 @@ dmz::JsModuleTypesV8Basic::to_v8_mask (const Mask &Value) {
 
 
 dmz::Mask
-dmz::JsModuleTypesV8Basic::to_dmz_mask (const v8::Handle<v8::Object> Value) {
+dmz::JsModuleTypesV8Basic::to_dmz_mask (const v8::Handle<v8::Value> Value) {
 
    v8::HandleScope scope;
 
    Mask result;
 
-   if (!Value.IsEmpty ()) {
+   V8Object obj = V8Object::Cast (Value);
 
-      V8Array bits = V8Array::Cast (Value->Get (_bitsStr));
+   if (!obj.IsEmpty ()) {
+
+      V8Array bits = V8Array::Cast (obj->Get (_bitsStr));
 
       if (!bits.IsEmpty ()) {
 

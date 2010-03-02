@@ -1,7 +1,7 @@
 var util = require ('dmz/types/util');
 var Epsilon = util.Epsilon;
 var createError = util.createError;
-var vector = require ('dmz/types/vector.js');
+var vector = require ('dmz/types/vector');
 
 var Matrix = function () {
 

@@ -306,6 +306,7 @@ dmz::JsModuleV8Basic::discover_plugin (
 
          if (!_context.IsEmpty ()) {
 
+            ext->update_js_context_v8 (_context);
             ext->update_js_ext_v8_state (JsExtV8::Register);
             ext->update_js_ext_v8_state (JsExtV8::Init);
          }
@@ -328,6 +329,7 @@ void
 dmz::JsModuleV8Basic::update_time_slice (const Float64 DeltaTime) {
 
    _init_context ();
+   v8::Context::Scope cscope (_context);
    _init_ext ();
    _load_scripts ();
 }
@@ -336,6 +338,10 @@ dmz::JsModuleV8Basic::update_time_slice (const Float64 DeltaTime) {
 // JsModuleV8 Interface
 void
 dmz::JsModuleV8Basic::reset_v8 () { start_time_slice (); }
+
+
+v8::Handle<v8::Context>
+dmz::JsModuleV8Basic::get_v8_context () { return _context; }
 
 
 dmz::Boolean
@@ -375,6 +381,17 @@ dmz::JsModuleV8Basic::require (const String &Value) {
 
       find_file (_localPaths, Value + ".js", scriptPath);
       if (scriptPath) { ptr = _requireTable.lookup (scriptPath); }
+      else {
+
+         find_file (_localPaths, Value, scriptPath);
+
+         if (scriptPath) {
+
+            _log.warn << "Require parameter: " << Value
+               << " should not contain the .js suffix" << endl;
+            ptr = _requireTable.lookup (scriptPath);
+         }
+      }
    }
 
    if (ptr) { result = *ptr; }
@@ -496,7 +513,7 @@ dmz::JsModuleV8Basic::_init_context () {
 
    _context = v8::Context::New (0, _globalTemplate);
 
-   v8::Context::Scope tmp (_context);
+   v8::Context::Scope cscope (_context);
 
    _init_builtins ();
 
@@ -543,6 +560,7 @@ dmz::JsModuleV8Basic::_init_ext () {
 
    while (_extTable.get_next (it, ext)) {
 
+      ext->update_js_context_v8 (_context);
       ext->update_js_ext_v8_state (JsExtV8::Register);
    }
 

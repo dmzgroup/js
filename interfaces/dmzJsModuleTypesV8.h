@@ -25,13 +25,13 @@ namespace dmz {
 
          // JsModuleTypesV8 Interface
          virtual v8::Handle<v8::Object> to_v8_vector (const Vector &Value) = 0;
-         virtual Vector to_dmz_vector (const v8::Handle<v8::Object> Value) = 0;
+         virtual Vector to_dmz_vector (const v8::Handle<v8::Value> Value) = 0;
 
          virtual v8::Handle<v8::Object> to_v8_matrix (const Matrix &Value) = 0;
-         virtual Matrix to_dmz_matrix (const v8::Handle<v8::Object> Value) = 0;
+         virtual Matrix to_dmz_matrix (const v8::Handle<v8::Value> Value) = 0;
 
          virtual v8::Handle<v8::Object> to_v8_mask (const Mask &Value) = 0;
-         virtual Mask to_dmz_mask (const v8::Handle<v8::Object> Value) = 0;
+         virtual Mask to_dmz_mask (const v8::Handle<v8::Value> Value) = 0;
 
       protected:
          JsModuleTypesV8 (const PluginInfo &Info);

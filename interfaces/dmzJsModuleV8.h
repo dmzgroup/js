@@ -23,6 +23,8 @@ namespace dmz {
          // JsModuleV8 Interface
          virtual void reset_v8 () = 0;
 
+         virtual v8::Handle<v8::Context> get_v8_context () = 0;
+
          virtual Boolean register_interface (
             const String &Name,
             v8::Persistent<v8::Object> object) = 0;
