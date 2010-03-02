@@ -27,13 +27,35 @@ struct dmz::V8InterfaceHelper::State {
 dmz::V8InterfaceHelper::V8InterfaceHelper () : _state (*(new State)) {;}
 
 
-dmz::V8InterfaceHelper::~V8InterfaceHelper () { delete &_state; }
+dmz::V8InterfaceHelper::~V8InterfaceHelper () { reset (); delete &_state; }
 
 
 void
 dmz::V8InterfaceHelper::clear () {
 
-   _state.obj.Dispose ();
+   if (_state.obj.IsEmpty () == false) {
+
+      v8::HandleScope scope;
+
+      HashTableStringIterator it;
+      InterfaceStruct *current (0);
+
+      while (_state.table.get_next (it, current)) {
+
+         _state.obj->Set (
+            v8::String::NewSymbol (current->Name.get_buffer ()),
+            v8::Undefined ());
+      }
+
+      _state.obj.Dispose ();
+   }
+}
+
+
+void
+dmz::V8InterfaceHelper::reset () {
+
+   clear ();
    _state.table.empty ();
 }
 
@@ -67,7 +89,7 @@ dmz::V8InterfaceHelper::get_new_instance () {
 
    v8::HandleScope scope;
 
-   _state.obj.Dispose (); _state.obj.Clear ();
+   clear ();
 
    _state.obj = V8ObjectPersist::New (v8::Object::New ());
  

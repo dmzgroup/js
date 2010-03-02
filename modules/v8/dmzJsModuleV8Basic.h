@@ -13,6 +13,7 @@
 namespace dmz {
 
    class JsExtV8;
+   class JsModuleRuntimeV8;
 
    class JsModuleV8Basic :
          public Plugin,
@@ -98,6 +99,8 @@ namespace dmz {
          Log _log;
          StreamLog _out;
          Resources _rc;
+
+         JsModuleRuntimeV8 *_runtime;
 
          StringContainer _localPaths;
 

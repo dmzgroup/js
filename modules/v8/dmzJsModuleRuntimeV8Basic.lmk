@@ -1,0 +1,12 @@
+require 'lmkV8'
+
+lmkV8.set_name "dmzJsModuleRuntimeV8Basic"
+lmk.set_type "plugin"
+lmk.add_files {
+   "dmzJsModuleRuntimeV8Basic.cpp",
+   "dmzJsModuleRuntimeV8BasicLog.cpp",
+   "dmzJsModuleRuntimeV8BasicDefinitions.cpp",
+}
+lmk.add_libs {"dmzJsV8Util", "dmzKernel",}
+lmk.add_preqs {"dmzJsFramework",}
+lmkV8.add_libs ()
