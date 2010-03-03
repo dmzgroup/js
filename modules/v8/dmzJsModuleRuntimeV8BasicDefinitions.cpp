@@ -5,16 +5,6 @@
 #include <qdb.h>
 static dmz::qdb out;
 
-namespace {
-
-static inline dmz::JsModuleRuntimeV8Basic *
-local_self (const v8::Arguments &Args) {
-
-   return (dmz::JsModuleRuntimeV8Basic *)v8::External::Unwrap (Args.Data ());
-}
-
-};
-
 
 // Definitions bindings
 dmz::V8Value
@@ -23,7 +13,7 @@ dmz::JsModuleRuntimeV8Basic::_create_named_handle (const v8::Arguments &Args) {
    v8::HandleScope scope;
    V8Value result;
 
-   JsModuleRuntimeV8Basic *self = local_self (Args);
+   JsModuleRuntimeV8Basic *self = to_self (Args);
 
    if (self) {
 
@@ -46,7 +36,7 @@ dmz::JsModuleRuntimeV8Basic::_lookup_named_handle (const v8::Arguments &Args) {
    v8::HandleScope scope;
    V8Value result;
 
-   JsModuleRuntimeV8Basic *self = local_self (Args);
+   JsModuleRuntimeV8Basic *self = to_self (Args);
 
    if (self) {
 
@@ -68,7 +58,7 @@ dmz::JsModuleRuntimeV8Basic::_lookup_named_handle_name (const v8::Arguments &Arg
    v8::HandleScope scope;
    V8Value result;
 
-   JsModuleRuntimeV8Basic *self = local_self (Args);
+   JsModuleRuntimeV8Basic *self = to_self (Args);
 
    if (self) {
 
@@ -92,7 +82,7 @@ dmz::JsModuleRuntimeV8Basic::_lookup_state (const v8::Arguments &Args) {
    v8::HandleScope scope;
    V8Value result;
 
-   JsModuleRuntimeV8Basic *self = local_self (Args);
+   JsModuleRuntimeV8Basic *self = to_self (Args);
 
    if (self && self->_types) {
 
@@ -116,7 +106,7 @@ dmz::JsModuleRuntimeV8Basic::_lookup_state_name (const v8::Arguments &Args) {
    v8::HandleScope scope;
    V8Value result;
 
-   JsModuleRuntimeV8Basic *self = local_self (Args);
+   JsModuleRuntimeV8Basic *self = to_self (Args);
 
    if (self && self->_types) {
 

@@ -31,6 +31,8 @@ namespace dmz {
 
          virtual v8::Handle<v8::Object> require (const String &Value) = 0;
 
+         virtual void handle_v8_exception (v8::TryCatch &tc) = 0;
+
       protected:
          JsModuleV8 (const PluginInfo &Info);
          ~JsModuleV8 ();

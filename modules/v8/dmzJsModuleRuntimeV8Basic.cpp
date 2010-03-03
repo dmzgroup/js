@@ -103,7 +103,7 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
 
    if (State == JsExtV8::Register) {
 
-      _logFunc.Dispose ();
+      _logFunc.Dispose (); _logFunc.Clear ();
 
       if (_logFuncTemplate.IsEmpty () == false) {
 

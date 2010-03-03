@@ -2,6 +2,7 @@
 #define DMZ_JS_MODULE_V8_BASIC_DOT_H
 
 #include <dmzJsModuleV8.h>
+#include <dmzRuntimeDefinitions.h>
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
 #include <dmzRuntimeResources.h>
@@ -47,6 +48,8 @@ namespace dmz {
 
          virtual v8::Handle<v8::Object> require (const String &Value);
 
+         virtual void handle_v8_exception (v8::TryCatch &tc);
+
       protected:
          struct ScriptStruct {
 
@@ -57,17 +60,8 @@ namespace dmz {
 
             void clear () {
 
-               if (!script.IsEmpty ()) {
-
-                  script.Dispose ();
-                  script.Clear ();
-               }
-
-               if (!ctor.IsEmpty ()) {
-
-                  ctor.Dispose ();
-                  ctor.Clear ();
-               }
+               script.Dispose (); script.Clear ();
+               ctor.Dispose (); ctor.Clear ();
             }
 
             ScriptStruct (const String &TheName, const String &TheFileName) :
@@ -88,10 +82,11 @@ namespace dmz {
          };
 
          void _empty_require ();
+         void _release_instances ();
          void _init_context ();
          void _init_builtins ();
          void _init_ext ();
-         void _handle_exception (v8::TryCatch &tc);
+         void _shutdown_ext ();
          void _load_scripts ();
          ScriptStruct *_find_script (Config &script);
          void _init (Config &local);
@@ -99,6 +94,8 @@ namespace dmz {
          Log _log;
          StreamLog _out;
          Resources _rc;
+         Definitions _defs;
+         Boolean _shutdown;
 
          JsModuleRuntimeV8 *_runtime;
 
@@ -113,9 +110,6 @@ namespace dmz {
          v8::Persistent<v8::ObjectTemplate> _globalTemplate;
          v8::Persistent<v8::FunctionTemplate> _requireFuncTemplate;
          v8::Persistent<v8::Function> _requireFunc;
-
-         v8::Persistent<v8::FunctionTemplate> _logFuncTemplate;
-         v8::Persistent<v8::Function> _logFunc;
 
       private:
          JsModuleV8Basic ();

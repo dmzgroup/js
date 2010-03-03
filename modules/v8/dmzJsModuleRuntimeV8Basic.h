@@ -3,11 +3,13 @@
 
 #include <dmzJsExtV8.h>
 #include <dmzJsModuleRuntimeV8.h>
+#include <dmzJsV8UtilConvert.h>
 #include <dmzJsV8UtilHelpers.h>
 #include <dmzJsV8UtilTypes.h>
 #include <dmzRuntimeDefinitions.h>
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
+#include <dmzTypesHashTableStringTemplate.h>
 
 #include <v8.h>
 
@@ -21,6 +23,7 @@ namespace dmz {
          public JsExtV8 {
 
       public:
+         static JsModuleRuntimeV8Basic *to_self (const v8::Arguments &Args);
          JsModuleRuntimeV8Basic (const PluginInfo &Info, Config &local);
          ~JsModuleRuntimeV8Basic ();
 
@@ -41,19 +44,36 @@ namespace dmz {
          virtual void update_js_context_v8 (v8::Handle<v8::Context> context);
          virtual void update_js_ext_v8_state (const StateEnum State);
 
+         // JsModuleRuntimeV8Basic Interface
+         // implemented in dmzJsModuleRuntimeV8BasicTimer.cpp
+         Boolean delete_timer (V8Object self, V8Function callback);
+
       protected:
+         struct TimerStruct;
          // Static Functions
+         // Definitions bindings implemented in dmzJsModuleRuntimeV8BasicDefinitions.cpp
          static V8Value _create_named_handle (const v8::Arguments &Args);
          static V8Value _lookup_named_handle (const v8::Arguments &Args);
          static V8Value _lookup_named_handle_name (const v8::Arguments &Args);
          static V8Value _lookup_state (const v8::Arguments &Args);
          static V8Value _lookup_state_name (const v8::Arguments &Args);
 
+         // Timer bindings implemented in dmzJsModuleRuntimeV8BasicTimer.cpp
+         static V8Value _register_timer (const v8::Arguments &Args);
+
+         static V8Value _register_repeating_timer (const v8::Arguments &Args);
+
+         static V8Value _register_base_timer (
+            const v8::Arguments &Args,
+            const Boolean Repeating);
+
          // JsModuleRuntimeV8Basic Interface
          void _clear ();
          void _reset ();
+         // implemented in dmzJsModuleRuntimeV8BasicDefinitions.cpp
          void _init_definitions ();
-         void _init_log (); // implemented in dmzJsModuleRuntimeV8BasicLog.cpp
+         // implemented in dmzJsModuleRuntimeV8BasicLog.cpp
+         void _init_log ();
          void _init (Config &local);
 
          Log _log;
@@ -68,6 +88,8 @@ namespace dmz {
 
          V8InterfaceHelper _defsApi; 
 
+         HashTableStringTemplate<TimerStruct> _timerTable;
+
          v8::Persistent<v8::FunctionTemplate> _logFuncTemplate;
          v8::Persistent<v8::Function> _logFunc;
 
@@ -78,5 +100,11 @@ namespace dmz {
 
    };
 };
+
+inline dmz::JsModuleRuntimeV8Basic *
+dmz::JsModuleRuntimeV8Basic::to_self (const v8::Arguments &Args) {
+
+   return (dmz::JsModuleRuntimeV8Basic *)v8::External::Unwrap (Args.Data ());
+}
 
 #endif // DMZ_JS_MODULE_RUNTIME_V8_BASIC_DOT_H

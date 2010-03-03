@@ -10,7 +10,7 @@ struct InterfaceStruct {
    const String Name;
    V8FunctionTemplatePersist funcTemplate;
    InterfaceStruct (const String &TheName) : Name (TheName) {;}
-   ~InterfaceStruct () { funcTemplate.Dispose (); }
+   ~InterfaceStruct () { funcTemplate.Dispose (); funcTemplate.Clear (); }
 };
 
 };
@@ -21,7 +21,7 @@ struct dmz::V8InterfaceHelper::State {
    HashTableStringTemplate<InterfaceStruct> table;
    V8ObjectPersist obj;
 
-   ~State () { table.empty (); obj.Dispose (); }
+   ~State () { table.empty (); obj.Dispose (); obj.Clear (); }
 };
 
 dmz::V8InterfaceHelper::V8InterfaceHelper () : _state (*(new State)) {;}
@@ -47,7 +47,7 @@ dmz::V8InterfaceHelper::clear () {
             v8::Undefined ());
       }
 
-      _state.obj.Dispose ();
+      _state.obj.Dispose (); _state.obj.Clear ();
    }
 }
 

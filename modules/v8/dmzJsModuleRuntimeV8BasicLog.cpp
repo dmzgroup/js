@@ -8,16 +8,15 @@ local_to_log (dmz::StreamLog &log, const v8::Arguments &args) {
    v8::HandleScope scope;
 
    const int Length = args.Length ();
-   dmz::String out;
 
    for (int ix = 0; ix < Length; ix++) {
 
-      if (ix > 0) { out << " "; }
-      v8::String::AsciiValue str (args[ix]->ToString ());
-      out << *str;
+      if (ix > 0) { log << " "; }
+      v8::String::AsciiValue str (args[ix]);
+      log << *str;
    }
 
-   log << out << dmz::endl;
+   log << dmz::endl;
 }
 
 

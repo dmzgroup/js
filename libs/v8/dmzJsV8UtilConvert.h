@@ -63,14 +63,7 @@ v8_is_array (V8Value value);
 inline dmz::String
 dmz::v8_to_string (V8Value value) {
 
-   String result;
-
-   if ((value.IsEmpty () == false) && value->IsString ()) {
-
-      result = *(v8::String::AsciiValue (value->ToString ()));
-   }
-
-   return result;
+   return String (*(v8::String::AsciiValue (value)));
 }
 
 
@@ -79,10 +72,7 @@ dmz::v8_to_number (V8Value value) {
 
    Float64 result (0.0);
 
-   if ((value.IsEmpty () == false) && value->IsNumber ()) {
-
-      result = value->NumberValue ();
-   }
+   if (value.IsEmpty () == false) { result = value->NumberValue (); }
 
    return result;
 }
@@ -93,10 +83,7 @@ dmz::v8_to_uint32 (V8Value value) {
 
    UInt32 result (0.0);
 
-   if ((value.IsEmpty () == false) && value->IsNumber ()) {
-
-      result = value->Uint32Value ();
-   }
+   if (value.IsEmpty () == false) { result = value->Uint32Value (); }
 
    return result;
 }
