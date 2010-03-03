@@ -3,6 +3,7 @@ var vector = require('dmz/types/vector');
 var mask = require('dmz/types/mask');
 var createError = require('dmz/types/util').createError;
 var defs = require('dmz/runtime/definitions');
+var time = require('dmz/runtime/time');
 
 var v1 = vector.create(1, 2, 3);
 var v2 = vector.create([4, 5, 6]);
@@ -45,3 +46,5 @@ self.log.out("Dead state name:", defs.lookupStateName (defs.lookupState("Dead"))
 self.log.out("Undefine state name:", defs.lookupStateName (mask.create([100])));
 self.log.out("state name:", defs.lookupStateName (mask.create([1])));
 self.log.out("state name:", defs.lookupStateName (mask.create([0x10])));
+
+time.setRepeatingTimer(self, function () { puts("******* Hello World!!!"); });

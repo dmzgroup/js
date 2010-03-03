@@ -1,6 +1,9 @@
 #include "dmzJsModuleRuntimeV8Basic.h"
 #include <dmzRuntimeTimeSlice.h>
 
+#include <qdb.h>
+static dmz::qdb out;
+
 struct dmz::JsModuleRuntimeV8Basic::TimerStruct : public TimeSlice {
 
    TimerStruct *next;
@@ -79,8 +82,11 @@ dmz::JsModuleRuntimeV8Basic::_register_base_timer (
 
    if (self) {
 
+      const Boolean SetInterval = Args.Length () > 2 ? True : False;
+
       V8Object obj = V8Object::Cast (Args[0]);
-      V8Function func = V8Function::Cast (Args[1]);
+      V8Function func = V8Function::Cast (Args[SetInterval ? 2 : 1]);
+      Float64 interval = SetInterval ? Args[1]->NumberValue () : 0.0;
 
       if (obj.IsEmpty () || func.IsEmpty ()) {} // Do nothing
       else {
@@ -89,6 +95,37 @@ dmz::JsModuleRuntimeV8Basic::_register_base_timer (
 
          if (name) {
 
+            TimerStruct *ts = new TimerStruct (
+               self->_defs.create_named_handle (name),
+               TimeSliceTypeRuntime,
+               Repeating ? TimeSliceModeRepeating : TimeSliceModeSingle,
+               interval,
+               self->get_plugin_runtime_context (),
+               *self,
+               self->_v8Context);
+
+            TimerStruct *list = self->_timerTable.lookup (name);
+
+            if (list) {
+
+               while (list->next) { list = list->next; }
+               list->next = ts;
+            }
+            else {
+
+               if (!self->_timerTable.store (name, ts)) {
+
+                  delete ts; ts = 0;
+               }
+            }
+
+            if (ts) {
+
+               ts->self = V8ObjectPersist::New (obj);
+               ts->callback = V8FunctionPersist::New (func);
+            }
+
+            if (ts && !Repeating) { ts->start_time_slice (); }
          }
          else {
 
@@ -157,3 +194,10 @@ dmz::JsModuleRuntimeV8Basic::delete_timer (V8Object self, V8Function callback) {
    return result;
 }
 
+
+void
+dmz::JsModuleRuntimeV8Basic::_init_timer () {
+
+   _timerApi.add_function ("setTimer", _register_timer, _data);
+   _timerApi.add_function ("setRepeatingTimer", _register_repeating_timer, _data);
+}

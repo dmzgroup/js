@@ -74,6 +74,9 @@ namespace dmz {
          void _init_definitions ();
          // implemented in dmzJsModuleRuntimeV8BasicLog.cpp
          void _init_log ();
+         // implemented in dmzJsModuleRuntimeV8BasicTimer.cpp
+         void _init_timer ();
+         // implemented in dmzJsModuleRuntimeV8Basic.cpp
          void _init (Config &local);
 
          Log _log;
@@ -87,6 +90,7 @@ namespace dmz {
          V8ValuePersist _data;
 
          V8InterfaceHelper _defsApi; 
+         V8InterfaceHelper _timerApi; 
 
          HashTableStringTemplate<TimerStruct> _timerTable;
 

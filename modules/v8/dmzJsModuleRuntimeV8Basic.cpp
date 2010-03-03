@@ -115,6 +115,10 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
          _core->register_interface (
             "dmz/runtime/definitions",
             _defsApi.get_new_instance ());
+
+         _core->register_interface (
+            "dmz/runtime/time",
+            _timerApi.get_new_instance ());
       }
    }
    else if (State == JsExtV8::Init) {
@@ -149,6 +153,7 @@ dmz::JsModuleRuntimeV8Basic::_init (Config &local) {
 
    _init_log ();
    _init_definitions ();
+   _init_timer ();
 }
 
 
