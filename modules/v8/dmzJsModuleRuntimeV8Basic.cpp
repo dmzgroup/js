@@ -15,6 +15,7 @@ dmz::JsModuleRuntimeV8Basic::JsModuleRuntimeV8Basic (
       JsModuleRuntimeV8 (Info),
       JsExtV8 (Info),
       _log (Info),
+      _time (Info),
       _defs (Info, &_log),
       _core (0),
       _types (0) {
@@ -45,7 +46,7 @@ dmz::JsModuleRuntimeV8Basic::update_plugin_state (
    }
    else if (State == PluginStateShutdown) {
 
-      _data.Dispose (); _data.Clear ();
+      _self.Dispose (); _self.Clear ();
    }
 }
 
@@ -110,7 +111,18 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
          _logFunc = V8FunctionPersist::New (_logFuncTemplate->GetFunction ());
       }
 
+      _dataFunc.Dispose (); _dataFunc.Clear ();
+
+      if (_dataFuncTemplate.IsEmpty () == false) {
+
+         _dataFunc = V8FunctionPersist::New (_dataFuncTemplate->GetFunction ());
+      }
+
       if (_core) {
+
+         _core->register_interface (
+            "dmz/runtime/data",
+            _dataApi.get_new_instance ());
 
          _core->register_interface (
             "dmz/runtime/definitions",
@@ -118,7 +130,7 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
 
          _core->register_interface (
             "dmz/runtime/time",
-            _timerApi.get_new_instance ());
+            _timeApi.get_new_instance ());
       }
    }
    else if (State == JsExtV8::Init) {
@@ -133,6 +145,13 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
 
 // JsModuleRuntimeV8Basic Interface
 void
+dmz::JsModuleRuntimeV8Basic::handle_v8_exception (v8::TryCatch &tc) {
+
+   if (_core) { _core->handle_v8_exception (tc); }
+}
+
+
+void
 dmz::JsModuleRuntimeV8Basic::_clear () {
 
 }
@@ -144,16 +163,37 @@ dmz::JsModuleRuntimeV8Basic::_reset () {
 }
 
 
+dmz::Handle
+dmz::JsModuleRuntimeV8Basic::_to_handle (V8Value value) {
+
+   Handle result (0);
+
+   if (value.IsEmpty () == false) {
+
+      if (value->IsInt32 ()) { result = value->Uint32Value (); }
+      else if (value->IsString ()) {
+
+         const String Str = *(v8::String::AsciiValue (value));
+
+         if (Str) { result = _defs.create_named_handle (Str); }
+      }
+   }
+
+   return result;
+}
+
+
 void
 dmz::JsModuleRuntimeV8Basic::_init (Config &local) {
 
    v8::HandleScope scope;
 
-   _data = V8ValuePersist::New (v8::External::Wrap (this));
+   _self = V8ValuePersist::New (v8::External::Wrap (this));
 
-   _init_log ();
+   _init_data ();
    _init_definitions ();
-   _init_timer ();
+   _init_log ();
+   _init_time ();
 }
 
 

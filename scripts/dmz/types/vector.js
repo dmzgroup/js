@@ -9,6 +9,13 @@ var Vector = function () {
    this.z = 0;
 };
 
+
+exports.isTypeOf = function (value) {
+
+   return Vector.prototype.isPrototypeOf(value) ? value : undefined;
+};
+
+
 exports.create = function () {
 
    var result = new Vector();

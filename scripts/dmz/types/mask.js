@@ -6,6 +6,13 @@ var Mask = function () {
    this.bits = [];
 };
 
+
+exports.isTypeOf = function (value) {
+
+   return Mask.prototype.isPrototypeOf(value) ? value : undefined;
+};
+
+
 exports.create = function () {
 
    var result = new Mask();

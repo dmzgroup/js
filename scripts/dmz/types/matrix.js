@@ -8,6 +8,13 @@ var Matrix = function () {
    this.v = [1, 0, 0, 0, 1, 0, 0, 0, 1];
 };
 
+
+exports.isTypeOf = function (value) {
+
+   return Matrix.prototype.isPrototypeOf(value) ? value : undefined;
+};
+
+
 exports.create = function () {
 
    var result = new Matrix();

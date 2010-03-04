@@ -125,9 +125,9 @@ dmz::JsModuleRuntimeV8Basic::_init_definitions () {
 
    v8::HandleScope scope;
 
-   _defsApi.add_function ("createNamedHandle", _create_named_handle, _data);
-   _defsApi.add_function ("lookupNamedHandle", _lookup_named_handle, _data);
-   _defsApi.add_function ("lookupNamedHandleName", _lookup_named_handle_name, _data);
-   _defsApi.add_function ("lookupState", _lookup_state, _data);
-   _defsApi.add_function ("lookupStateName", _lookup_state_name, _data);
+   _defsApi.add_function ("createNamedHandle", _create_named_handle, _self);
+   _defsApi.add_function ("lookupNamedHandle", _lookup_named_handle, _self);
+   _defsApi.add_function ("lookupNamedHandleName", _lookup_named_handle_name, _self);
+   _defsApi.add_function ("lookupState", _lookup_state, _self);
+   _defsApi.add_function ("lookupStateName", _lookup_state_name, _self);
 }

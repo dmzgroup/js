@@ -4,6 +4,7 @@ var mask = require('dmz/types/mask');
 var createError = require('dmz/types/util').createError;
 var defs = require('dmz/runtime/definitions');
 var time = require('dmz/runtime/time');
+var data = require('dmz/runtime/data');
 
 var v1 = vector.create(1, 2, 3);
 var v2 = vector.create([4, 5, 6]);
@@ -47,4 +48,26 @@ self.log.out("Undefine state name:", defs.lookupStateName (mask.create([100])));
 self.log.out("state name:", defs.lookupStateName (mask.create([1])));
 self.log.out("state name:", defs.lookupStateName (mask.create([0x10])));
 
-time.setRepeatingTimer(self, function () { puts("******* Hello World!!!"); });
+self.log.out(self.log);
+
+var d1 = data.create();
+d1.number("foo", 0, 1001);
+d1.number("foo", 1, 2002);
+var handle = defs.createNamedHandle("goo");
+d1.number(handle, 0, 3003);
+self.log.out("Data:", d1.number("foo", 0), d1);
+/*
+var cb = time.setRepeatingTimer(self, 1, function () { puts("******* Hello World!!!"); });
+
+time.setTimer(self, 4, function (self, dt) {
+
+   puts("Killing repeating timer.", dt);
+   time.cancleTimer(self, cb);
+
+   puts("System Time:", time.getSystemTime());
+   puts("Frame Time: ", time.getFrameTime());
+   puts("Frame Delta:", time.getFrameDelta());
+});
+
+time.setRepeatingTimer(self, 3, function () { puts("this is the other timer."); });
+*/
