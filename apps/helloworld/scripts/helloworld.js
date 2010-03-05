@@ -5,6 +5,8 @@ var createError = require('dmz/types/util').createError;
 var defs = require('dmz/runtime/definitions');
 var time = require('dmz/runtime/time');
 var data = require('dmz/runtime/data');
+var message = require('dmz/runtime/message');
+var undo = require('dmz/runtime/undo');
 
 var v1 = vector.create(1, 2, 3);
 var v2 = vector.create([4, 5, 6]);
@@ -55,7 +57,27 @@ d1.number("foo", 0, 1001);
 d1.number("foo", 1, 2002);
 var handle = defs.createNamedHandle("goo");
 d1.number(handle, 0, 3003);
+d1.string("moo", 0, "a string value");
+d1.string("moo", 1, v1);
+d1.vector("voo", 0, v1);
+d1.vector("voo", 1, v2);
+d1.vector("voo", 2, v3);
+d1.boolean("boo", 0, undefined);
+d1.boolean("boo", 1, true);
+d1.boolean("boo", 2, false);
+d1.boolean("boo", 3, v1);
+self.log.out("v2 =", d1.vector("voo", 1), v2);
 self.log.out("Data:", d1.number("foo", 0), d1);
+self.log.out("wrap string:", data.wrapString("This string is wrapped"));
+self.log.out("wrap nan number:", data.wrapNumber("This string is wrapped"));
+self.log.out("wrap number:", data.wrapNumber(v1.x));
+var m1 = message.create("Foo Bar Message");
+m1.subscribe(self, function (self, d) { puts("****** received:", data.unwrapString(d)); });
+m1.send (data.wrapString("This is the string payload"));
+m1.unsubscribe(self);
+m1.send (data.wrapString("This is the string payload"));
+self.log.out("Undo Types:", undo.UndoType, undo.RedoType);
+self.log.out("State Names:", defs.DeadStateName, defs.DeactivateStateName, defs.SmokingStateName);
 /*
 var cb = time.setRepeatingTimer(self, 1, function () { puts("******* Hello World!!!"); });
 

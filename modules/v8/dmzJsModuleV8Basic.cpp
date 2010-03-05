@@ -90,7 +90,7 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (const PluginInfo &Info, Config &local) :
       JsModuleV8 (Info),
       _log (Info),
       _out ("", LogLevelOut, Info.get_context ()),
-      _rc (Info, &_log),
+      _rc (Info),
       _defs (Info, &_log),
       _shutdown (False),
       _runtime (0) {

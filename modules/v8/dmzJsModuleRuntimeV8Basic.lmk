@@ -7,7 +7,9 @@ lmk.add_files {
    "dmzJsModuleRuntimeV8BasicData.cpp",
    "dmzJsModuleRuntimeV8BasicDefinitions.cpp",
    "dmzJsModuleRuntimeV8BasicLog.cpp",
+   "dmzJsModuleRuntimeV8BasicMessaging.cpp",
    "dmzJsModuleRuntimeV8BasicTimer.cpp",
+   "dmzJsModuleRuntimeV8BasicUndo.cpp",
 }
 lmk.add_libs {"dmzJsV8Util", "dmzKernel",}
 lmk.add_preqs {"dmzJsFramework",}

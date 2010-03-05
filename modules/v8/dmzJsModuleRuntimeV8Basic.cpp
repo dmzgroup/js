@@ -17,6 +17,11 @@ dmz::JsModuleRuntimeV8Basic::JsModuleRuntimeV8Basic (
       _log (Info),
       _time (Info),
       _defs (Info, &_log),
+      _undo (Info),
+      _convertBool (Info),
+      _convertNum (Info),
+      _convertStr (Info),
+      _convertHandle (Info),
       _core (0),
       _types (0) {
 
@@ -104,6 +109,13 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
 
    if (State == JsExtV8::Register) {
 
+      _dataFunc.Dispose (); _dataFunc.Clear ();
+
+      if (_dataFuncTemplate.IsEmpty () == false) {
+
+         _dataFunc = V8FunctionPersist::New (_dataFuncTemplate->GetFunction ());
+      }
+
       _logFunc.Dispose (); _logFunc.Clear ();
 
       if (_logFuncTemplate.IsEmpty () == false) {
@@ -111,11 +123,18 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
          _logFunc = V8FunctionPersist::New (_logFuncTemplate->GetFunction ());
       }
 
-      _dataFunc.Dispose (); _dataFunc.Clear ();
+      _msgFunc.Dispose (); _msgFunc.Clear ();
 
-      if (_dataFuncTemplate.IsEmpty () == false) {
+      if (_msgFuncTemplate.IsEmpty () == false) {
 
-         _dataFunc = V8FunctionPersist::New (_dataFuncTemplate->GetFunction ());
+         _msgFunc = V8FunctionPersist::New (_msgFuncTemplate->GetFunction ());
+      }
+
+      _logFunc.Dispose (); _logFunc.Clear ();
+
+      if (_logFuncTemplate.IsEmpty () == false) {
+
+         _logFunc = V8FunctionPersist::New (_logFuncTemplate->GetFunction ());
       }
 
       if (_core) {
@@ -129,8 +148,16 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
             _defsApi.get_new_instance ());
 
          _core->register_interface (
+            "dmz/runtime/message",
+            _msgApi.get_new_instance ());
+
+         _core->register_interface (
             "dmz/runtime/time",
             _timeApi.get_new_instance ());
+
+         _core->register_interface (
+            "dmz/runtime/undo",
+            _undoApi.get_new_instance ());
       }
    }
    else if (State == JsExtV8::Init) {
@@ -183,6 +210,18 @@ dmz::JsModuleRuntimeV8Basic::_to_handle (V8Value value) {
 }
 
 
+dmz::Int32
+dmz::JsModuleRuntimeV8Basic::_to_int32 (V8Value value, const Int32 Default) {
+
+   Int32 result (Default);
+
+   v8::Handle<v8::Integer> arg = v8::Handle<v8::Integer>::Cast (value);
+   if (arg.IsEmpty () == false) { result = arg->Value (); }
+
+   return result;
+}
+
+
 void
 dmz::JsModuleRuntimeV8Basic::_init (Config &local) {
 
@@ -193,7 +232,9 @@ dmz::JsModuleRuntimeV8Basic::_init (Config &local) {
    _init_data ();
    _init_definitions ();
    _init_log ();
+   _init_messaging ();
    _init_time ();
+   _init_undo ();
 }
 
 

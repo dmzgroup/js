@@ -39,6 +39,9 @@ v8_to_pointer (V8Value value, const int Offset) {
    return result;
 }
 
+Boolean
+v8_to_boolean (V8Value value);
+
 String
 v8_to_string (V8Value value);
 
@@ -47,6 +50,9 @@ v8_to_number (V8Value value);
 
 UInt32
 v8_to_uint32 (V8Value value);
+
+UInt32
+v8_to_handle (V8Value value);
 
 Boolean
 v8_is_object (V8Value value);
@@ -58,6 +64,17 @@ Boolean
 v8_is_array (V8Value value);
 
 };
+
+
+inline dmz::Boolean
+dmz::v8_to_boolean (V8Value value) {
+
+   Boolean result (False);
+
+   if (value.IsEmpty () == false) { result = value->BooleanValue (); }
+
+   return result;
+}
 
 
 inline dmz::String
@@ -72,7 +89,10 @@ dmz::v8_to_number (V8Value value) {
 
    Float64 result (0.0);
 
-   if (value.IsEmpty () == false) { result = value->NumberValue (); }
+   if ((value.IsEmpty () == false) && value->IsNumber ()) {
+
+      result = value->NumberValue ();
+   }
 
    return result;
 }
@@ -81,9 +101,26 @@ dmz::v8_to_number (V8Value value) {
 inline dmz::UInt32
 dmz::v8_to_uint32 (V8Value value) {
 
-   UInt32 result (0.0);
+   UInt32 result (0);
 
-   if (value.IsEmpty () == false) { result = value->Uint32Value (); }
+   if ((value.IsEmpty () == false) && value->IsNumber ()) {
+
+      result = value->Uint32Value ();
+   }
+
+   return result;
+}
+
+
+inline dmz::Handle
+dmz::v8_to_handle (V8Value value) {
+
+   Handle result (0);
+
+   if ((value.IsEmpty () == false) && value->IsNumber ()) {
+
+      result = value->Uint32Value ();
+   }
 
    return result;
 }

@@ -125,6 +125,12 @@ dmz::JsModuleRuntimeV8Basic::_init_definitions () {
 
    v8::HandleScope scope;
 
+   _defsApi.add_constant ("DeadStateName", DefaultStateNameDead);
+   _defsApi.add_constant ("DeactivateStateName", DefaultStateNameDeactivate);
+   _defsApi.add_constant ("SmokingStateName", DefaultStateNameSmoking);
+   _defsApi.add_constant ("FireStateName", DefaultStateNameFire);
+   _defsApi.add_constant ("DustTrailStateName", DefaultStateNameDustTrail);
+   _defsApi.add_constant ("AirBornStateName", DefaultStateNameAirBorn);
    _defsApi.add_function ("createNamedHandle", _create_named_handle, _self);
    _defsApi.add_function ("lookupNamedHandle", _lookup_named_handle, _self);
    _defsApi.add_function ("lookupNamedHandleName", _lookup_named_handle_name, _self);

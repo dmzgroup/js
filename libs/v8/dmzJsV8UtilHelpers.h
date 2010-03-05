@@ -18,6 +18,9 @@ class DMZ_JS_V8_UTIL_LINK_SYMBOL V8InterfaceHelper {
       void clear ();
       void reset ();
       Boolean add_function (const String &Name, v8::InvocationCallback cb, V8Value data);
+      Boolean add_constant (const String &Name, const Float64 Value);
+      Boolean add_constant (const String &Name, const UInt32 Value);
+      Boolean add_constant (const String &Name, const String Value);
       V8ObjectPersist get_new_instance ();
 
    protected:
