@@ -79,9 +79,12 @@ dmz::JsModuleRuntimeV8Basic::MessageStruct::receive_message (
       v8::Context::Scope cscope (v8Context);
       v8::HandleScope scope;
 
+      V8Object outObj = V8Object::Cast (module.create_v8_data (outData));
+
       v8::Handle<v8::Value> argv[] = {
-         cb->self,
          module.create_v8_data (InData),
+         outObj,
+         cb->self,
          v8::Number::New ((double)MessageSendHandle),
          v8::Number::New ((double)TargetObserverHandle),
          module.create_v8_message (Type.get_name ())
@@ -89,7 +92,7 @@ dmz::JsModuleRuntimeV8Basic::MessageStruct::receive_message (
 
       v8::TryCatch tc;
 
-      cb->func->Call (cb->self, 5, argv);
+      cb->func->Call (cb->self, 6, argv);
 
       if (tc.HasCaught ()) {
 
@@ -97,6 +100,12 @@ dmz::JsModuleRuntimeV8Basic::MessageStruct::receive_message (
 
          cb = cbTable.remove (current.get_handle ());
          if (cb) { delete cb; cb = 0; }
+      }
+      else if (outData && (outObj.IsEmpty () == false)) {
+
+         Data *ptr = (Data *)v8::External::Unwrap (outObj->GetInternalField (0));
+
+         if (ptr) { *outData = *ptr; }
       }
    }
 }

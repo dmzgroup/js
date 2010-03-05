@@ -72,10 +72,11 @@ self.log.out("wrap string:", data.wrapString("This string is wrapped"));
 self.log.out("wrap nan number:", data.wrapNumber("This string is wrapped"));
 self.log.out("wrap number:", data.wrapNumber(v1.x));
 var m1 = message.create("Foo Bar Message");
-m1.subscribe(self, function (self, d) { puts("****** received:", data.unwrapString(d)); });
+m1.subscribe(self, function (inData) { puts("****** received:", data.unwrapString(inData)); });
 m1.send (data.wrapString("This is the string payload"));
 m1.unsubscribe(self);
 m1.send (data.wrapString("This is the string payload"));
+self.log.out("Message:", m1);
 self.log.out("Undo Types:", undo.UndoType, undo.RedoType);
 self.log.out("State Names:", defs.DeadStateName, defs.DeactivateStateName, defs.SmokingStateName);
 /*
