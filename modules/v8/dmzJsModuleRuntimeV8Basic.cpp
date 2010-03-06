@@ -109,11 +109,25 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
 
    if (State == JsExtV8::Register) {
 
+      _configFunc.Dispose (); _configFunc.Clear ();
+
+      if (_configFuncTemplate.IsEmpty () == false) {
+
+         _configFunc = V8FunctionPersist::New (_configFuncTemplate->GetFunction ());
+      }
+
       _dataFunc.Dispose (); _dataFunc.Clear ();
 
       if (_dataFuncTemplate.IsEmpty () == false) {
 
          _dataFunc = V8FunctionPersist::New (_dataFuncTemplate->GetFunction ());
+      }
+
+      _eventTypeFunc.Dispose (); _eventTypeFunc.Clear ();
+
+      if (_eventTypeFuncTemplate.IsEmpty () == false) {
+
+         _eventTypeFunc = V8FunctionPersist::New (_eventTypeFuncTemplate->GetFunction ());
       }
 
       _logFunc.Dispose (); _logFunc.Clear ();
@@ -130,14 +144,18 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
          _msgFunc = V8FunctionPersist::New (_msgFuncTemplate->GetFunction ());
       }
 
-      _logFunc.Dispose (); _logFunc.Clear ();
+      _objTypeFunc.Dispose (); _objTypeFunc.Clear ();
 
-      if (_logFuncTemplate.IsEmpty () == false) {
+      if (_objTypeFuncTemplate.IsEmpty () == false) {
 
-         _logFunc = V8FunctionPersist::New (_logFuncTemplate->GetFunction ());
+         _objTypeFunc = V8FunctionPersist::New (_objTypeFuncTemplate->GetFunction ());
       }
 
       if (_core) {
+
+         _core->register_interface (
+            "dmz/runtime/config",
+            _configApi.get_new_instance ());
 
          _core->register_interface (
             "dmz/runtime/data",
@@ -148,8 +166,16 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
             _defsApi.get_new_instance ());
 
          _core->register_interface (
+            "dmz/runtime/eventType",
+            _eventTypeApi.get_new_instance ());
+
+         _core->register_interface (
             "dmz/runtime/message",
             _msgApi.get_new_instance ());
+
+         _core->register_interface (
+            "dmz/runtime/objectType",
+            _objTypeApi.get_new_instance ());
 
          _core->register_interface (
             "dmz/runtime/time",
@@ -229,10 +255,13 @@ dmz::JsModuleRuntimeV8Basic::_init (Config &local) {
 
    _self = V8ValuePersist::New (v8::External::Wrap (this));
 
+   _init_config ();
    _init_data ();
    _init_definitions ();
+   _init_event_type ();
    _init_log ();
    _init_messaging ();
+   _init_object_type ();
    _init_time ();
    _init_undo ();
 }

@@ -2,6 +2,7 @@
 #define DMZ_JS_MODULE_V8_BASIC_DOT_H
 
 #include <dmzJsModuleV8.h>
+#include <dmzRuntimeConfig.h>
 #include <dmzRuntimeDefinitions.h>
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
@@ -22,7 +23,7 @@ namespace dmz {
          public TimeSlice {
 
       public:
-         JsModuleV8Basic (const PluginInfo &Info, Config &local);
+         JsModuleV8Basic (const PluginInfo &Info, Config &local, Config &global);
          ~JsModuleV8Basic ();
 
          // Plugin Interface
@@ -74,6 +75,7 @@ namespace dmz {
          struct InstanceStruct {
 
             const String Name;
+            Config local;
             ScriptStruct &script;
 
             InstanceStruct (const String &TheName, ScriptStruct &theScript) :
@@ -89,7 +91,7 @@ namespace dmz {
          void _shutdown_ext ();
          void _load_scripts ();
          ScriptStruct *_find_script (Config &script);
-         void _init (Config &local);
+         void _init (Config &local, Config &global);
 
          Log _log;
          StreamLog _out;

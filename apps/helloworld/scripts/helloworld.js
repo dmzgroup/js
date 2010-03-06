@@ -7,6 +7,8 @@ var time = require('dmz/runtime/time');
 var data = require('dmz/runtime/data');
 var message = require('dmz/runtime/message');
 var undo = require('dmz/runtime/undo');
+var config = require('dmz/runtime/config');
+var ot = require('dmz/runtime/objectType');
 
 var v1 = vector.create(1, 2, 3);
 var v2 = vector.create([4, 5, 6]);
@@ -79,6 +81,17 @@ m1.send (data.wrapString("This is the string payload"));
 self.log.out("Message:", m1);
 self.log.out("Undo Types:", undo.UndoType, undo.RedoType);
 self.log.out("State Names:", defs.DeadStateName, defs.DeactivateStateName, defs.SmokingStateName);
+var cd = config.create(self.name);
+self.log.out ("Print config:", self.config);
+self.log.out (self.config.toVector ("vec"));
+self.log.out (self.config.toString ("name.value"));
+self.log.out (self.config.toString ("no-default.value"));
+self.log.out (self.config.toString ("not-defined.value", "This is the default value"));
+var objList = self.config.get("obj");
+objList.forEach(function (cd) { self.log.out (cd.toString("value")); });
+var gv = ot.lookup("ground-vehicle");
+var ct = gv.getChildren();
+ct.forEach (function (type) { self.log.out(gv.getName(), "child =", type.getName()); });
 /*
 var cb = time.setRepeatingTimer(self, 1, function () { puts("******* Hello World!!!"); });
 

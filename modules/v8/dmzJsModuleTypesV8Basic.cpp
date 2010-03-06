@@ -84,7 +84,11 @@ dmz::JsModuleTypesV8Basic::to_v8_vector (const Vector &Value) {
          v8::Number::New (Value.get_z ())
       };
 
+      v8::TryCatch tc;
+
       result = V8Object::Cast (_vectorCtor->Call (_vector, 3, argv));
+
+      if (tc.HasCaught () && _core) { _core->handle_v8_exception (tc); }
    }
 
    return result.IsEmpty () ? result : scope.Close (result);
@@ -145,7 +149,11 @@ dmz::JsModuleTypesV8Basic::to_v8_matrix (const Matrix &Value) {
          v8::Number::New (array[8]),
       };
 
+      v8::TryCatch tc;
+
       result = V8Object::Cast (_matrixCtor->Call (_matrix, 9, argv));
+
+      if (tc.HasCaught () && _core) { _core->handle_v8_exception (tc); }
    }
 
    return result.IsEmpty () ? result : scope.Close (result);
@@ -209,7 +217,11 @@ dmz::JsModuleTypesV8Basic::to_v8_mask (const Mask &Value) {
 
       V8Value argv[] = { array };
 
+      v8::TryCatch tc;
+
       result = V8Object::Cast (_maskCtor->Call (_mask, 1, argv));
+
+      if (tc.HasCaught () && _core) { _core->handle_v8_exception (tc); }
    }
 
    return result.IsEmpty () ? result : scope.Close (result);

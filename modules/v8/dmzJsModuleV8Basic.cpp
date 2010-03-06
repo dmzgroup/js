@@ -84,7 +84,10 @@ global_setter (
 };
 
 
-dmz::JsModuleV8Basic::JsModuleV8Basic (const PluginInfo &Info, Config &local) :
+dmz::JsModuleV8Basic::JsModuleV8Basic (
+      const PluginInfo &Info,
+      Config &local,
+      Config &global) :
       Plugin (Info),
       TimeSlice (Info, TimeSliceTypeRuntime, TimeSliceModeSingle, 0.0),
       JsModuleV8 (Info),
@@ -95,7 +98,7 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (const PluginInfo &Info, Config &local) :
       _shutdown (False),
       _runtime (0) {
 
-   _init (local);
+   _init (local, global);
 }
 
 
@@ -569,6 +572,10 @@ dmz::JsModuleV8Basic::_load_scripts () {
             if (_runtime) {
 
                self->Set (
+                  v8::String::NewSymbol ("config"),
+                  _runtime->create_v8_config (&(instance->local)));
+
+               self->Set (
                   v8::String::NewSymbol ("log"),
                   _runtime->create_v8_log (instance->Name));
             }
@@ -638,7 +645,7 @@ dmz::JsModuleV8Basic::_find_script (Config &script) {
 
 
 void
-dmz::JsModuleV8Basic::_init (Config &local) {
+dmz::JsModuleV8Basic::_init (Config &local, Config &global) {
 
    _localPaths = config_to_path_string_container (local);
 
@@ -666,6 +673,7 @@ dmz::JsModuleV8Basic::_init (Config &local) {
          if (ss) {
 
             const String UniqueName = config_to_string ("unique", instance, ss->Name);
+            const String ScopeName = config_to_string ("scope", instance, UniqueName);
 
             InstanceStruct *ptr = new InstanceStruct (UniqueName, *ss);
 
@@ -674,6 +682,12 @@ dmz::JsModuleV8Basic::_init (Config &local) {
                delete ptr; ptr = 0;
                _log.error << "Script instance name: " << UniqueName << " is not unique."
                   << endl;
+            }
+            else {
+
+               Config local (ScopeName);
+               global.lookup_all_config_merged (String ("dmz.") + ScopeName, local);
+               ptr->local = local;
             }
          }
       }
@@ -691,7 +705,7 @@ create_dmzJsModuleV8Basic (
       dmz::Config &local,
       dmz::Config &global) {
 
-   return new dmz::JsModuleV8Basic (Info, local);
+   return new dmz::JsModuleV8Basic (Info, local, global);
 }
 
 };
