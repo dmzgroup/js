@@ -21,6 +21,9 @@ exports.isNotZero = function (value) {
 };
 
 
+exports.isUndefined = function (val) { var ud; return val === ud; };
+
+
 exports.hasFunction = function (obj, name) {
  
    return typeof obj[name] === "function";

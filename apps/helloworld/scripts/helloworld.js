@@ -1,6 +1,7 @@
 var puts = require('sys').puts;
 var vector = require('dmz/types/vector');
 var mask = require('dmz/types/mask');
+var util = require('dmz/types/util');
 var createError = require('dmz/types/util').createError;
 var defs = require('dmz/runtime/definitions');
 var time = require('dmz/runtime/time');
@@ -92,6 +93,7 @@ objList.forEach(function (cd) { self.log.out (cd.toString("value")); });
 var gv = ot.lookup("ground-vehicle");
 var ct = gv.getChildren();
 ct.forEach (function (type) { self.log.out(gv.getName(), "child =", type.getName()); });
+self.log.out ("is undefine:", util.isUndefined (self.foo));
 /*
 var cb = time.setRepeatingTimer(self, 1, function () { puts("******* Hello World!!!"); });
 
