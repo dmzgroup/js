@@ -19,7 +19,7 @@ dmz::JsModuleRuntimeV8Basic::_undo_is_nested_handle (const v8::Arguments &Args) 
 
       const Handle UndoHandle = v8_to_handle (Args[0]);
 
-      result = v8::Boolean::New ((double)self->_undo.is_nested_handle (UndoHandle));
+      result = v8::Boolean::New (self->_undo.is_nested_handle (UndoHandle));
    }
 
    return result.IsEmpty () ? result : scope.Close (result);

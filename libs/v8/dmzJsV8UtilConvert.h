@@ -122,7 +122,7 @@ dmz::v8_to_int32 (V8Value value) {
 
    if ((value.IsEmpty () == false) && value->IsNumber ()) {
 
-      result = value->IntegerValue ();
+      result = (Int32)value->IntegerValue ();
    }
 
    return result;
