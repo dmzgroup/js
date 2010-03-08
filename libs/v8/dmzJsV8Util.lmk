@@ -14,4 +14,8 @@ lmk.add_libs {
    "dmzKernel",
 }
 
+lmk.add_vars ({
+   localDefines = "$(lmk.defineFlag)DMZ_JS_V8_UTIL_EXPORT",
+}, {win32 = true})
+
 lmkV8.add_libs ()

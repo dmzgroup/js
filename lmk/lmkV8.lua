@@ -19,7 +19,13 @@ function add_libs ()
    local libDebug = ""
    if sys == "win32" then
       local buildMode = resolve ("$(lmk.buildMode)")
-      if buildMode == "debug" then libDebug = resolve ("$(DMZ_V8_DEBUG)") end
+      if buildMode == "debug" then
+         libDebug = resolve ("$(DMZ_V8_DEBUG)")
+         if libDebug == "" then libDebug = "_g" end
+      end
+      lmk.add_vars {
+         localDefines = "$(lmk.defineFlag)USING_V8_SHARED /wd4251",
+      }
    end
    local includePath = resolve ("$(DMZ_V8_INCLUDE_PATH)")
    if not includePath or includePath == "" then
