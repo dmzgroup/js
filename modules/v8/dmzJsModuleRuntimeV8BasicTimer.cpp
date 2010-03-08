@@ -93,8 +93,8 @@ dmz::JsModuleRuntimeV8Basic::_set_base_timer (
 
       const Boolean SetInterval = Args.Length () > 2 ? True : False;
 
-      V8Object obj = V8Object::Cast (Args[0]);
-      V8Function func = V8Function::Cast (Args[SetInterval ? 2 : 1]);
+      V8Object obj = v8_to_object (Args[0]);
+      V8Function func = v8_to_function (Args[SetInterval ? 2 : 1]);
       Float64 interval = SetInterval ? Args[1]->NumberValue () : 0.0;
 
       if (obj.IsEmpty () || func.IsEmpty ()) {} // Do nothing
@@ -166,8 +166,8 @@ dmz::JsModuleRuntimeV8Basic::_cancle_timer (const v8::Arguments &Args) {
 
    if (self) {
 
-      V8Object obj = V8Object::Cast (Args[0]);
-      V8Function func = V8Function::Cast (Args[1]);
+      V8Object obj = v8_to_object (Args[0]);
+      V8Function func = v8_to_function (Args[1]);
 
       if (obj.IsEmpty () || func.IsEmpty ()) {} // Throw Exception
       else {

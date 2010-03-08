@@ -156,7 +156,6 @@ namespace dmz {
          void _clear ();
          void _reset ();
          Handle _to_handle (V8Value value);
-         Int32 _to_int32 (V8Value value, const Int32 Default = -1);
          // implemented in dmzJsModuleRuntimeV8BasicData.cpp
          void _init_config ();
          V8Object _to_config (V8Value value);

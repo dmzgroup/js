@@ -209,7 +209,7 @@ dmz::JsModuleRuntimeV8Basic::_data_boolean (const v8::Arguments &Args) {
       if (ptr) {
 
          const Handle Attr = self->_to_handle (Args[0]);
-         const Int32 Element = self->_to_int32 (Args[1]);
+         const Int32 Element = v8_to_int32 (Args[1]);
 
          if (Attr && (Element >= 0)) {
 
@@ -254,7 +254,7 @@ dmz::JsModuleRuntimeV8Basic::_data_number (const v8::Arguments &Args) {
       if (ptr) {
 
          const Handle Attr = self->_to_handle (Args[0]);
-         const Int32 Element = self->_to_int32 (Args[1]);
+         const Int32 Element = v8_to_int32 (Args[1]);
 
          if (Attr && (Element >= 0)) {
 
@@ -299,7 +299,7 @@ dmz::JsModuleRuntimeV8Basic::_data_handle (const v8::Arguments &Args) {
       if (ptr) {
 
          const Handle Attr = self->_to_handle (Args[0]);
-         const Int32 Element = self->_to_int32 (Args[1]);
+         const Int32 Element = v8_to_int32 (Args[1]);
 
          if (Attr && (Element >= 0)) {
 
@@ -344,7 +344,7 @@ dmz::JsModuleRuntimeV8Basic::_data_string (const v8::Arguments &Args) {
       if (ptr) {
 
          const Handle Attr = self->_to_handle (Args[0]);
-         const Int32 Element = self->_to_int32 (Args[1]);
+         const Int32 Element = v8_to_int32 (Args[1]);
 
          if (Attr && (Element >= 0)) {
 
@@ -389,7 +389,7 @@ dmz::JsModuleRuntimeV8Basic::_data_matrix (const v8::Arguments &Args) {
       if (ptr) {
 
          const Handle Attr = self->_to_handle (Args[0]);
-         const Int32 Element = self->_to_int32 (Args[1]);
+         const Int32 Element = v8_to_int32 (Args[1]);
 
          if (Attr && (Element >= 0)) {
 
@@ -434,7 +434,7 @@ dmz::JsModuleRuntimeV8Basic::_data_vector (const v8::Arguments &Args) {
       if (ptr) {
 
          const Handle Attr = self->_to_handle (Args[0]);
-         const Int32 Element = self->_to_int32 (Args[1]);
+         const Int32 Element = v8_to_int32 (Args[1]);
 
          if (Attr && (Element >= 0)) {
 
@@ -532,7 +532,7 @@ dmz::JsModuleRuntimeV8Basic::_to_data (V8Value value) {
 
    V8Object result;
 
-   V8Object obj = V8Object::Cast (value);
+   V8Object obj = v8_to_object (value);
 
    if (obj.IsEmpty () == false) {
 
@@ -553,7 +553,7 @@ dmz::JsModuleRuntimeV8Basic::_to_data_ptr (V8Value value) {
 
    Data *result (0);
 
-   V8Object obj = V8Object::Cast (value);
+   V8Object obj = v8_to_object (value);
 
    if (obj.IsEmpty () == false) {
 

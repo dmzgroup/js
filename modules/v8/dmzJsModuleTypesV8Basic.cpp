@@ -1,5 +1,6 @@
 #include "dmzJsModuleTypesV8Basic.h"
 #include <dmzJsModuleV8.h>
+#include <dmzJsV8UtilConvert.h>
 #include <dmzJsV8UtilTypes.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
@@ -9,8 +10,16 @@ namespace {
 inline static v8::Persistent<v8::Function>
 local_to_v8_function (v8::Handle<v8::Object> obj, v8::Handle<v8::String> name) {
 
-   return v8::Persistent<v8::Function>::New (
-      v8::Handle<v8::Function>::Cast (obj->Get (name)));
+   dmz::V8FunctionPersist result;
+
+   dmz::V8Value func = obj->Get (name);
+
+   if ((func.IsEmpty () == false) && func->IsFunction ()) {
+
+      result = dmz::V8FunctionPersist::New (dmz::v8_to_function (func));
+   }
+
+   return result;
 }
 
 };
@@ -86,7 +95,7 @@ dmz::JsModuleTypesV8Basic::to_v8_vector (const Vector &Value) {
 
       v8::TryCatch tc;
 
-      result = V8Object::Cast (_vectorCtor->Call (_vector, 3, argv));
+      result = v8_to_object (_vectorCtor->Call (_vector, 3, argv));
 
       if (tc.HasCaught () && _core) { _core->handle_v8_exception (tc); }
    }
@@ -102,22 +111,14 @@ dmz::JsModuleTypesV8Basic::to_dmz_vector (const v8::Handle<v8::Value> Value) {
 
    Vector result;
 
-   V8Object obj = V8Object::Cast (Value);
+   V8Object obj = v8_to_object (Value);
 
    if (!obj.IsEmpty ()) {
 
-      Float64 theX = 0.0, theY = 0.0, theZ = 0.0;
-
-      V8Number xnum = v8::Handle<v8::Number>::Cast (obj->Get (_xStr));
-      if (!xnum.IsEmpty ()) { theX = xnum->Value (); }
-
-      V8Number ynum = v8::Handle<v8::Number>::Cast (obj->Get (_yStr));
-      if (!ynum.IsEmpty ()) { theY = ynum->Value (); }
-
-      V8Number znum = v8::Handle<v8::Number>::Cast (obj->Get (_zStr));
-      if (!znum.IsEmpty ()) { theZ = znum->Value (); }
-
-      result.set_xyz (theX, theY, theZ);
+      result.set_xyz (
+         v8_to_number (obj->Get (_xStr)),
+         v8_to_number (obj->Get (_yStr)),
+         v8_to_number (obj->Get (_yStr)));
    }
 
    return result;
@@ -151,7 +152,7 @@ dmz::JsModuleTypesV8Basic::to_v8_matrix (const Matrix &Value) {
 
       v8::TryCatch tc;
 
-      result = V8Object::Cast (_matrixCtor->Call (_matrix, 9, argv));
+      result = v8_to_object (_matrixCtor->Call (_matrix, 9, argv));
 
       if (tc.HasCaught () && _core) { _core->handle_v8_exception (tc); }
    }
@@ -167,11 +168,11 @@ dmz::JsModuleTypesV8Basic::to_dmz_matrix (const v8::Handle<v8::Value> Value) {
 
    Matrix result;
 
-   V8Object obj = V8Object::Cast (Value);
+   V8Object obj = v8_to_object (Value);
 
    if (!obj.IsEmpty ()) {
 
-      V8Array array = v8::Handle<v8::Array>::Cast (obj->Get (_vStr));
+      V8Array array = v8_to_array (obj->Get (_vStr));
 
       if (!array.IsEmpty ()) {
 
@@ -181,10 +182,7 @@ dmz::JsModuleTypesV8Basic::to_dmz_matrix (const v8::Handle<v8::Value> Value) {
 
          for (Int32 ix = 0; ix < 9; ix++) {
 
-            V8Number element = V8Number::Cast (
-               array->Get (v8::Integer::New (ix)));
-
-            mat[ix] = element.IsEmpty () ? 0.0 : element->Value ();
+            mat[ix] = v8_to_number (array->Get (v8::Integer::New (ix)));
          }
 
          result.from_array (mat);
@@ -219,7 +217,7 @@ dmz::JsModuleTypesV8Basic::to_v8_mask (const Mask &Value) {
 
       v8::TryCatch tc;
 
-      result = V8Object::Cast (_maskCtor->Call (_mask, 1, argv));
+      result = v8_to_object (_maskCtor->Call (_mask, 1, argv));
 
       if (tc.HasCaught () && _core) { _core->handle_v8_exception (tc); }
    }
@@ -235,11 +233,11 @@ dmz::JsModuleTypesV8Basic::to_dmz_mask (const v8::Handle<v8::Value> Value) {
 
    Mask result;
 
-   V8Object obj = V8Object::Cast (Value);
+   V8Object obj = v8_to_object (Value);
 
    if (!obj.IsEmpty ()) {
 
-      V8Array bits = V8Array::Cast (obj->Get (_bitsStr));
+      V8Array bits = v8_to_array (obj->Get (_bitsStr));
 
       if (!bits.IsEmpty ()) {
 

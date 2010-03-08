@@ -319,7 +319,7 @@ dmz::JsModuleRuntimeV8Basic::_to_object_type (V8Value value) {
 
    V8Object result;
 
-   V8Object obj = V8Object::Cast (value);
+   V8Object obj = v8_to_object (value);
 
    if (obj.IsEmpty () == false) {
 
@@ -340,7 +340,7 @@ dmz::JsModuleRuntimeV8Basic::_to_object_type_ptr (V8Value value) {
 
    ObjectType *result (0);
 
-   V8Object obj = V8Object::Cast (value);
+   V8Object obj = v8_to_object (value);
 
    if (obj.IsEmpty () == false) {
 
