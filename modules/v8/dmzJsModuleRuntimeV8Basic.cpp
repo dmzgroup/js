@@ -236,18 +236,6 @@ dmz::JsModuleRuntimeV8Basic::_to_handle (V8Value value) {
 }
 
 
-dmz::Int32
-dmz::JsModuleRuntimeV8Basic::_to_int32 (V8Value value, const Int32 Default) {
-
-   Int32 result (Default);
-
-   v8::Handle<v8::Integer> arg = v8::Handle<v8::Integer>::Cast (value);
-   if (arg.IsEmpty () == false) { result = arg->Value (); }
-
-   return result;
-}
-
-
 void
 dmz::JsModuleRuntimeV8Basic::_init (Config &local) {
 

@@ -286,12 +286,12 @@ dmz::JsModuleV8Basic::require (const String &Value) {
          if (script.IsEmpty ()) { handle_v8_exception (tc); }
          else {
 
-            v8::Handle<v8::Value> value = script->Run ();
+            V8Value value = script->Run ();
 
             if (value.IsEmpty ()) { handle_v8_exception (tc); }
             else {
 
-               v8::Handle<v8::Function> func = v8::Handle<v8::Function>::Cast (value);
+               V8Function func = v8_to_function (value);
 
                if (func.IsEmpty ()) {
                   // Error! no function returned.
@@ -539,7 +539,7 @@ dmz::JsModuleV8Basic::_load_scripts () {
          if (value.IsEmpty ()) { handle_v8_exception (tc); }
          else {
 
-            v8::Handle<v8::Function> func = v8::Handle<v8::Function>::Cast (value);
+            V8Function func = v8_to_function (value);
             if (func.IsEmpty ()) {
                // Error! no function returned.
                _log.error << "No function returned from: " << info->FileName << endl;

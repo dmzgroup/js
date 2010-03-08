@@ -12,8 +12,13 @@ template <class T> T *
 v8_to_pointer (V8Value value) {
 
    T *result (0);
-   V8External external = V8External::Cast (value);
-   if (external.IsEmpty () == false) { result = (T *)external->Value (); }
+
+   if ((value.IsEmpty () == false) && value->IsExternal ()) {
+
+      V8External external = V8External::Cast (value);
+      if (external.IsEmpty () == false) { result = (T *)external->Value (); }
+   }
+
    return result;
 }
 
@@ -48,11 +53,23 @@ v8_to_string (V8Value value);
 Float64
 v8_to_number (V8Value value);
 
+Int32
+v8_to_int32 (V8Value value);
+
 UInt32
 v8_to_uint32 (V8Value value);
 
 UInt32
 v8_to_handle (V8Value value);
+
+V8Object
+v8_to_object (V8Value value);
+
+V8Function
+v8_to_function (V8Value value);
+
+V8Array
+v8_to_array (V8Value value);
 
 Boolean
 v8_is_object (V8Value value);
@@ -98,6 +115,20 @@ dmz::v8_to_number (V8Value value) {
 }
 
 
+inline dmz::Int32
+dmz::v8_to_int32 (V8Value value) {
+
+   Int32 result (0);
+
+   if ((value.IsEmpty () == false) && value->IsNumber ()) {
+
+      result = value->IntegerValue ();
+   }
+
+   return result;
+}
+
+
 inline dmz::UInt32
 dmz::v8_to_uint32 (V8Value value) {
 
@@ -120,6 +151,48 @@ dmz::v8_to_handle (V8Value value) {
    if ((value.IsEmpty () == false) && value->IsNumber ()) {
 
       result = value->Uint32Value ();
+   }
+
+   return result;
+}
+
+
+inline dmz::V8Object
+dmz::v8_to_object (V8Value value) {
+
+   V8Object result;
+
+   if ((value.IsEmpty () == false) && value->IsObject ()) {
+
+      result = V8Object::Cast (value);
+   }
+
+   return result;
+}
+
+
+inline dmz::V8Function
+dmz::v8_to_function (V8Value value) {
+
+   V8Function result;
+
+   if ((value.IsEmpty () == false) && value->IsFunction ()) { 
+
+      result = V8Function::Cast (value);
+   }
+
+   return result;
+}
+
+
+inline dmz::V8Array
+dmz::v8_to_array (V8Value value) {
+
+   V8Array result;
+
+   if ((value.IsEmpty () == false) && value->IsArray ()) {
+
+      result = V8Array::Cast (value);
    }
 
    return result;

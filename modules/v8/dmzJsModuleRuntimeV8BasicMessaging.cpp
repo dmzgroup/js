@@ -79,7 +79,7 @@ dmz::JsModuleRuntimeV8Basic::MessageStruct::receive_message (
       v8::Context::Scope cscope (v8Context);
       v8::HandleScope scope;
 
-      V8Object outObj = V8Object::Cast (module.create_v8_data (outData));
+      V8Object outObj = v8_to_object (module.create_v8_data (outData));
 
       v8::Handle<v8::Value> argv[] = {
          module.create_v8_data (InData),
@@ -221,7 +221,7 @@ dmz::JsModuleRuntimeV8Basic::_message_subscribe (const v8::Arguments &Args) {
 
       String name;
 
-      V8Object obj = V8Object::Cast (Args[0]);
+      V8Object obj = v8_to_object (Args[0]);
 
       if (obj.IsEmpty () == false) {
 
@@ -265,13 +265,13 @@ dmz::JsModuleRuntimeV8Basic::_message_subscribe (const v8::Arguments &Args) {
                if (cb && !ms->cbTable.store (MsgHandle, cb)) { delete cb; cb = 0; }
             }
 
-            if (cb) {
+            if (cb && Args[1]->IsFunction ()) {
 
                cb->self.Dispose (); cb->self.Clear ();
                cb->func.Dispose (); cb->func.Clear ();
 
                cb->self = V8ObjectPersist::New (obj);
-               cb->func = V8FunctionPersist::New (V8Function::Cast (Args[1]));
+               cb->func = V8FunctionPersist::New (v8_to_function (Args[1]));
                result = v8::Local<v8::Function>::New (cb->func);
                ms->subscribe_to_message (*ptr);
             }
@@ -295,7 +295,7 @@ dmz::JsModuleRuntimeV8Basic::_message_unsubscribe (const v8::Arguments &Args) {
 
       String name;
 
-      V8Object obj = V8Object::Cast (Args[0]);
+      V8Object obj = v8_to_object (Args[0]);
 
       if (obj.IsEmpty () == false) {
 
@@ -388,7 +388,7 @@ dmz::JsModuleRuntimeV8Basic::_to_message_ptr (V8Value value) {
 
    Message *result (0);
 
-   V8Object obj = V8Object::Cast (value);
+   V8Object obj = v8_to_object (value);
 
    if (obj.IsEmpty () == false) {
 
