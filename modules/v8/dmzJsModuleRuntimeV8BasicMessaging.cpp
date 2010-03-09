@@ -217,7 +217,7 @@ dmz::JsModuleRuntimeV8Basic::_message_subscribe (const v8::Arguments &Args) {
 
    JsModuleRuntimeV8Basic *self = to_self (Args);
 
-   if (self) {
+   if (self && (Args.Length () >= 2)) {
 
       String name;
 
