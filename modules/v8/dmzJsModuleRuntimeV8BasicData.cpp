@@ -493,6 +493,19 @@ dmz::JsModuleRuntimeV8Basic::create_v8_data (const Data *Value) {
 }
 
 
+dmz::Boolean
+dmz::JsModuleRuntimeV8Basic::to_dmz_data (V8Value value, Data &out) {
+
+   Boolean result (False);
+
+   Data *ptr = _to_data_ptr (value);
+
+   if (ptr) { out = *ptr; result = True; }
+
+   return result;
+}
+
+
 void
 dmz::JsModuleRuntimeV8Basic::_init_data () {
 

@@ -277,6 +277,19 @@ dmz::JsModuleRuntimeV8Basic::create_v8_event_type (const EventType *Value) {
 }
 
 
+dmz::Boolean
+dmz::JsModuleRuntimeV8Basic::to_dmz_event_type (V8Value value, EventType &out) {
+
+   Boolean result (False);
+
+   EventType *ptr = _to_event_type_ptr (value);
+
+   if (ptr) { out = *ptr; result = True; }
+
+   return result;
+}
+
+
 void
 dmz::JsModuleRuntimeV8Basic::_init_event_type () {
 

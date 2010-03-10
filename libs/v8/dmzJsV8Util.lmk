@@ -9,7 +9,13 @@ lmk.add_files {
    "dmzJsV8UtilStrings.h",
    "dmzJsV8UtilTypes.h",
 }
-lmk.add_files {"dmzJsV8UtilHelpers.cpp", "dmzJsV8UtilStrings.cpp",}
+
+lmk.add_files {
+   "dmzJsV8UtilConvert.cpp",
+   "dmzJsV8UtilHelpers.cpp",
+   "dmzJsV8UtilStrings.cpp",
+}
+
 lmk.add_libs {
    "dmzKernel",
 }

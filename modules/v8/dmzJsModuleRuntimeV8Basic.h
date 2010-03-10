@@ -6,6 +6,7 @@
 #include <dmzJsV8UtilConvert.h>
 #include <dmzJsV8UtilHelpers.h>
 #include <dmzJsV8UtilTypes.h>
+#include <dmzRuntimeData.h>
 #include <dmzRuntimeDataConverterTypesBase.h>
 #include <dmzRuntimeDefinitions.h>
 #include <dmzRuntimeLog.h>
@@ -22,7 +23,6 @@
 namespace dmz {
 
    class JsModuleTypesV8;
-   class Data;
 
    class JsModuleRuntimeV8Basic :
          public Plugin,
@@ -46,10 +46,15 @@ namespace dmz {
          // JsModuleRuntimeV8 Interface
          virtual v8::Handle<v8::Value> create_v8_config (const Config *Value);
          virtual v8::Handle<v8::Value> create_v8_data (const Data *Value);
+         virtual Boolean to_dmz_data (v8::Handle<v8::Value> value, Data &out);
          virtual v8::Handle<v8::Value> create_v8_event_type (const EventType *Value);
+         virtual Boolean to_dmz_event_type (v8::Handle<v8::Value> value, EventType &out);
          virtual v8::Handle<v8::Value> create_v8_log (const String &Name);
          virtual v8::Handle<v8::Value> create_v8_message (const String &Name);
          virtual v8::Handle<v8::Value> create_v8_object_type (const ObjectType *Value);
+         virtual Boolean to_dmz_object_type (
+            v8::Handle<v8::Value> value,
+            ObjectType &out);
 
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);

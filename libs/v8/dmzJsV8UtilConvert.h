@@ -3,10 +3,14 @@
 
 #include <dmzJsV8UtilExport.h>
 #include <dmzJsV8UtilTypes.h>
+#include <dmzTypesBase.h>
+#include <dmzTypesString.h>
 
 #include <v8.h>
 
 namespace dmz {
+
+class HandleContainer;
 
 template <class T> T *
 v8_to_pointer (V8Value value) {
@@ -70,6 +74,9 @@ v8_to_function (V8Value value);
 
 V8Array
 v8_to_array (V8Value value);
+
+DMZ_JS_V8_UTIL_LINK_SYMBOL V8Array
+v8_to_array (HandleContainer &container);
 
 Boolean
 v8_is_object (V8Value value);

@@ -277,6 +277,19 @@ dmz::JsModuleRuntimeV8Basic::create_v8_object_type (const ObjectType *Value) {
 }
 
 
+dmz::Boolean
+dmz::JsModuleRuntimeV8Basic::to_dmz_object_type (V8Value value, ObjectType &out) {
+
+   Boolean result (False);
+
+   ObjectType *ptr = _to_object_type_ptr (value);
+
+   if (ptr) { out = *ptr; result = True; }
+
+   return result;
+}
+
+
 void
 dmz::JsModuleRuntimeV8Basic::_init_object_type () {
 

@@ -1,19 +1,34 @@
 #ifndef DMZ_JS_EXT_V8_OBJECT_DOT_H
 #define DMZ_JS_EXT_V8_OBJECT_DOT_H
 
+#include <dmzJsExtV8.h>
+#include <dmzJsV8UtilConvert.h>
+#include <dmzJsV8UtilHelpers.h>
+#include <dmzJsV8UtilTypes.h>
 #include <dmzObjectObserverUtil.h>
+#include <dmzRuntimeDefinitions.h>
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
 #include <dmzRuntimeTimeSlice.h>
+#include <dmzTypesHandleContainer.h>
+
+#include <v8.h>
 
 namespace dmz {
 
+   class JsModuleRuntimeV8;
+   class JsModuleTypesV8;
+   class JsModuleV8;
+
    class JsExtV8Object :
          public Plugin,
+         public JsExtV8,
          public TimeSlice,
          public ObjectObserverUtil {
 
       public:
+         static JsExtV8Object *to_self (const v8::Arguments &Args);
+
          JsExtV8Object (const PluginInfo &Info, Config &local);
          ~JsExtV8Object ();
 
@@ -25,6 +40,11 @@ namespace dmz {
          virtual void discover_plugin (
             const PluginDiscoverEnum Mode,
             const Plugin *PluginPtr);
+
+         // JsExtV8 Interface
+         virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
+         virtual void update_js_context_v8 (v8::Handle<v8::Context> context);
+         virtual void update_js_ext_v8_state (const StateEnum State);
 
          // TimeSlice Interface
          virtual void update_time_slice (const Float64 TimeDelta);
@@ -196,9 +216,58 @@ namespace dmz {
             const Data *PreviousValue);
 
       protected:
+         static Handle _to_attr (JsExtV8Object *self, V8Value value);
+         static Handle _to_object (JsExtV8Object *self, V8Value value);
+         static Boolean _get_params (
+            const v8::Arguments &Args,
+            ObjectModule *&objMod,
+            JsModuleTypesV8 *&types,
+            Handle &obj,
+            Handle &attr);
+
+         static V8Value _object_create (const v8::Arguments &Args);
+         static V8Value _object_activate (const v8::Arguments &Args);
+         static V8Value _object_destroy (const v8::Arguments &Args);
+         static V8Value _object_clone (const v8::Arguments &Args);
+         static V8Value _object_make_persistent (const v8::Arguments &Args);
+         static V8Value _object_lookup_type (const v8::Arguments &Args);
+         static V8Value _object_uuid (const v8::Arguments &Args);
+         static V8Value _object_link (const v8::Arguments &Args);
+         static V8Value _object_lookup_link_handle (const v8::Arguments &Args);
+         static V8Value _object_lookup_linked_objects (const v8::Arguments &Args);
+         static V8Value _object_unlink (const v8::Arguments &Args);
+         static V8Value _object_unlink_super_objects (const v8::Arguments &Args);
+         static V8Value _object_unlink_sub_objects (const v8::Arguments &Args);
+         static V8Value _object_lookup_super_links (const v8::Arguments &Args);
+         static V8Value _object_lookup_sub_links (const v8::Arguments &Args);
+         static V8Value _object_link_attribute_object (const v8::Arguments &Args);
+         static V8Value _object_lookup_attribute_object_links (const v8::Arguments &Args);
+         static V8Value _object_position (const v8::Arguments &Args);
+         static V8Value _object_velocity (const v8::Arguments &Args);
+         static V8Value _object_acceleration (const v8::Arguments &Args);
+         static V8Value _object_scale (const v8::Arguments &Args);
+         static V8Value _object_vector (const v8::Arguments &Args);
+
+         // JsExtV8Object Interface
+         Handle _to_handle (V8Value value);
+         Handle _to_object_handle (V8Value value);
          void _init (Config &local);
 
          Log _log;
+         Definitions _defs;
+
+         HandleContainer _localObjects;
+
+         V8InterfaceHelper _objectApi;
+
+         v8::Handle<v8::Context> _v8Context;
+         V8ValuePersist _self;
+
+         Handle _defaultAttr;
+
+         JsModuleRuntimeV8 *_runtime;
+         JsModuleTypesV8 *_types;
+         JsModuleV8 *_core;
 
       private:
          JsExtV8Object ();
@@ -207,5 +276,12 @@ namespace dmz {
 
    };
 };
+
+
+inline dmz::JsExtV8Object *
+dmz::JsExtV8Object::to_self (const v8::Arguments &Args) {
+
+   return (dmz::JsExtV8Object *)v8::External::Unwrap (Args.Data ());
+}
 
 #endif // DMZ_JS_EXT_V8_OBJECT_DOT_H

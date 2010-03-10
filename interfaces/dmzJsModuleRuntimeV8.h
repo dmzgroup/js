@@ -28,11 +28,18 @@ namespace dmz {
          // JsModuleRuntimeV8 Interface
          virtual v8::Handle<v8::Value> create_v8_config (const Config *Value) = 0;
          virtual v8::Handle<v8::Value> create_v8_data (const Data *Value) = 0;
+         virtual Boolean to_dmz_data (v8::Handle<v8::Value> value, Data &out) = 0;
          virtual v8::Handle<v8::Value> create_v8_event_type (const EventType *Value) = 0;
+         virtual Boolean to_dmz_event_type (
+            v8::Handle<v8::Value> value,
+            EventType &out) = 0;
          virtual v8::Handle<v8::Value> create_v8_log (const String &Name) = 0;
          virtual v8::Handle<v8::Value> create_v8_message (const String &Name) = 0;
          virtual v8::Handle<v8::Value> create_v8_object_type (
             const ObjectType *Value) = 0;
+         virtual Boolean to_dmz_object_type (
+            v8::Handle<v8::Value> value,
+            ObjectType &out) = 0;
 
       protected:
          JsModuleRuntimeV8 (const PluginInfo &Info);
