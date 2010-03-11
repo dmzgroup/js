@@ -60,6 +60,9 @@ v8_to_number (V8Value value);
 Int32
 v8_to_int32 (V8Value value);
 
+Int64
+v8_to_int64 (V8Value value);
+
 UInt32
 v8_to_uint32 (V8Value value);
 
@@ -130,6 +133,20 @@ dmz::v8_to_int32 (V8Value value) {
    if ((value.IsEmpty () == false) && value->IsNumber ()) {
 
       result = (Int32)value->IntegerValue ();
+   }
+
+   return result;
+}
+
+
+inline dmz::Int64
+dmz::v8_to_int64 (V8Value value) {
+
+   Int64 result (0);
+
+   if ((value.IsEmpty () == false) && value->IsNumber ()) {
+
+      result = value->IntegerValue ();
    }
 
    return result;

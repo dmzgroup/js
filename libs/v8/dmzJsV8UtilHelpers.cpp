@@ -1,5 +1,6 @@
 #include <dmzJsV8UtilHelpers.h>
 #include <dmzTypesHashTableStringTemplate.h>
+#include <dmzTypesStringTokenizer.h>
 
 using namespace dmz;
 
@@ -8,15 +9,49 @@ static qdb out;
 
 namespace {
 
+static const char ScopeChar = '.';
+
 struct InterfaceStruct {
 
    const String Name;
    V8FunctionTemplatePersist funcTemplate;
+   HashTableStringTemplate<InterfaceStruct> table;
    InterfaceStruct (const String &TheName) : Name (TheName) {;}
-   ~InterfaceStruct () { funcTemplate.Dispose (); funcTemplate.Clear (); }
+   ~InterfaceStruct () {
+
+      funcTemplate.Dispose ();
+      funcTemplate.Clear ();
+      table.empty ();
+   }
 };
 
-V8Value
+static void
+local_get_scope (const String &Path, String &scope, String &name) {
+
+   const Int32 Length (Path.get_length ());
+   Boolean done (False);
+   Int32 place = Length - 1;
+
+   while (!done) {
+
+      if (place < 0) { done = True; }
+      else if (Path.get_char (place) == ScopeChar) {
+
+         done = True;
+      }
+      else { place--; }
+   }
+
+   if (place >= 0) {
+
+      name = Path.get_sub (0, place - 1);
+      scope = Path.get_sub (place + 1);
+   }
+   else { name = Path; scope.flush (); }
+}
+
+
+static V8Value
 local_get_number (v8::Local<v8::String> property, const v8::AccessorInfo &Info) {
 
    v8::HandleScope scope;
@@ -30,7 +65,7 @@ local_get_number (v8::Local<v8::String> property, const v8::AccessorInfo &Info) 
 }
 
 
-V8Value
+static V8Value
 local_get_string (v8::Local<v8::String> property, const v8::AccessorInfo &Info) {
 
    v8::HandleScope scope;
@@ -121,21 +156,63 @@ dmz::V8InterfaceHelper::reset () {
 
 dmz::Boolean
 dmz::V8InterfaceHelper::add_function (
-      const String &Name,
+      const String &Path,
       v8::InvocationCallback cb,
       V8Value data) {
 
-   v8::HandleScope scope;
+   v8::HandleScope v8Scope;
    Boolean result (False);
 
-   InterfaceStruct *is = new InterfaceStruct (Name);
+   String scope, name;
 
-   if (_state.table.store (Name, is)) {
+   local_get_scope (Path, scope, name);
+
+   HashTableStringTemplate<InterfaceStruct> *table (&(_state.table));
+
+   InterfaceStruct *foundIs (0);
+
+   if (scope) {
+
+      StringTokenizer stz (scope, ScopeChar);
+
+      String token;
+
+      while (table && stz.get_next (token)) {
+
+         foundIs = table->lookup (token);
+         if (foundIs) { table = &(foundIs->table); }
+      }
+   }
+
+   InterfaceStruct *is = new InterfaceStruct (name);
+
+   if (name && table && table->store (name, is)) {
 
       is->funcTemplate = V8FunctionTemplatePersist::New (
          v8::FunctionTemplate::New (cb, data));
 
-      result = True;
+      if (foundIs) {
+
+         if (foundIs->funcTemplate.IsEmpty () == false) {
+
+            foundIs->funcTemplate->Set (
+               v8::String::NewSymbol (name.get_buffer ()),
+               is->funcTemplate);
+
+            result = True;
+         }
+      }
+      else {
+
+         if (_state.objTemplate.IsEmpty () == false) {
+
+            _state.objTemplate->Set (
+               v8::String::NewSymbol (name.get_buffer ()),
+               is->funcTemplate);
+
+            result = True;
+         }
+      }
    }
    else if (is) { delete is; is = 0; }
 
@@ -213,16 +290,6 @@ dmz::V8InterfaceHelper::get_new_instance () {
    clear ();
 
    _state.obj = V8ObjectPersist::New (_state.objTemplate->NewInstance ());
- 
-   HashTableStringIterator it;
-   InterfaceStruct *current (0);
-
-   while (_state.table.get_next (it, current)) {
-
-      _state.obj->Set (
-         v8::String::NewSymbol (current->Name.get_buffer ()),
-         current->funcTemplate->GetFunction ());
-   }
 
    return _state.obj;
 }

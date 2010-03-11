@@ -5,6 +5,7 @@
 #include <dmzObjectConsts.h>
 #include <dmzObjectModule.h>
 #include <dmzObjectAttributeMasks.h>
+#include <dmzRuntimeData.h>
 #include <dmzRuntimeObjectType.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
@@ -84,6 +85,86 @@ dmz::JsExtV8Object::_get_params (
 
 
 dmz::V8Value
+dmz::JsExtV8Object::_object_is_object (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   JsExtV8Object *self = to_self (Args);
+   ObjectModule *objMod = (self ? self->get_object_module () : 0);
+   const Handle Object = v8_to_handle (Args[0]);
+
+   if (self && objMod && Object) {
+
+      result = v8::Boolean::New (objMod->is_object (Object));
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_is_activated (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   JsExtV8Object *self = to_self (Args);
+   ObjectModule *objMod = (self ? self->get_object_module () : 0);
+   const Handle Object = v8_to_handle (Args[0]);
+
+   if (self && objMod && Object) {
+
+      result = v8::Boolean::New (objMod->is_activated (Object));
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_is_link (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   JsExtV8Object *self = to_self (Args);
+   ObjectModule *objMod = (self ? self->get_object_module () : 0);
+   const Handle Link = v8_to_handle (Args[0]);
+
+   if (self && objMod && Link) {
+
+      result = v8::Boolean::New (objMod->is_link (Link));
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_get_objects (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   JsExtV8Object *self = to_self (Args);
+   ObjectModule *objMod = (self ? self->get_object_module () : 0);
+
+   if (objMod) {
+
+      HandleContainer objects;
+
+      if (objMod->get_object_handles (objects)) {
+
+         result = v8_to_array (objects);
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsExtV8Object::_object_create (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -114,7 +195,7 @@ dmz::JsExtV8Object::_object_create (const v8::Arguments &Args) {
             self->_localObjects.add_handle (object);
          }
 
-         result = v8::Number::New ((double)object);
+         result = v8::Integer::New (object);
       }
    }
 
@@ -179,7 +260,7 @@ dmz::JsExtV8Object::_object_clone (const v8::Arguments &Args) {
          linkRetention = (ObjectLinkRetentionEnum)Args[1]->Uint32Value ();
       }
 
-      result = v8::Number::New ((double)objMod->clone_object (Object, linkRetention));
+      result = v8::Integer::New (objMod->clone_object (Object, linkRetention));
    }
 
    return result.IsEmpty () ? result : scope.Close (result);
@@ -220,6 +301,37 @@ dmz::JsExtV8Object::_object_lookup_type (const v8::Arguments &Args) {
       ObjectType type = objMod->lookup_object_type (Object);
 
       if (type) { result = runtime->create_v8_object_type (&type); }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_locality (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   JsExtV8Object *self = to_self (Args);
+   ObjectModule *objMod = (self ? self->get_object_module () : 0);
+   const Handle Object = v8_to_uint32 (Args[0]);
+
+   if (objMod && Object) {
+
+      if (Args.Length () > 1) {
+
+         const ObjectLocalityEnum Locality = (ObjectLocalityEnum) v8_to_uint32 (Args[1]);
+
+         if (objMod->store_locality (Object, Locality)) {
+
+            result = v8::Integer::New (Locality);
+         }
+      }
+      else {
+
+         result = v8::Integer::New (objMod->lookup_locality (Object));
+      }
    }
 
    return result.IsEmpty () ? result : scope.Close (result);
@@ -279,7 +391,7 @@ dmz::JsExtV8Object::_object_link (const v8::Arguments &Args) {
 
       Handle link = objMod->link_objects (Attr, Super, Sub);
 
-      if (link) { result = v8::Number::New ((double)link); }
+      if (link) { result = v8::Integer::New (link); }
    }
 
    return result.IsEmpty () ? result : scope.Close (result);
@@ -302,7 +414,7 @@ dmz::JsExtV8Object::_object_lookup_link_handle (const v8::Arguments &Args) {
 
       Handle link = objMod->lookup_link_handle (Attr, Super, Sub);
 
-      if (link) { result = v8::Number::New ((double)link); }
+      if (link) { result = v8::Integer::New (link); }
    }
 
    return result.IsEmpty () ? result : scope.Close (result);
@@ -329,10 +441,10 @@ dmz::JsExtV8Object::_object_lookup_linked_objects (const v8::Arguments &Args) {
 
          result->Set (
             v8::String::NewSymbol ("attribute"),
-            v8::Number::New ((double)attr));
+            v8::Integer::New (attr));
 
-         result->Set (v8::String::NewSymbol ("super"), v8::Number::New ((double)super));
-         result->Set (v8::String::NewSymbol ("sub"), v8::Number::New ((double)sub));
+         result->Set (v8::String::NewSymbol ("super"), v8::Integer::New (super));
+         result->Set (v8::String::NewSymbol ("sub"), v8::Integer::New (sub));
       }
    }
 
@@ -473,7 +585,7 @@ dmz::JsExtV8Object::_object_link_attribute_object (const v8::Arguments &Args) {
          attrObj = objMod->lookup_link_attribute_object (Link);
       }
 
-      if (attrObj) { result = v8::Number::New ((double)attrObj); }
+      if (attrObj) { result = v8::Integer::New (attrObj); }
    }
 
    return result.IsEmpty () ? result : scope.Close (result);
@@ -497,6 +609,317 @@ dmz::JsExtV8Object::_object_lookup_attribute_object_links (const v8::Arguments &
       if (objMod->lookup_attribute_object_links (Object, container)) {
 
          result = v8_to_array (container);
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_add_to_counter (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   ObjectModule *objMod (0);
+   JsModuleTypesV8 *types (0);
+   Handle obj (0), attr (0);
+   
+   if (_get_params (Args, objMod, types, obj, attr)) {
+
+      if (Args.Length () > 2) {
+
+         const Int64 Value = v8_to_int64 (Args[3]);
+
+         result = v8::Integer::New (objMod->add_to_counter (obj, attr, Value));
+      }
+      else { result = v8::Integer::New (objMod->add_to_counter (obj, attr)); }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_counter_min (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   ObjectModule *objMod (0);
+   JsModuleTypesV8 *types (0);
+   Handle obj (0), attr (0);
+   
+   if (_get_params (Args, objMod, types, obj, attr)) {
+
+      if (Args.Length () > 2) {
+
+         const Int64 Value = v8_to_int64 (Args[3]);
+
+         if (objMod->store_counter_minimum (obj, attr, Value)) {
+
+            result = v8::Integer::New (Value);
+         }
+      }
+      else {
+
+         Int64 value (0);
+
+         if (objMod->lookup_counter_minimum (obj, attr, value)) {
+
+            result = v8::Integer::New (value);
+         }
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_counter_max (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   ObjectModule *objMod (0);
+   JsModuleTypesV8 *types (0);
+   Handle obj (0), attr (0);
+   
+   if (_get_params (Args, objMod, types, obj, attr)) {
+
+      if (Args.Length () > 2) {
+
+         const Int64 Value = v8_to_int64 (Args[3]);
+
+         if (objMod->store_counter_maximum (obj, attr, Value)) {
+
+            result = v8::Integer::New (Value);
+         }
+      }
+      else {
+
+         Int64 value (0);
+
+         if (objMod->lookup_counter_maximum (obj, attr, value)) {
+
+            result = v8::Integer::New (value);
+         }
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_counter_rollover (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   ObjectModule *objMod (0);
+   JsModuleTypesV8 *types (0);
+   Handle obj (0), attr (0);
+   
+   if (_get_params (Args, objMod, types, obj, attr)) {
+
+      if (Args.Length () > 2) {
+
+         const Boolean Value = v8_to_boolean (Args[3]);
+
+         if (objMod->store_counter_rollover (obj, attr, Value)) {
+
+            result = v8::Boolean::New (Value);
+         }
+      }
+      else {
+
+         Boolean value (False);
+
+         if (objMod->lookup_counter_rollover (obj, attr, value)) {
+
+            result = v8::Boolean::New (value);
+         }
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_counter (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   ObjectModule *objMod (0);
+   JsModuleTypesV8 *types (0);
+   Handle obj (0), attr (0);
+   
+   if (_get_params (Args, objMod, types, obj, attr)) {
+
+      if (Args.Length () > 2) {
+
+         const Int64 Value = v8_to_int64 (Args[3]);
+
+         if (objMod->store_counter (obj, attr, Value)) {
+
+            result = v8::Integer::New (Value);
+         }
+      }
+      else {
+
+         Int64 value (0);
+
+         if (objMod->lookup_counter (obj, attr, value)) {
+
+            result = v8::Integer::New (value);
+         }
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_alt_type (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   JsExtV8Object *self = to_self (Args);
+   JsModuleRuntimeV8 *runtime = self ? self->_runtime : 0;
+   ObjectModule *objMod (0);
+   JsModuleTypesV8 *types (0);
+   Handle obj (0), attr (0);
+   
+   if (runtime && _get_params (Args, objMod, types, obj, attr)) {
+
+      if (Args.Length () > 2) {
+
+         ObjectType value;
+
+         if (runtime->to_dmz_object_type (Args[3], value) &&
+               objMod->store_alternate_object_type (obj, attr, value)) {
+
+            result = runtime->create_v8_object_type (&value);
+         }
+      }
+      else {
+
+         ObjectType value;
+
+         if (objMod->lookup_alternate_object_type (obj, attr, value)) {
+
+            result = runtime->create_v8_object_type (&value);
+         }
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_state (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   ObjectModule *objMod (0);
+   JsModuleTypesV8 *types (0);
+   Handle obj (0), attr (0);
+   
+   if (_get_params (Args, objMod, types, obj, attr)) {
+
+      if (Args.Length () > 2) {
+
+         const Mask Value = types->to_dmz_mask (Args[3]);
+
+         if (objMod->store_state (obj, attr, Value)) {
+
+            result = types->to_v8_mask (Value);
+         }
+      }
+      else {
+
+         Mask value;
+
+         if (objMod->lookup_state (obj, attr, value)) {
+
+            result = types->to_v8_mask (value);
+         }
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_flag (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   ObjectModule *objMod (0);
+   JsModuleTypesV8 *types (0);
+   Handle obj (0), attr (0);
+   
+   if (_get_params (Args, objMod, types, obj, attr)) {
+
+      if (Args.Length () > 2) {
+
+         const Boolean Value = v8_to_boolean (Args[3]);
+
+         if (objMod->store_flag (obj, attr, Value)) {
+
+            result = v8::Number::New (Value);
+         }
+      }
+      else {
+
+         result = v8::Boolean::New (objMod->lookup_flag (obj, attr));
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_time_stamp (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   ObjectModule *objMod (0);
+   JsModuleTypesV8 *types (0);
+   Handle obj (0), attr (0);
+   
+   if (_get_params (Args, objMod, types, obj, attr)) {
+
+      if (Args.Length () > 2) {
+
+         const Float64 Value = v8_to_number (Args[3]);
+
+         if (objMod->store_time_stamp (obj, attr, Value)) {
+
+            result = v8::Number::New (Value);
+         }
+      }
+      else {
+
+         Float64 value (0.0);
+
+         if (objMod->lookup_time_stamp (obj, attr, value)) {
+
+            result = v8::Number::New (value);
+         }
       }
    }
 
@@ -532,6 +955,42 @@ dmz::JsExtV8Object::_object_position (const v8::Arguments &Args) {
          if (objMod->lookup_position (obj, attr, value)) {
 
             result = types->to_v8_vector (value);
+         }
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_orientation (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   ObjectModule *objMod (0);
+   JsModuleTypesV8 *types (0);
+   Handle obj (0), attr (0);
+   
+   if (_get_params (Args, objMod, types, obj, attr)) {
+
+      if (Args.Length () > 2) {
+
+         Matrix value = types->to_dmz_matrix (Args[3]);
+
+         if (objMod->store_orientation (obj, attr, value)) {
+
+            result = types->to_v8_matrix (value);
+         }
+      }
+      else {
+
+         Matrix value;
+
+         if (objMod->lookup_orientation (obj, attr, value)) {
+
+            result = types->to_v8_matrix (value);
          }
       }
    }
@@ -676,6 +1135,117 @@ dmz::JsExtV8Object::_object_vector (const v8::Arguments &Args) {
          if (objMod->lookup_vector (obj, attr, value)) {
 
             result = types->to_v8_vector (value);
+         }
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_scalar (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   ObjectModule *objMod (0);
+   JsModuleTypesV8 *types (0);
+   Handle obj (0), attr (0);
+   
+   if (_get_params (Args, objMod, types, obj, attr)) {
+
+      if (Args.Length () > 2) {
+
+         const Float64 Value = v8_to_number (Args[3]);
+
+         if (objMod->store_scalar (obj, attr, Value)) {
+
+            result = v8::Number::New (Value);
+         }
+      }
+      else {
+
+         Float64 value (0.0);
+
+         if (objMod->lookup_scalar (obj, attr, value)) {
+
+            result = v8::Number::New (value);
+         }
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_text (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   ObjectModule *objMod (0);
+   JsModuleTypesV8 *types (0);
+   Handle obj (0), attr (0);
+   
+   if (_get_params (Args, objMod, types, obj, attr)) {
+
+      if (Args.Length () > 2) {
+
+         const String Value = v8_to_string (Args[3]);
+
+         if (objMod->store_text (obj, attr, Value)) {
+
+            result = Args[3];
+         }
+      }
+      else {
+
+         String value;
+
+         if (objMod->lookup_text (obj, attr, value) && value) {
+
+            result = v8::String::New (value.get_buffer ());
+         }
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_data (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   JsExtV8Object *self = to_self (Args);
+   JsModuleRuntimeV8 *runtime = self ? self->_runtime : 0;
+   ObjectModule *objMod (0);
+   JsModuleTypesV8 *types (0);
+   Handle obj (0), attr (0);
+   
+   if (runtime && _get_params (Args, objMod, types, obj, attr)) {
+
+      if (Args.Length () > 2) {
+
+         Data value;
+
+         if (runtime->to_dmz_data (Args[3], value) &&
+               objMod->store_data (obj, attr, value)) {
+
+            result = Args[3];
+         }
+      }
+      else {
+
+         Data value;
+
+         if (objMod->lookup_data (obj, attr, value)) {
+
+            result = runtime->create_v8_data (&value);
          }
       }
    }
@@ -1131,12 +1701,17 @@ dmz::JsExtV8Object::_init (Config &local) {
    _objectApi.add_constant ("SelectNew", (UInt32)ObjectSelectNew);
    _objectApi.add_constant ("SelectAdd", (UInt32)ObjectSelectAdd);
    // Functions
+   _objectApi.add_function ("isObject", _object_is_object, _self);
+   _objectApi.add_function ("isActivated", _object_is_activated, _self);
+   _objectApi.add_function ("isLink", _object_is_link, _self);
+   _objectApi.add_function ("getObjects", _object_get_objects, _self);
    _objectApi.add_function ("create", _object_create, _self);
    _objectApi.add_function ("activate", _object_activate, _self);
    _objectApi.add_function ("destroy", _object_destroy, _self);
    _objectApi.add_function ("clone", _object_clone, _self);
    _objectApi.add_function ("makePersistent", _object_make_persistent, _self);
    _objectApi.add_function ("lookupType", _object_lookup_type, _self);
+   _objectApi.add_function ("locality", _object_locality, _self);
    _objectApi.add_function ("uuid", _object_uuid, _self);
    _objectApi.add_function ("link", _object_link, _self);
    _objectApi.add_function ("lookupLinkHandle", _object_lookup_link_handle, _self);
@@ -1151,11 +1726,24 @@ dmz::JsExtV8Object::_init (Config &local) {
       "lookupAttributeObjectLinks",
       _object_lookup_attribute_object_links,
       _self);
+   _objectApi.add_function ("addToCounter", _object_add_to_counter, _self);
+   _objectApi.add_function ("counter", _object_counter, _self);
+   _objectApi.add_function ("counterMin", _object_counter_min, _self);
+   _objectApi.add_function ("counterMax", _object_counter_max, _self);
+   _objectApi.add_function ("counterRollover", _object_counter_rollover, _self);
+   _objectApi.add_function ("altType", _object_alt_type, _self);
+   _objectApi.add_function ("state", _object_state, _self);
+   _objectApi.add_function ("flag", _object_flag, _self);
+   _objectApi.add_function ("timeStamp", _object_time_stamp, _self);
    _objectApi.add_function ("position", _object_position, _self);
+   _objectApi.add_function ("orientation", _object_orientation, _self);
    _objectApi.add_function ("velocity", _object_velocity, _self);
    _objectApi.add_function ("acceleration", _object_acceleration, _self);
    _objectApi.add_function ("scale", _object_scale, _self);
    _objectApi.add_function ("vector", _object_vector, _self);
+   _objectApi.add_function ("scalar", _object_scalar, _self);
+   _objectApi.add_function ("text", _object_text, _self);
+   _objectApi.add_function ("data", _object_data, _self);
 }
 
 
