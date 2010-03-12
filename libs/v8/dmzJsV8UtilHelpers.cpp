@@ -44,8 +44,8 @@ local_get_scope (const String &Path, String &scope, String &name) {
 
    if (place >= 0) {
 
-      name = Path.get_sub (0, place - 1);
-      scope = Path.get_sub (place + 1);
+      scope = Path.get_sub (0, place - 1);
+      name = Path.get_sub (place + 1);
    }
    else { name = Path; scope.flush (); }
 }

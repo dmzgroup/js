@@ -2,6 +2,7 @@
 #define DMZ_JS_MODULE_V8_BASIC_DOT_H
 
 #include <dmzJsModuleV8.h>
+#include <dmzJsV8UtilTypes.h>
 #include <dmzRuntimeConfig.h>
 #include <dmzRuntimeDefinitions.h>
 #include <dmzRuntimeLog.h>
@@ -51,6 +52,9 @@ namespace dmz {
 
          virtual void handle_v8_exception (v8::TryCatch &tc);
 
+         virtual String get_instance_name (v8::Handle<v8::Value> value);
+         virtual Handle get_instance_handle (v8::Handle<v8::Value> value);
+
       protected:
          struct ScriptStruct {
 
@@ -75,12 +79,20 @@ namespace dmz {
          struct InstanceStruct {
 
             const String Name;
+            const Handle Object;
             Config local;
             ScriptStruct &script;
+            V8ObjectPersist self;
 
-            InstanceStruct (const String &TheName, ScriptStruct &theScript) :
+            InstanceStruct (
+                  const String &TheName,
+                  const Handle TheObject,
+                  ScriptStruct &theScript) :
                   Name (TheName),
+                  Object (TheObject),
                   script (theScript) {;}
+
+            ~InstanceStruct () { self.Dispose (); self.Clear (); }
          };
 
          void _empty_require ();
@@ -109,6 +121,7 @@ namespace dmz {
          HashTableStringTemplate<v8::Persistent<v8::Object> > _requireTable;
 
          v8::Persistent<v8::Context> _context;
+         v8::Persistent<v8::ObjectTemplate> _instanceTemplate;
          v8::Persistent<v8::ObjectTemplate> _globalTemplate;
          v8::Persistent<v8::FunctionTemplate> _requireFuncTemplate;
          v8::Persistent<v8::Function> _requireFunc;

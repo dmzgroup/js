@@ -11,26 +11,20 @@
    <object-type name="tank" parent="ground-vehicle"/>
 </runtime>
 <plugin-list>
-   <plugin name="dmzPluginTermExit"/>
+   <plugin name="dmzPluginExit"/>
+   <plugin name="dmzObjectModuleBasic"/>
+   <plugin name="dmzObjectPluginDump"/>
 <!--
    <plugin name="dmzPluginMsgDump"/>
 -->
    <plugin name="dmzJsModuleV8Basic" scope="javascript"/>
    <plugin name="dmzJsModuleTypesV8Basic" scope="javascript"/>
    <plugin name="dmzJsModuleRuntimeV8Basic" scope="javascript"/>
+   <plugin name="dmzJsExtV8Object" scope="javascript"/>
 </plugin-list>
 <javascript>
    <path value="./scripts"/>
    <path value="../../scripts"/>
-   <instance name="helloworld"/>
+   <instance name="object"/>
 </javascript>
-<helloworld>
-   <vec x="1" y="2" z="3"/>
-   <name value="hello"/>
-   <obj value="one"/>
-   <obj value="two"/>
-   <obj value="three"/>
-   <obj value="four"/>
-   <obj value="five"/>
-</helloworld>
 </dmz>

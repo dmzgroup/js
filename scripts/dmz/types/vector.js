@@ -71,7 +71,7 @@ Vector.prototype.set = function () {
 
          values = arg;
       }
-      else { throw createError("Invalid Vector initialization value"); }
+      else { throw createError("Invalid Vector initialization value: " + typeof arg); }
    }
    else if (arguments.length === 3) {
 

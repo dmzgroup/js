@@ -216,8 +216,24 @@ namespace dmz {
             const Data *PreviousValue);
 
       protected:
+         struct cbStruct {
+
+            const Handle ObsHandle;
+            V8FunctionPersist func;
+            V8ObjectPersist self;
+
+            cbStruct (const Handle TheObsHandle) : ObsHandle (TheObsHandle) {;}
+
+            ~cbStruct () {
+
+               func.Dispose (); func.Clear ();
+               self.Dispose (); self.Clear ();
+            }
+         };
+
          static Handle _to_attr (JsExtV8Object *self, V8Value value);
          static Handle _to_object (JsExtV8Object *self, V8Value value);
+
          static Boolean _get_params (
             const v8::Arguments &Args,
             ObjectModule *&objMod,
@@ -225,46 +241,73 @@ namespace dmz {
             Handle &obj,
             Handle &attr);
 
+         static V8Function _register_observer (
+            const v8::Arguments &Args,
+            const Mask &AttrMask);
+
          static V8Value _object_is_object (const v8::Arguments &Args);
          static V8Value _object_is_activated (const v8::Arguments &Args);
          static V8Value _object_is_link (const v8::Arguments &Args);
          static V8Value _object_get_objects (const v8::Arguments &Args);
          static V8Value _object_create (const v8::Arguments &Args);
+         static V8Value _object_create_observe (const v8::Arguments &Args);
          static V8Value _object_activate (const v8::Arguments &Args);
          static V8Value _object_destroy (const v8::Arguments &Args);
+         static V8Value _object_destroy_observe (const v8::Arguments &Args);
          static V8Value _object_clone (const v8::Arguments &Args);
          static V8Value _object_make_persistent (const v8::Arguments &Args);
          static V8Value _object_lookup_type (const v8::Arguments &Args);
          static V8Value _object_locality (const v8::Arguments &Args);
+         static V8Value _object_locality_observe (const v8::Arguments &Args);
          static V8Value _object_uuid (const v8::Arguments &Args);
+         static V8Value _object_uuid_observe (const v8::Arguments &Args);
          static V8Value _object_link (const v8::Arguments &Args);
+         static V8Value _object_link_observe (const v8::Arguments &Args);
          static V8Value _object_lookup_link_handle (const v8::Arguments &Args);
          static V8Value _object_lookup_linked_objects (const v8::Arguments &Args);
          static V8Value _object_unlink (const v8::Arguments &Args);
+         static V8Value _object_unlink_observe (const v8::Arguments &Args);
          static V8Value _object_unlink_super_objects (const v8::Arguments &Args);
          static V8Value _object_unlink_sub_objects (const v8::Arguments &Args);
          static V8Value _object_lookup_super_links (const v8::Arguments &Args);
          static V8Value _object_lookup_sub_links (const v8::Arguments &Args);
          static V8Value _object_link_attribute_object (const v8::Arguments &Args);
+         static V8Value _object_link_attribute_object_observe (const v8::Arguments &Args);
          static V8Value _object_lookup_attribute_object_links (const v8::Arguments &Args);
          static V8Value _object_counter (const v8::Arguments &Args);
+         static V8Value _object_counter_observe (const v8::Arguments &Args);
          static V8Value _object_counter_min (const v8::Arguments &Args);
+         static V8Value _object_counter_min_observe (const v8::Arguments &Args);
          static V8Value _object_counter_max (const v8::Arguments &Args);
+         static V8Value _object_counter_max_observe (const v8::Arguments &Args);
          static V8Value _object_counter_rollover (const v8::Arguments &Args);
          static V8Value _object_add_to_counter (const v8::Arguments &Args);
          static V8Value _object_alt_type (const v8::Arguments &Args);
+         static V8Value _object_alt_type_observe (const v8::Arguments &Args);
          static V8Value _object_state (const v8::Arguments &Args);
+         static V8Value _object_state_observe (const v8::Arguments &Args);
          static V8Value _object_flag (const v8::Arguments &Args);
+         static V8Value _object_flag_observe (const v8::Arguments &Args);
          static V8Value _object_time_stamp (const v8::Arguments &Args);
+         static V8Value _object_time_stamp_observe (const v8::Arguments &Args);
          static V8Value _object_position (const v8::Arguments &Args);
+         static V8Value _object_position_observe (const v8::Arguments &Args);
          static V8Value _object_orientation (const v8::Arguments &Args);
+         static V8Value _object_orientation_observe (const v8::Arguments &Args);
          static V8Value _object_velocity (const v8::Arguments &Args);
+         static V8Value _object_velocity_observe (const v8::Arguments &Args);
          static V8Value _object_acceleration (const v8::Arguments &Args);
+         static V8Value _object_acceleration_observe (const v8::Arguments &Args);
          static V8Value _object_scale (const v8::Arguments &Args);
+         static V8Value _object_scale_observe (const v8::Arguments &Args);
          static V8Value _object_vector (const v8::Arguments &Args);
+         static V8Value _object_vector_observe (const v8::Arguments &Args);
          static V8Value _object_scalar (const v8::Arguments &Args);
+         static V8Value _object_scalar_observe (const v8::Arguments &Args);
          static V8Value _object_text (const v8::Arguments &Args);
+         static V8Value _object_text_observe (const v8::Arguments &Args);
          static V8Value _object_data (const v8::Arguments &Args);
+         static V8Value _object_data_observe (const v8::Arguments &Args);
 
          // JsExtV8Object Interface
          Handle _to_handle (V8Value value);

@@ -33,6 +33,9 @@ namespace dmz {
 
          virtual void handle_v8_exception (v8::TryCatch &tc) = 0;
 
+         virtual String get_instance_name (v8::Handle<v8::Value> value) = 0;
+         virtual Handle get_instance_handle (v8::Handle<v8::Value> value) = 0;
+
       protected:
          JsModuleV8 (const PluginInfo &Info);
          ~JsModuleV8 ();

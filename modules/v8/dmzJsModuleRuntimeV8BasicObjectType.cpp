@@ -282,9 +282,16 @@ dmz::JsModuleRuntimeV8Basic::to_dmz_object_type (V8Value value, ObjectType &out)
 
    Boolean result (False);
 
-   ObjectType *ptr = _to_object_type_ptr (value);
+   if ((value.IsEmpty () == false) && value->IsString ()) {
 
-   if (ptr) { out = *ptr; result = True; }
+      result = _defs.lookup_object_type (*(v8::String::AsciiValue (value)), out);
+   }
+   else {
+
+      ObjectType *ptr = _to_object_type_ptr (value);
+
+      if (ptr) { out = *ptr; result = True; }
+   }
 
    return result;
 }

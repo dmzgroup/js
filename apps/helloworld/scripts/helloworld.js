@@ -94,10 +94,10 @@ var gv = ot.lookup("ground-vehicle");
 var ct = gv.getChildren();
 ct.forEach (function (type) { self.log.out(gv.getName(), "child =", type.getName()); });
 self.log.out ("is undefine:", util.isUndefined (self.foo));
-/*
+
 var cb = time.setRepeatingTimer(self, 1, function () { puts("******* Hello World!!!"); });
 
-time.setTimer(self, 4, function (self, dt) {
+time.setTimer(self, 4, function (dt) {
 
    puts("Killing repeating timer.", dt);
    time.cancleTimer(self, cb);
@@ -108,4 +108,4 @@ time.setTimer(self, 4, function (self, dt) {
 });
 
 time.setRepeatingTimer(self, 3, function () { puts("this is the other timer."); });
-*/
+

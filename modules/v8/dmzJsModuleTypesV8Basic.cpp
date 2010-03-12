@@ -85,7 +85,7 @@ dmz::JsModuleTypesV8Basic::to_v8_vector (const Vector &Value) {
 
    V8Object result;
 
-   if (!_vectorCtor.IsEmpty ()) {
+   if (_vectorCtor.IsEmpty () == false) {
 
       V8Value argv[] = {
          v8::Number::New (Value.get_x ()),
@@ -113,12 +113,22 @@ dmz::JsModuleTypesV8Basic::to_dmz_vector (const v8::Handle<v8::Value> Value) {
 
    V8Object obj = v8_to_object (Value);
 
-   if (!obj.IsEmpty ()) {
+   if (obj.IsEmpty () == false) {
 
-      result.set_xyz (
-         v8_to_number (obj->Get (_xStr)),
-         v8_to_number (obj->Get (_yStr)),
-         v8_to_number (obj->Get (_yStr)));
+      if (Value->IsArray ()) {
+
+         result.set_xyz (
+            v8_to_number (obj->Get (v8::Integer::New (0))),
+            v8_to_number (obj->Get (v8::Integer::New (1))),
+            v8_to_number (obj->Get (v8::Integer::New (2))));
+      }
+      else {
+
+         result.set_xyz (
+            v8_to_number (obj->Get (_xStr)),
+            v8_to_number (obj->Get (_yStr)),
+            v8_to_number (obj->Get (_zStr)));
+      }
    }
 
    return result;
@@ -172,7 +182,7 @@ dmz::JsModuleTypesV8Basic::to_dmz_matrix (const v8::Handle<v8::Value> Value) {
 
    if (!obj.IsEmpty ()) {
 
-      V8Array array = v8_to_array (obj->Get (_vStr));
+      V8Array array = v8_to_array (Value->IsArray () ? Value : obj->Get (_vStr));
 
       if (!array.IsEmpty ()) {
 

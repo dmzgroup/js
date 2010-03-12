@@ -217,7 +217,7 @@ namespace dmz {
          V8InterfaceHelper _undoApi; 
 
          HashTableHandleTemplate<MessageStruct> _msgTable;
-         HashTableStringTemplate<TimerStruct> _timerTable;
+         HashTableHandleTemplate<TimerStruct> _timerTable;
 
          v8::Persistent<v8::FunctionTemplate> _configFuncTemplate;
          v8::Persistent<v8::Function> _configFunc;

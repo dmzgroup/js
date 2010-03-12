@@ -104,11 +104,17 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (
 
 dmz::JsModuleV8Basic::~JsModuleV8Basic () {
 
+   HashTableStringIterator it;
+   InstanceStruct *is (0);
+
+   while (_instanceTable.get_next (it, is)) { _defs.release_unique_name (is->Name); }
+
    _extTable.clear ();
    _instanceTable.empty ();
    _scriptTable.empty ();
 
    _globalTemplate.Dispose (); _globalTemplate.Clear ();
+   _instanceTemplate.Dispose (); _instanceTemplate.Clear ();
    _requireFuncTemplate.Dispose (); _requireFuncTemplate.Clear ();
    _requireFunc.Dispose (); _requireFunc.Clear ();
 
@@ -283,12 +289,12 @@ dmz::JsModuleV8Basic::require (const String &Value) {
             v8::String::NewExternal (sptr),
             v8::String::New (scriptPath.get_buffer ()));
 
-         if (script.IsEmpty ()) { handle_v8_exception (tc); }
+         if (tc.HasCaught ()) { handle_v8_exception (tc); }
          else {
 
             V8Value value = script->Run ();
 
-            if (value.IsEmpty ()) { handle_v8_exception (tc); }
+            if (tc.HasCaught ()) { handle_v8_exception (tc); }
             else {
 
                V8Function func = v8_to_function (value);
@@ -308,7 +314,7 @@ dmz::JsModuleV8Basic::require (const String &Value) {
                      v8::Handle<v8::Value> argv[] = { result, _requireFunc };
                      v8::Handle<v8::Value> value = func->Call (result, 2, argv);
 
-                     if (value.IsEmpty ()) { handle_v8_exception (tc); }
+                     if (tc.HasCaught ()) { handle_v8_exception (tc); }
                   }
                   else {
 
@@ -369,6 +375,48 @@ dmz::JsModuleV8Basic::handle_v8_exception (v8::TryCatch &tc) {
 }
 
 
+dmz::String
+dmz::JsModuleV8Basic::get_instance_name (V8Value value) {
+
+   v8::HandleScope scope;
+
+   String result;
+
+   V8Object obj = v8_to_object (value);
+
+   if (obj.IsEmpty () == false) {
+
+      InstanceStruct *is = (InstanceStruct *)v8::External::Unwrap (
+         obj->GetInternalField (0));
+
+      if (is) { result = is->Name; }
+   }
+
+   return result;
+}
+
+
+dmz::Handle
+dmz::JsModuleV8Basic::get_instance_handle (V8Value value) {
+
+   v8::HandleScope scope;
+
+   Handle result (0);
+
+   V8Object obj = v8_to_object (value);
+
+   if (obj.IsEmpty () == false) {
+
+      InstanceStruct *is = (InstanceStruct *)v8::External::Unwrap (
+         obj->GetInternalField (0));
+
+      if (is) { result = is->Object; }
+   }
+
+   return result;
+}
+
+
 void
 dmz::JsModuleV8Basic::_empty_require () {
 
@@ -393,7 +441,6 @@ dmz::JsModuleV8Basic::_release_instances () {
 
       while (_instanceTable.get_next (it, is)) {
 
-         _defs.release_unique_name (is->Name);
       }
    }
 }
@@ -416,6 +463,14 @@ dmz::JsModuleV8Basic::_init_context () {
          v8::ObjectTemplate::New ());
 
       _globalTemplate->SetNamedPropertyHandler (0, global_setter);
+   }
+
+   if (_instanceTemplate.IsEmpty ()) {
+
+      _instanceTemplate = v8::Persistent<v8::ObjectTemplate>::New (
+         v8::ObjectTemplate::New ());
+
+      _instanceTemplate->SetInternalFieldCount (1);
    }
 
    if (_requireFuncTemplate.IsEmpty ()) {
@@ -528,7 +583,7 @@ dmz::JsModuleV8Basic::_load_scripts () {
          v8::String::NewExternal (sptr),
          v8::String::New (info->FileName.get_buffer ()));
 
-      if (script.IsEmpty ()) { handle_v8_exception (tc); }
+      if (tc.HasCaught ()) { handle_v8_exception (tc); }
       else {
 
          _log.info << "Loaded script: " << info->FileName << endl;
@@ -536,7 +591,7 @@ dmz::JsModuleV8Basic::_load_scripts () {
          info->script = v8::Persistent<v8::Script>::New (script);
          v8::Handle<v8::Value> value = info->script->Run ();
 
-         if (value.IsEmpty ()) { handle_v8_exception (tc); }
+         if (tc.HasCaught ()) { handle_v8_exception (tc); }
          else {
 
             V8Function func = v8_to_function (value);
@@ -557,46 +612,40 @@ dmz::JsModuleV8Basic::_load_scripts () {
 
    while (_instanceTable.get_next (it, instance)) {
 
-      if (_defs.create_unique_name (instance->Name)) {
+      if (!instance->script.ctor.IsEmpty ()) {
 
-         if (!instance->script.ctor.IsEmpty ()) {
+         v8::TryCatch tc;
 
-            v8::TryCatch tc;
+         instance->self =
+            v8::Persistent<v8::Object>::New (_instanceTemplate->NewInstance ());;
 
-            v8::Handle<v8::Object> self = v8::Object::New ();
+         instance->self->SetInternalField (0, v8::External::Wrap ((void *)instance));
 
-            self->Set (
-               v8::String::NewSymbol ("name"),
-               v8::String::New (instance->Name.get_buffer ()));
+         instance->self->Set (
+            v8::String::NewSymbol ("name"),
+            v8::String::New (instance->Name.get_buffer ()));
 
-            if (_runtime) {
+         if (_runtime) {
 
-               self->Set (
-                  v8::String::NewSymbol ("config"),
-                  _runtime->create_v8_config (&(instance->local)));
+            instance->self->Set (
+               v8::String::NewSymbol ("config"),
+               _runtime->create_v8_config (&(instance->local)));
 
-               self->Set (
-                  v8::String::NewSymbol ("log"),
-                  _runtime->create_v8_log (instance->Name));
-            }
-
-            v8::Handle<v8::Value> argv[] = { self, _requireFunc };
-
-            v8::Handle<v8::Value> value = instance->script.ctor->Call (self, 2, argv);
-
-            if (value.IsEmpty ()) { handle_v8_exception (tc); }
-            else {
-
-               _log.info << "Created instance: " << instance->Name
-                  << " from script: " << instance->script.FileName << endl;
-            }
+            instance->self->Set (
+               v8::String::NewSymbol ("log"),
+               _runtime->create_v8_log (instance->Name));
          }
-      }
-      else {
 
-         _log.error << "Unable to create: " << instance->Name << " instance of: "
-            << instance->script.FileName << " script because name is  not unique."
-            << endl;
+         v8::Handle<v8::Value> argv[] = { instance->self, _requireFunc };
+
+         V8Value value = instance->script.ctor->Call (instance->self, 2, argv);
+
+         if (tc.HasCaught ()) { handle_v8_exception (tc); }
+         else {
+
+            _log.info << "Created instance: " << instance->Name
+               << " from script: " << instance->script.FileName << endl;
+         }
       }
    }
 }
@@ -675,19 +724,30 @@ dmz::JsModuleV8Basic::_init (Config &local, Config &global) {
             const String UniqueName = config_to_string ("unique", instance, ss->Name);
             const String ScopeName = config_to_string ("scope", instance, UniqueName);
 
-            InstanceStruct *ptr = new InstanceStruct (UniqueName, *ss);
+            if (_defs.create_unique_name (UniqueName)) {
 
-            if (!_instanceTable.store (UniqueName, ptr)) {
+               InstanceStruct *ptr = new InstanceStruct (
+                  UniqueName,
+                  _defs.create_named_handle (UniqueName),
+                  *ss);
 
-               delete ptr; ptr = 0;
-               _log.error << "Script instance name: " << UniqueName << " is not unique."
-                  << endl;
+               if (!_instanceTable.store (UniqueName, ptr)) {
+
+                  delete ptr; ptr = 0;
+                  _log.error << "Script instance name: " << UniqueName
+                     << " is not unique." << endl;
+               }
+               else {
+
+                  Config local (ScopeName);
+                  global.lookup_all_config_merged (String ("dmz.") + ScopeName, local);
+                  ptr->local = local;
+               }
             }
             else {
 
-               Config local (ScopeName);
-               global.lookup_all_config_merged (String ("dmz.") + ScopeName, local);
-               ptr->local = local;
+               _log.error << "Unable to register script instance: " << UniqueName
+                  << ". Because name is not unique." << endl;
             }
          }
       }

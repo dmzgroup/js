@@ -1,4 +1,5 @@
 #include "dmzJsModuleRuntimeV8Basic.h"
+#include <dmzJsModuleV8.h>
 #include <dmzRuntimeTimeSlice.h>
 #include <dmzSystem.h>
 
@@ -47,7 +48,7 @@ dmz::JsModuleRuntimeV8Basic::TimerStruct::update_time_slice (const Float64 Delta
       v8::Context::Scope cscope (v8Context);
       v8::HandleScope scope;
       v8::TryCatch tc;
-      V8Value argv[] = { self, v8::Number::New (DeltaTime) };
+      V8Value argv[] = { v8::Number::New (DeltaTime), self };
       callback->Call (self, 2, argv);
       if (tc.HasCaught ()) {
 
@@ -85,11 +86,11 @@ dmz::JsModuleRuntimeV8Basic::_set_base_timer (
    v8::HandleScope scope;
    V8Value result;
 
-   String name ("<Unknown>");
-
    JsModuleRuntimeV8Basic *self = to_self (Args);
 
-   if (self) {
+   String name ("<Unknown>");;
+
+   if (self && self->_core) {
 
       const Boolean SetInterval = Args.Length () > 2 ? True : False;
 
@@ -100,12 +101,12 @@ dmz::JsModuleRuntimeV8Basic::_set_base_timer (
       if (obj.IsEmpty () || func.IsEmpty ()) {} // Do nothing
       else {
 
-         name = v8_to_string (obj->Get (v8::String::New ("name")));
+         const Handle TimerHandle = self->_core->get_instance_handle (obj);
 
-         if (name) {
+         if (TimerHandle) {
 
             TimerStruct *ts = new TimerStruct (
-               self->_defs.create_named_handle (name),
+               TimerHandle,
                TimeSliceTypeRuntime,
                Repeating ? TimeSliceModeRepeating : TimeSliceModeSingle,
                interval,
@@ -113,7 +114,7 @@ dmz::JsModuleRuntimeV8Basic::_set_base_timer (
                *self,
                self->_v8Context);
 
-            TimerStruct *list = self->_timerTable.lookup (name);
+            TimerStruct *list = self->_timerTable.lookup (TimerHandle);
 
             if (list) {
 
@@ -122,7 +123,7 @@ dmz::JsModuleRuntimeV8Basic::_set_base_timer (
             }
             else {
 
-               if (!self->_timerTable.store (name, ts)) {
+               if (!self->_timerTable.store (TimerHandle, ts)) {
 
                   delete ts; ts = 0;
                }
@@ -141,6 +142,8 @@ dmz::JsModuleRuntimeV8Basic::_set_base_timer (
 
          }
       }
+
+      if (result.IsEmpty ()) { name = self->_core->get_instance_name (obj); }
    }
 
    if (result.IsEmpty ()) {
@@ -227,11 +230,11 @@ dmz::JsModuleRuntimeV8Basic::delete_timer (V8Object self, V8Function callback) {
    v8::HandleScope scope;
 
    if (self.IsEmpty () || callback.IsEmpty ()) {} // do nothing
-   else {
+   else if (_core) {
 
-      const String Name = v8_to_string (self->Get (v8::String::NewSymbol ("name")));
+      const Handle TimerHandle = _core->get_instance_handle (self);
 
-      TimerStruct *current = _timerTable.lookup (Name);
+      TimerStruct *current = _timerTable.lookup (TimerHandle);
       TimerStruct *prev (0);
 
       while (current) {
@@ -241,8 +244,8 @@ dmz::JsModuleRuntimeV8Basic::delete_timer (V8Object self, V8Function callback) {
             if (prev) { prev->next = current->next; }
             else {
 
-               _timerTable.remove (Name);
-               if (current->next) { _timerTable.store (Name, current->next); }
+               _timerTable.remove (TimerHandle);
+               if (current->next) { _timerTable.store (TimerHandle, current->next); }
             }
 
             TimerStruct *tmp = current;

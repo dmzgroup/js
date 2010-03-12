@@ -1,4 +1,5 @@
 #include "dmzJsModuleRuntimeV8Basic.h"
+#include <dmzJsModuleV8.h>
 #include <dmzJsModuleTypesV8.h>
 #include <dmzTypesHashTableHandleTemplate.h>
 
@@ -84,10 +85,10 @@ dmz::JsModuleRuntimeV8Basic::MessageStruct::receive_message (
       v8::Handle<v8::Value> argv[] = {
          module.create_v8_data (InData),
          outObj,
-         cb->self,
-         v8::Number::New ((double)MessageSendHandle),
-         v8::Number::New ((double)TargetObserverHandle),
-         module.create_v8_message (Type.get_name ())
+         v8::Integer::New (MessageSendHandle),
+         v8::Integer::New (TargetObserverHandle),
+         module.create_v8_message (Type.get_name ()),
+         cb->self
       };
 
       v8::TryCatch tc;
@@ -217,18 +218,13 @@ dmz::JsModuleRuntimeV8Basic::_message_subscribe (const v8::Arguments &Args) {
 
    JsModuleRuntimeV8Basic *self = to_self (Args);
 
-   if (self && (Args.Length () >= 2)) {
+   if (self && self->_core && (Args.Length () >= 2)) {
 
       String name;
 
       V8Object obj = v8_to_object (Args[0]);
 
-      if (obj.IsEmpty () == false) {
-
-         name = v8_to_string (obj->Get (v8::String::New ("name")));
-      }
-
-      const Handle ObsHandle = self->_defs.create_named_handle (name);
+      const Handle ObsHandle = self->_core->get_instance_handle (obj);
 
       Message *ptr = self->_to_message_ptr (Args.This ());
 
@@ -291,18 +287,13 @@ dmz::JsModuleRuntimeV8Basic::_message_unsubscribe (const v8::Arguments &Args) {
 
    JsModuleRuntimeV8Basic *self = to_self (Args);
 
-   if (self) {
+   if (self && self->_core) {
 
       String name;
 
       V8Object obj = v8_to_object (Args[0]);
 
-      if (obj.IsEmpty () == false) {
-
-         name = v8_to_string (obj->Get (v8::String::New ("name")));
-      }
-
-      const Handle ObsHandle = self->_defs.create_named_handle (name);
+      const Handle ObsHandle = self->_core->get_instance_handle (obj);
 
       Message *ptr = self->_to_message_ptr (Args.This ());
 
