@@ -261,11 +261,36 @@ dmz::JsExtV8Object::_register_observer (
                   _newCallback = 0;
                }
             }
-            else {
-
-               activate_object_attribute (attr, AttrMask);
-            }
+            else { activate_object_attribute (attr, AttrMask); }
          }
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_release (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   JsExtV8Object *self = to_self (Args);
+
+   if (self && Args[0]->IsObject () && Args[1]->IsFunction ()) {
+
+      V8Object src = V8Object::Cast (Args[0]);
+      V8Function func = V8Function::Cast (Args[1]);
+
+      Handle obs = self->_core ? self->_core->get_instance_handle (src) : 0;
+
+      ObsStruct *os = self->_obsTable.lookup (obs);
+
+      if (os) {
+
+         self->_remove_callback (*os, func);
+         result = func;
       }
    }
 
@@ -2487,14 +2512,37 @@ dmz::JsExtV8Object::_do_callback (
 
          ObsStruct *os = _obsTable.lookup (cb->ObsHandle);
 
-         if (os) {
+         if (os) { _remove_callback (*os, cb->func); }
+      }
+   }
+}
 
-            if (!os->delete_callback (cb)) {
 
-               _log.error << "Failed to delete failed callback." << endl;
-            }
+void
+dmz::JsExtV8Object::_remove_callback (ObsStruct &os, V8Function func) {
+
+   CallbackStruct *prev (0);
+   CallbackStruct *current (os.list);
+
+   while (current) {
+
+      if (current->func == func) {
+
+         CallbackStruct *tmp (current);
+         current = current->next;
+
+         if (prev) { prev->next = tmp->next; }
+         else { os.list = tmp->next; }
+
+         CallbackTable *table = tmp->table;
+         delete tmp; tmp = 0;
+
+         if (table && (table->table.get_count () == 0)) {
+
+            deactivate_object_attribute (table->Attr, table->AttrMask);
          }
       }
+      else { prev = current; current = current->next; }
    }
 }
 
@@ -2517,6 +2565,7 @@ dmz::JsExtV8Object::_init (Config &local) {
    _objectApi.add_constant ("SelectNew", (UInt32)ObjectSelectNew);
    _objectApi.add_constant ("SelectAdd", (UInt32)ObjectSelectAdd);
    // Functions
+   _objectApi.add_function ("release", _object_release, _self);
    _objectApi.add_function ("isObject", _object_is_object, _self);
    _objectApi.add_function ("isActivated", _object_is_activated, _self);
    _objectApi.add_function ("isLink", _object_is_link, _self);

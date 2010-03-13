@@ -13,8 +13,8 @@
 <plugin-list>
    <plugin name="dmzPluginExit"/>
    <plugin name="dmzObjectModuleBasic"/>
-   <plugin name="dmzObjectPluginDump"/>
 <!--
+   <plugin name="dmzObjectPluginDump"/>
    <plugin name="dmzPluginMsgDump"/>
 -->
    <plugin name="dmzJsModuleV8Basic" scope="javascript"/>

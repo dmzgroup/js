@@ -263,39 +263,6 @@ namespace dmz {
             CallbackStruct *list;
             ObsStruct () : list (0) {}
             ~ObsStruct () { delete_list (list); }
-            Boolean delete_callback (CallbackStruct *cb) {
-
-               Boolean result (False);
-
-               if (cb) {
-
-                  CallbackStruct *prev (0);
-                  CallbackStruct *current (list);
-                  CallbackStruct *found (0);
-
-                  while (current && !found) {
-
-                     if ((current->func == cb->func) &&
-                           (current->self == cb->self)) {
-
-                        found = current;
-                     }
-                     else { prev = current; current = current->next; }
-                  }
-
-                  if (found) {
-
-                     result = true;
-
-                     if (prev) { prev->next = found->next; }
-                     else { list = found->next; }
-
-                     delete found; found = 0;
-                  }
-               }
-
-               return result;
-            }
          };
 
          static Handle _to_attr (JsExtV8Object *self, V8Value value);
@@ -312,6 +279,7 @@ namespace dmz {
             const v8::Arguments &Args,
             const Mask &AttrMask);
 
+         static V8Value _object_release (const v8::Arguments &Args);
          static V8Value _object_is_object (const v8::Arguments &Args);
          static V8Value _object_is_activated (const v8::Arguments &Args);
          static V8Value _object_is_link (const v8::Arguments &Args);
@@ -396,6 +364,7 @@ namespace dmz {
             v8::Handle<v8::Value> argv[]);
 
          void _do_callback (CallbackStruct *cb, int argc, v8::Handle<v8::Value> argv[]);
+         void _remove_callback (ObsStruct &os, V8Function func);
          void _init (Config &local);
 
          Log _log;
