@@ -12,7 +12,10 @@ var config = require('dmz/runtime/config');
 var ot = require('dmz/runtime/objectType');
 var obj = require('dmz/framework/object');
 
-obj.position.observe(self, function (handle, attr, pos, lastpos, self) {});
+obj.position.observe(self, function (handle, attr, pos, lastpos, self) {
+
+   puts("Got pos:", pos);
+});
 
 var o1 = obj.create("tank");
 obj.position(o1, null, [1,2,3]);

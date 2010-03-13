@@ -81,6 +81,21 @@ dmz::JsExtV8Object::_get_params (
 
 
 dmz::V8Function
+dmz::JsExtV8Object::_register_observer_static (
+      const v8::Arguments &Args,
+      const Mask &AttrMask) {
+
+   v8::HandleScope scope;
+   V8Function result;
+
+   JsExtV8Object *self = to_self (Args);
+   if (self) { result = self->_register_observer (Args, AttrMask); }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Function
 dmz::JsExtV8Object::_register_observer (
       const v8::Arguments &Args,
       const Mask &AttrMask) {
@@ -90,10 +105,8 @@ dmz::JsExtV8Object::_register_observer (
 
    const int Length = Args.Length ();
 
-   JsExtV8Object *self = to_self (Args);
-   ObjectModule *objMod = self ? self->get_object_module () : 0;
    V8Object src = v8_to_object (Args[0]);
-   Handle attr (self ? self->_defaultAttr : 0);
+   Handle attr (_defaultAttr);
 
    if (Length > 2) {
 
@@ -101,90 +114,158 @@ dmz::JsExtV8Object::_register_observer (
       if (arg->IsNumber ()) { attr = arg->Uint32Value (); }
       else if (arg->IsString ()) {
 
-         attr = self ?
-            self->_defs.create_named_handle (*(v8::String::AsciiValue (arg))) :
-            0;
+         attr = _defs.create_named_handle (*(v8::String::AsciiValue (arg)));
       }
    }
 
    V8Function func = v8_to_function (Args[Length > 2 ? 2 : 1]);
    
-   if (self && self->_core && attr && objMod &&
-         (src.IsEmpty () == false) && (func.IsEmpty () == false)) {
+   if (_core && attr && (src.IsEmpty () == false) && (func.IsEmpty () == false)) {
 
-      const Handle ObsHandle = self->_core->get_instance_handle (src);
+      Boolean doDump (False);
 
-      if (AttrMask & ObjectCreateMask) {
+      const Handle ObsHandle = _core->get_instance_handle (src);
 
+      ObsStruct *os = _obsTable.lookup (ObsHandle);
+
+      if (!os) {
+
+         os = new ObsStruct;
+         if (os && !_obsTable.store (ObsHandle, os)) { delete os; os = 0; }
       }
-      else if (AttrMask & ObjectDestroyMask) {
 
-      }
-      else if (AttrMask & ObjectLocalityMask) {
+      if (os) {
 
-      }
-      else if (AttrMask & ObjectUUIDMask) {
+         CallbackStruct *cbs (0);
 
-      }
-      else if (AttrMask & ObjectRemoveAttributeMask) {
+         if (AttrMask & ObjectCreateMask) {
 
-      }
-      else if (AttrMask & ObjectLinkMask) {
+            doDump = _createTable.table.get_count () != 0;
+            cbs = new CallbackStruct (ObsHandle, &_createTable);
+            if (cbs && !cbs->table) { delete cbs; cbs = 0; doDump = False; }
+         }
+         else if (AttrMask & ObjectDestroyMask) {
 
-      }
-      else if (AttrMask & ObjectUnlinkMask) {
+            doDump = _destroyTable.table.get_count () != 0;
+            cbs = new CallbackStruct (ObsHandle, &_destroyTable);
+            if (cbs && !cbs->table) { delete cbs; cbs = 0; doDump = False; }
+         }
+         else if (AttrMask & ObjectLocalityMask) {
 
-      }
-      else if (AttrMask & ObjectLinkAttributeMask) {
+            doDump = _localityTable.table.get_count () != 0;
+            cbs = new CallbackStruct (ObsHandle, &_localityTable);
+            if (cbs && !cbs->table) { delete cbs; cbs = 0; doDump = False; }
+         }
+         else if (AttrMask & ObjectUUIDMask) {
 
-      }
-      else if (AttrMask & ObjectCounterMask) {
+            doDump = _uuidTable.table.get_count () != 0;
+            cbs = new CallbackStruct (ObsHandle, &_uuidTable);
+            if (cbs && !cbs->table) { delete cbs; cbs = 0; doDump = False; }
+         }
+         else if (AttrMask & ObjectRemoveAttributeMask) {
 
-      }
-      else if (AttrMask & ObjectMinCounterMask) {
+         }
+         else if (AttrMask & ObjectLinkMask) {
 
-      }
-      else if (AttrMask & ObjectMaxCounterMask) {
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _linkTable, doDump);
+         }
+         else if (AttrMask & ObjectUnlinkMask) {
 
-      }
-      else if (AttrMask & ObjectAltTypeMask) {
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _unlinkTable, doDump);
+         }
+         else if (AttrMask & ObjectLinkAttributeMask) {
 
-      }
-      else if (AttrMask & ObjectStateMask) {
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _linkAttrTable, doDump);
+         }
+         else if (AttrMask & ObjectCounterMask) {
 
-      }
-      else if (AttrMask & ObjectFlagMask) {
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _counterTable, doDump);
+         }
+         else if (AttrMask & ObjectMinCounterMask) {
 
-      }
-      else if (AttrMask & ObjectTimeStampMask) {
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _minCounterTable, doDump);
+         }
+         else if (AttrMask & ObjectMaxCounterMask) {
 
-      }
-      else if (AttrMask & ObjectPositionMask) {
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _maxCounterTable, doDump);
+         }
+         else if (AttrMask & ObjectAltTypeMask) {
 
-      }
-      else if (AttrMask & ObjectOrientationMask) {
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _altTypeTable, doDump);
+         }
+         else if (AttrMask & ObjectStateMask) {
 
-      }
-      else if (AttrMask & ObjectVelocityMask) {
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _stateTable, doDump);
+         }
+         else if (AttrMask & ObjectFlagMask) {
 
-      }
-      else if (AttrMask & ObjectAccelerationMask) {
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _flagTable, doDump);
+         }
+         else if (AttrMask & ObjectTimeStampMask) {
 
-      }
-      else if (AttrMask & ObjectScaleMask) {
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _timeStampTable, doDump);
+         }
+         else if (AttrMask & ObjectPositionMask) {
 
-      }
-      else if (AttrMask & ObjectVectorMask) {
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _positionTable, doDump);
+         }
+         else if (AttrMask & ObjectOrientationMask) {
 
-      }
-      else if (AttrMask & ObjectScalarMask) {
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _orientationTable, doDump);
+         }
+         else if (AttrMask & ObjectVelocityMask) {
 
-      }
-      else if (AttrMask & ObjectTextMask) {
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _velocityTable, doDump);
+         }
+         else if (AttrMask & ObjectAccelerationMask) {
 
-      }
-      else if (AttrMask & ObjectDataMask) {
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _accelerationTable, doDump);
+         }
+         else if (AttrMask & ObjectScaleMask) {
 
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _scaleTable, doDump);
+         }
+         else if (AttrMask & ObjectVectorMask) {
+
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _vectorTable, doDump);
+         }
+         else if (AttrMask & ObjectScalarMask) {
+
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _scalarTable, doDump);
+         }
+         else if (AttrMask & ObjectTextMask) {
+
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _textTable, doDump);
+         }
+         else if (AttrMask & ObjectDataMask) {
+
+            cbs = _create_callback (ObsHandle, attr, AttrMask, _dataTable, doDump);
+         }
+
+         if (cbs) {
+
+            cbs->self = V8ObjectPersist::New (src);
+            cbs->func = V8FunctionPersist::New (func);
+            result = func;
+
+            cbs->next = os->list; os->list = cbs;
+
+            if (doDump) {
+
+               ObjectModule *objMod = get_object_module ();
+
+               if (objMod) {
+
+                  _newCallback = cbs;
+                  objMod->dump_attributes (attr, AttrMask, *this);
+                  _newCallback = 0;
+               }
+            }
+            else {
+
+               activate_object_attribute (attr, AttrMask);
+            }
+         }
       }
    }
 
@@ -315,7 +396,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_create_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectCreateMask);
+   V8Value result = _register_observer_static (Args, ObjectCreateMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -363,7 +444,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_destroy_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectDestroyMask);
+   V8Value result = _register_observer_static (Args, ObjectDestroyMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -470,7 +551,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_locality_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectLocalityMask);
+   V8Value result = _register_observer_static (Args, ObjectLocalityMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -517,7 +598,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_uuid_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectUUIDMask);
+   V8Value result = _register_observer_static (Args, ObjectUUIDMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -550,7 +631,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_link_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectLinkMask);
+   V8Value result = _register_observer_static (Args, ObjectLinkMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -633,7 +714,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_unlink_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectUnlinkMask);
+   V8Value result = _register_observer_static (Args, ObjectUnlinkMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -764,7 +845,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_link_attribute_object_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectLinkAttributeMask);
+   V8Value result = _register_observer_static (Args, ObjectLinkAttributeMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -834,7 +915,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_counter_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectCounterMask);
+   V8Value result = _register_observer_static (Args, ObjectCounterMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -880,7 +961,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_counter_min_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectMinCounterMask);
+   V8Value result = _register_observer_static (Args, ObjectMinCounterMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -926,7 +1007,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_counter_max_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectMaxCounterMask);
+   V8Value result = _register_observer_static (Args, ObjectMaxCounterMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1036,7 +1117,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_alt_type_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectAltTypeMask);
+   V8Value result = _register_observer_static (Args, ObjectAltTypeMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1082,7 +1163,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_state_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectStateMask);
+   V8Value result = _register_observer_static (Args, ObjectStateMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1123,7 +1204,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_flag_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectFlagMask);
+   V8Value result = _register_observer_static (Args, ObjectFlagMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1169,7 +1250,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_time_stamp_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectTimeStampMask);
+   V8Value result = _register_observer_static (Args, ObjectTimeStampMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1215,7 +1296,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_position_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectPositionMask);
+   V8Value result = _register_observer_static (Args, ObjectPositionMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1261,7 +1342,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_orientation_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectOrientationMask);
+   V8Value result = _register_observer_static (Args, ObjectOrientationMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1307,7 +1388,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_velocity_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectVelocityMask);
+   V8Value result = _register_observer_static (Args, ObjectVelocityMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1353,7 +1434,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_acceleration_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectAccelerationMask);
+   V8Value result = _register_observer_static (Args, ObjectAccelerationMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1399,7 +1480,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_scale_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectScaleMask);
+   V8Value result = _register_observer_static (Args, ObjectScaleMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1445,7 +1526,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_vector_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectVectorMask);
+   V8Value result = _register_observer_static (Args, ObjectVectorMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1491,7 +1572,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_scalar_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectScalarMask);
+   V8Value result = _register_observer_static (Args, ObjectScalarMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1537,7 +1618,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_text_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectTextMask);
+   V8Value result = _register_observer_static (Args, ObjectTextMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1586,7 +1667,7 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_data_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result = _register_observer (Args, ObjectDataMask);
+   V8Value result = _register_observer_static (Args, ObjectDataMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1602,7 +1683,13 @@ dmz::JsExtV8Object::JsExtV8Object (const PluginInfo &Info, Config &local) :
       _defaultAttr (0),
       _runtime (0),
       _types (0),
-      _core (0) {
+      _core (0),
+      _newCallback (0),
+      _createTable (0, ObjectCreateMask),
+      _destroyTable (0, ObjectDestroyMask),
+      _uuidTable (0, ObjectUUIDMask),
+      _localityTable (0, ObjectLocalityMask) {
+
 
    _init (local);
 }
@@ -1698,6 +1785,10 @@ dmz::JsExtV8Object::update_js_ext_v8_state (const StateEnum State) {
          }
 
          _localObjects.clear ();
+
+         _obsTable.empty ();
+
+         objMod->release_object_observer_all (*this);
       }
    }
 }
@@ -1719,6 +1810,14 @@ dmz::JsExtV8Object::create_object (
       const ObjectType &Type,
       const ObjectLocalityEnum Locality) {
 
+   v8::HandleScope scope;
+   const int Argc (4);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   if (_runtime) { argv[1] = _runtime->create_v8_object_type (&Type); }
+   else { argv[1] = v8::Undefined (); }
+   argv[2] = v8::Integer::New ((Int64)Locality);
+   _process_callback (&_createTable, Argc, argv);
 }
 
 
@@ -1727,6 +1826,11 @@ dmz::JsExtV8Object::destroy_object (
       const UUID &Identity,
       const Handle ObjectHandle) {
 
+   v8::HandleScope scope;
+   const int Argc (2);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   _process_callback (&_destroyTable, Argc, argv);
 }
 
 
@@ -1736,6 +1840,13 @@ dmz::JsExtV8Object::update_object_uuid (
       const UUID &Identity,
       const UUID &PrevIdentity) {
 
+   v8::HandleScope scope;
+   const int Argc (4);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   argv[1] = v8::String::New (Identity.to_string (UUID::NotFormatted).get_buffer ());
+   argv[2] = v8::String::New (PrevIdentity.to_string (UUID::NotFormatted).get_buffer ());
+   _process_callback (&_uuidTable, Argc, argv);
 }
 
 
@@ -1746,6 +1857,7 @@ dmz::JsExtV8Object::remove_object_attribute (
       const Handle AttributeHandle,
       const Mask &AttrMask) {
 
+   v8::HandleScope scope;
 }
 
 
@@ -1756,6 +1868,14 @@ dmz::JsExtV8Object::update_object_locality (
       const ObjectLocalityEnum Locality,
       const ObjectLocalityEnum PrevLocality) {
 
+   v8::HandleScope scope;
+   const int Argc (4);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   argv[1] = v8::Integer::New ((UInt32)Locality);
+   argv[2] = v8::Integer::New ((UInt32)PrevLocality);
+
+   _process_callback (&_localityTable, Argc, argv);
 }
 
 
@@ -1768,6 +1888,15 @@ dmz::JsExtV8Object::link_objects (
       const UUID &SubIdentity,
       const Handle SubHandle) {
 
+   v8::HandleScope scope;
+   const int Argc (5);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (LinkHandle);
+   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[2] = v8::Integer::New (SuperHandle);
+   argv[3] = v8::Integer::New (SubHandle);
+
+   _process_callback (_linkTable.lookup (AttributeHandle), Argc, argv);
 }
 
 
@@ -1780,6 +1909,15 @@ dmz::JsExtV8Object::unlink_objects (
       const UUID &SubIdentity,
       const Handle SubHandle) {
 
+   v8::HandleScope scope;
+   const int Argc (5);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (LinkHandle);
+   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[2] = v8::Integer::New (SuperHandle);
+   argv[3] = v8::Integer::New (SubHandle);
+
+   _process_callback (_unlinkTable.lookup (AttributeHandle), Argc, argv);
 }
 
 
@@ -1796,7 +1934,17 @@ dmz::JsExtV8Object::update_link_attribute_object (
       const UUID &PrevAttributeIdentity,
       const Handle PrevAttributeObjectHandle) {
 
+   v8::HandleScope scope;
+   const int Argc (7);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (LinkHandle);
+   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[2] = v8::Integer::New (SuperHandle);
+   argv[3] = v8::Integer::New (SubHandle);
+   argv[4] = v8::Integer::New (AttributeObjectHandle);
+   argv[5] = v8::Integer::New (PrevAttributeObjectHandle);
 
+   _process_callback (_linkAttrTable.lookup (AttributeHandle), Argc, argv);
 }
 
 
@@ -1808,6 +1956,16 @@ dmz::JsExtV8Object::update_object_counter (
       const Int64 Value,
       const Int64 *PreviousValue) {
 
+   v8::HandleScope scope;
+   const int Argc (5);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[2] = v8::Integer::New (Value);
+   if (PreviousValue) { argv[3] = v8::Integer::New (*PreviousValue); }
+   else { argv[3] = v8::Undefined (); }
+
+   _process_callback (_counterTable.lookup (AttributeHandle), Argc, argv);
 }
 
 
@@ -1819,6 +1977,16 @@ dmz::JsExtV8Object::update_object_counter_minimum (
       const Int64 Value,
       const Int64 *PreviousValue) {
 
+   v8::HandleScope scope;
+   const int Argc (5);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[2] = v8::Integer::New (Value);
+   if (PreviousValue) { argv[3] = v8::Integer::New (*PreviousValue); }
+   else { argv[3] = v8::Undefined (); }
+
+   _process_callback (_minCounterTable.lookup (AttributeHandle), Argc, argv);
 }
 
 
@@ -1830,6 +1998,16 @@ dmz::JsExtV8Object::update_object_counter_maximum (
       const Int64 Value,
       const Int64 *PreviousValue) {
 
+   v8::HandleScope scope;
+   const int Argc (5);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[2] = v8::Integer::New (Value);
+   if (PreviousValue) { argv[3] = v8::Integer::New (*PreviousValue); }
+   else { argv[3] = v8::Undefined (); }
+
+   _process_callback (_maxCounterTable.lookup (AttributeHandle), Argc, argv);
 }
 
 
@@ -1841,6 +2019,7 @@ dmz::JsExtV8Object::update_object_alternate_type (
       const ObjectType &Value,
       const ObjectType *PreviousValue) {
 
+   v8::HandleScope scope;
 }
 
 
@@ -1852,6 +2031,25 @@ dmz::JsExtV8Object::update_object_state (
       const Mask &Value,
       const Mask *PreviousValue) {
 
+   v8::HandleScope scope;
+   const int Argc (5);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   argv[1] = v8::Integer::New (AttributeHandle);
+
+   if (_types) {
+
+      argv[2] = _types->to_v8_mask (Value);
+      if (PreviousValue) { argv[3] = _types->to_v8_mask (*PreviousValue); }
+      else { argv[3] = v8::Undefined (); }
+   }
+   else {
+
+      argv[2] = v8::Undefined ();
+      argv[3] = v8::Undefined ();
+   }
+
+   _process_callback (_stateTable.lookup (AttributeHandle), Argc, argv);
 }
 
 
@@ -1863,6 +2061,16 @@ dmz::JsExtV8Object::update_object_flag (
       const Boolean Value,
       const Boolean *PreviousValue) {
 
+   v8::HandleScope scope;
+   const int Argc (5);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[2] = v8::Boolean::New (Value);
+   if (PreviousValue) { argv[3] = v8::Boolean::New (*PreviousValue); }
+   else { argv[3] = v8::Undefined (); }
+
+   _process_callback (_flagTable.lookup (AttributeHandle), Argc, argv);
 }
 
 
@@ -1874,6 +2082,16 @@ dmz::JsExtV8Object::update_object_time_stamp (
       const Float64 Value,
       const Float64 *PreviousValue) {
 
+   v8::HandleScope scope;
+   const int Argc (5);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[2] = v8::Number::New (Value);
+   if (PreviousValue) { argv[3] = v8::Number::New (*PreviousValue); }
+   else { argv[3] = v8::Undefined (); }
+
+   _process_callback (_timeStampTable.lookup (AttributeHandle), Argc, argv);
 }
 
 
@@ -1885,6 +2103,25 @@ dmz::JsExtV8Object::update_object_position (
       const Vector &Value,
       const Vector *PreviousValue) {
 
+   v8::HandleScope scope;
+   const int Argc (5);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   argv[1] = v8::Integer::New (AttributeHandle);
+
+   if (_types) {
+
+      argv[2] = _types->to_v8_vector (Value);
+      if (PreviousValue) { argv[3] = _types->to_v8_vector (*PreviousValue); }
+      else { argv[3] = v8::Undefined (); }
+   }
+   else {
+
+      argv[2] = v8::Undefined ();
+      argv[3] = v8::Undefined ();
+   }
+
+   _process_callback (_positionTable.lookup (AttributeHandle), Argc, argv);
 }
 
 
@@ -1896,6 +2133,25 @@ dmz::JsExtV8Object::update_object_orientation (
       const Matrix &Value,
       const Matrix *PreviousValue) {
 
+   v8::HandleScope scope;
+   const int Argc (5);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   argv[1] = v8::Integer::New (AttributeHandle);
+
+   if (_types) {
+
+      argv[2] = _types->to_v8_matrix (Value);
+      if (PreviousValue) { argv[3] = _types->to_v8_matrix (*PreviousValue); }
+      else { argv[3] = v8::Undefined (); }
+   }
+   else {
+
+      argv[2] = v8::Undefined ();
+      argv[3] = v8::Undefined ();
+   }
+
+   _process_callback (_orientationTable.lookup (AttributeHandle), Argc, argv);
 }
 
 
@@ -1907,6 +2163,25 @@ dmz::JsExtV8Object::update_object_velocity (
       const Vector &Value,
       const Vector *PreviousValue) {
 
+   v8::HandleScope scope;
+   const int Argc (5);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   argv[1] = v8::Integer::New (AttributeHandle);
+
+   if (_types) {
+
+      argv[2] = _types->to_v8_vector (Value);
+      if (PreviousValue) { argv[3] = _types->to_v8_vector (*PreviousValue); }
+      else { argv[3] = v8::Undefined (); }
+   }
+   else {
+
+      argv[2] = v8::Undefined ();
+      argv[3] = v8::Undefined ();
+   }
+
+   _process_callback (_velocityTable.lookup (AttributeHandle), Argc, argv);
 }
 
 
@@ -1918,6 +2193,25 @@ dmz::JsExtV8Object::update_object_acceleration (
       const Vector &Value,
       const Vector *PreviousValue) {
 
+   v8::HandleScope scope;
+   const int Argc (5);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   argv[1] = v8::Integer::New (AttributeHandle);
+
+   if (_types) {
+
+      argv[2] = _types->to_v8_vector (Value);
+      if (PreviousValue) { argv[3] = _types->to_v8_vector (*PreviousValue); }
+      else { argv[3] = v8::Undefined (); }
+   }
+   else {
+
+      argv[2] = v8::Undefined ();
+      argv[3] = v8::Undefined ();
+   }
+
+   _process_callback (_accelerationTable.lookup (AttributeHandle), Argc, argv);
 }
 
 
@@ -1929,6 +2223,25 @@ dmz::JsExtV8Object::update_object_scale (
       const Vector &Value,
       const Vector *PreviousValue) {
 
+   v8::HandleScope scope;
+   const int Argc (5);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   argv[1] = v8::Integer::New (AttributeHandle);
+
+   if (_types) {
+
+      argv[2] = _types->to_v8_vector (Value);
+      if (PreviousValue) { argv[3] = _types->to_v8_vector (*PreviousValue); }
+      else { argv[3] = v8::Undefined (); }
+   }
+   else {
+
+      argv[2] = v8::Undefined ();
+      argv[3] = v8::Undefined ();
+   }
+
+   _process_callback (_scaleTable.lookup (AttributeHandle), Argc, argv);
 }
 
 
@@ -1940,6 +2253,25 @@ dmz::JsExtV8Object::update_object_vector (
       const Vector &Value,
       const Vector *PreviousValue) {
 
+   v8::HandleScope scope;
+   const int Argc (5);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   argv[1] = v8::Integer::New (AttributeHandle);
+
+   if (_types) {
+
+      argv[2] = _types->to_v8_vector (Value);
+      if (PreviousValue) { argv[3] = _types->to_v8_vector (*PreviousValue); }
+      else { argv[3] = v8::Undefined (); }
+   }
+   else {
+
+      argv[2] = v8::Undefined ();
+      argv[3] = v8::Undefined ();
+   }
+
+   _process_callback (_vectorTable.lookup (AttributeHandle), Argc, argv);
 }
 
 
@@ -1951,6 +2283,16 @@ dmz::JsExtV8Object::update_object_scalar (
       const Float64 Value,
       const Float64 *PreviousValue) {
 
+   v8::HandleScope scope;
+   const int Argc (5);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[2] = v8::Number::New (Value);
+   if (PreviousValue) { argv[3] = v8::Number::New (*PreviousValue); }
+   else { argv[3] = v8::Undefined (); }
+
+   _process_callback (_scalarTable.lookup (AttributeHandle), Argc, argv);
 }
 
 
@@ -1962,6 +2304,20 @@ dmz::JsExtV8Object::update_object_text (
       const String &Value,
       const String *PreviousValue) {
 
+   v8::HandleScope scope;
+   const int Argc (5);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[2] = v8::String::New (Value ? Value.get_buffer () : "");
+
+   if (PreviousValue) {
+
+      argv[3] = v8::String::New (*PreviousValue ? PreviousValue->get_buffer () : "");
+   }
+   else { argv[3] = v8::Undefined (); }
+
+   _process_callback (_textTable.lookup (AttributeHandle), Argc, argv);
 }
 
 
@@ -1973,6 +2329,25 @@ dmz::JsExtV8Object::update_object_data (
       const Data &Value,
       const Data *PreviousValue) {
 
+   v8::HandleScope scope;
+   const int Argc (5);
+   V8Value argv[Argc];
+   argv[0] = v8::Integer::New (ObjectHandle);
+   argv[1] = v8::Integer::New (AttributeHandle);
+
+   if (_runtime) {
+
+      argv[2] = _runtime->create_v8_data (&Value);
+      if (PreviousValue) { argv[3] = _runtime->create_v8_data (PreviousValue); }
+      else { argv[3] = v8::Undefined (); }
+   }
+   else {
+
+      argv[2] = v8::Undefined ();
+      argv[3] = v8::Undefined ();
+   }
+
+   _process_callback (_dataTable.lookup (AttributeHandle), Argc, argv);
 }
 
 
@@ -2018,6 +2393,109 @@ dmz::JsExtV8Object::_to_object_handle (V8Value value) {
    }
 
    return result;
+}
+
+
+dmz::JsExtV8Object::CallbackStruct *
+dmz::JsExtV8Object::_create_callback (
+      const Handle ObsHandle,
+      const Handle Attr,
+      const Mask &AttrMask,
+      HashTableHandleTemplate<CallbackTable> &table, 
+      Boolean &doDump) {
+
+   CallbackStruct *result (0);
+
+   CallbackTable *attrTable = table.lookup (Attr);
+
+   if (!attrTable) {
+
+      attrTable = new CallbackTable (Attr, AttrMask);
+
+      if (attrTable && !table.store (Attr, attrTable)) {
+
+         delete attrTable; attrTable = 0;
+      }
+   }
+
+   if (attrTable && !attrTable->table.lookup (ObsHandle)) {
+
+      doDump = attrTable->table.get_count () != 0;
+      result = new CallbackStruct (ObsHandle, attrTable);
+      if (result && !result->table) { delete result; result = 0; }
+   }
+
+   return result;
+}
+
+
+void
+dmz::JsExtV8Object::_process_callback (
+      CallbackTable *table,
+      int argc,
+      v8::Handle<v8::Value> argv[]) {
+
+   v8::HandleScope scope;
+
+   if (table && (_v8Context.IsEmpty () == false)) {
+
+      v8::Context::Scope cscope (_v8Context);
+
+      if (_newCallback) {
+
+         if (table->table.lookup (_newCallback->ObsHandle)) {
+
+            _do_callback (_newCallback, argc, argv);
+         }
+      }
+      else {
+
+         HashTableHandleIterator it;
+         CallbackStruct *cb (0);
+
+         while (table->table.get_next (it, cb)) {
+
+            _do_callback (cb, argc, argv);
+         }
+      }
+
+      if (table->table.get_count () == 0) {
+
+         deactivate_object_attribute (table->Attr, table->AttrMask);
+      }
+   }
+}
+
+
+void
+dmz::JsExtV8Object::_do_callback (
+      CallbackStruct *cb,
+      int argc,
+      v8::Handle<v8::Value> argv[]) {
+
+   if (cb->func.IsEmpty () == false) {
+
+      v8::TryCatch tc;
+
+      argv[argc - 1] = cb->self;
+
+      cb->func->Call (cb->self, argc, argv);
+
+      if (tc.HasCaught ()) {
+
+         if (_core) { _core->handle_v8_exception (tc); }
+
+         ObsStruct *os = _obsTable.lookup (cb->ObsHandle);
+
+         if (os) {
+
+            if (!os->delete_callback (cb)) {
+
+               _log.error << "Failed to delete failed callback." << endl;
+            }
+         }
+      }
+   }
 }
 
 

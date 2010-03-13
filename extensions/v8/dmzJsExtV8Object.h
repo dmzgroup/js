@@ -11,6 +11,8 @@
 #include <dmzRuntimePlugin.h>
 #include <dmzRuntimeTimeSlice.h>
 #include <dmzTypesHandleContainer.h>
+#include <dmzTypesDeleteListTemplate.h>
+#include <dmzTypesHashTableHandleTemplate.h>
 
 #include <v8.h>
 
@@ -216,18 +218,83 @@ namespace dmz {
             const Data *PreviousValue);
 
       protected:
-         struct cbStruct {
+         struct CallbackStruct;
+
+         struct CallbackTable {
+
+            const Handle Attr;
+            const Mask AttrMask;
+
+            HashTableHandleTemplate<CallbackStruct> table;
+
+            CallbackTable (const Handle TheAttr, const Mask &TheMask) :
+                  Attr (TheAttr),
+                  AttrMask (TheMask) {;}
+         };
+
+         struct CallbackStruct {
 
             const Handle ObsHandle;
+            CallbackTable *table;
+            CallbackStruct *next;
             V8FunctionPersist func;
             V8ObjectPersist self;
 
-            cbStruct (const Handle TheObsHandle) : ObsHandle (TheObsHandle) {;}
+            CallbackStruct (
+                  const Handle TheObsHandle,
+                  CallbackTable *theTable) :
+                  ObsHandle (TheObsHandle),
+                  table (theTable),
+                  next (0) {
 
-            ~cbStruct () {
+               if (table && !table->table.store (ObsHandle, this)) { table = 0; }
+            }
 
+            ~CallbackStruct () {
+
+               if (table) { table->table.remove (ObsHandle); }
                func.Dispose (); func.Clear ();
                self.Dispose (); self.Clear ();
+            }
+         };
+
+         struct ObsStruct {
+
+            CallbackStruct *list;
+            ObsStruct () : list (0) {}
+            ~ObsStruct () { delete_list (list); }
+            Boolean delete_callback (CallbackStruct *cb) {
+
+               Boolean result (False);
+
+               if (cb) {
+
+                  CallbackStruct *prev (0);
+                  CallbackStruct *current (list);
+                  CallbackStruct *found (0);
+
+                  while (current && !found) {
+
+                     if ((current->func == cb->func) &&
+                           (current->self == cb->self)) {
+
+                        found = current;
+                     }
+                     else { prev = current; current = current->next; }
+                  }
+
+                  if (found) {
+
+                     result = true;
+
+                     if (prev) { prev->next = found->next; }
+                     else { list = found->next; }
+
+                     delete found; found = 0;
+                  }
+               }
+
+               return result;
             }
          };
 
@@ -241,7 +308,7 @@ namespace dmz {
             Handle &obj,
             Handle &attr);
 
-         static V8Function _register_observer (
+         static V8Function _register_observer_static (
             const v8::Arguments &Args,
             const Mask &AttrMask);
 
@@ -312,6 +379,23 @@ namespace dmz {
          // JsExtV8Object Interface
          Handle _to_handle (V8Value value);
          Handle _to_object_handle (V8Value value);
+         V8Function _register_observer (
+            const v8::Arguments &Args,
+            const Mask &AttrMask);
+
+         CallbackStruct *_create_callback (
+            const Handle ObsHandle,
+            const Handle Attr,
+            const Mask &AttrMask,
+            HashTableHandleTemplate<CallbackTable> &table,
+            Boolean &doDump);
+
+         void _process_callback (
+            CallbackTable *table,
+            int argc,
+            v8::Handle<v8::Value> argv[]);
+
+         void _do_callback (CallbackStruct *cb, int argc, v8::Handle<v8::Value> argv[]);
          void _init (Config &local);
 
          Log _log;
@@ -329,6 +413,34 @@ namespace dmz {
          JsModuleRuntimeV8 *_runtime;
          JsModuleTypesV8 *_types;
          JsModuleV8 *_core;
+
+         CallbackStruct *_newCallback;
+
+         HashTableHandleTemplate<ObsStruct> _obsTable;
+
+         CallbackTable _createTable;
+         CallbackTable _destroyTable;
+         CallbackTable _uuidTable;
+         CallbackTable _localityTable;
+         HashTableHandleTemplate<CallbackTable> _linkTable;
+         HashTableHandleTemplate<CallbackTable> _unlinkTable;
+         HashTableHandleTemplate<CallbackTable> _linkAttrTable;
+         HashTableHandleTemplate<CallbackTable> _counterTable;
+         HashTableHandleTemplate<CallbackTable> _minCounterTable;
+         HashTableHandleTemplate<CallbackTable> _maxCounterTable;
+         HashTableHandleTemplate<CallbackTable> _altTypeTable;
+         HashTableHandleTemplate<CallbackTable> _stateTable;
+         HashTableHandleTemplate<CallbackTable> _flagTable;
+         HashTableHandleTemplate<CallbackTable> _timeStampTable;
+         HashTableHandleTemplate<CallbackTable> _positionTable;
+         HashTableHandleTemplate<CallbackTable> _orientationTable;
+         HashTableHandleTemplate<CallbackTable> _velocityTable;
+         HashTableHandleTemplate<CallbackTable> _accelerationTable;
+         HashTableHandleTemplate<CallbackTable> _scaleTable;
+         HashTableHandleTemplate<CallbackTable> _vectorTable;
+         HashTableHandleTemplate<CallbackTable> _scalarTable;
+         HashTableHandleTemplate<CallbackTable> _textTable;
+         HashTableHandleTemplate<CallbackTable> _dataTable;
 
       private:
          JsExtV8Object ();
