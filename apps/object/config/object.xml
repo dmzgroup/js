@@ -27,5 +27,6 @@
    <path value="./scripts"/>
    <path value="../../scripts"/>
    <instance name="object"/>
+   <instance name="show"/>
 </javascript>
 </dmz>

@@ -115,7 +115,7 @@ local_log_delete (v8::Persistent<v8::Value> object, void *param) {
 
       dmz::Log *ptr = (dmz::Log *)param;
 
-      ptr->error << "Deleting Log" << dmz::endl;
+      ptr->debug << "Deleting JavaScript instance Log." << dmz::endl;
       delete ptr; ptr = 0;
    }
 }

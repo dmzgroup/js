@@ -51,6 +51,9 @@ v8_to_pointer (V8Value value, const int Offset) {
 Boolean
 v8_to_boolean (V8Value value);
 
+Boolean
+v8_to_boolean (V8Value value, const Boolean DefaultValue);
+
 String
 v8_to_string (V8Value value);
 
@@ -97,6 +100,17 @@ inline dmz::Boolean
 dmz::v8_to_boolean (V8Value value) {
 
    Boolean result (False);
+
+   if (value.IsEmpty () == false) { result = value->BooleanValue (); }
+
+   return result;
+}
+
+
+inline dmz::Boolean
+dmz::v8_to_boolean (V8Value value, const Boolean DefaultValue) {
+
+   Boolean result (DefaultValue);
 
    if (value.IsEmpty () == false) { result = value->BooleanValue (); }
 

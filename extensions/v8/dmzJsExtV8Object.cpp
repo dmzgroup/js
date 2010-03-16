@@ -4,6 +4,7 @@
 #include <dmzJsModuleV8.h>
 #include <dmzObjectConsts.h>
 #include <dmzObjectModule.h>
+#include <dmzObjectModuleSelect.h>
 #include <dmzObjectAttributeMasks.h>
 #include <dmzRuntimeData.h>
 #include <dmzRuntimeObjectType.h>
@@ -222,6 +223,7 @@ dmz::JsExtV8Object::_register_observer (
          else if (AttrMask & ObjectFlagMask) {
 
             cbs = _create_callback (ObsHandle, attr, AttrMask, _flagTable, doDump);
+            if (attr == _hilAttr) { doDump = True; }
          }
          else if (AttrMask & ObjectTimeStampMask) {
 
@@ -333,6 +335,21 @@ dmz::JsExtV8Object::_object_release (const v8::Arguments &Args) {
    }
 
    return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_hil (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsExtV8Object *self = to_self (Args);
+
+   if (self) { result = v8::Integer::New (self->_hil); }
+   else { result = v8::Integer::New (0); }
+
+   return scope.Close (result);
 }
 
 
@@ -1896,6 +1913,99 @@ dmz::JsExtV8Object::_object_data_remove (const v8::Arguments &Args) {
 }
 
 
+// Selection Bindings
+dmz::V8Value
+dmz::JsExtV8Object::_object_get_selected (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+   JsExtV8Object *self = to_self (Args);
+
+   if (self && self->_select) {
+
+      HandleContainer list;
+      self->_select->get_selected_objects (list);
+      result = v8_to_array (list);
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_is_selected (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+   JsExtV8Object *self = to_self (Args);
+
+   if (self && self->_select && (Args.Length () == 1)) {
+
+      const Handle Object = v8_to_handle (Args[0]);
+      result = v8::Boolean::New (self->_select->is_selected (Object));
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_select (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+   JsExtV8Object *self = to_self (Args);
+
+   if (self && self->_select) {
+
+      const Handle Object = v8_to_handle (Args[0]);
+      ObjectSelectModeEnum mode = ObjectSelectNew;
+
+      if (Args.Length () > 1) {
+
+         const UInt32 Value = v8_to_uint32 (Args[1]);
+
+         if (Value == ObjectSelectAdd) { mode = ObjectSelectAdd; }
+         else if (Value == ObjectSelectNew) { mode = ObjectSelectNew; }
+         else { self->_log.error << "Unknown selection mode: " << Value << endl; }
+      }
+
+      result = v8::Boolean::New (self->_select->select_object (Object, mode));
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_unselect (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+   JsExtV8Object *self = to_self (Args);
+
+   if (self && self->_select) {
+
+      const Handle Object = v8_to_handle (Args[0]);
+      result = v8::Boolean::New (self->_select->unselect_object (Object));
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_unselect_all (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   JsExtV8Object *self = to_self (Args);
+
+   if (self && self->_select) { self->_select->unselect_all_objects (); }
+
+   return v8::Undefined ();
+}
+
+
 dmz::JsExtV8Object::JsExtV8Object (const PluginInfo &Info, Config &local) :
       Plugin (Info),
       JsExtV8 (Info),
@@ -1904,9 +2014,12 @@ dmz::JsExtV8Object::JsExtV8Object (const PluginInfo &Info, Config &local) :
       _log (Info),
       _defs (Info),
       _defaultAttr (0),
+      _hilAttr (0),
+      _hil (0),
       _runtime (0),
       _types (0),
       _core (0),
+      _select (0),
       _newCallback (0),
       _createTable (0, ObjectCreateMask),
       _destroyTable (0, ObjectDestroyMask),
@@ -1953,11 +2066,13 @@ dmz::JsExtV8Object::discover_plugin (
 
       if (!_runtime) { _runtime = JsModuleRuntimeV8::cast (PluginPtr); }
       if (!_types) { _types = JsModuleTypesV8::cast (PluginPtr); }
+      if (!_select) { _select = ObjectModuleSelect::cast (PluginPtr); }
    }
    else if (Mode == PluginDiscoverRemove) {
 
       if (_runtime && (_runtime == JsModuleRuntimeV8::cast (PluginPtr))) { _runtime = 0; }
       if (_types && (_types == JsModuleTypesV8::cast (PluginPtr))) { _types = 0; }
+      if (_select && (_select == ObjectModuleSelect::cast (PluginPtr))) { _select = 0; }
    }
 }
 
@@ -2014,7 +2129,10 @@ dmz::JsExtV8Object::update_js_ext_v8_state (const StateEnum State) {
          _obsTable.empty ();
 
          deactivate_all_object_attributes ();
+         activate_object_attribute (_hilAttr, ObjectFlagMask);
       }
+
+      _v8Context.Clear ();
    }
 }
 
@@ -2284,6 +2402,12 @@ dmz::JsExtV8Object::update_object_flag (
       const Handle AttributeHandle,
       const Boolean Value,
       const Boolean *PreviousValue) {
+
+   if (AttributeHandle == _hilAttr) {
+
+      if (Value) { _hil = ObjectHandle; }
+      else if (ObjectHandle == _hil) { _hil = 0; }
+   }
 
    v8::HandleScope scope;
    const int Argc (5);
@@ -2682,7 +2806,10 @@ dmz::JsExtV8Object::_process_callback (
 
       if (table->table.get_count () == 0) {
 
-         deactivate_object_attribute (table->Attr, table->AttrMask);
+         if ((table->Attr != _hilAttr) || (!table->AttrMask.contains (ObjectFlagMask))) {
+
+            deactivate_object_attribute (table->Attr, table->AttrMask);
+         }
       }
    }
 }
@@ -2735,7 +2862,11 @@ dmz::JsExtV8Object::_remove_callback (ObsStruct &os, V8Function func) {
 
          if (table && (table->table.get_count () == 0)) {
 
-            deactivate_object_attribute (table->Attr, table->AttrMask);
+            if ((table->Attr != _hilAttr) ||
+                  (!table->AttrMask.contains (ObjectFlagMask))) {
+
+               deactivate_object_attribute (table->Attr, table->AttrMask);
+            }
          }
       }
       else { prev = current; current = current->next; }
@@ -2749,6 +2880,9 @@ dmz::JsExtV8Object::_init (Config &local) {
    v8::HandleScope scope;
 
    _defaultAttr = _defs.create_named_handle (ObjectAttributeDefaultName);
+   _hilAttr = _defs.create_named_handle (ObjectAttributeHumanInTheLoopName);
+
+   activate_object_attribute (_hilAttr, ObjectFlagMask);
 
    _self = V8ValuePersist::New (v8::External::Wrap (this));
 
@@ -2760,7 +2894,19 @@ dmz::JsExtV8Object::_init (Config &local) {
    _objectApi.add_constant ("IgnoreLinks", (UInt32)ObjectIgnoreLinks);
    _objectApi.add_constant ("SelectNew", (UInt32)ObjectSelectNew);
    _objectApi.add_constant ("SelectAdd", (UInt32)ObjectSelectAdd);
+   _objectApi.add_constant ("DefaultAttribute", _defaultAttr);
+   _objectApi.add_constant ("HILAttribute", _hilAttr);
+   _objectApi.add_constant (
+      "LNVAttribute",
+      _defs.create_named_handle (ObjectAttributeLastNetworkValueName));
+   _objectApi.add_constant (
+      "SelectAttribute",
+      _defs.create_named_handle (ObjectAttributeSelectName));
+   _objectApi.add_constant (
+      "HideAttribute",
+      _defs.create_named_handle (ObjectAttributeHideName));
    // Functions
+   _objectApi.add_function ("hil", _object_hil, _self);
    _objectApi.add_function ("release", _object_release, _self);
    _objectApi.add_function ("isObject", _object_is_object, _self);
    _objectApi.add_function ("isActivated", _object_is_activated, _self);
@@ -2847,6 +2993,11 @@ dmz::JsExtV8Object::_init (Config &local) {
    _objectApi.add_function ("data", _object_data, _self);
    _objectApi.add_function ("data.observe", _object_data_observe, _self);
    _objectApi.add_function ("data.remove", _object_data_remove, _self);
+   _objectApi.add_function ("getSelected", _object_get_selected, _self);
+   _objectApi.add_function ("isSelected", _object_is_selected, _self);
+   _objectApi.add_function ("select", _object_select, _self);
+   _objectApi.add_function ("unselect", _object_unselect, _self);
+   _objectApi.add_function ("unselectAll", _object_unselect_all, _self);
 }
 
 

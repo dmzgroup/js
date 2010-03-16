@@ -13,35 +13,33 @@
 // This header needs to go here in order to compile -rb
 #include "dmzJsFunctions.h"
 
-using namespace dmz;
-
-namespace {
 
 v8::Handle<v8::Value>
-local_print (const v8::Arguments &args) {
+dmz::JsPluginV8ConsoleQt::_print (const v8::Arguments &args) {
 
    v8::HandleScope scope;
 
-   dmz::StreamLog *out = (dmz::StreamLog *)v8::External::Unwrap (args.Data ());
+   JsPluginV8ConsoleQt *self = (JsPluginV8ConsoleQt *)v8::External::Unwrap (args.Data ());
 
-   if (out) {
+   if (self) {
 
       const int Length = args.Length ();
 
+      String out;
+
       for (int ix = 0; ix < Length; ix++) {
 
-         if (ix > 0) { *out << " "; }
+         if (ix > 0) { out << " "; }
 
-         *out << dmz::v8_to_string (args[ix]);
+         out << dmz::v8_to_string (args[ix]);
       }
 
-      *out << dmz::endl;
+      self->append (out);
    }
 
    return scope.Close (v8::Undefined());
 }
 
-}
 
 dmz::Highlighter::Highlighter (QTextDocument *parent) : QSyntaxHighlighter (parent) {
 
@@ -229,7 +227,6 @@ dmz::JsPluginV8ConsoleQt::JsPluginV8ConsoleQt (const PluginInfo &Info, Config &l
       MessageObserver (Info),
       JsExtV8 (Info),
       _log (Info),
-      _consoleLog (Info.get_name (), LogLevelOut, Info.get_context ()),
       _hl (0),
       _historyCount (0),
       _historyCurrent (0),
@@ -264,7 +261,7 @@ dmz::JsPluginV8ConsoleQt::JsPluginV8ConsoleQt (const PluginInfo &Info, Config &l
    _init (local);
    
    adjustSize ();
-   show (); activateWindow ();
+   //show (); activateWindow ();
 }
 
 
@@ -688,7 +685,7 @@ dmz::JsPluginV8ConsoleQt::_init (Config &local) {
       _requireMap.store ("matrix", new String ("dmz/types/matrix"));
       _requireMap.store ("mask", new String ("dmz/types/mask"));
       _requireMap.store ("typeUtil", new String ("dmz/types/util"));
-      _requireMap.store ("message", new String ("dmz/runtime/message"));
+      _requireMap.store ("message", new String ("dmz/runtime/messaging"));
       _requireMap.store ("time", new String ("dmz/runtime/time"));
       _requireMap.store ("undo", new String ("dmz/runtime/undo"));
       _requireMap.store ("data", new String ("dmz/runtime/data"));
@@ -699,7 +696,7 @@ dmz::JsPluginV8ConsoleQt::_init (Config &local) {
    }
 
    _printTemplate = v8::Persistent<v8::FunctionTemplate>::New (
-      v8::FunctionTemplate::New (local_print, v8::External::Wrap (&_consoleLog)));
+      v8::FunctionTemplate::New (_print, v8::External::Wrap (this)));
 }
 
 

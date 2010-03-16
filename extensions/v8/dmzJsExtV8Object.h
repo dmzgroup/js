@@ -21,6 +21,7 @@ namespace dmz {
    class JsModuleRuntimeV8;
    class JsModuleTypesV8;
    class JsModuleV8;
+   class ObjectModuleSelect;
 
    class JsExtV8Object :
          public Plugin,
@@ -283,6 +284,7 @@ namespace dmz {
             const v8::Arguments &Args,
             const Mask &AttrMask);
 
+         static V8Value _object_hil (const v8::Arguments &Args);
          static V8Value _object_release (const v8::Arguments &Args);
          static V8Value _object_is_object (const v8::Arguments &Args);
          static V8Value _object_is_activated (const v8::Arguments &Args);
@@ -363,6 +365,13 @@ namespace dmz {
          static V8Value _object_data (const v8::Arguments &Args);
          static V8Value _object_data_observe (const v8::Arguments &Args);
          static V8Value _object_data_remove (const v8::Arguments &Args);
+         // Selection Bindings
+         static V8Value _object_get_selected (const v8::Arguments &Args);
+         static V8Value _object_is_selected (const v8::Arguments &Args);
+         static V8Value _object_select (const v8::Arguments &Args);
+         static V8Value _object_unselect (const v8::Arguments &Args);
+         static V8Value _object_unselect_all (const v8::Arguments &Args);
+         
 
          // JsExtV8Object Interface
          Handle _to_handle (V8Value value);
@@ -398,10 +407,13 @@ namespace dmz {
          V8ValuePersist _self;
 
          Handle _defaultAttr;
+         Handle _hilAttr;
+         Handle _hil;
 
          JsModuleRuntimeV8 *_runtime;
          JsModuleTypesV8 *_types;
          JsModuleV8 *_core;
+         ObjectModuleSelect *_select;
 
          CallbackStruct *_newCallback;
 

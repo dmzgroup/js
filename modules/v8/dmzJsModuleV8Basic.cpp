@@ -34,29 +34,27 @@ local_instance_struct_delete (v8::Persistent<v8::Value> object, void *param) {
       dmz::JsModuleV8Basic::InstanceStructBase *ptr =
          (dmz::JsModuleV8Basic::InstanceStructBase *)param;
 
-out << "******************* Deleting InstanceStructBase" << dmz::endl;
-
       delete ptr; ptr = 0;
    }
 }
 
 
 v8::Handle<v8::Value>
-local_print (const v8::Arguments &args) {
+local_print (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
 
-   dmz::StreamLog *out = (dmz::StreamLog *)v8::External::Unwrap (args.Data ());
+   dmz::StreamLog *out = (dmz::StreamLog *)v8::External::Unwrap (Args.Data ());
 
    if (out) {
 
-      const int Length = args.Length ();
+      const int Length = Args.Length ();
 
       for (int ix = 0; ix < Length; ix++) {
 
          if (ix > 0) { *out << " "; }
 
-         *out << dmz::v8_to_string (args[ix]);
+         *out << dmz::v8_to_string (Args[ix]);
       }
 
       *out << dmz::endl;
@@ -67,21 +65,29 @@ local_print (const v8::Arguments &args) {
 
 
 v8::Handle<v8::Value>
-local_require (const v8::Arguments &args) {
+local_require (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
 
    dmz::JsModuleV8Basic *module =
-      (dmz::JsModuleV8Basic *)v8::External::Unwrap (args.Data ());
+      (dmz::JsModuleV8Basic *)v8::External::Unwrap (Args.Data ());
 
    v8::Handle<v8::Value> result;
 
-   if (module) {
+   if ((Args.Length () == 1) && module) {
 
-      result = module->require (*(v8::String::Utf8Value (args[0])));
+      result = module->require (dmz::v8_to_string (Args[0]));
    }
 
-   return result.IsEmpty () ? result : scope.Close (result);
+   if (result.IsEmpty ()) {
+
+      dmz::String msg ("Require unable to resolve: '");
+      msg << dmz::v8_to_string (Args[0]) << "'.";
+
+      return v8::ThrowException (
+         v8::Exception::Error (v8::String::New (msg.get_buffer())));
+   }
+   else { return scope.Close (result); }
 }
 
 

@@ -117,11 +117,12 @@ namespace dmz {
             ~HistoryStruct () { if (next) { delete next; next = 0; } }
          };
 
+         static v8::Handle<v8::Value> _print (const v8::Arguments &args);
+
          void _add_history (const QString &Value);
          void _init (Config &local);
 
          Log _log;
-         StreamLog _consoleLog;
 
          QColor _defaultColor;
          QString _currentBuffer;

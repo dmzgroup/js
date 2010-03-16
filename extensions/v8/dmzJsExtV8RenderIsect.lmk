@@ -1,0 +1,14 @@
+require "lmkV8"
+lmkV8.set_name "dmzJsExtV8RenderIsect"
+lmk.set_type "plugin"
+lmk.add_files {"dmzJsExtV8RenderIsect.cpp",}
+lmk.add_libs {
+   "dmzJsV8Util",
+   "dmzRenderIsect",
+   "dmzKernel",
+}
+lmk.add_preqs {
+   "dmzJsFramework",
+   "dmzRenderFramework",
+}
+lmkV8.add_libs ()

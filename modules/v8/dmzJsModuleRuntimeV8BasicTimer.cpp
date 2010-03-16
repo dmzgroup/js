@@ -183,6 +183,26 @@ dmz::JsModuleRuntimeV8Basic::_cancle_timer (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleRuntimeV8Basic::_cancle_all_timers (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::False ();
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self) {
+
+      V8Object obj = v8_to_object (Args[0]);
+
+      if (obj.IsEmpty ()) {} // Throw Exception
+      else if (self->delete_all_timers (obj)) { result = v8::True (); }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleRuntimeV8Basic::_get_frame_delta (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -265,12 +285,33 @@ dmz::JsModuleRuntimeV8Basic::delete_timer (V8Object self, V8Function callback) {
 }
 
 
+dmz::Boolean
+dmz::JsModuleRuntimeV8Basic::delete_all_timers (V8Object self) {
+
+   Boolean result (False);
+
+   v8::HandleScope scope;
+
+   if (self.IsEmpty ()) {} // do nothing
+   else if (_core) {
+
+      const Handle TimerHandle = _core->get_instance_handle (self);
+
+      TimerStruct *list = _timerTable.remove (TimerHandle);
+
+      if (list) { delete_list (list); result = true; }
+   }
+
+   return result;
+}
+
 void
 dmz::JsModuleRuntimeV8Basic::_init_time () {
 
    _timeApi.add_function ("setTimer", _set_timer, _self);
    _timeApi.add_function ("setRepeatingTimer", _set_repeating_timer, _self);
    _timeApi.add_function ("cancleTimer", _cancle_timer, _self);
+   _timeApi.add_function ("cancleAllTimers", _cancle_all_timers, _self);
    _timeApi.add_function ("getFrameDelta", _get_frame_delta, _self);
    _timeApi.add_function ("getFrameTime", _get_frame_time, _self);
    _timeApi.add_function ("getSystemTime", _get_system_time, _self);

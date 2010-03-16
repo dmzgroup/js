@@ -149,6 +149,39 @@ dmz::JsModuleRuntimeV8Basic::_message_is_type_of (const v8::Arguments &Args) {
 
 
 V8Value
+dmz::JsModuleRuntimeV8Basic::_message_unsubscribe_all (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::False ();
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self && self->_core) {
+
+      String name;
+
+      V8Object obj = v8_to_object (Args[0]);
+
+      const Handle ObsHandle = self->_core->get_instance_handle (obj);
+
+      if (ObsHandle) {
+
+         MessageStruct *ms = self->_msgTable.remove (ObsHandle);
+
+         if (ms) {
+
+            result = v8::True ();
+            ms->unsubscribe_to_all_messages ();
+            delete ms; ms = 0;
+         }
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+V8Value
 dmz::JsModuleRuntimeV8Basic::_message_to_string (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -369,6 +402,7 @@ dmz::JsModuleRuntimeV8Basic::_init_messaging () {
 
    _msgApi.add_function ("create", _create_message, _self);
    _msgApi.add_function ("isTypeOf", _message_is_type_of, _self);
+   _msgApi.add_function ("unsubscribeAll", _message_unsubscribe_all, _self);
 }
 
 

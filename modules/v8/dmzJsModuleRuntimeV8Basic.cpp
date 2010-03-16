@@ -155,7 +155,7 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
             _eventTypeApi.get_new_instance ());
 
          _core->register_interface (
-            "dmz/runtime/message",
+            "dmz/runtime/messaging",
             _msgApi.get_new_instance ());
 
          _core->register_interface (
