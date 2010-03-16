@@ -5,6 +5,9 @@
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
 
+#include <qdb.h>
+static dmz::qdb out;
+
 namespace {
 
 inline static v8::Persistent<v8::Function>
@@ -302,12 +305,12 @@ dmz::JsModuleTypesV8Basic::update_js_ext_v8_state (const StateEnum State) {
          _vector = v8::Persistent<v8::Object>::New (_core->require ("dmz/types/vector"));
 
          v8::Handle<v8::String> create = v8::String::NewSymbol ("create");
-
          _maskCtor = local_to_v8_function (_mask, create);
          _matrixCtor = local_to_v8_function (_matrix, create);
          _vectorCtor = local_to_v8_function (_vector, create);
       }
    }
+   else if (State == JsExtV8::Shutdown) { _clear (); }
 }
 
 
@@ -334,8 +337,6 @@ dmz::JsModuleTypesV8Basic::_clear () {
 
 void
 dmz::JsModuleTypesV8Basic::_create_symbols () {
-
-   _clear ();
 
    _bitsStr = v8::Persistent<v8::String>::New (v8::String::NewSymbol ("bits"));
    _vStr = v8::Persistent<v8::String>::New (v8::String::NewSymbol ("v"));

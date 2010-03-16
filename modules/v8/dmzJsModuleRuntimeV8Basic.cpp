@@ -109,42 +109,30 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
 
    if (State == JsExtV8::Register) {
 
-      _configFunc.Dispose (); _configFunc.Clear ();
-
       if (_configFuncTemplate.IsEmpty () == false) {
 
          _configFunc = V8FunctionPersist::New (_configFuncTemplate->GetFunction ());
       }
-
-      _dataFunc.Dispose (); _dataFunc.Clear ();
 
       if (_dataFuncTemplate.IsEmpty () == false) {
 
          _dataFunc = V8FunctionPersist::New (_dataFuncTemplate->GetFunction ());
       }
 
-      _eventTypeFunc.Dispose (); _eventTypeFunc.Clear ();
-
       if (_eventTypeFuncTemplate.IsEmpty () == false) {
 
          _eventTypeFunc = V8FunctionPersist::New (_eventTypeFuncTemplate->GetFunction ());
       }
-
-      _logFunc.Dispose (); _logFunc.Clear ();
 
       if (_logFuncTemplate.IsEmpty () == false) {
 
          _logFunc = V8FunctionPersist::New (_logFuncTemplate->GetFunction ());
       }
 
-      _msgFunc.Dispose (); _msgFunc.Clear ();
-
       if (_msgFuncTemplate.IsEmpty () == false) {
 
          _msgFunc = V8FunctionPersist::New (_msgFuncTemplate->GetFunction ());
       }
-
-      _objTypeFunc.Dispose (); _objTypeFunc.Clear ();
 
       if (_objTypeFuncTemplate.IsEmpty () == false) {
 
@@ -190,6 +178,22 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
 
    }
    else if (State == JsExtV8::Shutdown) {
+
+      _configFunc.Dispose (); _configFunc.Clear ();
+      _dataFunc.Dispose (); _dataFunc.Clear ();
+      _eventTypeFunc.Dispose (); _eventTypeFunc.Clear ();
+      _logFunc.Dispose (); _logFunc.Clear ();
+      _msgFunc.Dispose (); _msgFunc.Clear ();
+      _objTypeFunc.Dispose (); _objTypeFunc.Clear ();
+
+      _configApi.clear (); 
+      _dataApi.clear (); 
+      _defsApi.clear (); 
+      _eventTypeApi.clear (); 
+      _msgApi.clear (); 
+      _objTypeApi.clear (); 
+      _timeApi.clear (); 
+      _undoApi.clear (); 
 
       _v8Context.Clear ();
    }

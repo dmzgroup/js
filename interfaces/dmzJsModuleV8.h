@@ -36,6 +36,11 @@ namespace dmz {
          virtual String get_instance_name (v8::Handle<v8::Value> value) = 0;
          virtual Handle get_instance_handle (v8::Handle<v8::Value> value) = 0;
 
+         virtual Boolean set_external_instance_handle_and_name (
+            const Handle TheHandle,
+            const String &TheName,
+            v8::Handle<v8::Value> value) = 0;
+
       protected:
          JsModuleV8 (const PluginInfo &Info);
          ~JsModuleV8 ();

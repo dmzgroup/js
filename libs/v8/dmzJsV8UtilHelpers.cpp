@@ -287,8 +287,6 @@ dmz::V8InterfaceHelper::get_new_instance () {
 
    v8::HandleScope scope;
 
-   clear ();
-
    _state.obj = V8ObjectPersist::New (_state.objTemplate->NewInstance ());
 
    return _state.obj;

@@ -24,6 +24,18 @@ namespace dmz {
          public TimeSlice {
 
       public:
+         struct InstanceStructBase {
+
+            const String Name;
+            const Handle Object;
+
+            InstanceStructBase (
+                  const String &TheName,
+                  const Handle TheObject) :
+                  Name (TheName),
+                  Object (TheObject) {;}
+         };
+
          JsModuleV8Basic (const PluginInfo &Info, Config &local, Config &global);
          ~JsModuleV8Basic ();
 
@@ -55,6 +67,11 @@ namespace dmz {
          virtual String get_instance_name (v8::Handle<v8::Value> value);
          virtual Handle get_instance_handle (v8::Handle<v8::Value> value);
 
+         virtual Boolean set_external_instance_handle_and_name (
+            const Handle TheHandle,
+            const String &TheName,
+            v8::Handle<v8::Value> value);
+
       protected:
          struct ScriptStruct {
 
@@ -76,10 +93,8 @@ namespace dmz {
             ~ScriptStruct () { clear (); }
          };
 
-         struct InstanceStruct {
+         struct InstanceStruct : public InstanceStructBase {
 
-            const String Name;
-            const Handle Object;
             Config local;
             ScriptStruct &script;
             V8ObjectPersist self;
@@ -88,8 +103,7 @@ namespace dmz {
                   const String &TheName,
                   const Handle TheObject,
                   ScriptStruct &theScript) :
-                  Name (TheName),
-                  Object (TheObject),
+                  InstanceStructBase (TheName, TheObject),
                   script (theScript) {;}
 
             ~InstanceStruct () { self.Dispose (); self.Clear (); }
@@ -125,6 +139,7 @@ namespace dmz {
          v8::Persistent<v8::ObjectTemplate> _globalTemplate;
          v8::Persistent<v8::FunctionTemplate> _requireFuncTemplate;
          v8::Persistent<v8::Function> _requireFunc;
+         v8::Persistent<v8::String> _instanceAttrName;
 
       private:
          JsModuleV8Basic ();

@@ -279,6 +279,10 @@ namespace dmz {
             const v8::Arguments &Args,
             const Mask &AttrMask);
 
+         static V8Value _remove_attribute (
+            const v8::Arguments &Args,
+            const Mask &AttrMask);
+
          static V8Value _object_release (const v8::Arguments &Args);
          static V8Value _object_is_object (const v8::Arguments &Args);
          static V8Value _object_is_activated (const v8::Arguments &Args);
@@ -311,38 +315,54 @@ namespace dmz {
          static V8Value _object_lookup_attribute_object_links (const v8::Arguments &Args);
          static V8Value _object_counter (const v8::Arguments &Args);
          static V8Value _object_counter_observe (const v8::Arguments &Args);
+         static V8Value _object_counter_remove (const v8::Arguments &Args);
          static V8Value _object_counter_min (const v8::Arguments &Args);
          static V8Value _object_counter_min_observe (const v8::Arguments &Args);
+         static V8Value _object_counter_min_remove (const v8::Arguments &Args);
          static V8Value _object_counter_max (const v8::Arguments &Args);
          static V8Value _object_counter_max_observe (const v8::Arguments &Args);
+         static V8Value _object_counter_max_remove (const v8::Arguments &Args);
          static V8Value _object_counter_rollover (const v8::Arguments &Args);
          static V8Value _object_add_to_counter (const v8::Arguments &Args);
          static V8Value _object_alt_type (const v8::Arguments &Args);
          static V8Value _object_alt_type_observe (const v8::Arguments &Args);
+         static V8Value _object_alt_type_remove (const v8::Arguments &Args);
          static V8Value _object_state (const v8::Arguments &Args);
          static V8Value _object_state_observe (const v8::Arguments &Args);
+         static V8Value _object_state_remove (const v8::Arguments &Args);
          static V8Value _object_flag (const v8::Arguments &Args);
          static V8Value _object_flag_observe (const v8::Arguments &Args);
+         static V8Value _object_flag_remove (const v8::Arguments &Args);
          static V8Value _object_time_stamp (const v8::Arguments &Args);
          static V8Value _object_time_stamp_observe (const v8::Arguments &Args);
+         static V8Value _object_time_stamp_remove (const v8::Arguments &Args);
          static V8Value _object_position (const v8::Arguments &Args);
          static V8Value _object_position_observe (const v8::Arguments &Args);
+         static V8Value _object_position_remove (const v8::Arguments &Args);
          static V8Value _object_orientation (const v8::Arguments &Args);
          static V8Value _object_orientation_observe (const v8::Arguments &Args);
+         static V8Value _object_orientation_remove (const v8::Arguments &Args);
          static V8Value _object_velocity (const v8::Arguments &Args);
          static V8Value _object_velocity_observe (const v8::Arguments &Args);
+         static V8Value _object_velocity_remove (const v8::Arguments &Args);
          static V8Value _object_acceleration (const v8::Arguments &Args);
          static V8Value _object_acceleration_observe (const v8::Arguments &Args);
+         static V8Value _object_acceleration_remove (const v8::Arguments &Args);
          static V8Value _object_scale (const v8::Arguments &Args);
          static V8Value _object_scale_observe (const v8::Arguments &Args);
+         static V8Value _object_scale_remove (const v8::Arguments &Args);
          static V8Value _object_vector (const v8::Arguments &Args);
          static V8Value _object_vector_observe (const v8::Arguments &Args);
+         static V8Value _object_vector_remove (const v8::Arguments &Args);
          static V8Value _object_scalar (const v8::Arguments &Args);
          static V8Value _object_scalar_observe (const v8::Arguments &Args);
+         static V8Value _object_scalar_remove (const v8::Arguments &Args);
          static V8Value _object_text (const v8::Arguments &Args);
          static V8Value _object_text_observe (const v8::Arguments &Args);
+         static V8Value _object_text_remove (const v8::Arguments &Args);
          static V8Value _object_data (const v8::Arguments &Args);
          static V8Value _object_data_observe (const v8::Arguments &Args);
+         static V8Value _object_data_remove (const v8::Arguments &Args);
 
          // JsExtV8Object Interface
          Handle _to_handle (V8Value value);

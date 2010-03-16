@@ -1,0 +1,16 @@
+require "lmkQt"
+require "lmkV8"
+lmkV8.set_name ("dmzJsPluginV8ConsoleQt", lmkQt.get_flags ())
+lmk.set_type "plugin"
+lmk.add_files {"dmzJsConsole.ui"}
+lmk.add_files ({"dmzJsPluginV8ConsoleQt.h",}, {src="moc"})
+lmk.add_files {"dmzJsPluginV8ConsoleQt.cpp",}
+lmk.add_preqs {"dmzJsFramework",}
+lmk.add_libs {
+   "dmzJsV8Util",
+   "dmzQtUtil",
+   "dmzFoundation",
+   "dmzKernel",
+}
+lmkV8.add_libs ()
+lmkQt.add_libs {"QtCore", "QtGui",}

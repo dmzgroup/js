@@ -95,6 +95,28 @@ dmz::JsExtV8Object::_register_observer_static (
 }
 
 
+dmz::V8Value
+dmz::JsExtV8Object::_remove_attribute (
+      const v8::Arguments &Args,
+      const Mask &AttrMask) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   ObjectModule *objMod (0);
+   JsModuleTypesV8 *types (0);
+   Handle obj (0);
+   Handle attr (0);
+
+   if (_get_params (Args, objMod, types, obj, attr)) {
+
+      result = v8::Boolean::New (objMod->remove_attribute (obj, attr, AttrMask));
+   }
+
+   return scope.Close (result);
+}
+
+
 dmz::V8Function
 dmz::JsExtV8Object::_register_observer (
       const v8::Arguments &Args,
@@ -219,7 +241,12 @@ dmz::JsExtV8Object::_register_observer (
          }
          else if (AttrMask & ObjectAccelerationMask) {
 
-            cbs = _create_callback (ObsHandle, attr, AttrMask, _accelerationTable, doDump);
+            cbs = _create_callback (
+               ObsHandle,
+               attr,
+               AttrMask,
+               _accelerationTable,
+               doDump);
          }
          else if (AttrMask & ObjectScaleMask) {
 
@@ -278,19 +305,30 @@ dmz::JsExtV8Object::_object_release (const v8::Arguments &Args) {
 
    JsExtV8Object *self = to_self (Args);
 
-   if (self && Args[0]->IsObject () && Args[1]->IsFunction ()) {
+   if (self && Args[0]->IsObject ()) {
 
       V8Object src = V8Object::Cast (Args[0]);
-      V8Function func = V8Function::Cast (Args[1]);
 
-      Handle obs = self->_core ? self->_core->get_instance_handle (src) : 0;
+      const Handle Obs = self->_core ? self->_core->get_instance_handle (src) : 0;
 
-      ObsStruct *os = self->_obsTable.lookup (obs);
+      ObsStruct *os = self->_obsTable.lookup (Obs);
 
       if (os) {
 
-         self->_remove_callback (*os, func);
-         result = func;
+         if (Args[1]->IsFunction ()) {
+
+            V8Function func = V8Function::Cast (Args[1]);
+
+            self->_remove_callback (*os, func);
+            result = func;
+         }
+         else if (Args.Length () == 1) {
+
+            while (os->list) {
+
+               self->_remove_callback (*os, os->list->func);
+            }
+         }
       }
    }
 
@@ -947,6 +985,16 @@ dmz::JsExtV8Object::_object_counter_observe (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsExtV8Object::_object_counter_remove (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = _remove_attribute (Args, ObjectCounterMask);
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsExtV8Object::_object_counter_min (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -993,6 +1041,16 @@ dmz::JsExtV8Object::_object_counter_min_observe (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsExtV8Object::_object_counter_min_remove (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = _remove_attribute (Args, ObjectMinCounterMask);
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsExtV8Object::_object_counter_max (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -1033,6 +1091,16 @@ dmz::JsExtV8Object::_object_counter_max_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result = _register_observer_static (Args, ObjectMaxCounterMask);
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_counter_max_remove (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = _remove_attribute (Args, ObjectMaxCounterMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1149,6 +1217,16 @@ dmz::JsExtV8Object::_object_alt_type_observe (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsExtV8Object::_object_alt_type_remove (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = _remove_attribute (Args, ObjectAltTypeMask);
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsExtV8Object::_object_state (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -1195,6 +1273,16 @@ dmz::JsExtV8Object::_object_state_observe (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsExtV8Object::_object_state_remove (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = _remove_attribute (Args, ObjectStateMask);
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsExtV8Object::_object_flag (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -1230,6 +1318,16 @@ dmz::JsExtV8Object::_object_flag_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result = _register_observer_static (Args, ObjectFlagMask);
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_flag_remove (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = _remove_attribute (Args, ObjectFlagMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1280,6 +1378,16 @@ dmz::JsExtV8Object::_object_time_stamp_observe (const v8::Arguments &Args) {
    return result.IsEmpty () ? result : scope.Close (result);
 }
 
+dmz::V8Value
+dmz::JsExtV8Object::_object_time_stamp_remove (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = _remove_attribute (Args, ObjectTimeStampMask);
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
 
 dmz::V8Value
 dmz::JsExtV8Object::_object_position (const v8::Arguments &Args) {
@@ -1322,6 +1430,16 @@ dmz::JsExtV8Object::_object_position_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result = _register_observer_static (Args, ObjectPositionMask);
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_position_remove (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = _remove_attribute (Args, ObjectPositionMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1374,6 +1492,16 @@ dmz::JsExtV8Object::_object_orientation_observe (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsExtV8Object::_object_orientation_remove (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = _remove_attribute (Args, ObjectOrientationMask);
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsExtV8Object::_object_velocity (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -1414,6 +1542,16 @@ dmz::JsExtV8Object::_object_velocity_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result = _register_observer_static (Args, ObjectVelocityMask);
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_velocity_remove (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = _remove_attribute (Args, ObjectVelocityMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1466,6 +1604,16 @@ dmz::JsExtV8Object::_object_acceleration_observe (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsExtV8Object::_object_acceleration_remove (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = _remove_attribute (Args, ObjectAccelerationMask);
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsExtV8Object::_object_scale (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -1506,6 +1654,16 @@ dmz::JsExtV8Object::_object_scale_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result = _register_observer_static (Args, ObjectScaleMask);
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_scale_remove (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = _remove_attribute (Args, ObjectScaleMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1558,6 +1716,16 @@ dmz::JsExtV8Object::_object_vector_observe (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsExtV8Object::_object_vector_remove (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = _remove_attribute (Args, ObjectVectorMask);
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsExtV8Object::_object_scalar (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -1598,6 +1766,16 @@ dmz::JsExtV8Object::_object_scalar_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result = _register_observer_static (Args, ObjectScalarMask);
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_scalar_remove (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = _remove_attribute (Args, ObjectScalarMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1650,6 +1828,16 @@ dmz::JsExtV8Object::_object_text_observe (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsExtV8Object::_object_text_remove (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = _remove_attribute (Args, ObjectTextMask);
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsExtV8Object::_object_data (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -1693,6 +1881,16 @@ dmz::JsExtV8Object::_object_data_observe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result = _register_observer_static (Args, ObjectDataMask);
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_data_remove (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = _remove_attribute (Args, ObjectDataMask);
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -1797,6 +1995,8 @@ dmz::JsExtV8Object::update_js_ext_v8_state (const StateEnum State) {
    }
    else if (State == JsExtV8::Shutdown) {
 
+      _objectApi.clear ();
+
       ObjectModule *objMod = get_object_module ();
 
       if (objMod) {
@@ -1813,7 +2013,7 @@ dmz::JsExtV8Object::update_js_ext_v8_state (const StateEnum State) {
 
          _obsTable.empty ();
 
-         objMod->release_object_observer_all (*this);
+         deactivate_all_object_attributes ();
       }
    }
 }
@@ -1822,7 +2022,6 @@ dmz::JsExtV8Object::update_js_ext_v8_state (const StateEnum State) {
 // TimeSlice Interface
 void
 dmz::JsExtV8Object::update_time_slice (const Float64 TimeDelta) {
-
 
 }
 
@@ -2478,10 +2677,7 @@ dmz::JsExtV8Object::_process_callback (
          HashTableHandleIterator it;
          CallbackStruct *cb (0);
 
-         while (table->table.get_next (it, cb)) {
-
-            _do_callback (cb, argc, argv);
-         }
+         while (table->table.get_next (it, cb)) { _do_callback (cb, argc, argv); }
       }
 
       if (table->table.get_count () == 0) {
@@ -2498,7 +2694,7 @@ dmz::JsExtV8Object::_do_callback (
       int argc,
       v8::Handle<v8::Value> argv[]) {
 
-   if (cb->func.IsEmpty () == false) {
+   if ((cb->func.IsEmpty () == false) && (cb->self.IsEmpty () == false)) {
 
       v8::TryCatch tc;
 
@@ -2604,37 +2800,53 @@ dmz::JsExtV8Object::_init (Config &local) {
    _objectApi.add_function ("addToCounter", _object_add_to_counter, _self);
    _objectApi.add_function ("counter", _object_counter, _self);
    _objectApi.add_function ("counter.observe", _object_counter_observe, _self);
+   _objectApi.add_function ("counter.remove", _object_counter_remove, _self);
    _objectApi.add_function ("counterMin", _object_counter_min, _self);
    _objectApi.add_function ("counterMin.observe", _object_counter_min_observe, _self);
+   _objectApi.add_function ("counterMin.remove", _object_counter_min_remove, _self);
    _objectApi.add_function ("counterMax", _object_counter_max, _self);
    _objectApi.add_function ("counterMax.observe", _object_counter_max_observe, _self);
+   _objectApi.add_function ("counterMax.remove", _object_counter_max_remove, _self);
    _objectApi.add_function ("counterRollover", _object_counter_rollover, _self);
    _objectApi.add_function ("altType", _object_alt_type, _self);
    _objectApi.add_function ("altType.observe", _object_alt_type_observe, _self);
+   _objectApi.add_function ("altType.remove", _object_alt_type_remove, _self);
    _objectApi.add_function ("state", _object_state, _self);
    _objectApi.add_function ("state.observe", _object_state_observe, _self);
+   _objectApi.add_function ("state.remove", _object_state_remove, _self);
    _objectApi.add_function ("flag", _object_flag, _self);
    _objectApi.add_function ("flag.observe", _object_flag_observe, _self);
+   _objectApi.add_function ("flag.remove", _object_flag_remove, _self);
    _objectApi.add_function ("timeStamp", _object_time_stamp, _self);
    _objectApi.add_function ("timeStamp.observe", _object_time_stamp_observe, _self);
+   _objectApi.add_function ("timeStamp.remove", _object_time_stamp_remove, _self);
    _objectApi.add_function ("position", _object_position, _self);
    _objectApi.add_function ("position.observe", _object_position_observe, _self);
+   _objectApi.add_function ("position.remove", _object_position_remove, _self);
    _objectApi.add_function ("orientation", _object_orientation, _self);
    _objectApi.add_function ("orientation.observe", _object_orientation_observe, _self);
+   _objectApi.add_function ("orientation.remove", _object_orientation_remove, _self);
    _objectApi.add_function ("velocity", _object_velocity, _self);
    _objectApi.add_function ("velocity.observe", _object_velocity_observe, _self);
+   _objectApi.add_function ("velocity.remove", _object_velocity_remove, _self);
    _objectApi.add_function ("acceleration", _object_acceleration, _self);
    _objectApi.add_function ("acceleration.observe", _object_acceleration_observe, _self);
+   _objectApi.add_function ("acceleration.remove", _object_acceleration_remove, _self);
    _objectApi.add_function ("scale", _object_scale, _self);
    _objectApi.add_function ("scale.observe", _object_scale_observe, _self);
+   _objectApi.add_function ("scale.remove", _object_scale_remove, _self);
    _objectApi.add_function ("vector", _object_vector, _self);
    _objectApi.add_function ("vector.observe", _object_vector_observe, _self);
+   _objectApi.add_function ("vector.remove", _object_vector_remove, _self);
    _objectApi.add_function ("scalar", _object_scalar, _self);
    _objectApi.add_function ("scalar.observe", _object_scalar_observe, _self);
+   _objectApi.add_function ("scalar.remove", _object_scalar_remove, _self);
    _objectApi.add_function ("text", _object_text, _self);
-   _objectApi.add_function ("text.observe", _object_text_observe, _self);
+	_objectApi.add_function ("text.observe", _object_text_observe, _self);
+	_objectApi.add_function ("text.remove", _object_text_remove, _self);
    _objectApi.add_function ("data", _object_data, _self);
    _objectApi.add_function ("data.observe", _object_data_observe, _self);
+   _objectApi.add_function ("data.remove", _object_data_remove, _self);
 }
 
 

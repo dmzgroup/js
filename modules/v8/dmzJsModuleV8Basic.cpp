@@ -14,6 +14,9 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <qdb.h>
+static dmz::qdb out;
+
 namespace {
 
 static const char LocalInstanceHeader[] = "(function (self, require) {\n";
@@ -22,6 +25,21 @@ static const char LocalRequireHeader[] = "(function (exports, require) {\n";
 static const size_t LocalRequireHeaderLength = strlen (LocalRequireHeader);
 static const char LocalFooter[] = "\n});";
 static const size_t LocalFooterLength = strlen (LocalFooter);
+
+void
+local_instance_struct_delete (v8::Persistent<v8::Value> object, void *param) {
+
+   if (param) {
+
+      dmz::JsModuleV8Basic::InstanceStructBase *ptr =
+         (dmz::JsModuleV8Basic::InstanceStructBase *)param;
+
+out << "******************* Deleting InstanceStructBase" << dmz::endl;
+
+      delete ptr; ptr = 0;
+   }
+}
+
 
 v8::Handle<v8::Value>
 local_print (const v8::Arguments &args) {
@@ -386,8 +404,13 @@ dmz::JsModuleV8Basic::get_instance_name (V8Value value) {
 
    if (obj.IsEmpty () == false) {
 
-      InstanceStruct *is = (InstanceStruct *)v8::External::Unwrap (
-         obj->GetInternalField (0));
+      InstanceStructBase *is (0);
+      V8Value wrap =  obj->GetHiddenValue (_instanceAttrName);
+
+      if (wrap.IsEmpty () == false) {
+
+         is = (InstanceStructBase *)v8::External::Unwrap (wrap);
+      }
 
       if (is) { result = is->Name; }
    }
@@ -407,11 +430,56 @@ dmz::JsModuleV8Basic::get_instance_handle (V8Value value) {
 
    if (obj.IsEmpty () == false) {
 
-      InstanceStruct *is = (InstanceStruct *)v8::External::Unwrap (
-         obj->GetInternalField (0));
+      InstanceStructBase *is (0);
+      V8Value wrap =  obj->GetHiddenValue (_instanceAttrName);
+
+      if (wrap.IsEmpty () == false) {
+
+         is = (InstanceStructBase *)v8::External::Unwrap (wrap);
+      }
 
       if (is) { result = is->Object; }
    }
+
+   return result;
+}
+
+
+dmz::Boolean
+dmz::JsModuleV8Basic::set_external_instance_handle_and_name (
+      const Handle TheHandle,
+      const String &TheName,
+      v8::Handle<v8::Value> value) {
+
+   dmz::Boolean result (False);
+
+   v8::HandleScope scope;
+
+   V8Object obj = v8_to_object (value);
+
+   if (obj.IsEmpty () == false) {
+
+      InstanceStructBase *is (0);
+      V8Value wrap =  obj->GetHiddenValue (_instanceAttrName);
+
+      if (wrap.IsEmpty () == false) {
+
+         is = (InstanceStructBase *)v8::External::Unwrap (wrap);
+      }
+
+      if (!is) {
+
+         is = new InstanceStructBase (TheName, TheHandle);
+
+         if (is) {
+
+            obj->SetHiddenValue (_instanceAttrName, v8::External::Wrap ((void *)is));
+            V8ObjectPersist dtor = V8ObjectPersist::New (obj);
+            dtor.MakeWeak ((void *)is, local_instance_struct_delete); 
+         }
+      }
+   }
+
 
    return result;
 }
@@ -441,6 +509,7 @@ dmz::JsModuleV8Basic::_release_instances () {
 
       while (_instanceTable.get_next (it, is)) {
 
+         if (is->self.IsEmpty () ==  False) { is->self.Dispose (); is->self.Clear (); }
       }
    }
 }
@@ -453,9 +522,8 @@ dmz::JsModuleV8Basic::_init_context () {
 
    _empty_require ();
 
-   if (!_context.IsEmpty ()) { _context.Dispose (); _context.Clear (); }
-
    _requireFunc.Dispose (); _requireFunc.Clear ();
+   _instanceAttrName.Dispose (); _instanceAttrName.Clear ();
 
    if (_globalTemplate.IsEmpty ()) {
 
@@ -469,8 +537,6 @@ dmz::JsModuleV8Basic::_init_context () {
 
       _instanceTemplate = v8::Persistent<v8::ObjectTemplate>::New (
          v8::ObjectTemplate::New ());
-
-      _instanceTemplate->SetInternalFieldCount (1);
    }
 
    if (_requireFuncTemplate.IsEmpty ()) {
@@ -481,10 +547,15 @@ dmz::JsModuleV8Basic::_init_context () {
 
 //   char flags[] = "--expose_debug_as V8";
 //   v8::V8::SetFlagsFromString (flags, strlen (flags));
+   while (!v8::V8::IdleNotification ()) {;}
+
+   if (_context.IsEmpty () == false) { _context.Dispose (); _context.Clear (); }
 
    _context = v8::Context::New (0, _globalTemplate);
 
    v8::Context::Scope cscope (_context);
+
+   _instanceAttrName = V8StringPersist::New (v8::String::NewSymbol ("dmz::InstanceInfo"));
 
    _init_builtins ();
 
@@ -619,7 +690,11 @@ dmz::JsModuleV8Basic::_load_scripts () {
          instance->self =
             v8::Persistent<v8::Object>::New (_instanceTemplate->NewInstance ());;
 
-         instance->self->SetInternalField (0, v8::External::Wrap ((void *)instance));
+         InstanceStructBase *isb = instance;
+
+         instance->self->SetHiddenValue (
+            _instanceAttrName,
+            v8::External::Wrap ((void *)isb));
 
          instance->self->Set (
             v8::String::NewSymbol ("name"),

@@ -11,7 +11,7 @@
    <object-type name="tank" parent="ground-vehicle"/>
 </runtime>
 <plugin-list>
-   <plugin name="dmzPluginExit"/>
+   <plugin name="dmzPluginTermExit"/>
    <plugin name="dmzObjectModuleBasic"/>
 <!--
    <plugin name="dmzObjectPluginDump"/>
@@ -21,6 +21,7 @@
    <plugin name="dmzJsModuleTypesV8Basic" scope="javascript"/>
    <plugin name="dmzJsModuleRuntimeV8Basic" scope="javascript"/>
    <plugin name="dmzJsExtV8Object" scope="javascript"/>
+   <plugin name="dmzJsPluginV8ConsoleQt" scope="javascript"/>
 </plugin-list>
 <javascript>
    <path value="./scripts"/>
