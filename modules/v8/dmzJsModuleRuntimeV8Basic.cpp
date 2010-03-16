@@ -5,9 +5,6 @@
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
 
-#include <qdb.h>
-static dmz::qdb out;
-
 dmz::JsModuleRuntimeV8Basic::JsModuleRuntimeV8Basic (
       const PluginInfo &Info,
       Config &local) :
@@ -195,6 +192,9 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
       _timeApi.clear (); 
       _undoApi.clear (); 
 
+      _reset_time ();
+      _reset_messaging ();
+
       _v8Context.Clear ();
    }
 }
@@ -205,18 +205,6 @@ void
 dmz::JsModuleRuntimeV8Basic::handle_v8_exception (v8::TryCatch &tc) {
 
    if (_core) { _core->handle_v8_exception (tc); }
-}
-
-
-void
-dmz::JsModuleRuntimeV8Basic::_clear () {
-
-}
-
-
-void
-dmz::JsModuleRuntimeV8Basic::_reset () {
-
 }
 
 

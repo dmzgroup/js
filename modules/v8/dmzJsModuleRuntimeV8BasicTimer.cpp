@@ -2,9 +2,7 @@
 #include <dmzJsModuleV8.h>
 #include <dmzRuntimeTimeSlice.h>
 #include <dmzSystem.h>
-
-#include <qdb.h>
-static dmz::qdb out;
+#include <dmzTypesDeleteListTemplate.h>
 
 struct dmz::JsModuleRuntimeV8Basic::TimerStruct : public TimeSlice {
 
@@ -277,3 +275,19 @@ dmz::JsModuleRuntimeV8Basic::_init_time () {
    _timeApi.add_function ("getFrameTime", _get_frame_time, _self);
    _timeApi.add_function ("getSystemTime", _get_system_time, _self);
 }
+
+
+void
+dmz::JsModuleRuntimeV8Basic::_reset_time () {
+
+   HashTableHandleIterator it;
+   TimerStruct *current (0);
+
+   while (_timerTable.get_next (it, current)) {
+
+      delete_list (current);
+   }
+
+   _timerTable.clear ();
+}
+

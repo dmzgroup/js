@@ -16,7 +16,6 @@
 #include <dmzRuntimeTime.h>
 #include <dmzRuntimeUndo.h>
 #include <dmzTypesHashTableHandleTemplate.h>
-#include <dmzTypesHashTableStringTemplate.h>
 
 #include <v8.h>
 
@@ -158,8 +157,6 @@ namespace dmz {
          static V8Value _undo_store_action (const v8::Arguments &Args);
 
          // JsModuleRuntimeV8Basic Interface
-         void _clear ();
-         void _reset ();
          Handle _to_handle (V8Value value);
          // implemented in dmzJsModuleRuntimeV8BasicData.cpp
          void _init_config ();
@@ -177,6 +174,7 @@ namespace dmz {
          EventType *_to_event_type_ptr (V8Value value);
          // implemented in dmzJsModuleRuntimeV8BasicMessaging.cpp
          void _init_messaging ();
+         void _reset_messaging ();
          Message * _to_message_ptr (V8Value value);
          // implemented in dmzJsModuleRuntimeV8BasicLog.cpp
          void _init_log ();
@@ -186,6 +184,7 @@ namespace dmz {
          ObjectType *_to_object_type_ptr (V8Value value);
          // implemented in dmzJsModuleRuntimeV8BasicTimer.cpp
          void _init_time ();
+         void _reset_time ();
          // implemented in dmzJsModuleRuntimeV8BasicUndo.cpp
          void _init_undo ();
          // implemented in dmzJsModuleRuntimeV8Basic.cpp

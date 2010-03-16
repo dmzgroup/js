@@ -372,6 +372,10 @@ dmz::JsModuleRuntimeV8Basic::_init_messaging () {
 }
 
 
+void
+dmz::JsModuleRuntimeV8Basic::_reset_messaging () { _msgTable.empty (); }
+
+
 dmz::Message *
 dmz::JsModuleRuntimeV8Basic::_to_message_ptr (V8Value value) {
 
