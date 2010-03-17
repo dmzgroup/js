@@ -2101,7 +2101,7 @@ dmz::JsExtV8Object::update_js_ext_v8_state (const StateEnum State) {
       if (_core) {
 
          _core->register_interface (
-            "dmz/framework/object",
+            "dmz/component/object",
             _objectApi.get_new_instance ());
       }
    }

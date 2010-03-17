@@ -1,12 +1,9 @@
-var util = require ('dmz/types/util');
-var Epsilon = util.Epsilon;
-var createError = util.createError;
-var vector = require ('dmz/types/vector');
-
-var Matrix = function () {
-
-   this.v = [1, 0, 0, 0, 1, 0, 0, 0, 1];
-};
+var util = require ('dmz/types/util')
+,   Epsilon = util.Epsilon
+,   createError = util.createError
+,   vector = require ('dmz/types/vector')
+,   Matrix = function () { this.v = [1, 0, 0, 0, 1, 0, 0, 0, 1]; }
+;
 
 
 exports.isTypeOf = function (value) {

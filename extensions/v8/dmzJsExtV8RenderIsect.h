@@ -5,6 +5,7 @@
 #include <dmzJsV8UtilHelpers.h>
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
+#include <dmzTypesHashTableUInt32Template.h>
 
 #include <v8.h>
 
@@ -40,9 +41,18 @@ namespace dmz {
          virtual void update_js_ext_v8_state (const StateEnum State);
 
       protected:
+         typedef HashTableUInt32Template<V8Function> FuncTable;
          static V8Value _isect_do_isect (const v8::Arguments &Args);
+         static V8Value _isect_enable (const v8::Arguments &Args);
+         static V8Value _isect_disable (const v8::Arguments &Args);
          Boolean _get_params (V8Object obj, IsectParameters &params);
-         Boolean _add_test (V8Object test, IsectTestContainer &list, String &error);
+
+         Boolean _add_test (
+            const UInt32 Id,
+            V8Object test,
+            IsectTestContainer &list,
+            FuncTable &table,
+            String &error);
 
          void _init (Config &local);
 
@@ -53,8 +63,11 @@ namespace dmz {
          V8StringPersist _startStr;
          V8StringPersist _endStr;
          V8StringPersist _directionStr;
+         V8StringPersist _callbackStr;
 
+         V8StringPersist _idStr;
          V8StringPersist _typeStr;
+         V8StringPersist _pointStr;
          V8StringPersist _normalStr;
          V8StringPersist _objectStr;
          V8StringPersist _distanceStr;

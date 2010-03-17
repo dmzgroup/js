@@ -1,0 +1,13 @@
+require "lmkV8"
+lmkV8.set_name "dmzJsExtV8RenderOverlay"
+lmk.set_type "plugin"
+lmk.add_files {"dmzJsExtV8RenderOverlay.cpp",}
+lmk.add_libs {
+   "dmzJsV8Util",
+   "dmzKernel",
+}
+lmk.add_preqs {
+   "dmzJsFramework",
+   "dmzRenderFramework",
+}
+lmkV8.add_libs ()

@@ -87,7 +87,7 @@ dmz::JsExtV8RenderIsect::update_js_ext_v8_state (const StateEnum State) {
       if (_core) {
 
          _core->register_interface (
-            "dmz/framework/isect",
+            "dmz/component/isect",
             _isectApi.get_new_instance ());
       }
    }
@@ -96,8 +96,11 @@ dmz::JsExtV8RenderIsect::update_js_ext_v8_state (const StateEnum State) {
       _startStr = V8StringPersist::New (v8::String::NewSymbol ("start"));
       _endStr = V8StringPersist::New (v8::String::NewSymbol ("end"));
       _directionStr = V8StringPersist::New (v8::String::NewSymbol ("direction"));
+      _callbackStr = V8StringPersist::New (v8::String::NewSymbol ("callback"));
 
+      _idStr = V8StringPersist::New (v8::String::NewSymbol ("id"));
       _typeStr = V8StringPersist::New (v8::String::NewSymbol ("type"));
+      _pointStr = V8StringPersist::New (v8::String::NewSymbol ("point"));
       _normalStr = V8StringPersist::New (v8::String::NewSymbol ("normal"));
       _objectStr = V8StringPersist::New (v8::String::NewSymbol ("object"));
       _distanceStr = V8StringPersist::New (v8::String::NewSymbol ("distance"));
@@ -109,8 +112,11 @@ dmz::JsExtV8RenderIsect::update_js_ext_v8_state (const StateEnum State) {
       _startStr.Dispose (); _startStr.Clear ();
       _endStr.Dispose (); _endStr.Clear ();
       _directionStr.Dispose (); _directionStr.Clear ();
+      _callbackStr.Dispose (); _callbackStr.Clear ();
 
+      _idStr.Dispose (); _idStr.Clear ();
       _typeStr.Dispose (); _typeStr.Clear ();
+      _pointStr.Dispose (); _pointStr.Clear ();
       _normalStr.Dispose (); _normalStr.Clear ();
       _objectStr.Dispose (); _objectStr.Clear ();
       _distanceStr.Dispose (); _distanceStr.Clear ();
@@ -132,6 +138,8 @@ dmz::JsExtV8RenderIsect::_isect_do_isect (const v8::Arguments &Args) {
 
    if (self && self->_isect && self->_types) {
 
+      FuncTable table;
+
       V8Value testArg = Args[0];
       IsectTestContainer tests;
 
@@ -151,7 +159,7 @@ dmz::JsExtV8RenderIsect::_isect_do_isect (const v8::Arguments &Args) {
 
                V8Object obj = V8Object::Cast (value);
 
-               if (!self->_add_test (obj, tests, error)) {
+               if (!self->_add_test (ix, obj, tests, table, error)) {
 
                }
             }
@@ -164,7 +172,7 @@ dmz::JsExtV8RenderIsect::_isect_do_isect (const v8::Arguments &Args) {
 
          String error;
          V8Object obj = testArg->ToObject ();
-         if (!self->_add_test (obj, tests, error)) {
+         if (!self->_add_test (0, obj, tests, table, error)) {
 
          }
       }
@@ -185,7 +193,110 @@ dmz::JsExtV8RenderIsect::_isect_do_isect (const v8::Arguments &Args) {
 
       if (self->_isect->do_isect (params, tests, out)) {
 
+         out.reset ();
+         IsectResult value;
+
+         V8Array array = v8::Array::New (out.get_result_count ());
+         Int32 count = 0;
+
+         Vector vec;
+
+         while (out.get_next (value)) {
+
+            V8Object obj = v8::Object::New ();
+
+            const UInt32 Id (value.get_isect_test_id ());
+
+            obj->Set (self->_idStr, v8::Integer::New (Id));
+
+            if (value.get_point (vec)) {
+
+               obj->Set (self->_pointStr, self->_types->to_v8_vector (vec));
+            }
+
+            if (value.get_normal (vec)) {
+
+               obj->Set (self->_normalStr, self->_types->to_v8_vector (vec));
+            }
+
+            Handle handle (0);
+
+            if (value.get_object_handle (handle)) {
+
+               obj->Set (self->_objectStr, v8::Integer::New (handle));
+            }
+
+            Float64 distance (0.0);
+
+            if (value.get_distance (distance)) {
+
+               obj->Set (self->_distanceStr, v8::Number::New (distance));
+            }
+
+            V8Function *ptr = table.lookup (Id);
+
+            if (ptr && (ptr->IsEmpty () == false)) {
+
+               V8Value argv[] = { obj };
+
+               v8::TryCatch tc;
+
+               (*ptr)->Call (v8::Object::New (), 1, argv);
+
+               if (tc.HasCaught ()) {
+
+                  if (self->_core) { self->_core->handle_v8_exception (tc); }
+
+                  V8Function *ptr = table.remove (Id);
+
+                  if (ptr) { delete ptr; ptr = 0; }
+               }
+            }
+
+            array->Set (v8::Integer::New (count), obj);
+            count++;
+         }
+
+         result = array;
       }
+
+      table.empty ();
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8RenderIsect::_isect_enable (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsExtV8RenderIsect *self = to_self (Args);
+   const Handle Object = v8_to_handle (Args[0]);
+
+   if (self && self->_isect && Object) {
+
+      result = v8::Integer::New (self->_isect->enable_isect (Object));
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8RenderIsect::_isect_disable (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsExtV8RenderIsect *self = to_self (Args);
+   const Handle Object = v8_to_handle (Args[0]);
+
+   if (self && self->_isect && Object) {
+
+      result = v8::Integer::New (self->_isect->disable_isect (Object));
    }
 
    return scope.Close (result);
@@ -223,8 +334,10 @@ dmz::JsExtV8RenderIsect::_get_params (V8Object obj, IsectParameters &params) {
 
 dmz::Boolean
 dmz::JsExtV8RenderIsect::_add_test (
+      const UInt32 Id,
       V8Object test,
       IsectTestContainer &list,
+      FuncTable &table,
       String &error) {
 
    v8::HandleScope scope;
@@ -258,6 +371,20 @@ dmz::JsExtV8RenderIsect::_add_test (
          }
 
          list.add_test (type, v1, v2);
+
+         V8Function func = v8_to_function (test->Get (_callbackStr));
+
+         if (func.IsEmpty () == false) {
+
+            V8Function *ptr = new V8Function;
+
+            if (ptr) {
+
+                *ptr = func;
+
+                if (!table.store (Id, ptr)) { delete ptr; ptr = 0; }
+            }
+         }
       }
       else {
 
@@ -274,9 +401,14 @@ dmz::JsExtV8RenderIsect::_init (Config &local) {
 
    _self = V8ValuePersist::New (v8::External::Wrap (this));
 
+   // Constants
    _isectApi.add_constant ("FirstPoint", (UInt32)IsectFirstPoint);
    _isectApi.add_constant ("ClosestPoint", (UInt32)IsectClosestPoint);
    _isectApi.add_constant ("AllPoints", (UInt32)IsectAllPoints);
+   // API
+   _isectApi.add_function ("doIsect", _isect_do_isect, _self);
+   _isectApi.add_function ("enable", _isect_enable, _self);
+   _isectApi.add_function ("disable", _isect_disable, _self);
 }
 
 

@@ -1,10 +1,7 @@
-var util = require('dmz/types/util');
-var createError = util.createError;
-
-var Mask = function () {
-
-   this.bits = [];
-};
+var util = require('dmz/types/util')
+,   createError = util.createError
+,   Mask = function () { this.bits = []; }
+;
 
 
 exports.isTypeOf = function (value) {

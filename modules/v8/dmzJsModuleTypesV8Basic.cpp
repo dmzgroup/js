@@ -15,11 +15,14 @@ local_to_v8_function (v8::Handle<v8::Object> obj, v8::Handle<v8::String> name) {
 
    dmz::V8FunctionPersist result;
 
-   dmz::V8Value func = obj->Get (name);
+   if (obj.IsEmpty () == false) {
 
-   if ((func.IsEmpty () == false) && func->IsFunction ()) {
+      dmz::V8Value func = obj->Get (name);
 
-      result = dmz::V8FunctionPersist::New (dmz::v8_to_function (func));
+      if ((func.IsEmpty () == false) && func->IsFunction ()) {
+
+         result = dmz::V8FunctionPersist::New (dmz::v8_to_function (func));
+      }
    }
 
    return result;
@@ -145,7 +148,7 @@ dmz::JsModuleTypesV8Basic::to_v8_matrix (const Matrix &Value) {
 
    v8::Handle<v8::Object> result;
 
-   if (!_matrixCtor.IsEmpty ()) {
+   if (_matrixCtor.IsEmpty () == false) {
 
       Float64 array[9];
 
@@ -213,7 +216,7 @@ dmz::JsModuleTypesV8Basic::to_v8_mask (const Mask &Value) {
 
    v8::Handle<v8::Object> result;
 
-   if (!_maskCtor.IsEmpty ()) {
+   if (_maskCtor.IsEmpty () == false) {
 
       const Int32 Length = Value.get_size ();
 

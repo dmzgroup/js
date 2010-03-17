@@ -1,13 +1,8 @@
-var util = require('dmz/types/util');
-var createError = util.createError;
-var Epsilon = util.Epsilon;
-
-var Vector = function () {
-
-   this.x = 0;
-   this.y = 0;
-   this.z = 0;
-};
+var util = require('dmz/types/util')
+,   createError = util.createError
+,   Epsilon = util.Epsilon
+,   Vector = function () { this.x = 0; this.y = 0; this.z = 0; }
+;
 
 
 exports.isTypeOf = function (value) {
