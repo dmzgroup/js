@@ -372,7 +372,6 @@ namespace dmz {
          static V8Value _object_unselect (const v8::Arguments &Args);
          static V8Value _object_unselect_all (const v8::Arguments &Args);
          
-
          // JsExtV8Object Interface
          Handle _to_handle (V8Value value);
          Handle _to_object_handle (V8Value value);

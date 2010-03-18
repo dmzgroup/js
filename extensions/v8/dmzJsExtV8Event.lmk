@@ -1,0 +1,8 @@
+require 'lmkV8'
+
+lmkV8.set_name "dmzJsExtV8Event"
+lmk.set_type "plugin"
+lmk.add_files {"dmzJsExtV8Event.cpp",}
+lmk.add_libs { "dmzJsV8Util", "dmzEventUtil", "dmzKernel", }
+lmk.add_preqs {"dmzJsFramework", "dmzEventFramework",}
+lmkV8.add_libs ()

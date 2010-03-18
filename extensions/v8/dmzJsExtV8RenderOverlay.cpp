@@ -86,7 +86,7 @@ dmz::JsExtV8RenderOverlay::update_js_ext_v8_state (const StateEnum State) {
       if (_core) {
 
          _core->register_interface (
-            "dmz/component/overlay",
+            "dmz/components/overlay",
             _overlayApi.get_new_instance ());
       }
    }

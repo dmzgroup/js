@@ -273,7 +273,9 @@ dmz::JsExtV8Object::_register_observer (
 
          if (cbs) {
 
+            cbs->self.Dispose (); cbs->self.Clear ();
             cbs->self = V8ObjectPersist::New (src);
+            cbs->func.Dispose (); cbs->func.Clear ();
             cbs->func = V8FunctionPersist::New (func);
             result = func;
 
@@ -330,6 +332,8 @@ dmz::JsExtV8Object::_object_release (const v8::Arguments &Args) {
 
                self->_remove_callback (*os, os->list->func);
             }
+
+            result = v8::True ();
          }
       }
    }
@@ -2101,7 +2105,7 @@ dmz::JsExtV8Object::update_js_ext_v8_state (const StateEnum State) {
       if (_core) {
 
          _core->register_interface (
-            "dmz/component/object",
+            "dmz/components/object",
             _objectApi.get_new_instance ());
       }
    }

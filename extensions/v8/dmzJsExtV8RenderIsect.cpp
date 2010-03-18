@@ -87,7 +87,7 @@ dmz::JsExtV8RenderIsect::update_js_ext_v8_state (const StateEnum State) {
       if (_core) {
 
          _core->register_interface (
-            "dmz/component/isect",
+            "dmz/components/isect",
             _isectApi.get_new_instance ());
       }
    }

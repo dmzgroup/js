@@ -88,7 +88,7 @@ dmz::JsExtV8Portal::update_js_ext_v8_state (const StateEnum State) {
       if (_core) {
 
          _core->register_interface (
-            "dmz/component/portal",
+            "dmz/components/portal",
             _portalApi.get_new_instance ());
       }
    }

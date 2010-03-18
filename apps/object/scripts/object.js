@@ -10,8 +10,7 @@ var message = require('dmz/runtime/messaging');
 var undo = require('dmz/runtime/undo');
 var config = require('dmz/runtime/config');
 var ot = require('dmz/runtime/objectType');
-var obj = require('dmz/component/object');
-var isect = require('dmz/component/isect');
+var obj = require('dmz/components/object');
 
 obj.create.observe(self, function (handle, type) {
 
