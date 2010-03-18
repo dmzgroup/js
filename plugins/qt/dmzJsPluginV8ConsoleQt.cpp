@@ -694,7 +694,8 @@ dmz::JsPluginV8ConsoleQt::_init (Config &local) {
       _requireMap.store ("objType", new String ("dmz/runtime/objectType"));
       _requireMap.store ("object", new String ("dmz/component/object"));
       _requireMap.store ("isect", new String ("dmz/component/isect"));
-      _requireMap.store ("isect", new String ("dmz/component/overlay"));
+      _requireMap.store ("overlay", new String ("dmz/component/overlay"));
+      _requireMap.store ("portal", new String ("dmz/component/portal"));
    }
 
    _printTemplate = v8::Persistent<v8::FunctionTemplate>::New (

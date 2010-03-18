@@ -399,6 +399,8 @@ dmz::JsExtV8RenderIsect::_add_test (
 void
 dmz::JsExtV8RenderIsect::_init (Config &local) {
 
+   v8::HandleScope scope;
+
    _self = V8ValuePersist::New (v8::External::Wrap (this));
 
    // Constants
