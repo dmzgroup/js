@@ -361,6 +361,18 @@ dmz::JsModuleV8Basic::require (const String &Value) {
 
 
 void
+dmz::JsModuleV8Basic::get_require_list (StringContainer &list) {
+
+   list.clear ();
+
+   HashTableStringIterator it;
+   V8ObjectPersist *ptr (0);
+
+   while (_requireTable.get_next (it, ptr)) { list.append (it.get_hash_key ()); }
+}
+
+
+void
 dmz::JsModuleV8Basic::handle_v8_exception (v8::TryCatch &tc) {
 
    v8::Context::Scope cscope (_context);

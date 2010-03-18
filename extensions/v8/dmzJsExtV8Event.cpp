@@ -12,6 +12,9 @@
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
 
+#include <qdb.h>
+static dmz::qdb out;
+
 
 dmz::JsExtV8Event::JsExtV8Event (const PluginInfo &Info, Config &local) :
       Plugin (Info),
@@ -81,7 +84,6 @@ dmz::JsExtV8Event::create_event (
       const EventLocalityEnum Locality) {
 
    _do_callback (EventHandle, Locality, _createTable.lookup (Type.get_handle ()));
-   if (Type == _root) { _called.clear (); }
 }
 
 
@@ -92,7 +94,6 @@ dmz::JsExtV8Event::close_event (
       const EventLocalityEnum Locality) {
 
    _do_callback (EventHandle, Locality, _closeTable.lookup (Type.get_handle ()));
-   if (Type == _root) { _called.clear (); }
 }
 
 
@@ -135,7 +136,6 @@ dmz::JsExtV8Event::update_js_ext_v8_state (const StateEnum State) {
       _closeTable.empty ();
       deactivate_all_event_callbacks ();
       _v8Context.Clear ();
-      activate_event_callback (_root, EventAllMask);
    }
 }
 
@@ -297,7 +297,7 @@ dmz::JsExtV8Event::_event_close_observe (const v8::Arguments &Args) {
 
 
 dmz::V8Value
-dmz::JsExtV8Event::_event_event_type (const v8::Arguments &Args) {
+dmz::JsExtV8Event::_event_type (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result = v8::Undefined ();
@@ -1008,10 +1008,8 @@ dmz::JsExtV8Event::_do_callback (
 
       while (table->table.get_next (it, cs)) {
 
-         if (_called.contains (cs->Observer) &&
-               (cs->self.IsEmpty () == false) && (cs->func.IsEmpty () == false)) {
+         if ((cs->self.IsEmpty () == false) && (cs->func.IsEmpty () == false)) {
 
-            _called.add_handle (cs->Observer);
             argv[3] = cs->self;
 
             v8::TryCatch tc;
@@ -1051,7 +1049,7 @@ dmz::JsExtV8Event::_release_callback (
 
          if (cs) { delete cs; cs = 0; }
 
-         if ((ct->table.get_count () == 0) && (ct->Type != _root)) {
+         if (ct->table.get_count () == 0) {
 
             deactivate_event_callback (ct->Type, EventCreateMask);
          }
@@ -1068,10 +1066,6 @@ dmz::JsExtV8Event::_init (Config &local) {
    _defaultAttr = _defs.create_named_handle (EventAttributeDefaultName);
 
    _self = V8ValuePersist::New (v8::External::Wrap (this));
-
-   _root = _defs.get_root_event_type ();
-
-   activate_event_callback (_root, EventAllMask);
 
    // Constants
    _eventApi.add_constant ("LocalityUnknown", (UInt32)EventLocalityUnknown);
@@ -1093,7 +1087,7 @@ dmz::JsExtV8Event::_init (Config &local) {
    _eventApi.add_function ("create.observe", _event_create_observe, _self);
    _eventApi.add_function ("close", _event_close, _self);
    _eventApi.add_function ("close.observe", _event_close_observe, _self);
-   _eventApi.add_function ("eventType", _event_event_type, _self);
+   _eventApi.add_function ("type", _event_type, _self);
    _eventApi.add_function ("locality", _event_locality, _self);
    _eventApi.add_function ("handle", _event_handle, _self);
    _eventApi.add_function ("objectHandle", _event_object_handle, _self);

@@ -289,7 +289,7 @@ namespace dmz {
          static V8Value _object_is_object (const v8::Arguments &Args);
          static V8Value _object_is_activated (const v8::Arguments &Args);
          static V8Value _object_is_link (const v8::Arguments &Args);
-         static V8Value _object_get_objects (const v8::Arguments &Args);
+         static V8Value _object_objects (const v8::Arguments &Args);
          static V8Value _object_create (const v8::Arguments &Args);
          static V8Value _object_create_observe (const v8::Arguments &Args);
          static V8Value _object_activate (const v8::Arguments &Args);
@@ -297,24 +297,24 @@ namespace dmz {
          static V8Value _object_destroy_observe (const v8::Arguments &Args);
          static V8Value _object_clone (const v8::Arguments &Args);
          static V8Value _object_make_persistent (const v8::Arguments &Args);
-         static V8Value _object_lookup_type (const v8::Arguments &Args);
+         static V8Value _object_type (const v8::Arguments &Args);
          static V8Value _object_locality (const v8::Arguments &Args);
          static V8Value _object_locality_observe (const v8::Arguments &Args);
          static V8Value _object_uuid (const v8::Arguments &Args);
          static V8Value _object_uuid_observe (const v8::Arguments &Args);
          static V8Value _object_link (const v8::Arguments &Args);
          static V8Value _object_link_observe (const v8::Arguments &Args);
-         static V8Value _object_lookup_link_handle (const v8::Arguments &Args);
-         static V8Value _object_lookup_linked_objects (const v8::Arguments &Args);
+         static V8Value _object_link_handle (const v8::Arguments &Args);
+         static V8Value _object_linked_objects (const v8::Arguments &Args);
          static V8Value _object_unlink (const v8::Arguments &Args);
          static V8Value _object_unlink_observe (const v8::Arguments &Args);
          static V8Value _object_unlink_super_objects (const v8::Arguments &Args);
          static V8Value _object_unlink_sub_objects (const v8::Arguments &Args);
-         static V8Value _object_lookup_super_links (const v8::Arguments &Args);
-         static V8Value _object_lookup_sub_links (const v8::Arguments &Args);
+         static V8Value _object_super_links (const v8::Arguments &Args);
+         static V8Value _object_sub_links (const v8::Arguments &Args);
          static V8Value _object_link_attribute_object (const v8::Arguments &Args);
          static V8Value _object_link_attribute_object_observe (const v8::Arguments &Args);
-         static V8Value _object_lookup_attribute_object_links (const v8::Arguments &Args);
+         static V8Value _object_attribute_object_links (const v8::Arguments &Args);
          static V8Value _object_counter (const v8::Arguments &Args);
          static V8Value _object_counter_observe (const v8::Arguments &Args);
          static V8Value _object_counter_remove (const v8::Arguments &Args);
@@ -366,7 +366,7 @@ namespace dmz {
          static V8Value _object_data_observe (const v8::Arguments &Args);
          static V8Value _object_data_remove (const v8::Arguments &Args);
          // Selection Bindings
-         static V8Value _object_get_selected (const v8::Arguments &Args);
+         static V8Value _object_selected (const v8::Arguments &Args);
          static V8Value _object_is_selected (const v8::Arguments &Args);
          static V8Value _object_select (const v8::Arguments &Args);
          static V8Value _object_unselect (const v8::Arguments &Args);

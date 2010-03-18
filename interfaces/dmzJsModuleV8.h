@@ -5,6 +5,7 @@
 #include <dmzRuntimeRTTI.h>
 #include <dmzTypesBase.h>
 #include <dmzTypesString.h>
+#include <dmzTypesStringContainer.h>
 
 #include <v8.h>
 
@@ -30,6 +31,7 @@ namespace dmz {
             v8::Persistent<v8::Object> object) = 0;
 
          virtual v8::Handle<v8::Object> require (const String &Value) = 0;
+         virtual void get_require_list (StringContainer &list) = 0;
 
          virtual void handle_v8_exception (v8::TryCatch &tc) = 0;
 

@@ -400,21 +400,40 @@ dmz::JsPluginV8ConsoleQt::update_js_ext_v8_state (const StateEnum State) {
             "Console",
             _self);
 
-         HashTableStringIterator it;
-         String *ptr (0);
+         StringContainer list;
+         _core->get_require_list (list);
 
-         while (_requireMap.get_next (it, ptr)) {
+         StringContainerIterator it;
+         String value;
 
-            V8Object obj = _core->require (*ptr);
+         while (list.get_next (it, value)) {
+
+            V8Object obj = _core->require (value);
 
             if (obj.IsEmpty ()) {
 
             }
             else {
 
-               _dmzObj->Set (
-                  v8::String::NewSymbol (it.get_hash_key ().get_buffer ()),
-                  obj);
+               String name (value);
+
+               Int32 index (value.get_length () - 1);
+
+               Boolean done (False);
+
+               while (!done) {
+
+                  if (value.get_char (index) == '/') { done = True; }
+                  else { index--; if (index < 0) { done = True; } }
+               }
+
+               if (index >= 0) { name = value.get_sub (index + 1); }
+
+               if (name) {
+               
+                  _log.info << "Mapping: " << value << " to: " << name << endl;
+                  _dmzObj->Set (v8::String::NewSymbol (name.get_buffer ()), obj);
+               }
             }
          }
       }
@@ -652,50 +671,6 @@ dmz::JsPluginV8ConsoleQt::_init (Config &local) {
             found = historyList.get_prev_config (it, history);
          }
       }
-   }
-
-   Config rlist;
-
-   if (local.lookup_all_config ("require", rlist)) {
-
-      ConfigIterator it;
-      Config rdata;
-
-      while (rlist.get_next_config (it, rdata)) {
-
-         const String Path = config_to_string ("path", rdata);
-         const String Name = config_to_string ("name", rdata);
-
-         if (Name && Path) {
-
-            String *ptr = new String (Path);
-
-            if (ptr && !_requireMap.store (Name, ptr)) {
-
-               delete ptr; ptr = 0;
-               _log.error << "Failed to register path: " << Path << " for name: "
-                  << Name << ". Name not unique?" << endl;
-            }
-         }
-      }
-   }
-   else {
-
-      _requireMap.store ("vector", new String ("dmz/types/vector"));
-      _requireMap.store ("matrix", new String ("dmz/types/matrix"));
-      _requireMap.store ("mask", new String ("dmz/types/mask"));
-      _requireMap.store ("typeUtil", new String ("dmz/types/util"));
-      _requireMap.store ("message", new String ("dmz/runtime/messaging"));
-      _requireMap.store ("time", new String ("dmz/runtime/time"));
-      _requireMap.store ("undo", new String ("dmz/runtime/undo"));
-      _requireMap.store ("data", new String ("dmz/runtime/data"));
-      _requireMap.store ("config", new String ("dmz/runtime/config"));
-      _requireMap.store ("defs", new String ("dmz/runtime/definitions"));
-      _requireMap.store ("objType", new String ("dmz/runtime/objectType"));
-      _requireMap.store ("object", new String ("dmz/components/object"));
-      _requireMap.store ("isect", new String ("dmz/components/isect"));
-      _requireMap.store ("overlay", new String ("dmz/components/overlay"));
-      _requireMap.store ("portal", new String ("dmz/components/portal"));
    }
 
    _printTemplate = v8::Persistent<v8::FunctionTemplate>::New (

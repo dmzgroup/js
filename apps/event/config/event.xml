@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmz>
+<runtime>
+   <time>
+      <frequency value="60.0"/>
+   </time>
+   <state name="Dead"/>
+   <event-type name="event"/>
+   <event-type name="fire" parent="event"/>
+   <event-type name="crash" parent="event"/>
+   <event-type name="explode" parent="event"/>
+</runtime>
+<plugin-list>
+   <plugin name="dmzPluginTermExit"/>
+   <plugin name="dmzEventModuleBasic"/>
+   <plugin name="dmzEventPluginDump"/>
+<!--
+   <plugin name="dmzPluginMsgDump"/>
+-->
+   <plugin name="dmzJsModuleV8Basic" scope="javascript"/>
+   <plugin name="dmzJsModuleTypesV8Basic" scope="javascript"/>
+   <plugin name="dmzJsModuleRuntimeV8Basic" scope="javascript"/>
+   <plugin name="dmzJsExtV8Event" scope="javascript"/>
+   <plugin name="dmzJsPluginV8ConsoleQt" scope="javascript"/>
+</plugin-list>
+<javascript>
+   <path value="./scripts"/>
+   <path value="../../scripts"/>
+   <instance name="event"/>
+   <instance name="show"/>
+</javascript>
+</dmz>

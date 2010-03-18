@@ -415,7 +415,7 @@ dmz::JsExtV8Object::_object_is_link (const v8::Arguments &Args) {
 
 
 dmz::V8Value
-dmz::JsExtV8Object::_object_get_objects (const v8::Arguments &Args) {
+dmz::JsExtV8Object::_object_objects (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result;
@@ -579,7 +579,7 @@ dmz::JsExtV8Object::_object_make_persistent (const v8::Arguments &Args) {
 
 
 dmz::V8Value
-dmz::JsExtV8Object::_object_lookup_type (const v8::Arguments &Args) {
+dmz::JsExtV8Object::_object_type (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result;
@@ -722,7 +722,7 @@ dmz::JsExtV8Object::_object_link_observe (const v8::Arguments &Args) {
 
 
 dmz::V8Value
-dmz::JsExtV8Object::_object_lookup_link_handle (const v8::Arguments &Args) {
+dmz::JsExtV8Object::_object_link_handle (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result;
@@ -745,7 +745,7 @@ dmz::JsExtV8Object::_object_lookup_link_handle (const v8::Arguments &Args) {
 
 
 dmz::V8Value
-dmz::JsExtV8Object::_object_lookup_linked_objects (const v8::Arguments &Args) {
+dmz::JsExtV8Object::_object_linked_objects (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Object result;
@@ -845,7 +845,7 @@ dmz::JsExtV8Object::_object_unlink_sub_objects (const v8::Arguments &Args) {
 
 
 dmz::V8Value
-dmz::JsExtV8Object::_object_lookup_super_links (const v8::Arguments &Args) {
+dmz::JsExtV8Object::_object_super_links (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result;
@@ -870,7 +870,7 @@ dmz::JsExtV8Object::_object_lookup_super_links (const v8::Arguments &Args) {
 
 
 dmz::V8Value
-dmz::JsExtV8Object::_object_lookup_sub_links (const v8::Arguments &Args) {
+dmz::JsExtV8Object::_object_sub_links (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result;
@@ -936,7 +936,7 @@ dmz::JsExtV8Object::_object_link_attribute_object_observe (const v8::Arguments &
 
 
 dmz::V8Value
-dmz::JsExtV8Object::_object_lookup_attribute_object_links (const v8::Arguments &Args) {
+dmz::JsExtV8Object::_object_attribute_object_links (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result;
@@ -1919,7 +1919,7 @@ dmz::JsExtV8Object::_object_data_remove (const v8::Arguments &Args) {
 
 // Selection Bindings
 dmz::V8Value
-dmz::JsExtV8Object::_object_get_selected (const v8::Arguments &Args) {
+dmz::JsExtV8Object::_object_selected (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result = v8::Undefined ();
@@ -2915,7 +2915,7 @@ dmz::JsExtV8Object::_init (Config &local) {
    _objectApi.add_function ("isObject", _object_is_object, _self);
    _objectApi.add_function ("isActivated", _object_is_activated, _self);
    _objectApi.add_function ("isLink", _object_is_link, _self);
-   _objectApi.add_function ("getObjects", _object_get_objects, _self);
+   _objectApi.add_function ("getObjects", _object_objects, _self);
    _objectApi.add_function ("create", _object_create, _self);
    _objectApi.add_function ("create.observe", _object_create_observe, _self);
    _objectApi.add_function ("activate", _object_activate, _self);
@@ -2923,29 +2923,29 @@ dmz::JsExtV8Object::_init (Config &local) {
    _objectApi.add_function ("destroy.observe", _object_destroy_observe, _self);
    _objectApi.add_function ("clone", _object_clone, _self);
    _objectApi.add_function ("makePersistent", _object_make_persistent, _self);
-   _objectApi.add_function ("lookupType", _object_lookup_type, _self);
+   _objectApi.add_function ("type", _object_type, _self);
    _objectApi.add_function ("locality", _object_locality, _self);
    _objectApi.add_function ("locality.observe", _object_locality_observe, _self);
    _objectApi.add_function ("uuid", _object_uuid, _self);
    _objectApi.add_function ("uuid.observe", _object_uuid_observe, _self);
    _objectApi.add_function ("link", _object_link, _self);
    _objectApi.add_function ("link.observe", _object_link_observe, _self);
-   _objectApi.add_function ("lookupLinkHandle", _object_lookup_link_handle, _self);
-   _objectApi.add_function ("lookupLinkedObjects", _object_lookup_linked_objects, _self);
+   _objectApi.add_function ("linkHandle", _object_link_handle, _self);
+   _objectApi.add_function ("linkedObjects", _object_linked_objects, _self);
    _objectApi.add_function ("unlink", _object_unlink, _self);
    _objectApi.add_function ("unlink.observe", _object_unlink_observe, _self);
    _objectApi.add_function ("unlinkSuperObjects", _object_unlink_super_objects, _self);
    _objectApi.add_function ("unlinkSubObjects", _object_unlink_sub_objects, _self);
-   _objectApi.add_function ("lookupSuperLinks", _object_lookup_super_links, _self);
-   _objectApi.add_function ("lookupSubLinks", _object_lookup_sub_links, _self);
+   _objectApi.add_function ("superLinks", _object_super_links, _self);
+   _objectApi.add_function ("subLinks", _object_sub_links, _self);
    _objectApi.add_function ("linkAttributeObject", _object_link_attribute_object, _self);
    _objectApi.add_function (
       "linkAttributeObject.observe",
       _object_link_attribute_object_observe,
       _self);
    _objectApi.add_function (
-      "lookupAttributeObjectLinks",
-      _object_lookup_attribute_object_links,
+      "attributeObjectLinks",
+      _object_attribute_object_links,
       _self);
    _objectApi.add_function ("addToCounter", _object_add_to_counter, _self);
    _objectApi.add_function ("counter", _object_counter, _self);
@@ -2997,7 +2997,7 @@ dmz::JsExtV8Object::_init (Config &local) {
    _objectApi.add_function ("data", _object_data, _self);
    _objectApi.add_function ("data.observe", _object_data_observe, _self);
    _objectApi.add_function ("data.remove", _object_data_remove, _self);
-   _objectApi.add_function ("getSelected", _object_get_selected, _self);
+   _objectApi.add_function ("getSelected", _object_selected, _self);
    _objectApi.add_function ("isSelected", _object_is_selected, _self);
    _objectApi.add_function ("select", _object_select, _self);
    _objectApi.add_function ("unselect", _object_unselect, _self);

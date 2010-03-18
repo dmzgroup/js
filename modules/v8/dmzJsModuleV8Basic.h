@@ -61,6 +61,7 @@ namespace dmz {
             v8::Persistent<v8::Object> object);
 
          virtual v8::Handle<v8::Object> require (const String &Value);
+         virtual void get_require_list (StringContainer &list);
 
          virtual void handle_v8_exception (v8::TryCatch &tc);
 

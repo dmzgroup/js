@@ -108,7 +108,7 @@ namespace dmz {
          static V8Value _event_create_observe (const v8::Arguments &Args);
          static V8Value _event_close (const v8::Arguments &Args);
          static V8Value _event_close_observe (const v8::Arguments &Args);
-         static V8Value _event_event_type (const v8::Arguments &Args);
+         static V8Value _event_type (const v8::Arguments &Args);
          static V8Value _event_locality (const v8::Arguments &Args);
          static V8Value _event_handle (const v8::Arguments &Args);
          static V8Value _event_object_handle (const v8::Arguments &Args);
@@ -163,9 +163,6 @@ namespace dmz {
          HashTableHandleTemplate<CallbackTable> _createTable;
          HashTableHandleTemplate<CallbackTable> _closeTable;
          HashTableHandleTemplate<ObsStruct> _obsTable;
-
-         EventType _root;
-         HandleContainer _called;
 
       private:
          JsExtV8Event ();

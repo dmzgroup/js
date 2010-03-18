@@ -282,9 +282,16 @@ dmz::JsModuleRuntimeV8Basic::to_dmz_event_type (V8Value value, EventType &out) {
 
    Boolean result (False);
 
-   EventType *ptr = _to_event_type_ptr (value);
+   if ((value.IsEmpty () == false) && value->IsString ()) {
 
-   if (ptr) { out = *ptr; result = True; }
+      result = _defs.lookup_event_type (*(v8::String::AsciiValue (value)), out);
+   }
+   else {
+
+      EventType *ptr = _to_event_type_ptr (value);
+
+      if (ptr) { out = *ptr; result = True; }
+   }
 
    return result;
 }

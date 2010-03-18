@@ -134,8 +134,6 @@ namespace dmz {
          HistoryStruct *_historyHead;
          HistoryStruct *_historyTail;
 
-         HashTableStringTemplate<String> _requireMap;
-
          v8::Handle<v8::Context> _v8Context;
          JsModuleV8 *_core;
 
