@@ -1104,7 +1104,6 @@ dmz::JsExtV8Event::_init (Config &local) {
    _eventApi.add_function ("counter", _event_counter, _self);
    _eventApi.add_function ("text", _event_text, _self);
    _eventApi.add_function ("data", _event_data, _self);
-
 }
 
 
