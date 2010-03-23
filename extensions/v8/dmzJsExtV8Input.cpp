@@ -1,6 +1,7 @@
 #include <dmzInputModule.h>
 #include "dmzJsExtV8Input.h"
 #include <dmzJsModuleV8.h>
+#include <dmzJsModuleRuntimeV8.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
 #include <dmzInputConsts.h>
@@ -16,7 +17,8 @@ dmz::JsExtV8Input::JsExtV8Input (const PluginInfo &Info, Config &local) :
       _log (Info),
       _defs (Info),
       _defaultChannel (0),
-      _core (0) {
+      _core (0),
+      _runtime (0) {
 
    _init (local);
 }
@@ -55,9 +57,80 @@ dmz::JsExtV8Input::discover_plugin (
 
    if (Mode == PluginDiscoverAdd) {
 
+      if (!_runtime) { _runtime = JsModuleRuntimeV8::cast (PluginPtr); }
    }
    else if (Mode == PluginDiscoverRemove) {
 
+      if (_runtime && (_runtime == JsModuleRuntimeV8::cast (PluginPtr))) { _runtime = 0; }
+   }
+}
+
+
+// JsExtV8 Interface
+void
+dmz::JsExtV8Input::update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module) {
+
+   if (Mode == JsExtV8::Store) { if (!_core) { _core = &module; } }
+   else if (Mode == JsExtV8::Remove) { if (&module == _core) { _core = 0; } }
+}
+
+
+void
+dmz::JsExtV8Input::update_js_context_v8 (v8::Handle<v8::Context> context) {
+
+   _v8Context = context;
+}
+
+
+void
+dmz::JsExtV8Input::update_js_ext_v8_state (const StateEnum State) {
+
+   v8::HandleScope scope;
+
+   if (State == JsExtV8::Register) {
+
+      if (_core) {
+
+         _core->register_interface (
+            "dmz/components/input",
+            _inputApi.get_new_instance ());
+      }
+   }
+   else if (State == JsExtV8::Init) {
+
+      _sourceStr = V8StringPersist::New (v8::String::NewSymbol ("source"));
+      _idStr = V8StringPersist::New (v8::String::NewSymbol ("id"));
+      _valueStr = V8StringPersist::New (v8::String::NewSymbol ("value"));
+      _previousStr = V8StringPersist::New (v8::String::NewSymbol ("previous"));
+      _deltaStr = V8StringPersist::New (v8::String::NewSymbol ("delta"));
+      _keyStr = V8StringPersist::New (v8::String::NewSymbol ("key"));
+      _stateStr = V8StringPersist::New (v8::String::NewSymbol ("state"));
+
+   }
+   else if (State == JsExtV8::Shutdown) {
+
+      deactivate_all_input_channels ();
+
+     _sourceStr.Dispose (); _sourceStr.Clear ();
+     _idStr.Dispose (); _idStr.Clear ();
+     _valueStr.Dispose (); _valueStr.Clear ();
+     _previousStr.Dispose (); _previousStr.Clear ();
+     _deltaStr.Dispose (); _deltaStr.Clear ();
+     _keyStr.Dispose (); _keyStr.Clear ();
+     _stateStr.Dispose (); _stateStr.Clear ();
+
+      _obsTable.empty ();
+
+      _stateTable.empty ();
+      _axisTable.empty ();
+      _buttonTable.empty ();
+      _leverTable.empty ();
+      _keyTable.empty ();
+      _mouseTable.empty ();
+      _dataTable.empty ();
+
+      _inputApi.clear ();
+      _v8Context.Clear ();
    }
 }
 
@@ -81,10 +154,10 @@ dmz::JsExtV8Input::update_channel_state (const Handle Channel, const Boolean Sta
       argv[0] = v8::Integer::New (Channel);
       argv[1] = v8::Boolean::New (State);
 
-      _do_callback (Argc, argv, *ct);
+      HandleContainer called;
+      _do_callback (Argc, argv, *ct, called);
    }
 }
-
 
 
 void
@@ -92,6 +165,26 @@ dmz::JsExtV8Input::receive_axis_event (
       const Handle Channel,
       const InputEventAxis &Value) {
 
+   if (_v8Context.IsEmpty () == false) {
+
+      v8::Context::Scope cscope(_v8Context);
+      v8::HandleScope scope;
+
+      V8Object event = v8::Object::New ();
+
+      event->Set (_sourceStr, v8::Integer::New (Value.get_source_handle ()));
+      event->Set (_idStr, v8::Integer::New (Value.get_axis_id ()));
+      event->Set (_valueStr, v8::Number::New (Value.get_axis_value ()));
+      event->Set (_previousStr, v8::Number::New (Value.get_axis_previous_value ()));
+      event->Set (_deltaStr, v8::Number::New (Value.get_axis_delta ()));
+
+      const int Argc (3);
+      V8Value argv[Argc];
+      argv[0] = v8::Integer::New (Channel);
+      argv[1] = event;
+
+      _do_all_callbacks (Argc, argv, _axisTable);
+   }
 }
 
 
@@ -100,14 +193,52 @@ dmz::JsExtV8Input::receive_button_event (
       const Handle Channel,
       const InputEventButton &Value) {
 
+   if (_v8Context.IsEmpty () == false) {
+
+      v8::Context::Scope cscope(_v8Context);
+      v8::HandleScope scope;
+
+      V8Object event = v8::Object::New ();
+
+      event->Set (_sourceStr, v8::Integer::New (Value.get_source_handle ()));
+      event->Set (_idStr, v8::Integer::New (Value.get_button_id ()));
+      event->Set (_valueStr, v8::Boolean::New (Value.get_button_value ()));
+      event->Set (_previousStr, v8::Boolean::New (Value.get_button_previous_value ()));
+
+      const int Argc (3);
+      V8Value argv[Argc];
+      argv[0] = v8::Integer::New (Channel);
+      argv[1] = event;
+
+      _do_all_callbacks (Argc, argv, _buttonTable);
+   }
 }
 
 
 void
-dmz::JsExtV8Input::receive_lever_event (
+dmz::JsExtV8Input::receive_switch_event (
       const Handle Channel,
       const InputEventSwitch &Value) {
 
+   if (_v8Context.IsEmpty () == false) {
+
+      v8::Context::Scope cscope(_v8Context);
+      v8::HandleScope scope;
+
+      V8Object event = v8::Object::New ();
+
+      event->Set (_sourceStr, v8::Integer::New (Value.get_source_handle ()));
+      event->Set (_idStr, v8::Integer::New (Value.get_switch_id ()));
+      event->Set (_valueStr, v8::Integer::New (Value.get_switch_value ()));
+      event->Set (_previousStr, v8::Integer::New (Value.get_switch_previous_value ()));
+
+      const int Argc (3);
+      V8Value argv[Argc];
+      argv[0] = v8::Integer::New (Channel);
+      argv[1] = event;
+
+      _do_all_callbacks (Argc, argv, _leverTable);
+   }
 }
 
 
@@ -116,6 +247,24 @@ dmz::JsExtV8Input::receive_key_event (
       const Handle Channel,
       const InputEventKey &Value) {
 
+   if (_v8Context.IsEmpty () == false) {
+
+      v8::Context::Scope cscope(_v8Context);
+      v8::HandleScope scope;
+
+      V8Object event = v8::Object::New ();
+
+      event->Set (_sourceStr, v8::Integer::New (Value.get_source_handle ()));
+      event->Set (_keyStr, v8::Integer::New (Value.get_key ()));
+      event->Set (_stateStr, v8::Boolean::New (Value.get_key_state ()));
+
+      const int Argc (3);
+      V8Value argv[Argc];
+      argv[0] = v8::Integer::New (Channel);
+      argv[1] = event;
+
+      _do_all_callbacks (Argc, argv, _keyTable);
+   }
 }
 
 
@@ -124,6 +273,22 @@ dmz::JsExtV8Input::receive_mouse_event (
       const Handle Channel,
       const InputEventMouse &Value) {
 
+   if (_v8Context.IsEmpty () == false) {
+
+      v8::Context::Scope cscope(_v8Context);
+      v8::HandleScope scope;
+
+      V8Object event = v8::Object::New ();
+
+      event->Set (_sourceStr, v8::Integer::New (Value.get_source_handle ()));
+
+      const int Argc (3);
+      V8Value argv[Argc];
+      argv[0] = v8::Integer::New (Channel);
+      argv[1] = event;
+
+      _do_all_callbacks (Argc, argv, _mouseTable);
+   }
 }
 
 
@@ -133,58 +298,23 @@ dmz::JsExtV8Input::receive_data_event (
       const Handle Source,
       const Data &Value) {
 
-}
+   if ((_v8Context.IsEmpty () == false) && _runtime) {
 
+      v8::Context::Scope cscope(_v8Context);
+      v8::HandleScope scope;
 
-// JsExtV8 Interface
-void
-dmz::JsExtV8Input::update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module) {
+      V8Object event = v8::Object::New ();
 
-   if (Mode == JsExtV8::Store) { if (!_core) { _core = &module; } }
-   else if (Mode == JsExtV8::Remove) { if (&module == _core) { _core = 0; } }
-}
+      const int Argc (4);
+      V8Value argv[Argc];
+      argv[0] = v8::Integer::New (Channel);
+      argv[1] = v8::Integer::New (Source);
+      argv[2] = _runtime->create_v8_data (&Value);
 
-
-void
-dmz::JsExtV8Input::update_js_context_v8 (v8::Handle<v8::Context> context) {
-
-   _v8Context = context;
-}
-
-
-void
-dmz::JsExtV8Input::update_js_ext_v8_state (const StateEnum State) {
-
-   if (State == JsExtV8::Register) {
-
-      if (_core) {
-
-         _core->register_interface (
-            "dmz/components/input",
-            _inputApi.get_new_instance ());
-      }
-   }
-   else if (State == JsExtV8::Init) {
-
-   }
-   else if (State == JsExtV8::Shutdown) {
-
-      deactivate_all_input_channels ();
-
-      _obsTable.empty ();
-
-      _stateTable.empty ();
-      _axisTable.empty ();
-      _buttonTable.empty ();
-      _leverTable.empty ();
-      _keyTable.empty ();
-      _mouseTable.empty ();
-      _dataTable.empty ();
-
-      _inputApi.clear ();
-      _v8Context.Clear ();
+      _do_all_callbacks (Argc, argv, _dataTable);
    }
 }
+
 
 // API Bindings
 dmz::V8Value
@@ -206,6 +336,38 @@ dmz::JsExtV8Input::_input_release (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result = v8::Undefined ();
+
+   JsExtV8Input *self = _to_self (Args);
+
+   if (self) {
+
+      V8Object src = v8_to_object (Args[0]);
+
+      const int Length = Args.Length ();
+
+      if (Length == 1) {
+
+         const Handle Obs = self->_core ? self->_core->get_instance_handle (src) : 0;
+         ObsStruct *os = self->_obsTable.lookup (Obs);
+
+         if (os) {
+
+            while (os->list && self->_release_callback (os->list->self, os->list->func)) {
+
+               // do nothing
+            }
+         }
+      }
+      else if (Length > 1) {
+
+         V8Function func = v8_to_function (Args[1]);
+
+         if (self->_release_callback (src, func)) {
+
+            result = func;
+         }
+      }
+   }
 
    return scope.Close (result);
 }
@@ -346,6 +508,44 @@ dmz::JsExtV8Input::_input_key (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result = v8::Undefined ();
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Input::_input_key_to_value (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   const String KeyStr = v8_to_string (Args[0]);
+
+   if (KeyStr) {
+
+      const UInt32 Key = string_to_key_value (KeyStr);
+
+      if (Key) { result = v8::Integer::New (Key); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Input::_input_key_to_string (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   const UInt32 Key = v8_to_uint32 (Args[0]);
+
+   if (Key) {
+
+      const String KeyStr = key_value_to_string (Key);
+
+      if (KeyStr) { result = v8::String::New (KeyStr.get_buffer ()); }
+   }
 
    return scope.Close (result);
 }
@@ -521,7 +721,10 @@ dmz::JsExtV8Input::_register_callback (const v8::Arguments &Args, const Mask &Ty
                cb->next = os->list;
                os->list = cb;
 
-               if (Activate) { activate_input_channel (channel, Type); }
+               if (Activate) {
+
+                  activate_input_channel (channel, Type | InputEventChannelStateMask);
+               }
             }
             else { delete cb; cb = 0; }
          }
@@ -529,6 +732,111 @@ dmz::JsExtV8Input::_register_callback (const v8::Arguments &Args, const Mask &Ty
    }
 
    return scope.Close (result);
+}
+
+
+dmz::Boolean
+dmz::JsExtV8Input::_release_callback (V8Object src, V8Function func) {
+
+   Boolean result (False);
+
+   const Handle Obs = _core ? _core->get_instance_handle (src) : 0;
+
+   ObsStruct *os = _obsTable.lookup (Obs);
+
+   if (Obs && os && (func.IsEmpty () == false)) {
+
+      CallbackStruct *current (os->list);
+      CallbackStruct *prev (0);
+
+      while (current) {
+
+         if (current->func == func) {
+
+            result = True;
+
+            CallbackStruct *tmp = current;
+
+            if (prev) {
+
+               prev->next = current->next;
+            }
+            else {
+
+               os->list = current->next;
+            }
+
+            current = current->next;
+
+            _delete_callback (Obs, tmp->table);
+            tmp = 0;
+         }
+         else {
+
+            prev = current;
+            current = current->next;
+         }
+      }
+   }
+
+   return result;
+}
+
+
+void
+dmz::JsExtV8Input::_delete_callback (const Handle Obs, CallbackTable &ct) {
+
+   CallbackStruct *cb = ct.table.remove (Obs);
+
+   if (cb) {
+
+      delete cb; cb = 0;
+
+      if (!ct.Type.contains (InputEventChannelStateMask) &&
+            (ct.table.get_count () == 0)) {
+
+         deactivate_input_channel (ct.Channel, ct.Type);
+      }
+
+      CallbackTable *ptr = _stateTable.lookup (ct.Channel);
+
+      if (!ptr || (ptr->table.get_count () == 0)) {
+
+         ptr = _axisTable.lookup (ct.Channel);
+
+         if (!ptr || (ptr->table.get_count () == 0)) {
+
+            ptr = _buttonTable.lookup (ct.Channel);
+
+            if (!ptr || (ptr->table.get_count () == 0)) {
+
+               ptr = _leverTable.lookup (ct.Channel);
+
+               if (!ptr || (ptr->table.get_count () == 0)) {
+
+                  ptr = _keyTable.lookup (ct.Channel);
+
+                  if (!ptr || (ptr->table.get_count () == 0)) {
+
+                     ptr = _mouseTable.lookup (ct.Channel);
+
+                     if (!ptr || (ptr->table.get_count () == 0)) {
+
+                        ptr = _dataTable.lookup (ct.Channel);
+
+                        if (!ptr || (ptr->table.get_count () == 0)) {
+
+                            deactivate_input_channel (
+                               ct.Channel,
+                               InputEventChannelStateMask);
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
 }
 
 
@@ -556,14 +864,21 @@ dmz::JsExtV8Input::_to_handle (V8Value value) {
 
 
 void
-dmz::JsExtV8Input::_do_callback (const int Argc, V8Value argv[], CallbackTable &ct) {
- 
+dmz::JsExtV8Input::_do_callback (
+      const int Argc,
+      V8Value argv[],
+      CallbackTable &ct,
+      HandleContainer &called) {
+
    HashTableHandleIterator it;
    CallbackStruct *cb (0);
+
    while (ct.table.get_next (it, cb)) {
 
-      if ((cb->self.IsEmpty () == false) && (cb->func.IsEmpty () == false)) {
+      if (!called.contains (it.get_hash_key ()) &&
+            (cb->self.IsEmpty () == false) && (cb->func.IsEmpty () == false)) {
 
+         called.add_handle (it.get_hash_key ());
          v8::TryCatch tc;
 
          argv[Argc - 1] = cb->self;
@@ -571,8 +886,30 @@ dmz::JsExtV8Input::_do_callback (const int Argc, V8Value argv[], CallbackTable &
 
          if (tc.HasCaught ()) {
 
+            if (_core) { _core->handle_v8_exception (tc); }
+            _release_callback (cb->self, cb->func);
+            cb = 0;
          }
       }
+   }
+}
+
+
+void
+dmz::JsExtV8Input::_do_all_callbacks (
+      const int Argc,
+      V8Value argv[],
+      HashTableHandleTemplate<CallbackTable> &table) {
+
+   HandleContainer called;
+   HandleContainerIterator it;
+   Handle channel (0);
+
+   while (_active.get_next (it, channel)) {
+
+      CallbackTable *ct = table.lookup (channel);
+
+      if (ct) { _do_callback (Argc, argv, *ct, called); }
    }
 }
 
@@ -597,6 +934,8 @@ dmz::JsExtV8Input::_init (Config &local) {
    _inputApi.add_function ("lever", _input_lever, _self);
    _inputApi.add_function ("lever.observe", _input_lever_observe, _self);
    _inputApi.add_function ("key", _input_key, _self);
+   _inputApi.add_function ("key.toValue", _input_key_to_value, _self);
+   _inputApi.add_function ("key.toString", _input_key_to_string, _self);
    _inputApi.add_function ("key.observe", _input_key_observe, _self);
    _inputApi.add_function ("mouse", _input_mouse, _self);
    _inputApi.add_function ("mouse.observe", _input_mouse_observe, _self);

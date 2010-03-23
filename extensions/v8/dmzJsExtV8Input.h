@@ -18,6 +18,7 @@
 
 namespace dmz {
 
+   class JsModuleRuntimeV8;
    class dmzJsModuleV8;
 
    class JsExtV8Input :
@@ -38,6 +39,11 @@ namespace dmz {
             const PluginDiscoverEnum Mode,
             const Plugin *PluginPtr);
 
+         // JsExtV8 Interface
+         virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
+         virtual void update_js_context_v8 (v8::Handle<v8::Context> context);
+         virtual void update_js_ext_v8_state (const StateEnum State);
+
          // Input Observer Interface
          virtual void update_channel_state (const Handle Channel, const Boolean State);
 
@@ -49,7 +55,7 @@ namespace dmz {
             const Handle Channel,
             const InputEventButton &Value);
 
-         virtual void receive_lever_event (
+         virtual void receive_switch_event (
             const Handle Channel,
             const InputEventSwitch &Value);
 
@@ -65,11 +71,6 @@ namespace dmz {
             const Handle Channel,
             const Handle Source,
             const Data &Value);
-
-         // JsExtV8 Interface
-         virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
-         virtual void update_js_context_v8 (v8::Handle<v8::Context> context);
-         virtual void update_js_ext_v8_state (const StateEnum State);
 
       protected:
          struct CallbackTable;
@@ -131,6 +132,8 @@ namespace dmz {
          static V8Value _input_lever (const v8::Arguments &Args);
          static V8Value _input_lever_observe (const v8::Arguments &Args);
          static V8Value _input_key (const v8::Arguments &Args);
+         static V8Value _input_key_to_value (const v8::Arguments &Args);
+         static V8Value _input_key_to_string (const v8::Arguments &Args);
          static V8Value _input_key_observe (const v8::Arguments &Args);
          static V8Value _input_mouse (const v8::Arguments &Args);
          static V8Value _input_mouse_observe (const v8::Arguments &Args);
@@ -138,8 +141,21 @@ namespace dmz {
          static V8Value _input_data_observe (const v8::Arguments &Args);
 
          V8Value _register_callback (const v8::Arguments &Args, const Mask &Type);
+         Boolean _release_callback (V8Object src, V8Function func);
+         void _delete_callback (const Handle Obs, CallbackTable &ct);
          Handle _to_handle (V8Value value);
-         void _do_callback (const int Argc, V8Value argv[], CallbackTable &ct);
+
+         void _do_callback (
+            const int Argc,
+            V8Value argv[],
+            CallbackTable &ct,
+            HandleContainer &called);
+
+         void _do_all_callbacks (
+            const int Argc,
+            V8Value argv[],
+            HashTableHandleTemplate<CallbackTable> &table);
+
          void _init (Config &local);
 
          Log _log;
@@ -164,7 +180,16 @@ namespace dmz {
          v8::Handle<v8::Context> _v8Context;
          V8ValuePersist _self;
 
+         V8StringPersist _sourceStr;
+         V8StringPersist _idStr;
+         V8StringPersist _valueStr;
+         V8StringPersist _previousStr;
+         V8StringPersist _deltaStr;
+         V8StringPersist _keyStr;
+         V8StringPersist _stateStr;
+
          JsModuleV8 *_core;
+         JsModuleRuntimeV8 *_runtime;
 
       private:
          JsExtV8Input ();
