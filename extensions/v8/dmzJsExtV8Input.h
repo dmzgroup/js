@@ -102,7 +102,7 @@ namespace dmz {
                   const Handle TheChannel,
                   const Mask &TheType) : Channel (TheChannel), Type (TheType) {;}
 
-            ~CallbackTable () { table.empty (); }
+            ~CallbackTable () { table.clear (); }
          };
 
          struct ObsStruct {

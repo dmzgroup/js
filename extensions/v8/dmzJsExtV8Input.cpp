@@ -111,15 +111,13 @@ dmz::JsExtV8Input::update_js_ext_v8_state (const StateEnum State) {
 
       deactivate_all_input_channels ();
 
-     _sourceStr.Dispose (); _sourceStr.Clear ();
-     _idStr.Dispose (); _idStr.Clear ();
-     _valueStr.Dispose (); _valueStr.Clear ();
-     _previousStr.Dispose (); _previousStr.Clear ();
-     _deltaStr.Dispose (); _deltaStr.Clear ();
-     _keyStr.Dispose (); _keyStr.Clear ();
-     _stateStr.Dispose (); _stateStr.Clear ();
-
-      _obsTable.empty ();
+      _sourceStr.Dispose (); _sourceStr.Clear ();
+      _idStr.Dispose (); _idStr.Clear ();
+      _valueStr.Dispose (); _valueStr.Clear ();
+      _previousStr.Dispose (); _previousStr.Clear ();
+      _deltaStr.Dispose (); _deltaStr.Clear ();
+      _keyStr.Dispose (); _keyStr.Clear ();
+      _stateStr.Dispose (); _stateStr.Clear ();
 
       _stateTable.empty ();
       _axisTable.empty ();
@@ -128,6 +126,8 @@ dmz::JsExtV8Input::update_js_ext_v8_state (const StateEnum State) {
       _keyTable.empty ();
       _mouseTable.empty ();
       _dataTable.empty ();
+
+      _obsTable.empty ();
 
       _inputApi.clear ();
       _v8Context.Clear ();
