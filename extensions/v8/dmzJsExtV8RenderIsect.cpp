@@ -159,7 +159,7 @@ dmz::JsExtV8RenderIsect::_isect_do_isect (const v8::Arguments &Args) {
 
                V8Object obj = V8Object::Cast (value);
 
-               if (!self->_add_test (ix, obj, tests, table, error)) {
+               if (!self->_add_test (ix + 1, obj, tests, table, error)) {
 
                }
             }
@@ -172,12 +172,13 @@ dmz::JsExtV8RenderIsect::_isect_do_isect (const v8::Arguments &Args) {
 
          String error;
          V8Object obj = testArg->ToObject ();
-         if (!self->_add_test (0, obj, tests, table, error)) {
+         if (!self->_add_test (1, obj, tests, table, error)) {
 
          }
       }
 
       IsectParameters params;
+      params.set_test_result_type (IsectClosestPoint);
 
       if (Args.Length () > 1) {
 
@@ -260,6 +261,9 @@ dmz::JsExtV8RenderIsect::_isect_do_isect (const v8::Arguments &Args) {
          result = array;
       }
 
+      HashTableUInt32Iterator it;
+      V8FunctionPersist *ptr (0);
+      while (table.get_next (it, ptr)) { ptr->Dispose (); ptr->Clear (); }
       table.empty ();
    }
 
@@ -376,13 +380,13 @@ dmz::JsExtV8RenderIsect::_add_test (
 
          if (func.IsEmpty () == false) {
 
-            V8Function *ptr = new V8Function;
+            V8FunctionPersist *ptr = new V8FunctionPersist;
 
             if (ptr) {
 
-                *ptr = func;
+                *ptr = V8FunctionPersist::New (func);
 
-                if (!table.store (Id, ptr)) { delete ptr; ptr = 0; }
+                if (!table.store (Id, ptr)) { ptr->Dispose (); delete ptr; ptr = 0; }
             }
          }
       }

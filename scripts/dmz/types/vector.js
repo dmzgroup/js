@@ -116,13 +116,43 @@ Vector.prototype.normalized = function () {
 
 Vector.prototype.add = function (vec) {
 
-   return this.create().setXYZ(this.x + vec.x, this.y + vec.y, this.z + vec.z);
+   var result;
+
+   if (Vector.prototype.isPrototypeOf(vec)) {
+
+      result = this.create().setXYZ(this.x + vec.x, this.y + vec.y, this.z + vec.z);
+   }
+   else if (Array.isArray (vec) && (vec.length >= 3)) {
+
+      result = this.create().setXYZ(this.x + vec[0], this.y + vec[1], this.z + vec[2]);
+   }
+   else {
+
+      throw createError("Invalid parameter for Vector.add() " + JSON.stringify(vec));
+   }
+
+   return result;
 };
 
 
 Vector.prototype.subtract = function (vec) {
 
-   return this.create().setXYZ(this.x - vec.x, this.y - vec.y, this.z - vec.z);
+   var result;
+
+   if (Vector.prototype.isPrototypeOf(vec)) {
+
+      result = this.create().setXYZ(this.x - vec.x, this.y - vec.y, this.z - vec.z);
+   }
+   else if (Array.isArray (vec) && (vec.length >= 3)) {
+
+      result = this.create().setXYZ(this.x - vec[0], this.y - vec[1], this.z - vec[2]);
+   }
+   else {
+
+      throw createError("Invalid parameter for Vector.subtract() " + JSON.stringify(vec));
+   }
+
+   return result;
 };
 
 
@@ -134,7 +164,22 @@ Vector.prototype.multiplyConst = function (k) {
 
 Vector.prototype.dot = function (vec) {
 
-   return (this.x * vec.x) + (this.y * vec.y) + (this.z * vec.z);
+   var result;
+
+   if (Vector.prototype.isPrototypeOf(vec)) {
+
+      result = (this.x * vec.x) + (this.y * vec.y) + (this.z * vec.z);
+   }
+   else if (Array.isArray (vec) && (vec.length >= 3)) {
+
+      result = (this.x * vec[0]) + (this.y * vec[1]) + (this.z * vec[2]);
+   }
+   else {
+
+      throw createError("Invalid parameter for Vector.dot() " + JSON.stringify(vec));
+   }
+
+   return result;
 };
 
 
@@ -144,6 +189,31 @@ Vector.prototype.cross = function (vec) {
       (this.y * vec.z) - (this.z * vec.y),
       (this.z * vec.x) - (this.x * vec.z),
       (this.x * vec.y) - (this.y * vec.x));
+
+   var result;
+
+   if (Vector.prototype.isPrototypeOf(vec)) {
+
+      result = this.create().setXYZ(
+         (this.y * vec.z) - (this.z * vec.y),
+         (this.z * vec.x) - (this.x * vec.z),
+         (this.x * vec.y) - (this.y * vec.x));
+   }
+   else if (Array.isArray (vec) && (vec.length >= 3)) {
+
+      result = (this.x * vec[0]) + (this.y * vec[1]) + (this.z * vec[2]);
+
+      result = this.create().setXYZ(
+         (this.y * vec[2]) - (this.z * vec[1]),
+         (this.z * vec[0]) - (this.x * vec[2]),
+         (this.x * vec[1]) - (this.y * vec[0]));
+   }
+   else {
+
+      throw createError("Invalid parameter for Vector.cross() " + JSON.stringify(vec));
+   }
+
+   return result;
 };
 
 

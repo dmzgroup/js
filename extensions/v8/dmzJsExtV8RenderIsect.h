@@ -41,7 +41,7 @@ namespace dmz {
          virtual void update_js_ext_v8_state (const StateEnum State);
 
       protected:
-         typedef HashTableUInt32Template<V8Function> FuncTable;
+         typedef HashTableUInt32Template<V8FunctionPersist> FuncTable;
          static V8Value _isect_do_isect (const v8::Arguments &Args);
          static V8Value _isect_enable (const v8::Arguments &Args);
          static V8Value _isect_disable (const v8::Arguments &Args);

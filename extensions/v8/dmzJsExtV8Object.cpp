@@ -1261,11 +1261,19 @@ dmz::JsExtV8Object::_object_state (const v8::Arguments &Args) {
 
       if (Args.Length () > 2) {
 
-         const Mask Value = types->to_dmz_mask (Args[2]);
+         Mask value;
 
-         if (objMod->store_state (obj, attr, Value)) {
+         if (Args[2]->IsString ()) {
 
-            result = types->to_v8_mask (Value);
+            JsExtV8Object *self = to_self (Args);
+
+            if (self) { self->_defs.lookup_state (v8_to_string (Args[2]), value); }
+         }
+         else { value  = types->to_dmz_mask (Args[2]); }
+
+         if (objMod->store_state (obj, attr, value)) {
+
+            result = types->to_v8_mask (value);
          }
       }
       else {

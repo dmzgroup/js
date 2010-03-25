@@ -118,7 +118,7 @@ Mask.prototype.bool = function () {
 
 Mask.prototype.contains = function (mask) {
 
-   return this.and(mask).equals(mask).bool();
+   return this.and(mask).equal(mask);
 };
 
 
@@ -237,12 +237,11 @@ Mask.prototype.equal = function (mask) {
                ((count < len2) ? mask.bits[count] : 0)) {
 
             done = true;
-            result = false;
          }
          else {
 
             count++;
-            if (count >= maxSize) { done = true; }
+            if (count >= maxSize) { done = true; result = true; }
          }
       }
    }
