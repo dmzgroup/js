@@ -637,7 +637,7 @@ dmz::JsPluginV8ConsoleQt::_init (Config &local) {
    _showMsg = config_create_message (
       "show.name",
       local,
-      "DMZ_Show_Js_Console",
+      "DMZ_Show_Java_Script_Console",
       context);
 
    subscribe_to_message (_showMsg);

@@ -48,6 +48,8 @@ namespace dmz {
 
          v8::Handle<v8::Context> _v8Context;
          V8ValuePersist _self;
+         V8StringPersist _posStr;
+         V8StringPersist _oriStr;
 
          JsModuleTypesV8 *_types;
          JsModuleV8 *_core;

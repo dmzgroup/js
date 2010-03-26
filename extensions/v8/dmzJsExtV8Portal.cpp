@@ -12,7 +12,9 @@ dmz::JsExtV8Portal::JsExtV8Portal (const PluginInfo &Info, Config &local) :
       JsExtV8 (Info),
       _log (Info),
       _types (0),
-      _core (0) {
+      _core (0),
+      _render (0),
+      _audio (0) {
 
    _init (local);
 }
@@ -83,6 +85,8 @@ dmz::JsExtV8Portal::update_js_context_v8 (v8::Handle<v8::Context> context) {
 void
 dmz::JsExtV8Portal::update_js_ext_v8_state (const StateEnum State) {
 
+   v8::HandleScope scope;
+
    if (State == JsExtV8::Register) {
 
       if (_core) {
@@ -94,9 +98,13 @@ dmz::JsExtV8Portal::update_js_ext_v8_state (const StateEnum State) {
    }
    else if (State == JsExtV8::Init) {
 
+      _posStr = V8StringPersist::New (v8::String::NewSymbol ("position"));
+      _oriStr = V8StringPersist::New (v8::String::NewSymbol ("orientation"));
    }
    else if (State == JsExtV8::Shutdown) {
 
+      _posStr.Dispose (); _posStr.Clear ();
+      _oriStr.Dispose (); _oriStr.Clear ();
       _portalApi.clear ();
       _v8Context.Clear ();
    }
@@ -123,24 +131,23 @@ dmz::JsExtV8Portal::_portal_view (const v8::Arguments &Args) {
          if (self->_render) { self->_render->get_view (vec, mat); }
          else if (self->_audio) { Vector tmp; self->_audio->get_view (vec, mat, tmp); }
 
-         V8Array array = v8::Array::New (2);
-         array->Set (v8::Integer::New (0), self->_types->to_v8_vector (vec));
-         array->Set (v8::Integer::New (1), self->_types->to_v8_matrix (mat));
-         result = array;
+         V8Object obj = v8::Object::New ();
+         obj->Set (self->_posStr, self->_types->to_v8_vector (vec));
+         obj->Set (self->_oriStr, self->_types->to_v8_matrix (mat));
+         result = obj;
       }
       else if (Length >= 2) {
 
          const Vector Vec = self->_types->to_dmz_vector (Args[0]);
          const Matrix Mat = self->_types->to_dmz_matrix (Args[1]);
-
          
          if (self->_render) { self->_render->set_view (Vec, Mat); }
          if (self->_audio) { Vector tmp; self->_audio->set_view (Vec, Mat, tmp); }
 
-         V8Array array = v8::Array::New (2);
-         array->Set (v8::Integer::New (0), self->_types->to_v8_vector (Vec));
-         array->Set (v8::Integer::New (1), self->_types->to_v8_matrix (Mat));
-         result = array;
+         V8Object obj = v8::Object::New ();
+         obj->Set (self->_posStr, self->_types->to_v8_vector (Vec));
+         obj->Set (self->_oriStr, self->_types->to_v8_matrix (Mat));
+         result = obj;
       }
    }
 

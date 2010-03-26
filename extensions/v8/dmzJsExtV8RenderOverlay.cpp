@@ -423,9 +423,8 @@ dmz::JsExtV8RenderOverlay::_overlay_set_switch_state_all (const v8::Arguments &A
 
    if (self && self->_overlay && node) {
 
-      const Int32 Which = v8_to_int32 (Args[0]);
-      result = v8::Boolean::New (
-         self->_overlay->enable_switch_state_single (node, Which));
+      const Boolean State = v8_to_boolean (Args[1]);
+      result = v8::Boolean::New (self->_overlay->store_switch_state_all (node, State));
    }
 
    return scope.Close (result);
@@ -444,8 +443,10 @@ dmz::JsExtV8RenderOverlay::_overlay_enable_single_switch_state (
 
    if (self && self->_overlay && node) {
 
-      const Boolean State = v8_to_boolean (Args[1]);
-      result = v8::Boolean::New (self->_overlay->store_switch_state_all (node, State));
+      const Int32 Which = v8_to_int32 (Args[0]);
+
+      result = v8::Boolean::New (
+         self->_overlay->enable_switch_state_single (node, Which));
    }
 
    return scope.Close (result);
@@ -696,7 +697,7 @@ dmz::JsExtV8RenderOverlay::_init (Config &local) {
       "setSwitchStateAll",
       v8::FunctionTemplate::New (_overlay_set_switch_state_all, _self));
    switchProto->Set (
-      "enableSinglewitchState",
+      "enableSingleSwitchState",
       v8::FunctionTemplate::New (_overlay_enable_single_switch_state, _self));
    V8ObjectTemplate switchInstance = _switchNodeTemp->InstanceTemplate ();
    switchInstance->SetInternalFieldCount (1);

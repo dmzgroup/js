@@ -114,7 +114,7 @@ dmz::JsExtV8RenderOverlay::to_self (const v8::Arguments &Args) {
 inline dmz::JsExtV8RenderOverlay *
 dmz::JsExtV8RenderOverlay::to_node (const v8::Arguments &Args, Handle &node) {
 
-   node = v8_to_handle (Args.This ()->GetInternalField (1));
+   node = v8_to_handle (Args.This ()->GetInternalField (0));
    return (dmz::JsExtV8RenderOverlay *)v8::External::Unwrap (Args.Data ());
 }
 
