@@ -185,11 +185,6 @@ Vector.prototype.dot = function (vec) {
 
 Vector.prototype.cross = function (vec) {
 
-   return this.create().setXYZ(
-      (this.y * vec.z) - (this.z * vec.y),
-      (this.z * vec.x) - (this.x * vec.z),
-      (this.x * vec.y) - (this.y * vec.x));
-
    var result;
 
    if (Vector.prototype.isPrototypeOf(vec)) {
