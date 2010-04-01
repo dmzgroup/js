@@ -104,7 +104,7 @@ dmz::JsExtV8EventCommon::update_js_ext_v8_state (const StateEnum State) {
       if (_core) {
 
          _core->register_interface (
-            "dmz/components/event/common",
+            "dmz/components/eventCommon",
             _eventApi.get_new_instance ());
       }
    }

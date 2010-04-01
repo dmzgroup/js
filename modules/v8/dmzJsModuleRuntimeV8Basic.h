@@ -118,7 +118,8 @@ namespace dmz {
          // Messaging bindings implemented in dmzJsModuleRuntimeV8BasicMessaging.cpp
          static V8Value _create_message (const v8::Arguments &Args);
          static V8Value _message_is_type_of (const v8::Arguments &Args);
-         static V8Value _message_unsubscribe_all (const v8::Arguments &Args);
+         static V8Value _message_global_subscribe (const v8::Arguments &Args);
+         static V8Value _message_global_unsubscribe (const v8::Arguments &Args);
          static V8Value _message_to_string (const v8::Arguments &Args);
          static V8Value _message_send (const v8::Arguments &Args);
          static V8Value _message_subscribe (const v8::Arguments &Args);

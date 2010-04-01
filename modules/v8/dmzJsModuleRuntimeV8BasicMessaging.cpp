@@ -149,7 +149,77 @@ dmz::JsModuleRuntimeV8Basic::_message_is_type_of (const v8::Arguments &Args) {
 
 
 V8Value
-dmz::JsModuleRuntimeV8Basic::_message_unsubscribe_all (const v8::Arguments &Args) {
+dmz::JsModuleRuntimeV8Basic::_message_global_subscribe (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self && self->_core && (Args.Length () >= 2)) {
+
+      const String MsgName = v8_to_string (Args[0]);
+      V8Object obj = v8_to_object (Args[1]);
+
+      const Handle ObsHandle = self->_core->get_instance_handle (obj);
+      const String Name = self->_core->get_instance_name (obj);;
+
+      Message msg;
+      self->_defs.create_message (MsgName, msg);
+
+      if (ObsHandle && msg) {
+
+         MessageStruct *ms = self->_msgTable.lookup (ObsHandle);
+
+         if (!ms) {
+
+            ms = new MessageStruct (
+               ObsHandle,
+               Name,
+               self->get_plugin_runtime_context (),
+               *self);
+
+            if (ms) {
+
+               ms->v8Context = self->_v8Context;
+
+               if (!self->_msgTable.store (ObsHandle, ms)) { delete ms; ms = 0; }
+            }
+         }
+
+         if (ms) {
+
+            const Handle MsgHandle = msg.get_handle ();
+
+            CallbackStruct *cb = ms->cbTable.lookup (MsgHandle);
+
+            if (!cb) {
+
+               cb = new CallbackStruct;
+
+               if (cb && !ms->cbTable.store (MsgHandle, cb)) { delete cb; cb = 0; }
+            }
+
+            if (cb && Args[2]->IsFunction ()) {
+
+               cb->self.Dispose (); cb->self.Clear ();
+               cb->func.Dispose (); cb->func.Clear ();
+
+               cb->self = V8ObjectPersist::New (obj);
+               cb->func = V8FunctionPersist::New (v8_to_function (Args[2]));
+               result = v8::Local<v8::Function>::New (cb->func);
+               ms->subscribe_to_message (msg);
+            }
+         }
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+V8Value
+dmz::JsModuleRuntimeV8Basic::_message_global_unsubscribe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result = v8::False ();
@@ -161,18 +231,38 @@ dmz::JsModuleRuntimeV8Basic::_message_unsubscribe_all (const v8::Arguments &Args
       String name;
 
       V8Object obj = v8_to_object (Args[0]);
+      Message msg;
+      Boolean msgLookup (False);
+
+      if (Args.Length () > 1) {
+
+         const String MsgName = v8_to_string (Args[1]);
+         self->_defs.lookup_message (MsgName, msg);
+         msgLookup = True;
+      }
 
       const Handle ObsHandle = self->_core->get_instance_handle (obj);
 
       if (ObsHandle) {
 
-         MessageStruct *ms = self->_msgTable.remove (ObsHandle);
+         MessageStruct *ms = msgLookup ?
+            self->_msgTable.lookup (ObsHandle) : self->_msgTable.remove (ObsHandle);
 
          if (ms) {
 
             result = v8::True ();
-            ms->unsubscribe_to_all_messages ();
-            delete ms; ms = 0;
+
+            if (msg) {
+
+               ms->unsubscribe_to_message (msg);
+               CallbackStruct *cb = ms->cbTable.remove(msg.get_handle ());
+               if (cb) { delete cb; cb = 0; }
+            }
+            else if (!msgLookup) {
+
+               ms->unsubscribe_to_all_messages ();
+               delete ms; ms = 0;
+            }
          }
       }
    }
@@ -253,11 +343,10 @@ dmz::JsModuleRuntimeV8Basic::_message_subscribe (const v8::Arguments &Args) {
 
    if (self && self->_core && (Args.Length () >= 2)) {
 
-      String name;
-
       V8Object obj = v8_to_object (Args[0]);
 
       const Handle ObsHandle = self->_core->get_instance_handle (obj);
+      const String Name = self->_core->get_instance_name (obj);;
 
       Message *ptr = self->_to_message_ptr (Args.This ());
 
@@ -269,7 +358,7 @@ dmz::JsModuleRuntimeV8Basic::_message_subscribe (const v8::Arguments &Args) {
 
             ms = new MessageStruct (
                ObsHandle,
-               name,
+               Name,
                self->get_plugin_runtime_context (),
                *self);
 
@@ -402,7 +491,8 @@ dmz::JsModuleRuntimeV8Basic::_init_messaging () {
 
    _msgApi.add_function ("create", _create_message, _self);
    _msgApi.add_function ("isTypeOf", _message_is_type_of, _self);
-   _msgApi.add_function ("unsubscribeAll", _message_unsubscribe_all, _self);
+   _msgApi.add_function ("subscribe", _message_global_subscribe, _self);
+   _msgApi.add_function ("unsubscribe", _message_global_unsubscribe, _self);
 }
 
 
