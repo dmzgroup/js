@@ -60,6 +60,9 @@ v8_to_string (V8Value value);
 Float64
 v8_to_number (V8Value value);
 
+Float64
+v8_to_number (V8Value value, const Float64 DefaultValue);
+
 Int32
 v8_to_int32 (V8Value value);
 
@@ -129,6 +132,20 @@ inline dmz::Float64
 dmz::v8_to_number (V8Value value) {
 
    Float64 result (0.0);
+
+   if ((value.IsEmpty () == false) && value->IsNumber ()) {
+
+      result = value->NumberValue ();
+   }
+
+   return result;
+}
+
+
+inline dmz::Float64
+dmz::v8_to_number (V8Value value, const Float64 DefaultValue) {
+
+   Float64 result (DefaultValue);
 
    if ((value.IsEmpty () == false) && value->IsNumber ()) {
 

@@ -97,8 +97,18 @@ dmz::JsExtV8RenderOverlay::update_js_ext_v8_state (const StateEnum State) {
       _groupNodeCtor = V8FunctionPersist::New (_groupNodeTemp->GetFunction ());
       _switchNodeCtor = V8FunctionPersist::New (_switchNodeTemp->GetFunction ());
       _xformNodeCtor = V8FunctionPersist::New (_xformNodeTemp->GetFunction ());
+
+      _redStr = V8StringPersist::New (v8::String::NewSymbol ("red"));
+      _greenStr = V8StringPersist::New (v8::String::NewSymbol ("green"));
+      _blueStr = V8StringPersist::New (v8::String::NewSymbol ("blue"));
+      _alphaStr = V8StringPersist::New (v8::String::NewSymbol ("alpha"));
    }
    else if (State == JsExtV8::Shutdown) {
+
+      _redStr.Dispose (); _redStr.Clear ();
+      _greenStr.Dispose (); _greenStr.Clear ();
+      _blueStr.Dispose (); _blueStr.Clear ();
+      _alphaStr.Dispose (); _alphaStr.Clear ();
 
       _nodeCtor.Dispose (); _nodeCtor.Clear ();
       _textNodeCtor.Dispose (); _textNodeCtor.Clear ();
@@ -109,6 +119,34 @@ dmz::JsExtV8RenderOverlay::update_js_ext_v8_state (const StateEnum State) {
       _overlayApi.clear ();
       _v8Context.Clear ();
    }
+}
+
+
+dmz::V8Value
+dmz::JsExtV8RenderOverlay::_overlay_color (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsExtV8RenderOverlay *self = to_self (Args);
+   const String Name = v8_to_string (Args[0]);
+
+   if (self && self->_overlay && Name) {
+
+      Float64 red (0.0), green (0.0), blue (0.0), alpha (0.0);
+
+      if (self->_overlay->lookup_named_color (Name, red, green, blue, alpha)) {
+
+         V8Object obj = v8::Object::New ();
+         obj->Set (self->_redStr, v8::Number::New (red));
+         obj->Set (self->_greenStr, v8::Number::New (green));
+         obj->Set (self->_blueStr, v8::Number::New (blue));
+         obj->Set (self->_alphaStr, v8::Number::New (alpha));
+         result = obj;
+      }
+   }
+
+   return scope.Close (result);
 }
 
 
@@ -283,6 +321,60 @@ dmz::JsExtV8RenderOverlay::_overlay_lookup_sub_node (const v8::Arguments &Args) 
    }
 
    return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8RenderOverlay::_overlay_node_color (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   Handle node (0);
+   JsExtV8RenderOverlay *self = to_node (Args, node);
+
+   if (self && self->_overlay && node) {
+
+      Float64 red (0.0), green (0.0), blue (0.0), alpha (1.0);
+
+      const int Length = Args.Length ();
+
+      if (Length == 0) {
+
+      }
+      else if (Length == 1) {
+
+         V8Object color = v8_to_object (Args[0]);
+
+         if (color.IsEmpty () == false) {
+
+            red = v8_to_number (color->Get (self->_redStr), red);
+            green = v8_to_number (color->Get (self->_greenStr), green);
+            blue = v8_to_number (color->Get (self->_blueStr), blue);
+            alpha = v8_to_number (color->Get (self->_alphaStr), alpha);
+         }
+      }
+      else {
+
+         red = v8_to_number (Args[0], red);
+         green = v8_to_number (Args[1], green);
+         blue = v8_to_number (Args[2], blue);
+         alpha = v8_to_number (Args[3], alpha);
+      }
+
+      if (self->_overlay->store_color (node, red, green, blue, alpha)) {
+
+         V8Object obj = v8::Object::New ();
+         obj->Set (self->_redStr, v8::Number::New (red));
+         obj->Set (self->_greenStr, v8::Number::New (green));
+         obj->Set (self->_blueStr, v8::Number::New (blue));
+         obj->Set (self->_alphaStr, v8::Number::New (alpha));
+         result = obj;
+      }
+   }
+
+   return scope.Close (result);
+
 }
 
 
@@ -647,6 +739,7 @@ dmz::JsExtV8RenderOverlay::_init (Config &local) {
    _self = V8ValuePersist::New (v8::External::Wrap (this));
 
    // API
+   _overlayApi.add_function ("color", _overlay_color, _self);
    _overlayApi.add_function ("lookup", _overlay_lookup, _self);
    _overlayApi.add_function ("instance", _overlay_instance, _self);
    _overlayApi.add_function ("destroy", _overlay_destroy, _self);
@@ -659,7 +752,8 @@ dmz::JsExtV8RenderOverlay::_init (Config &local) {
    _nodeTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
    _nodeTemp->SetClassName (v8::String::NewSymbol ("dmz::OverlayNode"));
    V8ObjectTemplate nodeProto = _nodeTemp->PrototypeTemplate ();
-   nodeProto->Set ("getName", v8::FunctionTemplate::New (_overlay_get_name, _self));
+   nodeProto->Set ("name", v8::FunctionTemplate::New (_overlay_get_name, _self));
+   nodeProto->Set ("color", v8::FunctionTemplate::New (_overlay_node_color, _self));
    V8ObjectTemplate nodeInstance = _nodeTemp->InstanceTemplate ();
    nodeInstance->SetInternalFieldCount (1);
 
@@ -676,12 +770,12 @@ dmz::JsExtV8RenderOverlay::_init (Config &local) {
    _groupNodeTemp->Inherit (_nodeTemp);
    V8ObjectTemplate groupProto = _groupNodeTemp->PrototypeTemplate ();
    groupProto->Set (
-      "lookupSubNode",
+      "lookup",
       v8::FunctionTemplate::New (_overlay_lookup_sub_node, _self));
    groupProto->Set ("add", v8::FunctionTemplate::New (_overlay_add, _self));
    groupProto->Set ("remove", v8::FunctionTemplate::New (_overlay_remove, _self));
    groupProto->Set (
-      "getChildCount",
+      "childCount",
       v8::FunctionTemplate::New (_overlay_get_child_count, _self));
    V8ObjectTemplate groupInstance = _groupNodeTemp->InstanceTemplate ();
    groupInstance->SetInternalFieldCount (1);

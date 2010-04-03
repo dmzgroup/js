@@ -14,10 +14,12 @@ exports.isZero = function (value) {
    return Math.abs (value) < exports.Epsilon;
 };
 
+
 exports.isNotZero = function (value) {
 
    return Math.abs (value) >= exports.Epsilon;
 };
+
 
 exports.isNotZero = function (value) {
 

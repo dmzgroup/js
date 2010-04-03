@@ -43,6 +43,7 @@ namespace dmz {
          virtual void update_js_ext_v8_state (const StateEnum State);
 
       protected:
+         static V8Value _overlay_color (const v8::Arguments &Args);
          static V8Value _overlay_lookup (const v8::Arguments &Args);
          static V8Value _overlay_instance (const v8::Arguments &Args);
          static V8Value _overlay_destroy (const v8::Arguments &Args);
@@ -54,6 +55,7 @@ namespace dmz {
          // Node API
          static V8Value _overlay_get_name (const v8::Arguments &Args);
          static V8Value _overlay_lookup_sub_node (const v8::Arguments &Args);
+         static V8Value _overlay_node_color (const v8::Arguments &Args);
          // Text Node API
          static V8Value _overlay_text (const v8::Arguments &Args);
          // Group Node API
@@ -83,6 +85,11 @@ namespace dmz {
          RenderModuleOverlay *_overlay;
 
          V8InterfaceHelper _overlayApi;
+
+         V8StringPersist _redStr;
+         V8StringPersist _greenStr;
+         V8StringPersist _blueStr;
+         V8StringPersist _alphaStr;
 
          V8FunctionTemplatePersist _nodeTemp;
          V8FunctionPersist _nodeCtor;
