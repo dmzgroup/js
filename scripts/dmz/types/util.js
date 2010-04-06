@@ -21,10 +21,7 @@ exports.isNotZero = function (value) {
 };
 
 
-exports.isNotZero = function (value) {
-
-   return Math.abs (value) >= exports.Epsilon;
-};
+exports.isDefined = function (val) { var ud; return val !== ud; };
 
 
 exports.isUndefined = function (val) { var ud; return val === ud; };
