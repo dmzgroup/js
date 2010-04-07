@@ -2,8 +2,12 @@
 #include <dmzJsModuleTypesV8.h>
 #include <dmzRuntimeConfig.h>
 #include <dmzRuntimeConfigToMatrix.h>
+#include <dmzRuntimeConfigToNamedHandle.h>
 #include <dmzRuntimeConfigToTypesBase.h>
 #include <dmzRuntimeConfigToVector.h>
+#include <dmzRuntimeEventType.h>
+#include <dmzRuntimeMessaging.h>
+#include <dmzRuntimeObjectType.h>
 #include <dmzSystemStreamString.h>
 
 using namespace dmz;
@@ -27,7 +31,7 @@ V8Value
 dmz::JsModuleRuntimeV8Basic::_create_config (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result;
+   V8Value result = v8::Undefined ();
 
    JsModuleRuntimeV8Basic *self = to_self (Args);
 
@@ -59,7 +63,7 @@ V8Value
 dmz::JsModuleRuntimeV8Basic::_config_is_type_of (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result;
+   V8Value result = v8::Undefined ();
 
    JsModuleRuntimeV8Basic *self = to_self (Args);
 
@@ -107,10 +111,10 @@ dmz::JsModuleRuntimeV8Basic::_config_get (const v8::Arguments &Args) {
 
 
 V8Value
-dmz::JsModuleRuntimeV8Basic::_config_to_string (const v8::Arguments &Args) {
+dmz::JsModuleRuntimeV8Basic::_config_string (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result;
+   V8Value result = v8::Undefined ();
 
    JsModuleRuntimeV8Basic *self = to_self (Args);
 
@@ -145,10 +149,10 @@ dmz::JsModuleRuntimeV8Basic::_config_to_string (const v8::Arguments &Args) {
 
 
 V8Value
-dmz::JsModuleRuntimeV8Basic::_config_to_number (const v8::Arguments &Args) {
+dmz::JsModuleRuntimeV8Basic::_config_number (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result;
+   V8Value result = v8::Undefined ();
 
    JsModuleRuntimeV8Basic *self = to_self (Args);
 
@@ -172,10 +176,10 @@ dmz::JsModuleRuntimeV8Basic::_config_to_number (const v8::Arguments &Args) {
 
 
 V8Value
-dmz::JsModuleRuntimeV8Basic::_config_to_vector (const v8::Arguments &Args) {
+dmz::JsModuleRuntimeV8Basic::_config_vector (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result;
+   V8Value result = v8::Undefined ();
 
    JsModuleRuntimeV8Basic *self = to_self (Args);
 
@@ -199,14 +203,14 @@ dmz::JsModuleRuntimeV8Basic::_config_to_vector (const v8::Arguments &Args) {
 
 
 V8Value
-dmz::JsModuleRuntimeV8Basic::_config_to_matrix (const v8::Arguments &Args) {
+dmz::JsModuleRuntimeV8Basic::_config_matrix (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
-   V8Value result;
+   V8Value result = v8::Undefined ();
 
    JsModuleRuntimeV8Basic *self = to_self (Args);
 
-   if (self) {
+   if (self && self->_types) {
 
       Config *ptr = self->_to_config_ptr (Args.This ());
 
@@ -225,10 +229,123 @@ dmz::JsModuleRuntimeV8Basic::_config_to_matrix (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleRuntimeV8Basic::_config_object_type (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self) {
+
+      Config *ptr = self->_to_config_ptr (Args.This ());
+
+      if (ptr) {
+
+         const ObjectType Type = config_to_object_type (
+            v8_to_string (Args[0]),
+            *ptr,
+            Args.Length () > 1 ? v8_to_string (Args[1]) : String (),
+            self->get_plugin_runtime_context ());
+
+         if (Type) { result = self->create_v8_object_type (&Type); }
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleRuntimeV8Basic::_config_event_type (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self) {
+
+      Config *ptr = self->_to_config_ptr (Args.This ());
+
+      if (ptr) {
+
+         const EventType Type = config_to_event_type (
+            v8_to_string (Args[0]),
+            *ptr,
+            Args.Length () > 1 ? v8_to_string (Args[1]) : String (),
+            self->get_plugin_runtime_context ());
+
+         if (Type) { result = self->create_v8_event_type (&Type); }
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleRuntimeV8Basic::_config_message (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self) {
+
+      Config *ptr = self->_to_config_ptr (Args.This ());
+
+      if (ptr) {
+
+         const Message Msg = config_create_message (
+            v8_to_string (Args[0]),
+            *ptr,
+            Args.Length () > 1 ? v8_to_string (Args[1]) : String (),
+            self->get_plugin_runtime_context ());
+
+         if (Msg) { result = self->create_v8_message (Msg.get_name ()); }
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleRuntimeV8Basic::_config_named_handle (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self) {
+
+      Config *ptr = self->_to_config_ptr (Args.This ());
+
+      if (ptr) {
+
+         const Handle Value = config_to_named_handle (
+            v8_to_string (Args[0]),
+            *ptr,
+            Args.Length () > 1 ? v8_to_string (Args[1]) : String (),
+            self->get_plugin_runtime_context ());
+
+         if (Value) { result = v8::Integer::New (Value); }
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
 // JsModuleRuntimeV8 Interface
 v8::Handle<v8::Value>
 dmz::JsModuleRuntimeV8Basic::create_v8_config (const Config *Value) {
 
+   v8::Context::Scope cscope (_v8Context);
    v8::HandleScope scope;
 
    v8::Handle<v8::Object> result;
@@ -266,10 +383,14 @@ dmz::JsModuleRuntimeV8Basic::_init_config () {
    v8::Handle<v8::ObjectTemplate> proto = _configFuncTemplate->PrototypeTemplate ();
 
    proto->Set ("get", v8::FunctionTemplate::New (_config_get, _self));
-   proto->Set ("toString", v8::FunctionTemplate::New (_config_to_string, _self));
-   proto->Set ("toNumber", v8::FunctionTemplate::New (_config_to_number, _self));
-   proto->Set ("toVector", v8::FunctionTemplate::New (_config_to_vector, _self));
-   proto->Set ("toMatrix", v8::FunctionTemplate::New (_config_to_matrix, _self));
+   proto->Set ("string", v8::FunctionTemplate::New (_config_string, _self));
+   proto->Set ("number", v8::FunctionTemplate::New (_config_number, _self));
+   proto->Set ("vector", v8::FunctionTemplate::New (_config_vector, _self));
+   proto->Set ("matrix", v8::FunctionTemplate::New (_config_matrix, _self));
+   proto->Set ("objectType", v8::FunctionTemplate::New (_config_object_type, _self));
+   proto->Set ("eventType", v8::FunctionTemplate::New (_config_event_type, _self));
+   proto->Set ("message", v8::FunctionTemplate::New (_config_message, _self));
+   proto->Set ("namedHandle", v8::FunctionTemplate::New (_config_named_handle, _self));
 
    _configApi.add_function ("create", _create_config, _self);
    _configApi.add_function ("isTypeOf", _config_is_type_of, _self);

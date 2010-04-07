@@ -127,6 +127,7 @@ local_log_delete (v8::Persistent<v8::Value> object, void *param) {
 v8::Handle<v8::Value>
 dmz::JsModuleRuntimeV8Basic::create_v8_log (const String &Name) {
 
+   v8::Context::Scope cscope (_v8Context);
    v8::HandleScope scope;
 
    v8::Handle<v8::Object> result;

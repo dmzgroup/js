@@ -169,6 +169,48 @@ dmz::JsModuleRuntimeV8Basic::_data_unwrap_string (const v8::Arguments &Args) {
 
 
 V8Value
+dmz::JsModuleRuntimeV8Basic::_data_wrap_handle (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self) {
+
+      const Handle Value = v8_to_handle (Args[0]);
+      Data data = self->_convertHandle.to_data (Value);
+      result = self->create_v8_data (&data);
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+V8Value
+dmz::JsModuleRuntimeV8Basic::_data_unwrap_handle (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self) {
+
+      Data *ptr = self->_to_data_ptr (Args[0]);
+
+      if (ptr) {
+
+         const Handle Value = self->_convertHandle.to_handle (*ptr);
+         result = v8::Integer::New (Value);
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+V8Value
 dmz::JsModuleRuntimeV8Basic::_data_to_string (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -468,6 +510,7 @@ dmz::JsModuleRuntimeV8Basic::_data_vector (const v8::Arguments &Args) {
 v8::Handle<v8::Value>
 dmz::JsModuleRuntimeV8Basic::create_v8_data (const Data *Value) {
 
+   v8::Context::Scope cscope (_v8Context);
    v8::HandleScope scope;
 
    v8::Handle<v8::Object> result;
@@ -535,6 +578,8 @@ dmz::JsModuleRuntimeV8Basic::_init_data () {
    _dataApi.add_function ("unwrapNumber", _data_unwrap_number, _self);
    _dataApi.add_function ("wrapString", _data_wrap_string, _self);
    _dataApi.add_function ("unwrapString", _data_unwrap_string, _self);
+   _dataApi.add_function ("wrapHandle", _data_wrap_handle, _self);
+   _dataApi.add_function ("unwrapHandle", _data_unwrap_handle, _self);
 }
 
 

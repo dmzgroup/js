@@ -254,6 +254,7 @@ dmz::JsModuleRuntimeV8Basic::_object_type_get_config (const v8::Arguments &Args)
 v8::Handle<v8::Value>
 dmz::JsModuleRuntimeV8Basic::create_v8_object_type (const ObjectType *Value) {
 
+   v8::Context::Scope cscope (_v8Context);
    v8::HandleScope scope;
 
    v8::Handle<v8::Object> result;

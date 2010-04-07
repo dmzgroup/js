@@ -74,10 +74,14 @@ namespace dmz {
          static V8Value _create_config (const v8::Arguments &Args);
          static V8Value _config_is_type_of (const v8::Arguments &Args);
          static V8Value _config_get (const v8::Arguments &Args);
-         static V8Value _config_to_string (const v8::Arguments &Args);
-         static V8Value _config_to_number (const v8::Arguments &Args);
-         static V8Value _config_to_vector (const v8::Arguments &Args);
-         static V8Value _config_to_matrix (const v8::Arguments &Args);
+         static V8Value _config_string (const v8::Arguments &Args);
+         static V8Value _config_number (const v8::Arguments &Args);
+         static V8Value _config_vector (const v8::Arguments &Args);
+         static V8Value _config_matrix (const v8::Arguments &Args);
+         static V8Value _config_object_type (const v8::Arguments &Args);
+         static V8Value _config_event_type (const v8::Arguments &Args);
+         static V8Value _config_message (const v8::Arguments &Args);
+         static V8Value _config_named_handle (const v8::Arguments &Args);
 
          // Event Type bindings implemented in dmzJsModuleRuntimeV8BasicEventType.cpp
          static V8Value _event_type_lookup (const v8::Arguments &Args);
@@ -100,6 +104,8 @@ namespace dmz {
          static V8Value _data_unwrap_number (const v8::Arguments &Args);
          static V8Value _data_wrap_string (const v8::Arguments &Args);
          static V8Value _data_unwrap_string (const v8::Arguments &Args);
+         static V8Value _data_wrap_handle (const v8::Arguments &Args);
+         static V8Value _data_unwrap_handle (const v8::Arguments &Args);
          static V8Value _data_to_string (const v8::Arguments &Args);
          static V8Value _data_boolean (const v8::Arguments &Args);
          static V8Value _data_number (const v8::Arguments &Args);

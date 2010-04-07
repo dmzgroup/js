@@ -254,6 +254,7 @@ dmz::JsModuleRuntimeV8Basic::_event_type_get_config (const v8::Arguments &Args) 
 v8::Handle<v8::Value>
 dmz::JsModuleRuntimeV8Basic::create_v8_event_type (const EventType *Value) {
 
+   v8::Context::Scope cscope (_v8Context);
    v8::HandleScope scope;
 
    v8::Handle<v8::Object> result;
