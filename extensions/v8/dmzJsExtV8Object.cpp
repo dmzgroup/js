@@ -977,7 +977,7 @@ dmz::JsExtV8Object::_object_counter (const v8::Arguments &Args) {
 
          if (objMod->store_counter (obj, attr, Value)) {
 
-            result = v8::Integer::New (Value);
+            result = v8::Integer::New ((Int32)Value);
          }
       }
       else {
@@ -986,7 +986,7 @@ dmz::JsExtV8Object::_object_counter (const v8::Arguments &Args) {
 
          if (objMod->lookup_counter (obj, attr, value)) {
 
-            result = v8::Integer::New (value);
+            result = v8::Integer::New ((Int32)value);
          }
       }
    }
@@ -1033,7 +1033,7 @@ dmz::JsExtV8Object::_object_counter_min (const v8::Arguments &Args) {
 
          if (objMod->store_counter_minimum (obj, attr, Value)) {
 
-            result = v8::Integer::New (Value);
+            result = v8::Integer::New ((Int32)Value);
          }
       }
       else {
@@ -1042,7 +1042,7 @@ dmz::JsExtV8Object::_object_counter_min (const v8::Arguments &Args) {
 
          if (objMod->lookup_counter_minimum (obj, attr, value)) {
 
-            result = v8::Integer::New (value);
+            result = v8::Integer::New ((Int32)value);
          }
       }
    }
@@ -1089,7 +1089,7 @@ dmz::JsExtV8Object::_object_counter_max (const v8::Arguments &Args) {
 
          if (objMod->store_counter_maximum (obj, attr, Value)) {
 
-            result = v8::Integer::New (Value);
+            result = v8::Integer::New ((Int32)Value);
          }
       }
       else {
@@ -1098,7 +1098,7 @@ dmz::JsExtV8Object::_object_counter_max (const v8::Arguments &Args) {
 
          if (objMod->lookup_counter_maximum (obj, attr, value)) {
 
-            result = v8::Integer::New (value);
+            result = v8::Integer::New ((Int32)value);
          }
       }
    }
@@ -1179,9 +1179,9 @@ dmz::JsExtV8Object::_object_add_to_counter (const v8::Arguments &Args) {
 
          const Int64 Value = v8_to_int64 (Args[2]);
 
-         result = v8::Integer::New (objMod->add_to_counter (obj, attr, Value));
+         result = v8::Integer::New ((Int32)objMod->add_to_counter (obj, attr, Value));
       }
-      else { result = v8::Integer::New (objMod->add_to_counter (obj, attr)); }
+      else { result = v8::Integer::New ((Int32)objMod->add_to_counter (obj, attr)); }
    }
 
    return result.IsEmpty () ? result : scope.Close (result);
@@ -2170,7 +2170,7 @@ dmz::JsExtV8Object::create_object (
    argv[0] = v8::Integer::New (ObjectHandle);
    if (_runtime) { argv[1] = _runtime->create_v8_object_type (&Type); }
    else { argv[1] = v8::Undefined (); }
-   argv[2] = v8::Integer::New ((Int64)Locality);
+   argv[2] = v8::Integer::New ((Int32)Locality);
    _process_callback (&_createTable, Argc, argv);
 }
 
@@ -2291,12 +2291,12 @@ dmz::JsExtV8Object::update_link_attribute_object (
    v8::HandleScope scope;
    const int Argc (7);
    V8Value argv[Argc];
-   argv[0] = v8::Integer::New (LinkHandle);
-   argv[1] = v8::Integer::New (AttributeHandle);
-   argv[2] = v8::Integer::New (SuperHandle);
-   argv[3] = v8::Integer::New (SubHandle);
-   argv[4] = v8::Integer::New (AttributeObjectHandle);
-   argv[5] = v8::Integer::New (PrevAttributeObjectHandle);
+   argv[0] = v8::Integer::NewFromUnsigned (LinkHandle);
+   argv[1] = v8::Integer::NewFromUnsigned (AttributeHandle);
+   argv[2] = v8::Integer::NewFromUnsigned (SuperHandle);
+   argv[3] = v8::Integer::NewFromUnsigned (SubHandle);
+   argv[4] = v8::Integer::NewFromUnsigned (AttributeObjectHandle);
+   argv[5] = v8::Integer::NewFromUnsigned (PrevAttributeObjectHandle);
 
    _process_callback (_linkAttrTable.lookup (AttributeHandle), Argc, argv);
 }
@@ -2313,10 +2313,10 @@ dmz::JsExtV8Object::update_object_counter (
    v8::HandleScope scope;
    const int Argc (5);
    V8Value argv[Argc];
-   argv[0] = v8::Integer::New (ObjectHandle);
-   argv[1] = v8::Integer::New (AttributeHandle);
-   argv[2] = v8::Integer::New (Value);
-   if (PreviousValue) { argv[3] = v8::Integer::New (*PreviousValue); }
+   argv[0] = v8::Integer::NewFromUnsigned (ObjectHandle);
+   argv[1] = v8::Integer::NewFromUnsigned (AttributeHandle);
+   argv[2] = v8::Integer::New ((Int32)Value);
+   if (PreviousValue) { argv[3] = v8::Integer::New ((Int32)*PreviousValue); }
    else { argv[3] = v8::Undefined (); }
 
    _process_callback (_counterTable.lookup (AttributeHandle), Argc, argv);
@@ -2334,10 +2334,10 @@ dmz::JsExtV8Object::update_object_counter_minimum (
    v8::HandleScope scope;
    const int Argc (5);
    V8Value argv[Argc];
-   argv[0] = v8::Integer::New (ObjectHandle);
-   argv[1] = v8::Integer::New (AttributeHandle);
-   argv[2] = v8::Integer::New (Value);
-   if (PreviousValue) { argv[3] = v8::Integer::New (*PreviousValue); }
+   argv[0] = v8::Integer::NewFromUnsigned (ObjectHandle);
+   argv[1] = v8::Integer::NewFromUnsigned (AttributeHandle);
+   argv[2] = v8::Integer::New ((Int32)Value);
+   if (PreviousValue) { argv[3] = v8::Integer::New ((Int32)*PreviousValue); }
    else { argv[3] = v8::Undefined (); }
 
    _process_callback (_minCounterTable.lookup (AttributeHandle), Argc, argv);
@@ -2355,10 +2355,10 @@ dmz::JsExtV8Object::update_object_counter_maximum (
    v8::HandleScope scope;
    const int Argc (5);
    V8Value argv[Argc];
-   argv[0] = v8::Integer::New (ObjectHandle);
-   argv[1] = v8::Integer::New (AttributeHandle);
-   argv[2] = v8::Integer::New (Value);
-   if (PreviousValue) { argv[3] = v8::Integer::New (*PreviousValue); }
+   argv[0] = v8::Integer::NewFromUnsigned (ObjectHandle);
+   argv[1] = v8::Integer::NewFromUnsigned (AttributeHandle);
+   argv[2] = v8::Integer::New ((Int32)Value);
+   if (PreviousValue) { argv[3] = v8::Integer::New ((Int32)*PreviousValue); }
    else { argv[3] = v8::Undefined (); }
 
    _process_callback (_maxCounterTable.lookup (AttributeHandle), Argc, argv);
@@ -2388,8 +2388,8 @@ dmz::JsExtV8Object::update_object_state (
    v8::HandleScope scope;
    const int Argc (5);
    V8Value argv[Argc];
-   argv[0] = v8::Integer::New (ObjectHandle);
-   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[0] = v8::Integer::NewFromUnsigned (ObjectHandle);
+   argv[1] = v8::Integer::NewFromUnsigned (AttributeHandle);
 
    if (_types) {
 
@@ -2424,8 +2424,8 @@ dmz::JsExtV8Object::update_object_flag (
    v8::HandleScope scope;
    const int Argc (5);
    V8Value argv[Argc];
-   argv[0] = v8::Integer::New (ObjectHandle);
-   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[0] = v8::Integer::NewFromUnsigned (ObjectHandle);
+   argv[1] = v8::Integer::NewFromUnsigned (AttributeHandle);
    argv[2] = v8::Boolean::New (Value);
    if (PreviousValue) { argv[3] = v8::Boolean::New (*PreviousValue); }
    else { argv[3] = v8::Undefined (); }
@@ -2445,8 +2445,8 @@ dmz::JsExtV8Object::update_object_time_stamp (
    v8::HandleScope scope;
    const int Argc (5);
    V8Value argv[Argc];
-   argv[0] = v8::Integer::New (ObjectHandle);
-   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[0] = v8::Integer::NewFromUnsigned (ObjectHandle);
+   argv[1] = v8::Integer::NewFromUnsigned (AttributeHandle);
    argv[2] = v8::Number::New (Value);
    if (PreviousValue) { argv[3] = v8::Number::New (*PreviousValue); }
    else { argv[3] = v8::Undefined (); }
@@ -2466,8 +2466,8 @@ dmz::JsExtV8Object::update_object_position (
    v8::HandleScope scope;
    const int Argc (5);
    V8Value argv[Argc];
-   argv[0] = v8::Integer::New (ObjectHandle);
-   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[0] = v8::Integer::NewFromUnsigned (ObjectHandle);
+   argv[1] = v8::Integer::NewFromUnsigned (AttributeHandle);
 
    if (_types) {
 
@@ -2496,8 +2496,8 @@ dmz::JsExtV8Object::update_object_orientation (
    v8::HandleScope scope;
    const int Argc (5);
    V8Value argv[Argc];
-   argv[0] = v8::Integer::New (ObjectHandle);
-   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[0] = v8::Integer::NewFromUnsigned (ObjectHandle);
+   argv[1] = v8::Integer::NewFromUnsigned (AttributeHandle);
 
    if (_types) {
 
@@ -2526,8 +2526,8 @@ dmz::JsExtV8Object::update_object_velocity (
    v8::HandleScope scope;
    const int Argc (5);
    V8Value argv[Argc];
-   argv[0] = v8::Integer::New (ObjectHandle);
-   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[0] = v8::Integer::NewFromUnsigned (ObjectHandle);
+   argv[1] = v8::Integer::NewFromUnsigned (AttributeHandle);
 
    if (_types) {
 
@@ -2556,8 +2556,8 @@ dmz::JsExtV8Object::update_object_acceleration (
    v8::HandleScope scope;
    const int Argc (5);
    V8Value argv[Argc];
-   argv[0] = v8::Integer::New (ObjectHandle);
-   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[0] = v8::Integer::NewFromUnsigned (ObjectHandle);
+   argv[1] = v8::Integer::NewFromUnsigned (AttributeHandle);
 
    if (_types) {
 
@@ -2586,8 +2586,8 @@ dmz::JsExtV8Object::update_object_scale (
    v8::HandleScope scope;
    const int Argc (5);
    V8Value argv[Argc];
-   argv[0] = v8::Integer::New (ObjectHandle);
-   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[0] = v8::Integer::NewFromUnsigned (ObjectHandle);
+   argv[1] = v8::Integer::NewFromUnsigned (AttributeHandle);
 
    if (_types) {
 
@@ -2616,8 +2616,8 @@ dmz::JsExtV8Object::update_object_vector (
    v8::HandleScope scope;
    const int Argc (5);
    V8Value argv[Argc];
-   argv[0] = v8::Integer::New (ObjectHandle);
-   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[0] = v8::Integer::NewFromUnsigned (ObjectHandle);
+   argv[1] = v8::Integer::NewFromUnsigned (AttributeHandle);
 
    if (_types) {
 
@@ -2646,8 +2646,8 @@ dmz::JsExtV8Object::update_object_scalar (
    v8::HandleScope scope;
    const int Argc (5);
    V8Value argv[Argc];
-   argv[0] = v8::Integer::New (ObjectHandle);
-   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[0] = v8::Integer::NewFromUnsigned (ObjectHandle);
+   argv[1] = v8::Integer::NewFromUnsigned (AttributeHandle);
    argv[2] = v8::Number::New (Value);
    if (PreviousValue) { argv[3] = v8::Number::New (*PreviousValue); }
    else { argv[3] = v8::Undefined (); }
@@ -2667,8 +2667,8 @@ dmz::JsExtV8Object::update_object_text (
    v8::HandleScope scope;
    const int Argc (5);
    V8Value argv[Argc];
-   argv[0] = v8::Integer::New (ObjectHandle);
-   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[0] = v8::Integer::NewFromUnsigned (ObjectHandle);
+   argv[1] = v8::Integer::NewFromUnsigned (AttributeHandle);
    argv[2] = v8::String::New (Value ? Value.get_buffer () : "");
 
    if (PreviousValue) {
@@ -2692,8 +2692,8 @@ dmz::JsExtV8Object::update_object_data (
    v8::HandleScope scope;
    const int Argc (5);
    V8Value argv[Argc];
-   argv[0] = v8::Integer::New (ObjectHandle);
-   argv[1] = v8::Integer::New (AttributeHandle);
+   argv[0] = v8::Integer::NewFromUnsigned (ObjectHandle);
+   argv[1] = v8::Integer::NewFromUnsigned (AttributeHandle);
 
    if (_runtime) {
 
