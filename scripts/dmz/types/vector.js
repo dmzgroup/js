@@ -52,32 +52,31 @@ Vector.prototype.toArray = function () {
 
 Vector.prototype.set = function () {
 
-   var values, arg;
+   var  length = arguments.length
+   ;
 
-   if (arguments.length === 1) {
+   if (length === 1) {
 
-      arg = arguments[0];
+      if (Vector.prototype.isPrototypeOf(arguments[0])) {
 
-      if (Vector.prototype.isPrototypeOf(arg)) {
-
-         values = [ arg.x, arg.y, arg.z ];
+         this.x = arguments[0].x;
+         this.y = arguments[0].y;
+         this.z = arguments[0].z;
       }
-      else if (Array.isArray(arg) && (arg.length === 3)) {
+      else if (Array.isArray(arguments[0]) && (arguments[0].length === 3)) {
 
-         values = arg;
+         this.x = arguments[0][0];
+         this.y = arguments[0][1];
+         this.z = arguments[0][2];
       }
       else { throw createError("Invalid Vector initialization value: " + typeof arg); }
    }
-   else if (arguments.length === 3) {
+   else if (length === 3) {
 
-      values = arguments;
+      this.x = arguments[0];
+      this.y = arguments[1];
+      this.z = arguments[2];
    } 
-   else { throw createError("Invalid number of parameters for Vector.set()"); }
-
-   if (values !== undefined) {
-
-      this.fromArray (values);
-   }
 
    return this;
 };
