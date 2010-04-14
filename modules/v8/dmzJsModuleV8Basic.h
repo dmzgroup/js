@@ -125,6 +125,7 @@ namespace dmz {
          Resources _rc;
          Definitions _defs;
          Boolean _shutdown;
+         Boolean _reset;
 
          JsModuleRuntimeV8 *_runtime;
 

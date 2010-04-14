@@ -113,13 +113,14 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (
       Config &local,
       Config &global) :
       Plugin (Info),
-      TimeSlice (Info, TimeSliceTypeRuntime, TimeSliceModeSingle, 0.0),
+      TimeSlice (Info),
       JsModuleV8 (Info),
       _log (Info),
       _out ("", LogLevelOut, Info.get_context ()),
       _rc (Info),
       _defs (Info, &_log),
       _shutdown (False),
+      _reset (True),
       _runtime (0) {
 
    _init (local, global);
@@ -223,18 +224,24 @@ dmz::JsModuleV8Basic::discover_plugin (
 void
 dmz::JsModuleV8Basic::update_time_slice (const Float64 DeltaTime) {
 
-   _release_instances ();
-   _shutdown_ext ();
-   _init_context ();
-   v8::Context::Scope cscope (_context);
-   _init_ext ();
-   _load_scripts ();
+   //v8::V8::IdleNotification ();
+
+   if (_reset) {
+
+      _release_instances ();
+      _shutdown_ext ();
+      _init_context ();
+      v8::Context::Scope cscope (_context);
+      _init_ext ();
+      _load_scripts ();
+      _reset = False;
+   }
 }
 
 
 // JsModuleV8 Interface
 void
-dmz::JsModuleV8Basic::reset_v8 () { start_time_slice (); }
+dmz::JsModuleV8Basic::reset_v8 () { _reset = True; }
 
 
 v8::Handle<v8::Context>
