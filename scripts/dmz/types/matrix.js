@@ -83,7 +83,7 @@ Matrix.prototype.fromArray = function (values) {
 
 Matrix.prototype.fromAxisAndAngle = function (axis, angle) {
 
-   var xyz = axis.normalized().toArray(),
+   var xyz = axis.normalize().toArray(),
       xx = xyz[0], yy = xyz[1], zz = xyz[2],
       AngleSin = Math.sin(angle),
       AngleCos = Math.cos(angle),
@@ -105,7 +105,7 @@ Matrix.prototype.fromAxisAndAngle = function (axis, angle) {
 
 Matrix.prototype.fromTwoVectors = function (fromVec, toVec) {
 
-   var axis = fromVec.cross(toVec).normalized();
+   var axis = fromVec.cross(toVec).normalize();
    var angle = toVec.getAngle(fromVec);
 
    return this.fromAxisAndAngle(axis, angle);

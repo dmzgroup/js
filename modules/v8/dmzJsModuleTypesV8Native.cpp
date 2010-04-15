@@ -644,7 +644,7 @@ dmz::JsModuleTypesV8Native::_vector_magnitude (const v8::Arguments &Args) {
 
 
 dmz::V8Value
-dmz::JsModuleTypesV8Native::_vector_normalized (const v8::Arguments &Args) {
+dmz::JsModuleTypesV8Native::_vector_normalize (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
 
@@ -846,7 +846,7 @@ dmz::JsModuleTypesV8Native::_init (Config &local) {
    proto->Set ("set", v8::FunctionTemplate::New (_vector_set, _self));
    proto->Set ("setXYZ", v8::FunctionTemplate::New (_vector_set_xyz, _self));
    proto->Set ("magnitude", v8::FunctionTemplate::New (_vector_magnitude, _self));
-   proto->Set ("normalized", v8::FunctionTemplate::New (_vector_normalized, _self));
+   proto->Set ("normalize", v8::FunctionTemplate::New (_vector_normalize, _self));
    proto->Set ("add", v8::FunctionTemplate::New (_vector_add, _self));
    proto->Set ("subtract", v8::FunctionTemplate::New (_vector_subtract, _self));
    proto->Set (

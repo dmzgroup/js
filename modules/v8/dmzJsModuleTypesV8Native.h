@@ -83,7 +83,7 @@ namespace dmz {
          static V8Value _vector_set (const v8::Arguments &Args);
          static V8Value _vector_set_xyz (const v8::Arguments &Args);
          static V8Value _vector_magnitude (const v8::Arguments &Args);
-         static V8Value _vector_normalized (const v8::Arguments &Args);
+         static V8Value _vector_normalize (const v8::Arguments &Args);
          static V8Value _vector_add (const v8::Arguments &Args);
          static V8Value _vector_subtract (const v8::Arguments &Args);
          static V8Value _vector_multiply_const (const v8::Arguments &Args);

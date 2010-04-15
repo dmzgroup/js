@@ -99,7 +99,7 @@ Vector.prototype.magnitude = function () {
 };
 
 
-Vector.prototype.normalized = function () {
+Vector.prototype.normalize = function () {
 
    var mag = Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z)),
       div = 0.0;
