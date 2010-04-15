@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmz>
+<runtime>
+   <time>
+      <frequency value="60.0"/>
+   </time>
+</runtime>
+<plugin-list>
+   <plugin name="dmzPluginTermExit"/>
+   <plugin name="dmzJsModuleV8Basic" scope="javascript"/>
+   <plugin name="dmzJsModuleTypesV8Native" scope="javascript"/>
+   <plugin name="dmzJsModuleRuntimeV8Basic" scope="javascript"/>
+</plugin-list>
+<javascript>
+   <path value="./scripts"/>
+   <path value="../../scripts"/>
+   <instance name="vector"/>
+</javascript>
+</dmz>
