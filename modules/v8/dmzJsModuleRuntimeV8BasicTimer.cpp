@@ -38,26 +38,32 @@ struct dmz::JsModuleRuntimeV8Basic::TimerStruct : public TimeSlice {
 void
 dmz::JsModuleRuntimeV8Basic::TimerStruct::update_time_slice (const Float64 DeltaTime) {
 
-   Boolean deleteTimer (False);
+   v8::Context::Scope cscope (v8Context);
+   v8::HandleScope scope;
 
-   if (v8Context.IsEmpty () || self.IsEmpty () || callback.IsEmpty ()) {} // do nothing
+   Boolean deleteTimer (get_time_slice_mode () == TimeSliceModeSingle);
+   // Create values on the stack so that if the TimerStruct is delete in the
+   // callback, values will still be valid.
+   JsModuleRuntimeV8Basic *modulePtr = &module;
+   V8Object localSelf = v8::Local<v8::Object>::New (self);
+   V8Function localCallback = v8::Local<v8::Function>::New (callback);
+
+   if (localSelf.IsEmpty () || localCallback.IsEmpty ()) {deleteTimer = True; }
    else {
 
-      v8::Context::Scope cscope (v8Context);
-      v8::HandleScope scope;
       v8::TryCatch tc;
-      V8Value argv[] = { v8::Number::New (DeltaTime), self };
-      callback->Call (self, 2, argv);
+      V8Value argv[] = { v8::Number::New (DeltaTime), localSelf };
+      localCallback->Call (localSelf, 2, argv);
       if (tc.HasCaught ()) {
 
-         module.handle_v8_exception (tc);
+         modulePtr->handle_v8_exception (tc);
          deleteTimer = True;
       }
    }
 
-   if (deleteTimer || (get_time_slice_mode () == TimeSliceModeSingle)) {
+   if (deleteTimer) {
 
-      module.delete_timer (self, callback);
+      modulePtr->delete_timer (localSelf, localCallback);
    }
 }
 

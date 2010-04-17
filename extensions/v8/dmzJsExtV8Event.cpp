@@ -1010,16 +1010,22 @@ dmz::JsExtV8Event::_do_callback (
 
          if ((cs->self.IsEmpty () == false) && (cs->func.IsEmpty () == false)) {
 
+            // Copy the observer handle onto the stack in case the CallbackStruct
+            // is deleted in the callback
+            const Handle Observer = cs->Observer;
+
             argv[3] = cs->self;
 
             v8::TryCatch tc;
+            // The CallbackStruct cs may not be valid after this call and should not
+            // be referenced after this point.
             cs->func->Call (cs->self, Argc, argv);
 
             if (tc.HasCaught ()) {
 
                if (_core) { _core->handle_v8_exception (tc); }
 
-               cs = table->table.remove (cs->Observer);
+               cs = table->table.remove (Observer);
 
                if (cs) { delete cs; cs = 0; }
             }

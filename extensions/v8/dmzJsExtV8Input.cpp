@@ -878,16 +878,23 @@ dmz::JsExtV8Input::_do_callback (
       if (!called.contains (it.get_hash_key ()) &&
             (cb->self.IsEmpty () == false) && (cb->func.IsEmpty () == false)) {
 
+         // Copy self and func onto stack because CallbackStruct  may not be valid
+         // after the callback is made.
+         V8Object localSelf = v8::Local<v8::Object>::New (cb->self);
+         V8Function localFunc = v8::Local<v8::Function>::New (cb->func);
+
          called.add_handle (it.get_hash_key ());
          v8::TryCatch tc;
 
-         argv[Argc - 1] = cb->self;
-         cb->func->Call (cb->self, Argc, argv);
+         argv[Argc - 1] = localSelf;
+         // CallbackStruct cs may not be valid after this call and should not be
+         // referenced after this point.
+         localFunc->Call (localSelf, Argc, argv);
 
          if (tc.HasCaught ()) {
 
             if (_core) { _core->handle_v8_exception (tc); }
-            _release_callback (cb->self, cb->func);
+            _release_callback (localSelf, localFunc);
             cb = 0;
          }
       }

@@ -2839,15 +2839,22 @@ dmz::JsExtV8Object::_do_callback (
 
       argv[argc - 1] = cb->self;
 
+      // Copy func and ObsHandle onto the stack in case the CallbackStruct is deleted 
+      // in the callback.
+      V8Function localFunc = v8::Local<v8::Function>::New (cb->func);
+      const Handle ObsHandle = cb->ObsHandle;
+
+      // CallbackStruct cb should not be referenced after this point as it may have been
+      // deleted in the callback.
       cb->func->Call (cb->self, argc, argv);
 
       if (tc.HasCaught ()) {
 
          if (_core) { _core->handle_v8_exception (tc); }
 
-         ObsStruct *os = _obsTable.lookup (cb->ObsHandle);
+         ObsStruct *os = _obsTable.lookup (ObsHandle);
 
-         if (os) { _remove_callback (*os, cb->func); }
+         if (os) { _remove_callback (*os, localFunc); }
       }
    }
 }
