@@ -232,21 +232,18 @@ dmz::JsModuleRuntimeV8Basic::_message_global_unsubscribe (const v8::Arguments &A
 
       V8Object obj = v8_to_object (Args[0]);
       Message msg;
-      Boolean msgLookup (False);
 
       if (Args.Length () > 1) {
 
          const String MsgName = v8_to_string (Args[1]);
          self->_defs.lookup_message (MsgName, msg);
-         msgLookup = True;
       }
 
       const Handle ObsHandle = self->_core->get_instance_handle (obj);
 
       if (ObsHandle) {
 
-         MessageStruct *ms = msgLookup ?
-            self->_msgTable.lookup (ObsHandle) : self->_msgTable.remove (ObsHandle);
+         MessageStruct *ms = self->_msgTable.lookup (ObsHandle);
 
          if (ms) {
 
@@ -258,10 +255,10 @@ dmz::JsModuleRuntimeV8Basic::_message_global_unsubscribe (const v8::Arguments &A
                CallbackStruct *cb = ms->cbTable.remove(msg.get_handle ());
                if (cb) { delete cb; cb = 0; }
             }
-            else if (!msgLookup) {
+            else if (Args.Length () == 1) {
 
+               ms->cbTable.empty ();
                ms->unsubscribe_to_all_messages ();
-               delete ms; ms = 0;
             }
          }
       }
