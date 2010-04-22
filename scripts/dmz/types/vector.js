@@ -216,3 +216,28 @@ Vector.prototype.getAngle = function (vec) {
    return Math.atan2(this.cross(vec).magnitude(), this.dot(vec));
 };
 
+
+Vector.prototype.getSignedAngle = function (vec) {
+
+   var result =  Math.atan2(this.cross(vec).magnitude(), this.dot(vec))
+   ,   cross = this.cross(vec)
+   ;
+
+   if (util.isZero(cross.y)) {
+
+      if (util.isZero(cross.x)) {
+
+         if (cross.z > 0) { result = -result; }
+      }
+      else if (cross.x < 0) { result = -result; }
+   }
+   else if (cross.y < 0) { result = -result; }
+
+   return result;
+};
+
+
+Vector.prototype.isZero = function () {
+
+   return util.isZero(this.magnitude());
+};
