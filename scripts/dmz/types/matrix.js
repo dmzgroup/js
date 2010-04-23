@@ -25,7 +25,7 @@ Matrix.prototype.create = exports.create;
 
 Matrix.prototype.copy = function () {
 
-   return this.create(this);
+   return exports.create(this);
 };
 
 
@@ -122,7 +122,7 @@ Matrix.prototype.toArray = function () {
 
 Matrix.prototype.multiply = function (mat) {
 
-   var result = this.create();
+   var result = exports.create();
    var sum = 0.0;
    var offset0 = 0, offset1 = 0, offset2 = 0;
 
@@ -154,7 +154,7 @@ Matrix.prototype.transpose = function () {
    //3 4 5 => 1 4 7
    //6 7 8    2 5 8
 
-   return this.create().fromArray(
+   return exports.create().fromArray(
       [this.v[0], this.v[3], this.v[6],
        this.v[1], this.v[4], this.v[7],
        this.v[2], this.v[5], this.v[8]]);
@@ -163,7 +163,7 @@ Matrix.prototype.transpose = function () {
 
 Matrix.prototype.negate = function () {
 
-   return this.create().fromArray(
+   return exports.create().fromArray(
       [-this.v[0], -this.v[1], -this.v[2],
        -this.v[3], -this.v[4], -this.v[5],
        -this.v[6], -this.v[7], -this.v[8]]);
@@ -181,7 +181,7 @@ Matrix.prototype.invert = function () {
 
    if (Math.abs (determinant) >= Epsilon) {
 
-      result = this.create();
+      result = exports.create();
       result.v[0] =  ((this.v[4] * this.v[8]) - (this.v[5] * this.v[7])) / determinant;
       result.v[1] = -((this.v[1] * this.v[8]) - (this.v[7] * this.v[2])) / determinant;
       result.v[2] =  ((this.v[1] * this.v[5]) - (this.v[4] * this.v[2])) / determinant;
