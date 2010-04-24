@@ -515,7 +515,7 @@ dmz::JsExtV8RenderOverlay::_overlay_set_switch_state_all (const v8::Arguments &A
 
    if (self && self->_overlay && node) {
 
-      const Boolean State = v8_to_boolean (Args[1]);
+      const Boolean State = v8_to_boolean (Args[0]);
       result = v8::Boolean::New (self->_overlay->store_switch_state_all (node, State));
    }
 
