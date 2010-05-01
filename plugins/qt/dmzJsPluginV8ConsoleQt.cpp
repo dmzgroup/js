@@ -3,6 +3,7 @@
 #include <dmzJsV8UtilConvert.h>
 #include "dmzJsPluginV8ConsoleQt.h"
 #include <dmzQtUtil.h>
+#include <dmzSystemFile.h>
 #include <dmzRuntimeConfigToTypesBase.h>
 #include <dmzRuntimeConfigWrite.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
@@ -415,19 +416,8 @@ dmz::JsPluginV8ConsoleQt::update_js_ext_v8_state (const StateEnum State) {
             }
             else {
 
-               String name (value);
-
-               Int32 index (value.get_length () - 1);
-
-               Boolean done (False);
-
-               while (!done) {
-
-                  if (value.get_char (index) == '/') { done = True; }
-                  else { index--; if (index < 0) { done = True; } }
-               }
-
-               if (index >= 0) { name = value.get_sub (index + 1); }
+               String path, name, ext;
+               split_path_file_ext (value, path, name, ext);
 
                if (name) {
                

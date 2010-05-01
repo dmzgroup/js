@@ -19,9 +19,9 @@ static dmz::qdb out;
 
 namespace {
 
-static const char LocalInstanceHeader[] = "(function (self, require) {\n";
+static const char LocalInstanceHeader[] = "(function (self, require) { ";
 static const size_t LocalInstanceHeaderLength = strlen (LocalInstanceHeader);
-static const char LocalRequireHeader[] = "(function (exports, require) {\n";
+static const char LocalRequireHeader[] = "(function (exports, require) { ";
 static const size_t LocalRequireHeaderLength = strlen (LocalRequireHeader);
 static const char LocalFooter[] = "\n});";
 static const size_t LocalFooterLength = strlen (LocalFooter);
