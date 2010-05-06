@@ -224,7 +224,7 @@ dmz::JsModuleV8Basic::discover_plugin (
 void
 dmz::JsModuleV8Basic::update_time_slice (const Float64 DeltaTime) {
 
-   //v8::V8::IdleNotification ();
+   v8::V8::IdleNotification ();
 
    if (_reset) {
 
@@ -529,12 +529,33 @@ dmz::JsModuleV8Basic::_release_instances () {
 
    if (_context.IsEmpty () == false) {
 
+      v8::HandleScope scope;
+
       HashTableStringIterator it;
       InstanceStruct *is (0);
 
       while (_instanceTable.get_next (it, is)) {
 
-         if (is->self.IsEmpty () ==  False) { is->self.Dispose (); is->self.Clear (); }
+         if (is->self.IsEmpty () == False) {
+
+            V8Function func = v8_to_function (is->self->Get (_shutdownFuncName));
+
+            if (func.IsEmpty () == false) {
+
+               v8::TryCatch tc;
+               v8::Handle<v8::Value> argv[] = { is->self };
+               func->Call (is->self, 1, argv);
+               if (tc.HasCaught ()) { handle_v8_exception (tc); }
+            }
+         }
+      }
+
+      it.reset ();
+      is = 0;
+
+      while (_instanceTable.get_next (it, is)) {
+
+         if (is->self.IsEmpty () == False) { is->self.Dispose (); is->self.Clear (); }
       }
    }
 }
@@ -549,6 +570,7 @@ dmz::JsModuleV8Basic::_init_context () {
 
    _requireFunc.Dispose (); _requireFunc.Clear ();
    _instanceAttrName.Dispose (); _instanceAttrName.Clear ();
+   _shutdownFuncName.Dispose (); _shutdownFuncName.Clear ();
 
    if (_globalTemplate.IsEmpty ()) {
 
@@ -581,6 +603,8 @@ dmz::JsModuleV8Basic::_init_context () {
    v8::Context::Scope cscope (_context);
 
    _instanceAttrName = V8StringPersist::New (v8::String::NewSymbol ("dmz::InstanceInfo"));
+
+   _shutdownFuncName = V8StringPersist::New (v8::String::NewSymbol ("shutdown"));
 
    _init_builtins ();
 

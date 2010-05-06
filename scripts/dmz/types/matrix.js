@@ -112,6 +112,46 @@ Matrix.prototype.fromTwoVectors = function (fromVec, toVec) {
 };
 
 
+Matrix.prototype.fromEuler = function () {
+
+   var hpr = [0 , 0 , 0]
+     , hmat = exports.create()
+     , pmat = exports.create()
+     , rmat = exports.create()
+     ;
+
+   if (arguments.length === 1) {
+
+      if (Array.isArray(arguments[0])) {
+
+         hpr[0] = arguments[0][0];
+         hpr[1] = arguments[0][1];
+         hpr[2] = arguments[0][2];
+      }
+      else if (vector.isTypeOf(arguments[0])) {
+
+         hpr[0] = arguments[0].x;
+         hpr[1] = arguments[0].y;
+         hpr[2] = arguments[0].z;
+      }
+   }
+   else if (arguments.length === 3) {
+
+      hpr[0] = arguments[0];
+      hpr[1] = arguments[1];
+      hpr[2] = arguments[2];
+   }
+
+   hmat.fromAxisAndAngle(vector.Up, hpr[0]);
+   pmat.fromAxisAndAngle(vector.Right, hpr[1]);
+   rmat.fromAxisAndAngle(vector.Forward, hpr[2]);
+
+   this.set (hmat.multiply(pmat.multiply(rmat)));
+
+   return this;
+};
+
+
 Matrix.prototype.toArray = function () {
 
    return [this.v[0], this.v[1], this.v[2],
@@ -119,6 +159,47 @@ Matrix.prototype.toArray = function () {
            this.v[6], this.v[7], this.v[8]];
 };
 
+
+Matrix.prototype.toEuler = function () {
+
+   var result = [0, 0, 0]
+     , cmat = this.copy()
+     , hvec = this.transform(vector.Forward)
+     , hmat = exports.create()
+     , pvec
+     , pmat = exports.create()
+     , rvec
+     , rmat = exports.create()
+     ;
+
+   hvec.y = 0;
+
+   if (util.isNotZero(hvec.magnitude())) {
+
+      hvec = hvec.normalize();
+      result[0] = vector.Forward.getSignedAngle(hvec);
+      hmat = hmat.fromAxisAndAngle(vector.Up, result[0]);
+      hmat = hmat.transpose();
+      cmat = hmat.multiply(cmat);
+   }
+
+   pvec = cmat.transform(vector.Forward);
+   if (util.isNotZero(pvec.y)) {
+
+      result[1] = vector.Forward.getSignedAngle(pvec);
+      pmat = pmat.fromAxisAndAngle(vector.Right, result[1]);
+      pmat = pmat.transpose();
+      cmat = pmat.multiply(cmat);
+   }
+
+   rvec = cmat.transform(vector.Right);
+   if (util.isNotZero(rvec.x)) {
+
+      result[2] = vector.Right.getSignedAngle(rvec);
+   }
+
+   return result;
+};
 
 Matrix.prototype.multiply = function (mat) {
 

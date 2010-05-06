@@ -142,6 +142,7 @@ namespace dmz {
          v8::Persistent<v8::FunctionTemplate> _requireFuncTemplate;
          v8::Persistent<v8::Function> _requireFunc;
          v8::Persistent<v8::String> _instanceAttrName;
+         v8::Persistent<v8::String> _shutdownFuncName;
 
       private:
          JsModuleV8Basic ();

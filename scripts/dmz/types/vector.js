@@ -1,8 +1,37 @@
 var util = require('dmz/types/util')
-,   createError = util.createError
-,   Epsilon = util.Epsilon
-,   Vector = function () { this.x = 0; this.y = 0; this.z = 0; }
-;
+  , createError = util.createError
+  , Epsilon = util.Epsilon
+  , Vector = function () { this.x = 0; this.y = 0; this.z = 0; }
+  ;
+
+Object.defineProperty(
+   exports,
+   "Forward",
+   {
+      get: function () { return exports.create(0, 0, -1); },
+      set: function () { throw new Error("Attempting to set constant value Forward."); }
+   }
+);
+
+
+Object.defineProperty(
+   exports,
+   "Right",
+   {
+      get: function () { return exports.create(1, 0, 0); },
+      set: function () { throw new Error("Attempting to set constant value Right."); }
+   }
+);
+
+
+Object.defineProperty(
+   exports,
+   "Up",
+   {
+      get: function () { return exports.create(0, 1, 0); },
+      set: function () { throw new Error("Attempting to set constant value Up."); }
+   }
+);
 
 
 exports.isTypeOf = function (value) {
