@@ -723,6 +723,10 @@ dmz::JsExtV8RenderOverlay::_get_x_and_y (
          theX = v8_to_number (obj->Get (v8::String::NewSymbol ("x")));
          theY = v8_to_number (obj->Get (v8::String::NewSymbol ("y")));
       }
+      else {
+
+         theY = theX = v8_to_number (Args[0]);
+      }
    }
    else if (Length > 1) {
 
