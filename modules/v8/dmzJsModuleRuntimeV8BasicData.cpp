@@ -14,6 +14,7 @@ local_data_delete (v8::Persistent<v8::Value> object, void *param) {
 
       Data *ptr = (Data *)param;
       delete ptr; ptr = 0;
+      v8::V8::AdjustAmountOfExternalAllocatedMemory (-sizeof (Data));
    }
 }
 
@@ -526,6 +527,7 @@ dmz::JsModuleRuntimeV8Basic::create_v8_data (const Data *Value) {
          if (ptr) { ptr->set_runtime_context (get_plugin_runtime_context ()); }
 
          result->SetInternalField (0, v8::External::Wrap ((void *)ptr));
+         v8::V8::AdjustAmountOfExternalAllocatedMemory (sizeof (Data));
 
          v8::Persistent<v8::Object> persist = v8::Persistent<v8::Object>::New (result);
          persist.MakeWeak ((void *)ptr, local_data_delete);

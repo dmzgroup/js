@@ -14,6 +14,7 @@ local_object_type_delete (v8::Persistent<v8::Value> object, void *param) {
 
       ObjectType *ptr = (ObjectType *)param;
       delete ptr; ptr = 0;
+      v8::V8::AdjustAmountOfExternalAllocatedMemory (-sizeof (ObjectType));
    }
 }
 
@@ -266,6 +267,7 @@ dmz::JsModuleRuntimeV8Basic::create_v8_object_type (const ObjectType *Value) {
       if (!result.IsEmpty ()) {
 
          ObjectType *ptr = new ObjectType (Value ? *Value : 0);
+         v8::V8::AdjustAmountOfExternalAllocatedMemory (sizeof (ObjectType));
 
          result->SetInternalField (0, v8::External::Wrap ((void *)ptr));
 

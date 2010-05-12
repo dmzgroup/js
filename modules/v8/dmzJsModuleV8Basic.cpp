@@ -220,11 +220,22 @@ dmz::JsModuleV8Basic::discover_plugin (
 }
 
 
+namespace { static int last = 0; }
 // TimeSlice Interface
 void
 dmz::JsModuleV8Basic::update_time_slice (const Float64 DeltaTime) {
 
    v8::V8::IdleNotification ();
+
+   v8::HeapStatistics hs;
+   v8::V8::GetHeapStatistics (&hs);
+   const int Size = hs.total_heap_size ();
+
+   if (Size != last) {
+
+      out << Size << " " << Size - last << endl;
+      last = Size;
+   }
 
    if (_reset) {
 
@@ -596,7 +607,11 @@ dmz::JsModuleV8Basic::_init_context () {
 //   v8::V8::SetFlagsFromString (flags, strlen (flags));
    while (!v8::V8::IdleNotification ()) {;}
 
-   if (_context.IsEmpty () == false) { _context.Dispose (); _context.Clear (); }
+   if (_context.IsEmpty () == false) {
+
+      _context.Dispose (); _context.Clear ();
+      v8::V8::ContextDisposedNotification ();
+   }
 
    _context = v8::Context::New (0, _globalTemplate);
 
