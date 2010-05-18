@@ -16,6 +16,8 @@ local_object_type_delete (v8::Persistent<v8::Value> object, void *param) {
       delete ptr; ptr = 0;
       v8::V8::AdjustAmountOfExternalAllocatedMemory (-sizeof (ObjectType));
    }
+
+   object.Dispose (); object.Clear ();
 }
 
 };

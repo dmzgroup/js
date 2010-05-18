@@ -36,6 +36,8 @@ local_instance_struct_delete (v8::Persistent<v8::Value> object, void *param) {
 
       delete ptr; ptr = 0;
    }
+
+   object.Dispose (); object.Clear ();
 }
 
 
@@ -220,13 +222,17 @@ dmz::JsModuleV8Basic::discover_plugin (
 }
 
 
+#ifdef DMZ_JS_V8_HEAP_DEBUG
 namespace { static int last = 0; }
+#endif
+
 // TimeSlice Interface
 void
 dmz::JsModuleV8Basic::update_time_slice (const Float64 DeltaTime) {
 
    v8::V8::IdleNotification ();
 
+#ifdef DMZ_JS_V8_HEAP_DEBUG
    v8::HeapStatistics hs;
    v8::V8::GetHeapStatistics (&hs);
    const int Size = hs.total_heap_size ();
@@ -236,6 +242,7 @@ dmz::JsModuleV8Basic::update_time_slice (const Float64 DeltaTime) {
       out << Size << " " << Size - last << endl;
       last = Size;
    }
+#endif
 
    if (_reset) {
 

@@ -37,6 +37,8 @@ local_delete_vector (v8::Persistent<v8::Value> object, void *param) {
       delete ptr; ptr = 0;
       v8::V8::AdjustAmountOfExternalAllocatedMemory (-sizeof (dmz::Vector));
    }
+
+   object.Dispose (); object.Clear ();
 }
 
 };

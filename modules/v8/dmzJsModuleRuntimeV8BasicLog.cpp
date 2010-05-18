@@ -118,6 +118,8 @@ local_log_delete (v8::Persistent<v8::Value> object, void *param) {
       ptr->debug << "Deleting JavaScript instance Log." << dmz::endl;
       delete ptr; ptr = 0;
    }
+
+   object.Dispose (); object.Clear ();
 }
 
 };

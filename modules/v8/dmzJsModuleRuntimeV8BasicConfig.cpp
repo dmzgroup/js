@@ -22,6 +22,8 @@ local_config_delete (v8::Persistent<v8::Value> object, void *param) {
       Config *ptr = (Config *)param;
       delete ptr; ptr = 0;
    }
+
+   object.Dispose (); object.Clear ();
 }
 
 };
