@@ -11,7 +11,7 @@
    <event-type name="explode" parent="event"/>
 </runtime>
 <plugin-list>
-   <plugin name="dmzPluginTermExit"/>
+   <plugin name="dmzPluginConsole"/>
    <plugin name="dmzEventModuleBasic"/>
    <plugin name="dmzEventPluginDump"/>
 <!--

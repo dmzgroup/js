@@ -6,7 +6,7 @@
    </time>
 </runtime>
 <plugin-list>
-   <plugin name="dmzPluginTermExit"/>
+   <plugin name="dmzPluginConsole"/>
    <plugin name="dmzJsModuleV8Basic" scope="javascript"/>
    <plugin name="dmzJsModuleTypesV8Native" scope="javascript"/>
    <plugin name="dmzJsModuleRuntimeV8Basic" scope="javascript"/>
