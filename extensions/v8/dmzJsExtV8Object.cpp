@@ -288,6 +288,26 @@ dmz::JsExtV8Object::_register_observer (
                if (objMod) {
 
                   _newCallback = cbs;
+
+                  if (AttrMask & ObjectCreateMask) {
+
+                     HandleContainer list;
+                     objMod->get_object_handles (list);
+                     HandleContainerIterator it;
+                     Handle obj (0);
+                     UUID id;
+
+                     while (list.get_next (it, obj)) {
+
+                        objMod->lookup_uuid (obj, id);
+
+                        create_object (
+                           id,
+                           obj,
+                           objMod->lookup_object_type (obj),
+                           objMod->lookup_locality (obj));
+                     }
+                  }
                   objMod->dump_attributes (attr, AttrMask, *this);
                   _newCallback = 0;
                }
