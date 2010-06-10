@@ -3,6 +3,7 @@
 
 #include <dmzJsExtV8.h>
 #include <dmzJsV8UtilHelpers.h>
+#include <dmzRuntimeDefinitions.h>
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
 #include <dmzTypesHashTableUInt32Template.h>
@@ -57,6 +58,7 @@ namespace dmz {
          void _init (Config &local);
 
          Log _log;
+         Definitions _defs;
 
          v8::Handle<v8::Context> _v8Context;
          V8ValuePersist _self;
@@ -72,6 +74,7 @@ namespace dmz {
          V8StringPersist _objectStr;
          V8StringPersist _distanceStr;
          V8StringPersist _cullStr;
+         V8StringPersist _attrStr;
 
          JsModuleTypesV8 *_types;
          JsModuleV8 *_core;

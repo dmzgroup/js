@@ -58,6 +58,7 @@ namespace dmz {
          static V8Value _overlay_node_color (const v8::Arguments &Args);
          // Text Node API
          static V8Value _overlay_text (const v8::Arguments &Args);
+         static V8Value _overlay_text_size (const v8::Arguments &Args);
          // Group Node API
          static V8Value _overlay_add (const v8::Arguments &Args);
          static V8Value _overlay_remove (const v8::Arguments &Args);
@@ -90,6 +91,9 @@ namespace dmz {
          V8StringPersist _greenStr;
          V8StringPersist _blueStr;
          V8StringPersist _alphaStr;
+
+         V8StringPersist _lengthStr;
+         V8StringPersist _heightStr;
 
          V8FunctionTemplatePersist _nodeTemp;
          V8FunctionPersist _nodeCtor;

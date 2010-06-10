@@ -102,6 +102,9 @@ dmz::JsExtV8RenderOverlay::update_js_ext_v8_state (const StateEnum State) {
       _greenStr = V8StringPersist::New (v8::String::NewSymbol ("green"));
       _blueStr = V8StringPersist::New (v8::String::NewSymbol ("blue"));
       _alphaStr = V8StringPersist::New (v8::String::NewSymbol ("alpha"));
+
+      _lengthStr = V8StringPersist::New (v8::String::NewSymbol ("length"));
+      _heightStr = V8StringPersist::New (v8::String::NewSymbol ("height"));
    }
    else if (State == JsExtV8::Shutdown) {
 
@@ -109,6 +112,9 @@ dmz::JsExtV8RenderOverlay::update_js_ext_v8_state (const StateEnum State) {
       _greenStr.Dispose (); _greenStr.Clear ();
       _blueStr.Dispose (); _blueStr.Clear ();
       _alphaStr.Dispose (); _alphaStr.Clear ();
+
+      _lengthStr.Dispose (); _lengthStr.Clear ();
+      _heightStr.Dispose (); _heightStr.Clear ();
 
       _nodeCtor.Dispose (); _nodeCtor.Clear ();
       _textNodeCtor.Dispose (); _textNodeCtor.Clear ();
@@ -403,6 +409,34 @@ dmz::JsExtV8RenderOverlay::_overlay_text (const v8::Arguments &Args) {
 
             result = v8::String::New (value.get_buffer ());
          }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8RenderOverlay::_overlay_text_size (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   Handle node (0);
+   JsExtV8RenderOverlay *self = to_node (Args, node);
+
+   if (self && self->_overlay && node) {
+
+      Float64 length (0.0), height (0.0);
+
+      if (self->_overlay->lookup_text_size (node, length, height)) {
+
+         V8Object out = v8::Object::New ();
+
+         out->Set (self->_lengthStr, v8::Number::New (length));
+         out->Set (self->_heightStr, v8::Number::New (height));
+
+         result = out;
       }
    }
 
@@ -766,6 +800,7 @@ dmz::JsExtV8RenderOverlay::_init (Config &local) {
    _textNodeTemp->Inherit (_nodeTemp);
    V8ObjectTemplate textProto = _textNodeTemp->PrototypeTemplate ();
    textProto->Set ("text", v8::FunctionTemplate::New (_overlay_text, _self));
+   textProto->Set ("size", v8::FunctionTemplate::New (_overlay_text_size, _self));
    V8ObjectTemplate textInstance = _textNodeTemp->InstanceTemplate ();
    textInstance->SetInternalFieldCount (1);
 

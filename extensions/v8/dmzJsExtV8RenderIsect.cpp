@@ -6,11 +6,13 @@
 #include <dmzRenderModuleIsect.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
+#include <dmzTypesHandleContainer.h>
 
 dmz::JsExtV8RenderIsect::JsExtV8RenderIsect (const PluginInfo &Info, Config &local) :
       Plugin (Info),
       JsExtV8 (Info),
       _log (Info),
+      _defs (Info),
       _types (0),
       _core (0),
       _isect (0) {
@@ -105,6 +107,7 @@ dmz::JsExtV8RenderIsect::update_js_ext_v8_state (const StateEnum State) {
       _objectStr = V8StringPersist::New (v8::String::NewSymbol ("object"));
       _distanceStr = V8StringPersist::New (v8::String::NewSymbol ("distance"));
       _cullStr = V8StringPersist::New (v8::String::NewSymbol ("cull"));
+      _attrStr = V8StringPersist::New (v8::String::NewSymbol ("attributes"));
 
    }
    else if (State == JsExtV8::Shutdown) {
@@ -121,6 +124,7 @@ dmz::JsExtV8RenderIsect::update_js_ext_v8_state (const StateEnum State) {
       _objectStr.Dispose (); _objectStr.Clear ();
       _distanceStr.Dispose (); _distanceStr.Clear ();
       _cullStr.Dispose (); _cullStr.Clear ();
+      _attrStr.Dispose (); _attrStr.Clear ();
 
       _isectApi.clear ();
       _v8Context.Clear ();
@@ -328,6 +332,31 @@ dmz::JsExtV8RenderIsect::_get_params (V8Object obj, IsectParameters &params) {
       params.set_calculate_object_handle (v8_to_boolean (obj->Get (_objectStr), True));
       params.set_calculate_distance (v8_to_boolean (obj->Get (_distanceStr), True));
       params.set_calculate_cull_mode (v8_to_boolean (obj->Get (_cullStr), True));
+
+      V8Array attrArray = v8_to_array (obj->Get (_attrStr));
+
+      if (attrArray.IsEmpty () == false) {
+
+         HandleContainer attr;
+
+         const uint32_t Length = attrArray->Length ();
+
+         for (uint32_t ix = 0; ix < Length; ix++) {
+
+            V8Value value = attrArray->Get (v8::Integer::NewFromUnsigned (ix));
+
+            if (value.IsEmpty () == false) {
+
+               if (value->IsNumber ()) { attr.add_handle (value->Uint32Value ()); }
+               else if (value->IsString ()) {
+
+                  attr.add_handle (_defs.create_named_handle (v8_to_string (value)));
+               }
+            }
+         }
+
+         if (attr.get_count () > 0) { params.set_isect_attributes (attr); }
+      }
 
       result = True;
    }

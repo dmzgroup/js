@@ -32,6 +32,17 @@ Object.defineProperty(
    }
 );
 
+exports.randomInt = function (min, max) {
+
+   if (exports.isUndefined(max)) {
+
+      if (exports.isUndefined(min)) { max = 99; min = 0 ; }
+      else { max = min; min = 0 }
+   }
+
+   return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
 
 exports.radiansToDegrees = function (value) {
 
