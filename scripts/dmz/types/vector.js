@@ -121,6 +121,13 @@ Vector.prototype.setXYZ = function (x, y, z) {
 };
 
 
+Vector.prototype.magnitudeSquared = function () {
+
+   var result = (this.x * this.x) + (this.y * this.y) + (this.z * this.z);
+   return result > Epsilon ? result : 0.0;
+};
+
+
 Vector.prototype.magnitude = function () {
 
    var result = Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z));
