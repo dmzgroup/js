@@ -70,7 +70,8 @@ Matrix.prototype.toString = function () {
 
 Matrix.prototype.fromArray = function (values) {
 
-   var ix;
+   var ix
+     ;
 
    if (values.length >= 9) {
 
@@ -83,11 +84,14 @@ Matrix.prototype.fromArray = function (values) {
 
 Matrix.prototype.fromAxisAndAngle = function (axis, angle) {
 
-   var xyz = axis.normalize().toArray(),
-      xx = xyz[0], yy = xyz[1], zz = xyz[2],
-      AngleSin = Math.sin(angle),
-      AngleCos = Math.cos(angle),
-      OneMinusAngleCos = 1.0 - AngleCos;
+   var xyz = axis.normalize().toArray()
+     , xx = xyz[0]
+     , yy = xyz[1]
+     , zz = xyz[2]
+     , AngleSin = Math.sin(angle)
+     , AngleCos = Math.cos(angle)
+     , OneMinusAngleCos = 1.0 - AngleCos
+     ;
 
    this.v[0] =       (AngleCos) + (xx * xx * OneMinusAngleCos);
    this.v[1] = (-zz * AngleSin) + (xx * yy * OneMinusAngleCos);
@@ -103,10 +107,38 @@ Matrix.prototype.fromAxisAndAngle = function (axis, angle) {
 };
 
 
+Matrix.prototype.fromVector = function (vec) {
+
+   var hvec = vec.copy()
+     , pvec = vec.copy()
+     , hmat = exports.create()
+     , pmat = exports.create()
+     ;
+
+   hvec.y = 0;
+
+   if (!hvec.isZero()) {
+
+      hvec = hvec.normalize();
+      hmat.fromAxisAndAngle(vector.Up, vector.Forward.getSignedAngle(hvec));
+   }
+
+   pvec = hmat.transpose().transform(pvec);
+
+   if (!util.isZero(pvec.y)) {
+
+      pmat.fromAxisAndAngle(vector.Right, vector.Forward.getSignedAngle(pvec));
+   }
+
+   return hmat.multiply(pmat);
+};
+
+
 Matrix.prototype.fromTwoVectors = function (fromVec, toVec) {
 
-   var axis = fromVec.cross(toVec).normalize();
-   var angle = toVec.getAngle(fromVec);
+   var axis = fromVec.cross(toVec).normalize()
+     , angle = toVec.getAngle(fromVec)
+     ;
 
    return this.fromAxisAndAngle(axis, angle);
 };
