@@ -47,6 +47,12 @@ namespace dmz {
          class Download : protected ThreadFunction {
 
             public:
+               static size_t write_func (
+                  void *ptr,
+                  size_t size,
+                  size_t nmemb,
+                  void *stream);
+
                Download (const String &Address);
                virtual ~Download ();
 
@@ -65,12 +71,60 @@ namespace dmz {
                String _result;
          };
 
+         class Upload : protected ThreadFunction {
+
+            public:
+               static size_t write_func (
+                  void *ptr,
+                  size_t size,
+                  size_t nmemb,
+                  void *stream);
+
+               static size_t header_func (
+                  void *ptr,
+                  size_t size,
+                  size_t nmemb,
+                  void *stream);
+
+               static size_t read_func (
+                  void *ptr,
+                  size_t size,
+                  size_t nmemb,
+                  void *stream);
+
+               Upload (const String &Address, const String &Value);
+               virtual ~Upload ();
+
+               Boolean done ();
+
+               Upload *next;
+               V8FunctionPersist func;
+               V8ObjectPersist self;
+
+            protected:
+               virtual void run_thread_function ();
+
+               const String _Address;
+               const String _Value;
+               Int32 _place;
+               String _result;
+               String _error;
+               Boolean _done;
+         };
+ 
          static JsExtV8HTTPCurl *_to_self (const v8::Arguments &Args);
          static V8Value _http_download (const v8::Arguments &Args);
+         static V8Value _http_upload (const v8::Arguments &Args);
 
          void _add_download (
             const V8Object &Self,
             const String &Address,
+            const V8Function &Func);
+
+         void _add_upload (
+            const V8Object &Self,
+            const String &Address,
+            const String &Value,
             const V8Function &Func);
 
          void _init (Config &local);
@@ -85,6 +139,7 @@ namespace dmz {
          JsModuleV8 *_core;
 
          Download *_dlList;
+         Upload *_ulList;
 
       private:
          JsExtV8HTTPCurl ();

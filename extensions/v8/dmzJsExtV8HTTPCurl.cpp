@@ -4,6 +4,30 @@
 #include <dmzJsModuleV8.h>
 
 #include <curl/curl.h>
+#include <string.h>
+
+#include <qdb.h>
+static dmz::qdb out;
+
+
+size_t
+dmz::JsExtV8HTTPCurl::Download::write_func (
+      void *ptr,
+      size_t size,
+      size_t nmemb,
+      void *stream) {
+
+   dmz::String *buf = (dmz::String *)stream;
+
+   if (buf) {
+
+      dmz::String value ((char *)ptr, size * nmemb);
+      buf->append (value);
+   }
+
+   return size * nmemb;
+}
+
 
 dmz::JsExtV8HTTPCurl::Download::Download (const String &Address) :
       next (0),
@@ -19,6 +43,7 @@ dmz::JsExtV8HTTPCurl::Download::~Download ()  {
    if (func.IsEmpty () == false) { func.Dispose (); func.Clear (); }
    if (self.IsEmpty () == false) { self.Dispose (); self.Clear (); }
 }
+
 
 dmz::Boolean
 dmz::JsExtV8HTTPCurl::Download::done () {
@@ -49,25 +74,6 @@ dmz::JsExtV8HTTPCurl::Download::done () {
 }
 
 
-namespace {
-
-static size_t
-write_func (void *ptr, size_t size, size_t nmemb, void *stream) {
-
-   dmz::String *buf = (dmz::String *)stream;
-
-   if (buf) {
-
-      dmz::String value ((char *)ptr, size * nmemb);
-      buf->append (value);
-   }
-
-   return size * nmemb;
-}
-
-};
-
-
 void
 dmz::JsExtV8HTTPCurl::Download::run_thread_function () {
 
@@ -90,13 +96,162 @@ dmz::JsExtV8HTTPCurl::Download::run_thread_function () {
 }
 
 
+size_t
+dmz::JsExtV8HTTPCurl::Upload::write_func (
+      void *ptr,
+      size_t size,
+      size_t nmemb,
+      void *stream) {
+
+   dmz::String *buf = (dmz::String *)stream;
+
+   if (buf) {
+
+      dmz::String value ((char *)ptr, size * nmemb);
+      buf->append (value);
+   }
+
+   return size * nmemb;
+}
+
+
+size_t
+dmz::JsExtV8HTTPCurl::Upload::header_func (
+      void *ptr,
+      size_t size,
+      size_t nmemb,
+      void *stream) {
+
+   const size_t Result (size * nmemb);
+
+   String value ((char *)ptr, (Int32)Result);
+
+   (out << value).flush ();
+
+   return Result;
+}
+
+
+size_t
+dmz::JsExtV8HTTPCurl::Upload::read_func (
+      void *ptr,
+      size_t size,
+      size_t nmemb,
+      void *stream) {
+
+   size_t result (0);
+
+   const size_t OutSize = 6; size * nmemb;
+
+   Upload *ul = (Upload *)stream;
+
+   if (ul) {
+
+      const Int32 Remaining = ul->_Value.get_length () - ul->_place;
+
+      result = Remaining > OutSize ? OutSize : Remaining;
+
+      if (result > 0) {
+
+         memcpy (ptr, (void *)&(ul->_Value.get_buffer ()[ul->_place]), result);
+
+         ul->_place += result;
+      }
+   }
+
+   return result;
+}
+
+
+dmz::JsExtV8HTTPCurl::Upload::Upload (const String &Address, const String &Value) :
+      next (0),
+      _Address (Address),
+      _Value (Value),
+      _place (0),
+      _done (False) {
+
+   create_thread (*this);
+}
+
+
+dmz::JsExtV8HTTPCurl::Upload::~Upload ()  {
+
+   if (func.IsEmpty () == false) { func.Dispose (); func.Clear (); }
+   if (self.IsEmpty () == false) { self.Dispose (); self.Clear (); }
+}
+
+
+dmz::Boolean
+dmz::JsExtV8HTTPCurl::Upload::done () {
+
+   if (_done) {
+
+      if (func.IsEmpty () == false) {
+
+         v8::HandleScope scope;
+
+         if (!_error && (_place < (_Value.get_length () - 1))) {
+
+            _error = "Failed writing data.";
+         }
+
+         V8Value argv[] = {
+            (_result ? v8::String::New (_result.get_buffer ()) : v8::Undefined ()),
+            (_Address ? v8::String::New (_Address.get_buffer ()) : v8::Undefined ()),
+            (_error ? v8::String::New (_error.get_buffer ()) : v8::Undefined ())
+         };
+
+         v8::TryCatch tc;
+
+         func->Call (self, 3, argv);
+
+         if (tc.HasCaught ()) {
+
+            // Handle exception here.
+         }
+      }
+   }
+
+   return _done;
+}
+
+
+void
+dmz::JsExtV8HTTPCurl::Upload::run_thread_function () {
+
+   CURL *curl = curl_easy_init ();
+
+   if (curl) {
+
+      curl_easy_setopt (curl, CURLOPT_URL, _Address.get_buffer ());
+      curl_easy_setopt (curl, CURLOPT_WRITEFUNCTION, write_func);
+      curl_easy_setopt (curl, CURLOPT_WRITEDATA, (void *)&_result);
+      // curl_easy_setopt (curl, CURLOPT_HEADERFUNCTION, header_func);
+      curl_easy_setopt (curl, CURLOPT_READFUNCTION, read_func);
+      curl_easy_setopt (curl, CURLOPT_READDATA, (void *)this);
+      curl_easy_setopt (curl, CURLOPT_UPLOAD, 1L);
+      curl_easy_setopt (curl, CURLOPT_INFILESIZE, _Value.get_length ());
+
+      const CURLcode Code = curl_easy_perform (curl);
+
+      if (Code != 0) { _error = curl_easy_strerror (Code); }
+
+      curl_easy_cleanup (curl);
+      curl = 0;
+   }
+
+   _done = True;
+}
+
+
 dmz::JsExtV8HTTPCurl::JsExtV8HTTPCurl (const PluginInfo &Info, Config &local) :
       Plugin (Info),
       TimeSlice (Info),
       JsExtV8 (Info),
       _log (Info),
       _core (0),
-      _dlList (0) {
+      _dlList (0),
+      _ulList (0) {
 
    curl_global_init (CURL_GLOBAL_ALL);
 
@@ -149,10 +304,10 @@ dmz::JsExtV8HTTPCurl::discover_plugin (
 void
 dmz::JsExtV8HTTPCurl::update_time_slice (const Float64 DeltaTime) {
 
-   if (_dlList) {
+   v8::Context::Scope cscope (_v8Context);
+   v8::HandleScope scope;
 
-      v8::Context::Scope cscope (_v8Context);
-      v8::HandleScope scope;
+   if (_dlList) {
 
       Download *prev (0);
       Download *current (_dlList);
@@ -165,6 +320,28 @@ dmz::JsExtV8HTTPCurl::update_time_slice (const Float64 DeltaTime) {
             else { _dlList = current->next; }
 
             Download *tmp = current;
+
+            current = current->next;
+
+            delete tmp; tmp = 0;
+         }
+         else { current = current->next; }
+      }
+   }
+
+   if (_ulList) {
+
+      Upload *prev (0);
+      Upload *current (_ulList);
+
+      while (current) {
+
+         if (current->done ()) {
+
+            if (prev) { prev->next = current->next; }
+            else { _ulList = current->next; }
+
+            Upload *tmp = current;
 
             current = current->next;
 
@@ -248,7 +425,31 @@ dmz::JsExtV8HTTPCurl::_http_download (const v8::Arguments &Args) {
       self->_add_download (src, address, func);
 
       result = func;
-  }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8HTTPCurl::_http_upload (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsExtV8HTTPCurl *self = _to_self (Args);
+
+   if (self && Args[0]->IsObject ()) {
+
+      V8Object src = V8Object::Cast (Args[0]);
+      String address = v8_to_string (Args[1]);
+      String value = v8_to_string (Args[2]);
+      V8Function func = v8_to_function (Args[3]);
+
+      self->_add_upload (src, address, value, func);
+
+      result = func;
+   }
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -274,6 +475,26 @@ dmz::JsExtV8HTTPCurl::_add_download (
 
 
 void
+dmz::JsExtV8HTTPCurl::_add_upload (
+      const V8Object &Self,
+      const String &Address,
+      const String &Value,
+      const V8Function &Func) {
+
+   Upload *ul = new Upload (Address, Value);
+
+   if (ul) {
+
+      if (Self.IsEmpty () == false) { ul->self = V8ObjectPersist::New (Self); }
+      if (Func.IsEmpty () == false) { ul->func = V8FunctionPersist::New (Func); }
+
+      ul->next = _ulList;
+      _ulList = ul;
+   }
+}
+
+
+void
 dmz::JsExtV8HTTPCurl::_init (Config &local) {
 
    v8::HandleScope scope;
@@ -281,6 +502,7 @@ dmz::JsExtV8HTTPCurl::_init (Config &local) {
    _self = V8ValuePersist::New (v8::External::Wrap (this));
 
    _httpApi.add_function("download", _http_download, _self);
+   _httpApi.add_function("upload", _http_upload, _self);
 }
 
 
