@@ -1,0 +1,14 @@
+require 'lmkV8'
+
+lmkV8.set_name ("dmzJsExtV8HTTPCurl", {DMZ_USE_CURL = true})
+lmk.set_type "plugin"
+lmk.add_files {"dmzJsExtV8HTTPCurl.cpp",}
+lmk.add_libs {
+   "dmzJsV8Util",
+   "dmzKernel",
+}
+lmk.add_preqs {"dmzJsFramework",}
+lmkV8.add_libs ()
+lmk.add_vars {
+   localLibs = "$(DMZ_CURL_LIB)",
+}
