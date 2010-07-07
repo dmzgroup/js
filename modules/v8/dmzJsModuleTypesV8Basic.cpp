@@ -87,6 +87,7 @@ dmz::JsModuleTypesV8Basic::discover_plugin (
 v8::Handle<v8::Object>
 dmz::JsModuleTypesV8Basic::to_v8_vector (const Vector &Value) {
 
+   v8::Context::Scope cscope(_v8Context);
    v8::HandleScope scope;
 
    V8Object result;
@@ -113,6 +114,7 @@ dmz::JsModuleTypesV8Basic::to_v8_vector (const Vector &Value) {
 dmz::Vector
 dmz::JsModuleTypesV8Basic::to_dmz_vector (const v8::Handle<v8::Value> Value) {
 
+   v8::Context::Scope cscope(_v8Context);
    v8::HandleScope scope;
 
    Vector result;
@@ -144,6 +146,7 @@ dmz::JsModuleTypesV8Basic::to_dmz_vector (const v8::Handle<v8::Value> Value) {
 v8::Handle<v8::Object>
 dmz::JsModuleTypesV8Basic::to_v8_matrix (const Matrix &Value) {
 
+   v8::Context::Scope cscope(_v8Context);
    v8::HandleScope scope;
 
    v8::Handle<v8::Object> result;
@@ -180,6 +183,7 @@ dmz::JsModuleTypesV8Basic::to_v8_matrix (const Matrix &Value) {
 dmz::Matrix
 dmz::JsModuleTypesV8Basic::to_dmz_matrix (const v8::Handle<v8::Value> Value) {
 
+   v8::Context::Scope cscope(_v8Context);
    v8::HandleScope scope;
 
    Matrix result;
@@ -212,6 +216,7 @@ dmz::JsModuleTypesV8Basic::to_dmz_matrix (const v8::Handle<v8::Value> Value) {
 v8::Handle<v8::Object>
 dmz::JsModuleTypesV8Basic::to_v8_mask (const Mask &Value) {
 
+   v8::Context::Scope cscope(_v8Context);
    v8::HandleScope scope;
 
    v8::Handle<v8::Object> result;
@@ -245,6 +250,7 @@ dmz::JsModuleTypesV8Basic::to_v8_mask (const Mask &Value) {
 dmz::Mask
 dmz::JsModuleTypesV8Basic::to_dmz_mask (const v8::Handle<v8::Value> Value) {
 
+   v8::Context::Scope cscope(_v8Context);
    v8::HandleScope scope;
 
    Mask result;
@@ -289,6 +295,13 @@ dmz::JsModuleTypesV8Basic::update_js_module_v8 (const ModeEnum Mode, JsModuleV8 
 
       if (_core && (_core == &module)) { _core = 0; _clear (); } 
    }
+}
+
+
+void
+dmz::JsModuleTypesV8Basic::update_js_context_v8 (v8::Handle<v8::Context> context) {
+
+   _v8Context = context;
 }
 
 

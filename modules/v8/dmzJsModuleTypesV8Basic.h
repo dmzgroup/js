@@ -38,7 +38,7 @@ namespace dmz {
 
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
-         virtual void update_js_context_v8 (v8::Handle<v8::Context> context) {;}
+         virtual void update_js_context_v8 (v8::Handle<v8::Context> context);
          virtual void update_js_ext_v8_state (const StateEnum State);
 
       protected:
@@ -49,6 +49,9 @@ namespace dmz {
          Log _log;
 
          JsModuleV8 *_core;
+
+         v8::Handle<v8::Context> _v8Context;
+
          v8::Persistent<v8::Object> _mask;
          v8::Persistent<v8::Function> _maskCtor;
          v8::Persistent<v8::Object> _matrix;
