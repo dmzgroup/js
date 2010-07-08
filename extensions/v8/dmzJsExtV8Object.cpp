@@ -1846,10 +1846,7 @@ dmz::JsExtV8Object::_object_text (const v8::Arguments &Args) {
 
          const String Value = v8_to_string (Args[2]);
 
-         if (objMod->store_text (obj, attr, Value)) {
-
-            result = Args[2];
-         }
+         if (objMod->store_text (obj, attr, Value)) { result = Args[2]; }
       }
       else {
 
