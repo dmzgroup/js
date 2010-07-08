@@ -91,8 +91,8 @@ self.log.out (self.config.toString ("not-defined.value", "This is the default va
 var objList = self.config.get("obj");
 objList.forEach(function (cd) { self.log.out (cd.toString("value")); });
 var gv = ot.lookup("ground-vehicle");
-var ct = gv.getChildren();
-ct.forEach (function (type) { self.log.out(gv.getName(), "child =", type.getName()); });
+var ct = gv.children();
+ct.forEach (function (type) { self.log.out(gv.name(), "child =", type.name()); });
 self.log.out ("is undefine:", util.isUndefined (self.foo));
 
 var cb = time.setRepeatingTimer(self, 1, function () { puts("******* Hello World!!!"); });

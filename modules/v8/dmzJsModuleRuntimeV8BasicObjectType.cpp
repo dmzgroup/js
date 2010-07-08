@@ -237,7 +237,7 @@ dmz::JsModuleRuntimeV8Basic::_object_type_get_config (const v8::Arguments &Args)
 
    if (self) {
 
-      ObjectType *ptr = self->_to_object_type_ptr (Args[0]);
+      ObjectType *ptr = self->_to_object_type_ptr (Args.This ());
 
       if (ptr) {
 
@@ -316,12 +316,12 @@ dmz::JsModuleRuntimeV8Basic::_init_object_type () {
    v8::Handle<v8::ObjectTemplate> proto = _objTypeFuncTemplate->PrototypeTemplate ();
 
    proto->Set ("toString", v8::FunctionTemplate::New (_object_type_to_string, _self));
-   proto->Set ("getName", v8::FunctionTemplate::New (_object_type_get_name, _self));
-   proto->Set ("getHandle", v8::FunctionTemplate::New (_object_type_get_handle, _self));
-   proto->Set ("getParent", v8::FunctionTemplate::New (_object_type_get_parent, _self));
+   proto->Set ("name", v8::FunctionTemplate::New (_object_type_get_name, _self));
+   proto->Set ("handle", v8::FunctionTemplate::New (_object_type_get_handle, _self));
+   proto->Set ("parent", v8::FunctionTemplate::New (_object_type_get_parent, _self));
 
    proto->Set (
-      "getChildren",
+      "children",
       v8::FunctionTemplate::New (_object_type_get_children, _self));
 
    proto->Set ("isOfType", v8::FunctionTemplate::New (_object_type_is_of_type, _self));
@@ -330,7 +330,7 @@ dmz::JsModuleRuntimeV8Basic::_init_object_type () {
       "isOfExactType",
       v8::FunctionTemplate::New (_object_type_is_of_exact_type, _self));
 
-   proto->Set ("getConfig", v8::FunctionTemplate::New (_object_type_get_config, _self));
+   proto->Set ("config", v8::FunctionTemplate::New (_object_type_get_config, _self));
 
    _objTypeApi.add_function ("lookup", _object_type_lookup, _self);
    _objTypeApi.add_function ("isTypeOf", _object_type_is_type_of, _self);
