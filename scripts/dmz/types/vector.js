@@ -145,7 +145,7 @@ Vector.prototype.normalize = function () {
       div = 1 / mag;
    }
 
-   return this.multiplyConst (div);
+   return this.multiply (div);
 };
 
 
@@ -191,10 +191,13 @@ Vector.prototype.subtract = function (vec) {
 };
 
 
-Vector.prototype.multiplyConst = function (k) {
+Vector.prototype.multiply = function (k) {
 
    return this.create().setXYZ(this.x * k, this.y * k, this.z * k);
 };
+
+
+Vector.prototype.multiplyConst = Vector.prototype.multiply;
 
 
 Vector.prototype.dot = function (vec) {
