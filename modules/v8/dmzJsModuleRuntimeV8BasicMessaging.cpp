@@ -161,8 +161,8 @@ dmz::JsModuleRuntimeV8Basic::_message_global_subscribe (const v8::Arguments &Arg
 
    if (self && self->_core && (Args.Length () >= 2)) {
 
-      const String MsgName = v8_to_string (Args[0]);
-      V8Object obj = v8_to_object (Args[1]);
+      V8Object obj = v8_to_object (Args[0]);
+      const String MsgName = v8_to_string (Args[1]);
 
       const Handle ObsHandle = self->_core->get_instance_handle (obj);
       const String Name = self->_core->get_instance_name (obj);;
