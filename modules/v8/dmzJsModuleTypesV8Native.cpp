@@ -35,7 +35,6 @@ local_delete_vector (v8::Persistent<v8::Value> object, void *param) {
 
       dmz::Vector *ptr = (dmz::Vector *)param;
       delete ptr; ptr = 0;
-      v8::V8::AdjustAmountOfExternalAllocatedMemory (-sizeof (dmz::Vector));
    }
 
    object.Dispose (); object.Clear ();
@@ -107,7 +106,6 @@ dmz::JsModuleTypesV8Native::to_v8_vector (const Vector &Value) {
    V8Object result = _vectorCtor->NewInstance ();
 
    result->SetPointerInInternalField (0, new Vector (Value));
-   v8::V8::AdjustAmountOfExternalAllocatedMemory (sizeof (dmz::Vector));
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -324,7 +322,6 @@ dmz::JsModuleTypesV8Native::_vector_create (const v8::Arguments &Args) {
       V8Object vec = self->_vectorCtor->NewInstance ();
       Vector *ptr = new Vector;
       vec->SetPointerInInternalField (0, (void *)ptr);
-      v8::V8::AdjustAmountOfExternalAllocatedMemory (sizeof (dmz::Vector));
 
       V8ObjectPersist weak = V8ObjectPersist::New (vec);
       weak.MakeWeak ((void *)ptr, local_delete_vector);

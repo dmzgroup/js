@@ -22,7 +22,6 @@ local_message_delete (v8::Persistent<v8::Value> object, void *param) {
 
       Message *ptr = (Message *)param;
       delete ptr; ptr = 0;
-      v8::V8::AdjustAmountOfExternalAllocatedMemory (-sizeof (Message));
    }
 
    object.Dispose (); object.Clear ();
@@ -462,7 +461,6 @@ dmz::JsModuleRuntimeV8Basic::create_v8_message (const String &Name) {
          if (ptr) { _defs.create_message (Name, *ptr); }
 
          result->SetInternalField (0, v8::External::Wrap ((void *)ptr));
-         v8::V8::AdjustAmountOfExternalAllocatedMemory (sizeof (Message));
 
          v8::Persistent<v8::Object> persist = v8::Persistent<v8::Object>::New (result);
          persist.MakeWeak ((void *)ptr, local_message_delete);
