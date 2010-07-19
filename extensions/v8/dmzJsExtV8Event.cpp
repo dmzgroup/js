@@ -787,7 +787,7 @@ dmz::JsExtV8Event::_event_counter (const v8::Arguments &Args) {
 
          if (self->_event->store_counter (event, attr, Value)) {
 
-            result = v8::Integer::New (Value);
+            result = v8::Integer::New ((int32_t)Value);
          }
       }
       else {
@@ -796,7 +796,7 @@ dmz::JsExtV8Event::_event_counter (const v8::Arguments &Args) {
 
          if (self->_event->lookup_counter (event, attr, value)) {
 
-            result = v8::Integer::New (value);
+            result = v8::Integer::New ((int32_t)value);
          }
       }
    }
