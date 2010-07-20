@@ -163,7 +163,7 @@ dmz::JsModuleRuntimeV8Basic::_object_type_get_children (const v8::Arguments &Arg
 
       if (ptr) {
 
-         ObjectTypeIterator it;
+         RuntimeIterator it;
          ObjectType next;
 
          Int32 count (0);

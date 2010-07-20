@@ -315,11 +315,11 @@ dmz::JsModuleRuntimeV8Basic::_message_send (const v8::Arguments &Args) {
          if (Args.Length () == 1) {
 
             inData = self->_to_data_ptr (Args[0]);
-            if (!inData) { target = v8_to_handle (Args[0]); }
+            if (!inData) { target = self->_to_handle (Args[0]); }
          }
          else if (Args.Length () > 1) {
 
-            target = v8_to_handle (Args[0]);
+            target = self->_to_handle (Args[0]);
             inData = self->_to_data_ptr (Args[1]);
             outData = self->_to_data_ptr (Args[2]);
          }

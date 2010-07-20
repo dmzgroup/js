@@ -163,7 +163,7 @@ dmz::JsModuleRuntimeV8Basic::_event_type_get_children (const v8::Arguments &Args
 
       if (ptr) {
 
-         EventTypeIterator it;
+         RuntimeIterator it;
          EventType next;
 
          Int32 count (0);
