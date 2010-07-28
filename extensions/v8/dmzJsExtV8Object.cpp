@@ -2139,8 +2139,6 @@ dmz::JsExtV8Object::update_js_ext_v8_state (const StateEnum State) {
    }
    else if (State == JsExtV8::Shutdown) {
 
-      _objectApi.clear ();
-
       ObjectModule *objMod = get_object_module ();
 
       if (objMod) {
@@ -2160,6 +2158,8 @@ dmz::JsExtV8Object::update_js_ext_v8_state (const StateEnum State) {
          deactivate_all_object_attributes ();
          activate_object_attribute (_hilAttr, ObjectFlagMask);
       }
+
+      _objectApi.clear ();
 
       _v8Context.Clear ();
    }
