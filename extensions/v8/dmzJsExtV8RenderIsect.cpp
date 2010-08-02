@@ -347,10 +347,10 @@ dmz::JsExtV8RenderIsect::_get_params (V8Object obj, IsectParameters &params) {
 
             if (value.IsEmpty () == false) {
 
-               if (value->IsNumber ()) { attr.add_handle (value->Uint32Value ()); }
+               if (value->IsNumber ()) { attr.add (value->Uint32Value ()); }
                else if (value->IsString ()) {
 
-                  attr.add_handle (_defs.create_named_handle (v8_to_string (value)));
+                  attr.add (_defs.create_named_handle (v8_to_string (value)));
                }
             }
          }

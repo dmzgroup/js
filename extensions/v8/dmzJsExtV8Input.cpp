@@ -139,8 +139,8 @@ dmz::JsExtV8Input::update_js_ext_v8_state (const StateEnum State) {
 void
 dmz::JsExtV8Input::update_channel_state (const Handle Channel, const Boolean State) {
 
-   if (State) { _active.add_handle (Channel); }
-   else { _active.remove_handle (Channel); }
+   if (State) { _active.add (Channel); }
+   else { _active.remove (Channel); }
 
    CallbackTable *ct = _stateTable.lookup (Channel);
 
@@ -883,7 +883,7 @@ dmz::JsExtV8Input::_do_callback (
          V8Object localSelf = v8::Local<v8::Object>::New (cb->self);
          V8Function localFunc = v8::Local<v8::Function>::New (cb->func);
 
-         called.add_handle (it.get_hash_key ());
+         called.add (it.get_hash_key ());
          v8::TryCatch tc;
 
          argv[Argc - 1] = localSelf;

@@ -485,7 +485,7 @@ dmz::JsExtV8Object::_object_create (const v8::Arguments &Args) {
 
          if (object && (locality == ObjectLocal)) {
 
-            self->_localObjects.add_handle (object);
+            self->_localObjects.add (object);
          }
 
          result = v8::Integer::New (object);
@@ -591,7 +591,7 @@ dmz::JsExtV8Object::_object_make_persistent (const v8::Arguments &Args) {
 
    if (self && Object) {
 
-      result = v8::Boolean::New (self->_localObjects.remove_handle (Object));
+      result = v8::Boolean::New (self->_localObjects.remove (Object));
    }
 
    return result.IsEmpty () ? result : scope.Close (result);

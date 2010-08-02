@@ -349,7 +349,7 @@ dmz::JsModuleV8Basic::require (const String &Value) {
                V8Function func = v8_to_function (value);
 
                if (func.IsEmpty ()) {
-                  // Error! no function returned.
+
                   _log.error << "No function returned from: " << scriptPath << endl;
                }
                else {
@@ -393,7 +393,7 @@ dmz::JsModuleV8Basic::get_require_list (StringContainer &list) {
    HashTableStringIterator it;
    V8ObjectPersist *ptr (0);
 
-   while (_requireTable.get_next (it, ptr)) { list.append (it.get_hash_key ()); }
+   while (_requireTable.get_next (it, ptr)) { list.add (it.get_hash_key ()); }
 }
 
 
