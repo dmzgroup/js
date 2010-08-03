@@ -2137,7 +2137,7 @@ dmz::JsExtV8Object::update_js_ext_v8_state (const StateEnum State) {
    else if (State == JsExtV8::Init) {
 
    }
-   else if (State == JsExtV8::Shutdown) {
+   else if (State == JsExtV8::Stop) {
 
       ObjectModule *objMod = get_object_module ();
 
@@ -2150,14 +2150,17 @@ dmz::JsExtV8Object::update_js_ext_v8_state (const StateEnum State) {
 
             objMod->destroy_object (object);
          }
-
-         _localObjects.clear ();
-
-         _obsTable.empty ();
-
-         deactivate_all_object_attributes ();
-         activate_object_attribute (_hilAttr, ObjectFlagMask);
       }
+
+      deactivate_all_object_attributes ();
+   }
+   else if (State == JsExtV8::Shutdown) {
+
+      _localObjects.clear ();
+
+      _obsTable.empty ();
+
+      activate_object_attribute (_hilAttr, ObjectFlagMask);
 
       _objectApi.clear ();
 

@@ -128,13 +128,16 @@ dmz::JsExtV8Event::update_js_ext_v8_state (const StateEnum State) {
    else if (State == JsExtV8::Init) {
 
    }
+   else if (State == JsExtV8::Stop) {
+
+      deactivate_all_event_callbacks ();
+   }
    else if (State == JsExtV8::Shutdown) {
 
       _eventApi.clear ();
       _obsTable.empty ();
       _createTable.empty ();
       _closeTable.empty ();
-      deactivate_all_event_callbacks ();
       _v8Context.Clear ();
    }
 }

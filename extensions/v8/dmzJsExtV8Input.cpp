@@ -107,9 +107,11 @@ dmz::JsExtV8Input::update_js_ext_v8_state (const StateEnum State) {
       _stateStr = V8StringPersist::New (v8::String::NewSymbol ("state"));
 
    }
-   else if (State == JsExtV8::Shutdown) {
+   else if (State == JsExtV8::Stop) {
 
       deactivate_all_input_channels ();
+   }
+   else if (State == JsExtV8::Shutdown) {
 
       _sourceStr.Dispose (); _sourceStr.Clear ();
       _idStr.Dispose (); _idStr.Clear ();

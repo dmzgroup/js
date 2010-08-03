@@ -18,6 +18,7 @@ namespace dmz {
          enum StateEnum {
             Register,
             Init,
+            Stop,
             Shutdown,
          };
 

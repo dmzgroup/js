@@ -209,6 +209,7 @@ dmz::JsModuleV8Basic::discover_plugin (
 
          if (!_shutdown) {
 
+            ext->update_js_ext_v8_state (JsExtV8::Stop);
             ext->update_js_ext_v8_state (JsExtV8::Shutdown);
          }
 
@@ -694,6 +695,13 @@ dmz::JsModuleV8Basic::_shutdown_ext () {
 
       HashTableHandleIterator it;
       JsExtV8 *ext (0);
+
+      while (_extTable.get_next (it, ext)) {
+
+         ext->update_js_ext_v8_state (JsExtV8::Stop);
+      }
+
+      it.reset ();
 
       while (_extTable.get_next (it, ext)) {
 

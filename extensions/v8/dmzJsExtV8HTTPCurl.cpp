@@ -382,7 +382,7 @@ dmz::JsExtV8HTTPCurl::update_js_ext_v8_state (const StateEnum State) {
    else if (State == JsExtV8::Init) {
 
    }
-   else if (State == JsExtV8::Shutdown) {
+   else if (State == JsExtV8::Stop) {
 
       Download *current (_dlList);
 
@@ -400,6 +400,8 @@ dmz::JsExtV8HTTPCurl::update_js_ext_v8_state (const StateEnum State) {
 
          current = current->next;
       }
+   }
+   else if (State == JsExtV8::Shutdown) {
 
       _httpApi.clear ();
       _v8Context.Clear ();
