@@ -115,6 +115,7 @@ namespace dmz {
          void _init_context ();
          void _init_builtins ();
          void _init_ext ();
+         void _stop_ext ();
          void _shutdown_ext ();
          void _load_scripts ();
          ScriptStruct *_find_script (Config &script);

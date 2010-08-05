@@ -171,6 +171,7 @@ dmz::JsModuleV8Basic::update_plugin_state (
    else if (State == PluginStateShutdown) {
 
       _shutdown = True;
+      _stop_ext ();
       _release_instances ();
       _shutdown_ext ();
    }
@@ -247,6 +248,7 @@ dmz::JsModuleV8Basic::update_time_slice (const Float64 DeltaTime) {
 
    if (_reset) {
 
+      _stop_ext ();
       _release_instances ();
       _shutdown_ext ();
       _init_context ();
@@ -687,7 +689,7 @@ dmz::JsModuleV8Basic::_init_ext () {
 
 
 void
-dmz::JsModuleV8Basic::_shutdown_ext () {
+dmz::JsModuleV8Basic::_stop_ext () {
 
    if (_context.IsEmpty () == false) {
 
@@ -700,8 +702,19 @@ dmz::JsModuleV8Basic::_shutdown_ext () {
 
          ext->update_js_ext_v8_state (JsExtV8::Stop);
       }
+   }
+}
 
-      it.reset ();
+
+void
+dmz::JsModuleV8Basic::_shutdown_ext () {
+
+   if (_context.IsEmpty () == false) {
+
+      v8::HandleScope scope;
+
+      HashTableHandleIterator it;
+      JsExtV8 *ext (0);
 
       while (_extTable.get_next (it, ext)) {
 
