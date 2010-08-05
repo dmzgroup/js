@@ -500,6 +500,26 @@ void
 dmz::JsModuleRuntimeV8Basic::_reset_messaging () { _msgTable.empty (); }
 
 
+void
+dmz::JsModuleRuntimeV8Basic::_release_message_observer (const Handle InstanceHandle) {
+
+   MessageStruct *ms = _msgTable.lookup (InstanceHandle);
+
+   if (ms) {
+
+      if (_v8Context.IsEmpty () == false) {
+
+         v8::Context::Scope cscope (_v8Context);
+
+         ms->cbTable.empty ();
+         ms->unsubscribe_to_all_messages ();
+      }
+
+      delete ms; ms = 0;
+   }
+}
+
+
 dmz::Message *
 dmz::JsModuleRuntimeV8Basic::_to_message_ptr (V8Value value) {
 

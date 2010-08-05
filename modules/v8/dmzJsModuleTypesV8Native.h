@@ -43,6 +43,11 @@ namespace dmz {
          virtual void update_js_context_v8 (v8::Handle<v8::Context> context) {;}
          virtual void update_js_ext_v8_state (const StateEnum State);
 
+         virtual void release_js_instance_v8 (
+            const Handle InstanceHandle,
+            const String &InstanceName,
+            v8::Handle<v8::Object> &instance);
+
       protected:
          static JsModuleTypesV8Native *_to_self (const v8::Arguments &Args);
          static Vector *_to_vector (const V8Object &Obj);

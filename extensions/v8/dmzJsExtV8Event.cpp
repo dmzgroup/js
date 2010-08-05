@@ -143,6 +143,30 @@ dmz::JsExtV8Event::update_js_ext_v8_state (const StateEnum State) {
 }
 
 
+void
+dmz::JsExtV8Event::release_js_instance_v8 (
+      const Handle InstanceHandle,
+      const String &InstanceName,
+      v8::Handle<v8::Object> &instance) {
+
+   ObsStruct *os = _obsTable.remove (InstanceHandle);
+
+   if (os) {
+
+      if (_v8Context.IsEmpty () == false) {
+
+         v8::Context::Scope cscope (_v8Context);
+
+         V8Function func;
+         _release_callback (EventCreateMask, InstanceHandle, os->create, func);
+         _release_callback (EventCloseMask, InstanceHandle, os->close, func);
+      }
+
+      delete os; os = 0;
+   }
+}
+
+
 dmz::Boolean
 dmz::JsExtV8Event::_to_event (
       const v8::Arguments &Args,

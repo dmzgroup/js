@@ -200,6 +200,16 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
 }
 
 
+void
+dmz::JsModuleRuntimeV8Basic::release_js_instance_v8 (
+      const Handle InstanceHandle,
+      const String &InstanceName,
+      v8::Handle<v8::Object> &instance) {
+
+   _release_message_observer (InstanceHandle);
+}
+
+
 // JsModuleRuntimeV8Basic Interface
 void
 dmz::JsModuleRuntimeV8Basic::handle_v8_exception (v8::TryCatch &tc) {

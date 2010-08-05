@@ -305,6 +305,15 @@ dmz::JsModuleTypesV8Native::update_js_ext_v8_state (const StateEnum State) {
 }
 
 
+void
+dmz::JsModuleTypesV8Native::release_js_instance_v8 (
+      const Handle InstanceHandle,
+      const String &InstanceName,
+      v8::Handle<v8::Object> &instance) {
+
+}
+
+
 // JsModuleTypesV8Native Interface
 
 

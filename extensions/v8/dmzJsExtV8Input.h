@@ -44,6 +44,11 @@ namespace dmz {
          virtual void update_js_context_v8 (v8::Handle<v8::Context> context);
          virtual void update_js_ext_v8_state (const StateEnum State);
 
+         virtual void release_js_instance_v8 (
+            const Handle InstanceHandle,
+            const String &InstanceName,
+            v8::Handle<v8::Object> &instance);
+
          // Input Observer Interface
          virtual void update_channel_state (const Handle Channel, const Boolean State);
 

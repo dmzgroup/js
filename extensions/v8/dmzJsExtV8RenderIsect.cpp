@@ -132,6 +132,16 @@ dmz::JsExtV8RenderIsect::update_js_ext_v8_state (const StateEnum State) {
 }
 
 
+void
+dmz::JsExtV8RenderIsect::release_js_instance_v8 (
+      const Handle InstanceHandle,
+      const String &InstanceName,
+      v8::Handle<v8::Object> &instance) {
+
+   // Nothing to release.
+}
+
+
 dmz::V8Value
 dmz::JsExtV8RenderIsect::_isect_do_isect (const v8::Arguments &Args) {
 

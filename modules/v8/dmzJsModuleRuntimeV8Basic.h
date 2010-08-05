@@ -60,6 +60,11 @@ namespace dmz {
          virtual void update_js_context_v8 (v8::Handle<v8::Context> context);
          virtual void update_js_ext_v8_state (const StateEnum State);
 
+         virtual void release_js_instance_v8 (
+            const Handle InstanceHandle,
+            const String &InstanceName,
+            v8::Handle<v8::Object> &instance);
+
          // JsModuleRuntimeV8Basic Interface
          void handle_v8_exception (v8::TryCatch &tc);
          // implemented in dmzJsModuleRuntimeV8BasicTimer.cpp
@@ -185,6 +190,7 @@ namespace dmz {
          // implemented in dmzJsModuleRuntimeV8BasicMessaging.cpp
          void _init_messaging ();
          void _reset_messaging ();
+         void _release_message_observer (const Handle InstanceHandle);
          Message * _to_message_ptr (V8Value value);
          // implemented in dmzJsModuleRuntimeV8BasicLog.cpp
          void _init_log ();

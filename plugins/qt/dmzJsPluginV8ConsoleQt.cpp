@@ -438,6 +438,15 @@ dmz::JsPluginV8ConsoleQt::update_js_ext_v8_state (const StateEnum State) {
 }
 
 
+void
+dmz::JsPluginV8ConsoleQt::release_js_instance_v8 (
+      const Handle InstanceHandle,
+      const String &InstanceName,
+      v8::Handle<v8::Object> &instance) {
+
+}
+
+
 // JsPluginV8ConsoleQt Inteface
 void
 dmz::JsPluginV8ConsoleQt::append (const String &Str) {

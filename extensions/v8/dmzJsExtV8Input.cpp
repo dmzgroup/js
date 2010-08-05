@@ -137,6 +137,23 @@ dmz::JsExtV8Input::update_js_ext_v8_state (const StateEnum State) {
 }
 
 
+void
+dmz::JsExtV8Input::release_js_instance_v8 (
+      const Handle InstanceHandle,
+      const String &InstanceName,
+      v8::Handle<v8::Object> &instance) {
+
+   ObsStruct *os = _obsTable.remove (InstanceHandle);
+
+   if (os) {
+
+      while (os->list && _release_callback (os->list->self, os->list->func)) {;}
+
+      delete os; os = 0;
+   }
+}
+
+
 // Input Observer Interface
 void
 dmz::JsExtV8Input::update_channel_state (const Handle Channel, const Boolean State) {
@@ -792,7 +809,12 @@ dmz::JsExtV8Input::_delete_callback (const Handle Obs, CallbackTable &ct) {
 
    if (cb) {
 
-      delete cb; cb = 0;
+      if (_v8Context.IsEmpty () == false) {
+
+         v8::Context::Scope cscope (_v8Context);
+
+         delete cb; cb = 0;
+      }
 
       if (!ct.Type.contains (InputEventChannelStateMask) &&
             (ct.table.get_count () == 0)) {

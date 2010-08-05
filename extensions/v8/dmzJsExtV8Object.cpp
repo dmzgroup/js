@@ -2169,6 +2169,28 @@ dmz::JsExtV8Object::update_js_ext_v8_state (const StateEnum State) {
 }
 
 
+void
+dmz::JsExtV8Object::release_js_instance_v8 (
+      const Handle InstanceHandle,
+      const String &InstanceName,
+      v8::Handle<v8::Object> &instance) {
+
+   ObsStruct *os = _obsTable.remove (InstanceHandle);
+
+   if (os) {
+
+      if (_v8Context.IsEmpty () == false) {
+
+         v8::Context::Scope cscope (_v8Context);
+
+         while (os->list) { _remove_callback (*os, os->list->func); }
+      }
+
+      delete os; os = 0;
+   }
+}
+
+
 // TimeSlice Interface
 void
 dmz::JsExtV8Object::update_time_slice (const Float64 TimeDelta) {
