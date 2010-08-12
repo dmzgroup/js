@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmz>
+<plugin-list>
+   <plugin name="dmzJsModuleV8Basic" scope="javascript"/>
+   <plugin name="dmzJsModuleTypesV8Basic" scope="javascript"/>
+   <plugin name="dmzJsModuleRuntimeV8Basic" scope="javascript"/>
+   <plugin name="dmzJsPluginV8ConsoleQt" scope="javascript"/>
+   <plugin name="dmzJsExtV8Qt" scope="javascript"/>
+   <!-- <plugin name="dmzJsExtV8Input" scope="javascript"/> -->
+   <!-- <plugin name="dmzJsExtV8Event" scope="javascript"/> -->
+   <!-- <plugin name="dmzJsExtV8EventCommon" scope="javascript"/> -->
+   <!-- <plugin name="dmzJsExtV8Object" scope="javascript"/> -->
+   <!-- <plugin name="dmzJsExtV8Portal" scope="javascript"/> -->
+   <!-- <plugin name="dmzJsExtV8RenderIsect" scope="javascript"/> -->
+   <!-- <plugin name="dmzJsExtV8RenderOverlay" scope="javascript"/> -->
+</plugin-list>
+<javascript>
+   <path value="./scripts"/>
+   <path value="../../scripts"/>
+   <instance name="test"/>
+</javascript>
+<test>
+   <name value="my_name"/>
+</test>
+</dmz>
+

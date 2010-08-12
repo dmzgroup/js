@@ -1,0 +1,19 @@
+require "lmkV8"
+require "lmkQt"
+
+lmkV8.set_name "dmzJsExtV8Qt"
+
+lmk.set_type "plugin"
+lmk.add_files {"dmzJsExtV8Qt.cpp",}
+lmk.add_libs {
+   "dmzJsV8Util",
+   "dmzKernel",
+}
+lmk.add_preqs {
+   "dmzJsFramework",
+   "dmzRenderFramework",
+   "dmzAudioFramework",
+}
+lmkV8.add_libs ()
+lmkQt.add_libs {"QtCore", "QtGui"}
+lmkQt.add_uitools ()
