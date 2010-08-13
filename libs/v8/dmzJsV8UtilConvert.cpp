@@ -22,3 +22,21 @@ dmz::v8_to_array (HandleContainer &container) {
    return scope.Close (result);
 }
 
+
+dmz::String
+dmz::v8_type (V8Value value) {
+
+   String result ("unknown");
+
+   if (value.IsEmpty () || value->IsUndefined ()) { result = "undefined"; }
+   else if (value->IsNull ()) { result = "null"; }
+   else if (value->IsBoolean ()) { result = "boolean"; }
+   else if (value->IsDate ()) { result = "date"; }
+   else if (value->IsNumber ()) { result = "number"; }
+   else if (value->IsFunction ()) { result = "function"; }
+   else if (value->IsArray ()) { result = "array"; }
+   else if (value->IsObject ()) { result = "object"; }
+
+   return result;
+}
+
