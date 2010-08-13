@@ -53,7 +53,7 @@ self->_log.warn << "_uiloader_load: " << Name << endl;
       result = self->_create_v8_widget (widget);
    }
 
-   return result.IsEmpty () ? result : scope.Close (result);
+   return scope.Close (result);
 }
 
 
@@ -204,7 +204,7 @@ dmz::JsExtV8Qt::_create_v8_widget (QWidget *widget) {
       }
    }
 
-   return result.IsEmpty () ? result : scope.Close (result);
+   return scope.Close (result);
 }
 
 
