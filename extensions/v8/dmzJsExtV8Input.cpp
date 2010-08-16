@@ -727,6 +727,19 @@ dmz::JsExtV8Input::_register_callback (const v8::Arguments &Args, const Mask &Ty
 
                   activate_input_channel (channel, Type | InputEventChannelStateMask);
                }
+               else if ((Type & InputEventChannelStateMask) &&
+                     _active.contains (channel)) {
+
+                  const int Argc (3);
+                  V8Value argv[Argc];
+                  argv[0] = v8::Integer::New (channel);
+                  argv[1] = v8::Boolean::New (true);
+                  CallbackTable tmp (channel, Type);
+                  tmp.table.store (Obs, cb);
+                  HandleContainer called;
+                  _do_callback (Argc, argv, tmp, called);
+                  tmp.table.remove (Obs);
+               }
             }
             else { delete cb; cb = 0; }
          }
