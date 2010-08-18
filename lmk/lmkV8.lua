@@ -20,7 +20,7 @@ function add_libs ()
    local buildMode = resolve ("$(lmk.buildMode)")
    if buildMode == "debug" then
       libDebug = resolve ("$(DMZ_V8_DEBUG)")
-      if libDebug == "" then libDebug = "_g" end
+--      if libDebug == "" then libDebug = "_g" end
    end
    if sys == "win32" then
       lmk.add_vars {
