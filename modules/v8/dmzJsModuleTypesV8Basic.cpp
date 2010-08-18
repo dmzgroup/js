@@ -64,7 +64,6 @@ dmz::JsModuleTypesV8Basic::update_plugin_state (
    }
    else if (State == PluginStateShutdown) {
 
-      _clear ();
    }
 }
 

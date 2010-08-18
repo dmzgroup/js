@@ -28,6 +28,7 @@ dmz::JsModuleRuntimeV8Basic::JsModuleRuntimeV8Basic (
 
 dmz::JsModuleRuntimeV8Basic::~JsModuleRuntimeV8Basic () {
 
+   _self.Dispose (); _self.Clear ();
 }
 
 
@@ -48,7 +49,6 @@ dmz::JsModuleRuntimeV8Basic::update_plugin_state (
    }
    else if (State == PluginStateShutdown) {
 
-      _self.Dispose (); _self.Clear ();
    }
 }
 
