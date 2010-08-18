@@ -254,6 +254,9 @@ Vector.prototype.isZero = function () {
 
 
 util.defineConst(exports, "Forward", exports.create(0, 0, -1));
+util.defineConst(exports, "Backward", exports.create(0, 0, 1));
 util.defineConst(exports, "Right", exports.create(1, 0, 0));
+util.defineConst(exports, "Left", exports.create(-1, 0, 0));
 util.defineConst(exports, "Up", exports.create(0, 1, 0));
+util.defineConst(exports, "Down", exports.create(0, -1, 0));
 
