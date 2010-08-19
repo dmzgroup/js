@@ -48,7 +48,7 @@ p, li { white-space: pre-wrap; }
     </spacer>
    </item>
    <item>
-    <widget class="QPushButton" name="quitButton">
+    <widget class="QPushButton" name="button1">
      <property name="text">
       <string>Bye</string>
      </property>
