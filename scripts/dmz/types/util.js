@@ -3,34 +3,31 @@ var ToDegrees = 180 / Math.PI
   ;
 
 
-Object.defineProperty(
-   exports,
-   "Epsilon",
-   {
-      get: function () { return 0.000000001; },
-      set: function () { throw new Error("Attempting to set constant value Epsilon."); }
+exports.defineConst = function (target, name, value) {
+
+   var type = typeof value;
+
+   if (value && ((type === 'Object') || (type === 'Function'))) {
+
+      Object.freeze(value);
    }
-);
+
+   Object.defineProperty(
+      target,
+      name,
+      { get: function () { return value; }
+      , set: function () {
+
+           return new Error("Attempting to set constant value " + name + ".");
+        }
+      });
+};
 
 
-Object.defineProperty(
-   exports,
-   "ToDegrees",
-   {
-      get: function () { return ToDegrees; },
-      set: function () { throw new Error("Attempting to set constant value ToDegrees."); }
-   }
-);
+exports.defineConst(exports, "Epsilon", 0.000000001);
+exports.defineConst(exports, "ToDegrees", ToDegrees);
+exports.defineConst(exports, "ToRadians", ToRadians);
 
-
-Object.defineProperty(
-   exports,
-   "ToRadians",
-   {
-      get: function () { return ToRadians; },
-      set: function () { throw new Error("Attempting to set constant value ToRadians."); }
-   }
-);
 
 exports.randomInt = function (min, max) {
 

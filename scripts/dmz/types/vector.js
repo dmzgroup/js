@@ -4,35 +4,7 @@ var util = require('dmz/types/util')
   , Vector = function () { this.x = 0; this.y = 0; this.z = 0; }
   ;
 
-Object.defineProperty(
-   exports,
-   "Forward",
-   {
-      get: function () { return exports.create(0, 0, -1); },
-      set: function () { throw new Error("Attempting to set constant value Forward."); }
-   }
-);
-
-
-Object.defineProperty(
-   exports,
-   "Right",
-   {
-      get: function () { return exports.create(1, 0, 0); },
-      set: function () { throw new Error("Attempting to set constant value Right."); }
-   }
-);
-
-
-Object.defineProperty(
-   exports,
-   "Up",
-   {
-      get: function () { return exports.create(0, 1, 0); },
-      set: function () { throw new Error("Attempting to set constant value Up."); }
-   }
-);
-
+// NOTE: Constants are defined at the end of the file.
 
 exports.isTypeOf = function (value) {
 
@@ -49,7 +21,6 @@ exports.create = function () {
 
 
 Vector.prototype.create = exports.create;
-
 
 Vector.prototype.copy = function () {
 
@@ -280,3 +251,12 @@ Vector.prototype.isZero = function () {
 
    return util.isZero(this.magnitude());
 };
+
+
+util.defineConst(exports, "Forward", exports.create(0, 0, -1));
+util.defineConst(exports, "Backward", exports.create(0, 0, 1));
+util.defineConst(exports, "Right", exports.create(1, 0, 0));
+util.defineConst(exports, "Left", exports.create(-1, 0, 0));
+util.defineConst(exports, "Up", exports.create(0, 1, 0));
+util.defineConst(exports, "Down", exports.create(0, -1, 0));
+

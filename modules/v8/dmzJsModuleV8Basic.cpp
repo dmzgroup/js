@@ -693,6 +693,7 @@ dmz::JsModuleV8Basic::_stop_ext () {
 
    if (_context.IsEmpty () == false) {
 
+      v8::Context::Scope cscope (_context);
       v8::HandleScope scope;
 
       HashTableHandleIterator it;
@@ -711,6 +712,7 @@ dmz::JsModuleV8Basic::_shutdown_ext () {
 
    if (_context.IsEmpty () == false) {
 
+      v8::Context::Scope cscope (_context);
       v8::HandleScope scope;
 
       HashTableHandleIterator it;
