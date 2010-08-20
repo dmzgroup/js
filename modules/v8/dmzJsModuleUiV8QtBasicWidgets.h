@@ -2,54 +2,64 @@
 #define DMZ_JS_MODULE_UI_V8_QT_BASIC_WIDGETS_DOT_H
 
 #include <dmzJsV8UtilTypes.h>
+#include <dmzTypes.h>
 #include <QtCore/QObject>
+#include <QtCore/QList>
 #include <v8.h>
 
 
 namespace dmz {
 
-   class V8QtObserver : public QObject {
-      
-      Q_OBJECT
-      
+   class V8QtObject {
+   
       public:
-         V8QtObserver (
-            const V8Object &Self,
-            const V8Function &Func,
-            QWidget *widget,
-            QObject *parent = 0);
-            
-         ~V8QtObserver ();
+         V8QtObject (QWidget *widget);
+         virtual ~V8QtObject ();
          
-      public Q_SLOTS:
-         void observe ();
+         QWidget *get_qt_widget () const;
+         
+         void add_callback (const V8Object &Self, const V8Function &Func);
+         
+         virtual Boolean bind (QWidget *sender, const String &Signal) { return False; }
          
       protected:
+         struct CallbackStruct {
+         
+            V8ObjectPersist self;
+            V8FunctionPersist func;
+         
+            CallbackStruct () {;}
+         
+            ~CallbackStruct () {
+         
+               func.Dispose (); func.Clear ();
+               self.Dispose (); self.Clear ();
+            }
+         };
+         
          QWidget *_widget;
-         V8ObjectPersist _self;
-         V8FunctionPersist _func;
+         QList<CallbackStruct *>_cbList;
    };
 
-   class V8QtBaseWidget {
-   
+   class V8QtWidget : public QObject, public V8QtObject {
+      
       public:
-         V8QtBaseWidget (QWidget *widget);
-         ~V8QtBaseWidget ();
-         
-      protected:
-         QWidget *_widget;
+         V8QtWidget (QWidget *widget, QObject *parent = 0);
+         virtual ~V8QtWidget ();
    };
-   
-   class V8QtButton : public QObject, public V8QtBaseWidget {
+
+   class V8QtButton : public QObject, public V8QtObject {
       
       Q_OBJECT
       
       public:
          V8QtButton (QWidget *widget, QObject *parent = 0);
-         ~V8QtButton ();
+         virtual ~V8QtButton ();
+         
+         virtual Boolean bind (QWidget *sender, const String &Signal);
          
       public Q_SLOTS:
-         void slot_clicked ();
+         void on_clicked ();
    };
 };
 

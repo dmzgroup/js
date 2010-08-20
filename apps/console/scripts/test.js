@@ -2,24 +2,34 @@ var puts = require('sys').puts
   , timer = require('dmz/runtime/time')
   , ui = require('dmz/components/ui')
   , form
-  , button
+  , button1
+  , button2
   ;
 
 puts("Script: " + self.name);
 
 form = ui.load("./scripts/TestForm.ui");
+self.form = form;
 form.show();
 
-button = form.lookup("button1");
+button2 = form.lookup("button2");
+button2.observe(self, "clicked", function () {
+   button2.text("Don't Push Me!!!");
+   timer.setTimer(self, 2, function () {
+      button2.text("Push Me");
+   });
+});
 
-button.observe(self, "clicked", function () {
-   puts("=-=-=-=-=- button clicked");
+button1 = form.lookup("button1");
+button1.observe (self, "clicked", function () {
+   puts("form close");
+   // form.close();
 });
 
 
-timer.setRepeatingTimer(self, function () {
-   var form1 = form;
-//   form.show()
-});
+// timer.setRepeatingTimer(self, 10, function () {
+   // var btn1 = button;
+   // var form1 = form;
+// });
 
 puts("Done.");

@@ -6,8 +6,6 @@
 #include <dmzJsV8UtilHelpers.h>
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
-#include <dmzTypesHashTableStringTemplate.h>
-#include <QtCore/QList>
 
 class QObject;
 
@@ -15,7 +13,10 @@ class QObject;
 namespace dmz {
 
    class JsModuleV8;
-   class V8QtObserver;
+   class V8QtObject;
+   class V8QtWidget;
+   class V8QtButton;
+   
 
    class JsModuleUiV8QtBasic :
          public Plugin,
@@ -44,57 +45,29 @@ namespace dmz {
          virtual void update_js_ext_v8_state (const StateEnum State);
 
       protected:
-         struct InterfaceStruct {
-
-            const String Name;
-            V8FunctionTemplatePersist funcTemplate;
-            HashTableStringTemplate<InterfaceStruct> table;
-
-            InterfaceStruct (const String &TheName);
-            ~InterfaceStruct ();
-         };
-
-         // struct WidgetInterfaceStruct {
-         //    
-         //    HashTableStringTemplate<InterfaceStruct> table;
-         //    V8FunctionTemplatePersist funcTemplate;
-         //    V8FunctionPersist funcCtor;
-         // 
-         //    WidgetInterfaceStruct ();
-         //    ~WidgetInterfaceStruct ();
-         //    
-         //    void clear ();
-         //    
-         //    Boolean add_prototype_function (
-         //       const String &Name,
-         //       v8::InvocationCallback cb,
-         //       V8Value data);
-         // 
-         //    Boolean add_function (
-         //       const String &Name,
-         //       v8::InvocationCallback cb,
-         //       V8Value data);
-         //       
-         //    V8Object get_new_instance ();
-         // };
-         
          // Static Functions
          static JsModuleUiV8QtBasic *_to_self (const v8::Arguments &Args);
+         
+         // static JsModuleUiV8QtBasic *_to_object (
+         //    const v8::Arguments &Args,
+         //    V8QtObject *object);
          
          // Qt API
          static V8Value _uiloader_load (const v8::Arguments &Args);
 
          // QWidget API
+         static V8Value _widget_close (const v8::Arguments &Args);
+         static V8Value _widget_hide (const v8::Arguments &Args);
          static V8Value _widget_lookup (const v8::Arguments &Args);
-         static V8Value _widget_show (const v8::Arguments &Args);
          static V8Value _widget_observe (const v8::Arguments &Args);
+         // static V8Value _widget_property (const v8::Arguments &Args);
+         static V8Value _widget_show (const v8::Arguments &Args);
 
          // QAbstraceButton API
-         // static V8Value _button_clicked (const v8::Arguments &Args);
-         // static V8Value _button_clicked_observe (const v8::Arguments &Args);
+         static V8Value _button_text (const v8::Arguments &Args);
 
-         V8Object _to_widget (V8Value value);
-         QWidget *_to_widget_ptr (V8Value value);
+         QWidget *_to_qt_widget (V8Value value);
+         V8QtObject *_to_js_qt_object (V8Value value);
          
          void _init (Config &local);
 
@@ -110,12 +83,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _widgetTemp;
          V8FunctionPersist _widgetCtor;
-         
-         QList<V8QtObserver *>_obsList;
 
-         // V8FunctionTemplatePersist _buttonTemp;
-         // V8FunctionPersist _buttonCtor;
-         // HashTableStringTemplate<InterfaceStruct> _buttonTable;
+         V8FunctionTemplatePersist _buttonTemp;
+         V8FunctionPersist _buttonCtor;
          
       private:
          JsModuleUiV8QtBasic ();
@@ -130,6 +100,14 @@ dmz::JsModuleUiV8QtBasic::_to_self (const v8::Arguments &Args) {
 
    return (dmz::JsModuleUiV8QtBasic *)v8::External::Unwrap (Args.Data ());
 }
+
+
+// inline dmz::JsModuleUiV8QtBasic *
+// dmz::JsModuleUiV8QtBasic::_to_object (const v8::Arguments &Args, V8QtObject *object) {
+// 
+//    object = _to_object_ptr (Args.This ());
+//    return (dmz::JsModuleUiV8QtBasic *)v8::External::Unwrap (Args.Data ());
+// }
 
 
 #endif // DMZ_JS_MODULE_UI_V8_QT_BASIC_DOT_H
