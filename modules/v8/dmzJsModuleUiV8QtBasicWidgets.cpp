@@ -4,68 +4,104 @@
 #include <QtCore/QDebug>
 
 
-dmz::V8QtObserver::V8QtObserver (
-      const V8Object &Self,
-      const V8Function &Func,
-      QWidget *widget,
-      QObject *parent) :
-      QObject (parent),
-      _widget (widget),
-      _self (Self),
-      _func (Func) {;}
+dmz::V8QtObject::V8QtObject (QWidget *widget) :
+   _widget (widget) {;}
 
 
-dmz::V8QtObserver::~V8QtObserver () {
+dmz::V8QtObject::~V8QtObject () {
    
-   if (!_func.IsEmpty ()) { _func.Dispose (); _func.Clear (); }
-   if (!_self.IsEmpty ()) { _self.Dispose (); _self.Clear (); }
+   if (_widget) {
+      
+      if (!_widget->parentWidget ()) { delete _widget; }
+      _widget = 0;
+   }
+   
+   qDeleteAll (_cbList.begin (), _cbList.end ());
+   _cbList.clear ();
+}
+
+
+QWidget *
+dmz::V8QtObject::get_qt_widget () const {
+   
+   return _widget;
 }
 
 
 void
-dmz::V8QtObserver::observe () {
+dmz::V8QtObject::add_callback (const V8Object &Self, const V8Function &Func) {
 
-   if (!_func.IsEmpty ()) {
-      
-      v8::HandleScope scope;
-      
-      V8Value argv[] = { _self };
-      
-      v8::TryCatch tc;
-
-      qDebug () << "!!!!!!!!!!dmz::V8QtObserver::observe!!!!!!!!!!!";
-
-      // _func->Call (_self, 1, argv);
-      
-      if (tc.HasCaught ()) {
-         
-         if (_core) { _core->handle_v8_exception (tc); }
-         
-         // Handle exception here
-         // handle_v8_exception (tc);
-      }
-   }
-}   
+   CallbackStruct *cbs = new CallbackStruct ();
+   cbs->self = V8ObjectPersist::New (Self);
+   cbs->func = V8FunctionPersist::New (Func);
+   _cbList.append (cbs);
+}
 
 
-dmz::V8QtBaseWidget::V8QtBaseWidget (QWidget *widget) :
-      _widget (widget) {;}
+dmz::V8QtWidget::V8QtWidget (QWidget *widget, QObject *parent) :
+      QObject (parent),
+      V8QtObject (widget) {;}
 
 
-dmz::V8QtBaseWidget::~V8QtBaseWidget () {;}
+dmz::V8QtWidget::~V8QtWidget () {;}
 
 
 dmz::V8QtButton::V8QtButton (QWidget *widget, QObject *parent) :
       QObject (parent),
-      V8QtBaseWidget (widget) {;}
+         V8QtObject (widget) {;}
 
 
 dmz::V8QtButton::~V8QtButton () {;}
 
 
-void
-dmz::V8QtButton::slot_clicked () {
+dmz::Boolean
+dmz::V8QtButton::bind (QWidget *sender, const String &Signal) {
 
-   qDebug () << "dmz::V8QtButton::slot_clicked!!!!!!!!!!!";
+   Boolean results (False);
+   
+   if (sender) {
+      
+      if (Signal == "clicked") {
+
+         connect (
+            sender,
+            SIGNAL (clicked ()),
+            SLOT (on_clicked ()),
+            Qt::UniqueConnection);
+            
+         results = True;
+      }
+   }
+   
+   return results;
+}
+
+
+void
+dmz::V8QtButton::on_clicked () {
+
+   v8::HandleScope scope;
+   
+   foreach (CallbackStruct *cbs, _cbList) {
+      
+      if (!cbs->func.IsEmpty () && !cbs->self.IsEmpty ()) {
+
+         // V8Object localSelf = v8::Local<v8::Object>::New (cbs->self);
+         // V8Function localFunc = v8::Local<v8::Function>::New (cbs->func);
+
+         V8Value argv[] = { cbs->self };
+         // V8Value argv[] = { localSelf };
+         
+         v8::TryCatch tc;
+         
+         cbs->func->Call (cbs->self, 1, argv);
+         // localFunc->Call (localSelf, 1, argv);
+
+         if (tc.HasCaught ()) {
+
+            // if (_core) { _core->handle_v8_exception (tc); }
+         }
+      }
+   }
 }   
 
