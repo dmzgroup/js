@@ -689,7 +689,6 @@ dmz::JsExtV8RenderOverlay::_overlay_scale (
          array->Set (v8::Integer::New (1), v8::Number::New (theY));
          result = array;
       }
-
    }
 
    return scope.Close (result);

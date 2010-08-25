@@ -96,6 +96,12 @@ v8_is_function (V8Value value);
 Boolean
 v8_is_array (V8Value value);
 
+V8Value
+v8_throw (const String &Error);
+
+DMZ_JS_V8_UTIL_LINK_SYMBOL String
+v8_type (V8Value value);
+
 };
 
 
@@ -272,6 +278,14 @@ inline dmz::Boolean
 dmz::v8_is_array (V8Value value) {
 
    return (value.IsEmpty () == false) && value->IsArray ();
+}
+
+
+inline dmz::V8Value
+dmz::v8_throw (const String &Error) {
+
+   return v8::ThrowException (
+      v8::String::New (Error ? Error.get_buffer () : "Unknown Error"));
 }
 
 #endif // DMZ_JS_V8_UTIL_CONVERT_DOT_H

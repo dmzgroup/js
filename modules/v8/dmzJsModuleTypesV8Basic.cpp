@@ -64,7 +64,6 @@ dmz::JsModuleTypesV8Basic::update_plugin_state (
    }
    else if (State == PluginStateShutdown) {
 
-      _clear ();
    }
 }
 
@@ -114,10 +113,23 @@ dmz::JsModuleTypesV8Basic::to_v8_vector (const Vector &Value) {
 dmz::Vector
 dmz::JsModuleTypesV8Basic::to_dmz_vector (const v8::Handle<v8::Value> Value) {
 
+   Vector result;
+
+   to_dmz_vector (Value, result);
+
+   return result;
+}
+
+
+dmz::Boolean
+dmz::JsModuleTypesV8Basic::to_dmz_vector (
+      const v8::Handle<v8::Value> Value,
+      Vector &out) {
+
    v8::Context::Scope cscope(_v8Context);
    v8::HandleScope scope;
 
-   Vector result;
+   Boolean result (False);
 
    V8Object obj = v8_to_object (Value);
 
@@ -125,18 +137,20 @@ dmz::JsModuleTypesV8Basic::to_dmz_vector (const v8::Handle<v8::Value> Value) {
 
       if (Value->IsArray ()) {
 
-         result.set_xyz (
+         out.set_xyz (
             v8_to_number (obj->Get (v8::Integer::New (0))),
             v8_to_number (obj->Get (v8::Integer::New (1))),
             v8_to_number (obj->Get (v8::Integer::New (2))));
       }
       else {
 
-         result.set_xyz (
+         out.set_xyz (
             v8_to_number (obj->Get (_xStr)),
             v8_to_number (obj->Get (_yStr)),
             v8_to_number (obj->Get (_zStr)));
       }
+
+      result = True;
    }
 
    return result;
@@ -183,10 +197,21 @@ dmz::JsModuleTypesV8Basic::to_v8_matrix (const Matrix &Value) {
 dmz::Matrix
 dmz::JsModuleTypesV8Basic::to_dmz_matrix (const v8::Handle<v8::Value> Value) {
 
+   Matrix result;
+   to_dmz_matrix (Value, result);
+   return result;
+}
+
+
+dmz::Boolean
+dmz::JsModuleTypesV8Basic::to_dmz_matrix (
+      const v8::Handle<v8::Value> Value,
+      Matrix &out) {
+
+   Boolean result (False);
+
    v8::Context::Scope cscope(_v8Context);
    v8::HandleScope scope;
-
-   Matrix result;
 
    V8Object obj = v8_to_object (Value);
 
@@ -205,7 +230,9 @@ dmz::JsModuleTypesV8Basic::to_dmz_matrix (const v8::Handle<v8::Value> Value) {
             mat[ix] = v8_to_number (array->Get (v8::Integer::New (ix)));
          }
 
-         result.from_array (mat);
+         out.from_array (mat);
+
+         result = True;
       }
    }
 
@@ -250,10 +277,21 @@ dmz::JsModuleTypesV8Basic::to_v8_mask (const Mask &Value) {
 dmz::Mask
 dmz::JsModuleTypesV8Basic::to_dmz_mask (const v8::Handle<v8::Value> Value) {
 
+   Mask result;
+   to_dmz_mask (Value, result);
+   return result;
+}
+
+
+dmz::Boolean
+dmz::JsModuleTypesV8Basic::to_dmz_mask (
+      const v8::Handle<v8::Value> Value,
+      Mask &out) {
+
+   Boolean result (False);
+
    v8::Context::Scope cscope(_v8Context);
    v8::HandleScope scope;
-
-   Mask result;
 
    V8Object obj = v8_to_object (Value);
 
@@ -265,7 +303,7 @@ dmz::JsModuleTypesV8Basic::to_dmz_mask (const v8::Handle<v8::Value> Value) {
 
          const Int32 Length = (Int32)bits->Length ();
 
-         result.grow (Length);
+         out.grow (Length);
 
          for (Int32 ix = 0; ix < Length; ix++) {
 
@@ -273,9 +311,11 @@ dmz::JsModuleTypesV8Basic::to_dmz_mask (const v8::Handle<v8::Value> Value) {
 
             if (!element.IsEmpty ()) {
 
-               result.set_sub_mask (ix, element->Uint32Value ());
+               out.set_sub_mask (ix, element->Uint32Value ());
             }
          }
+
+         result = True;
       }
    }
 
