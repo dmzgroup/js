@@ -8,59 +8,67 @@
 
 namespace dmz {
 
-   class Config;
+class Config;
+class HandleContainer;
+class StringContainer;
 
-   class JsModule {
+class JsModule {
 
-      public:
-         static JsModule *cast (
-            const Plugin *PluginPtr,
-            const String &PluginName = "");
+   public:
+      static JsModule *cast (
+         const Plugin *PluginPtr,
+         const String &PluginName = "");
 
-         String get_js_module_name () const;
-         Handle get_js_module_handle () const;
+      String get_js_module_name () const;
+      Handle get_js_module_handle () const;
 
-         // JsModule Interface
-         Handle compile_script (
-            const String &Name,
-            const Int32 Size,
-            char *script) = 0;,
+      // JsModule Interface
+      void lookup_script_names (StringContainer &list) = 0;
+      void lookup_script_handles (HandleContainer &list) = 0;
 
-         Boolean recompile_script (
-            const Handle ScriptHandle,
-            const Int32 Size,
-            char *script) = 0;,
+      Handle compile_script (
+         const String &Name,
+         const Int32 Size,
+         char *script) = 0;,
 
-         Handle lookup_script (const String &Name) = 0;
-         String lookup_script_name (const Handle ScriptHandle) = 0;
-         Boolean destroy_script (const Handle ScriptHandle) = 0;
+      Boolean recompile_script (
+         const Handle ScriptHandle,
+         const Int32 Size,
+         char *script) = 0;,
 
-         Handle create_instance (
-            const String &Name,
-            const Handle ScriptHandle,
-            const Config &Init) = 0;
+      Handle lookup_script (const String &Name) = 0;
+      String lookup_script_name (const Handle ScriptHandle) = 0;
+      Boolean destroy_script (const Handle ScriptHandle) = 0;
 
-         Handle lookup_instance (const String &InstanceName) = 0;
-         Handle lookup_instance_script (const Handle Instance) = 0;
-         String lookup_instance_name (const Handle Instance) = 0;
-         Boolean recreate_instance (const Handle Instance, const Config &Init) = 0;
-         Boolean destroy_instance (const Handle Instance) = 0;
+      void lookup_instance_names (const Handle Script, StringContainer &list) = 0;
+      void lookup_instance_handles (const Handle Script, HandleContainer &list) = 0;
 
-      protected:
-         JsModule (const PluginInfo &Info);
-         ~JsModule ();
+      Handle create_instance (
+         const String &Name,
+         const Handle ScriptHandle,
+         const Config &Init) = 0;
 
-      private:
-         JsModule ();
-         JsModule (const JsModule &);
-         JsModule &operator= (const JsModule &);
+      Handle lookup_instance (const String &InstanceName) = 0;
+      Handle lookup_instance_script (const Handle Instance) = 0;
+      String lookup_instance_name (const Handle Instance) = 0;
+      Boolean recreate_instance (const Handle Instance, const Config &Init) = 0;
+      Boolean destroy_instance (const Handle Instance) = 0;
 
-         const PluginInfo &__Info;
-   };
+   protected:
+      JsModule (const PluginInfo &Info);
+      ~JsModule ();
 
-   //! \cond
-   const char JsModuleInterfaceName[] = "JsModuleInterface";
-   //! \endcond
+   private:
+      JsModule ();
+      JsModule (const JsModule &);
+      JsModule &operator= (const JsModule &);
+
+      const PluginInfo &__Info;
+};
+
+//! \cond
+const char JsModuleInterfaceName[] = "JsModuleInterface";
+//! \endcond
 };
 
 

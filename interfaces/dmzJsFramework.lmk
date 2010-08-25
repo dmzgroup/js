@@ -4,4 +4,6 @@ lmk.add_files {
    "dmzJsModuleRuntimeV8.h",
    "dmzJsModuleTypesV8.h",
    "dmzJsModuleV8.h",
+   "dmzJsModule.h",
+   "dmzJsObserver.h",
 }
