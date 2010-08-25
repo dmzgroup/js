@@ -37,7 +37,8 @@ class JsObserver {
       void update_js_error (
          const Handle Script,
          const Handle Instance,
-         const String &ErrorMessage) = 0;
+         const String &ErrorMessage,
+         const String &StackTrace) = 0;
  
    protected:
       JsObserver (const PluginInfo &Info);
