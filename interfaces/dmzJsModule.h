@@ -23,36 +23,41 @@ class JsModule {
       Handle get_js_module_handle () const;
 
       // JsModule Interface
-      void lookup_script_names (StringContainer &list) = 0;
-      void lookup_script_handles (HandleContainer &list) = 0;
+      virtual void lookup_script_names (StringContainer &list) = 0;
+      virtual void lookup_script_file_names (StringContainer &list) = 0;
+      virtual void lookup_script_handles (HandleContainer &list) = 0;
 
-      Handle compile_script (
+      virtual Handle compile_script (
          const String &Name,
          const Int32 Size,
-         char *script) = 0;,
+         char *script) = 0;
 
-      Boolean recompile_script (
+      virtual Boolean recompile_script (
          const Handle ScriptHandle,
          const Int32 Size,
-         char *script) = 0;,
+         char *script) = 0;
 
-      Handle lookup_script (const String &Name) = 0;
-      String lookup_script_name (const Handle ScriptHandle) = 0;
-      Boolean destroy_script (const Handle ScriptHandle) = 0;
+      virtual Handle lookup_script (const String &Name) = 0;
+      virtual String lookup_script_name (const Handle ScriptHandle) = 0;
+      virtual String lookup_script_file_name (const Handle ScriptHandle) = 0;
+      virtual Boolean destroy_script (const Handle ScriptHandle) = 0;
 
-      void lookup_instance_names (const Handle Script, StringContainer &list) = 0;
-      void lookup_instance_handles (const Handle Script, HandleContainer &list) = 0;
+      virtual void lookup_instance_names (const Handle Script, StringContainer &list) = 0;
 
-      Handle create_instance (
+      virtual void lookup_instance_handles (
+         const Handle Script,
+         HandleContainer &list) = 0;
+
+      virtual Handle create_instance (
          const String &Name,
          const Handle ScriptHandle,
          const Config &Init) = 0;
 
-      Handle lookup_instance (const String &InstanceName) = 0;
-      Handle lookup_instance_script (const Handle Instance) = 0;
-      String lookup_instance_name (const Handle Instance) = 0;
-      Boolean recreate_instance (const Handle Instance, const Config &Init) = 0;
-      Boolean destroy_instance (const Handle Instance) = 0;
+      virtual Handle lookup_instance (const String &InstanceName) = 0;
+      virtual Handle lookup_instance_script (const Handle Instance) = 0;
+      virtual String lookup_instance_name (const Handle Instance) = 0;
+      virtual Boolean recreate_instance (const Handle Instance, const Config &Init) = 0;
+      virtual Boolean destroy_instance (const Handle Instance) = 0;
 
    protected:
       JsModule (const PluginInfo &Info);

@@ -10,6 +10,8 @@
 #include <dmzRuntimeConfigToStringContainer.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
+#include <dmzTypesHandleContainer.h>
+#include <dmzTypesStringContainer.h>
 
 #include <string.h>
 #include <stdio.h>
@@ -116,6 +118,7 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (
       Config &global) :
       Plugin (Info),
       TimeSlice (Info),
+      JsModule (Info),
       JsModuleV8 (Info),
       _log (Info),
       _out ("", LogLevelOut, Info.get_context ()),
@@ -131,13 +134,15 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (
 
 dmz::JsModuleV8Basic::~JsModuleV8Basic () {
 
-   HashTableStringIterator it;
+   HashTableHandleIterator it;
    InstanceStruct *is (0);
 
    while (_instanceTable.get_next (it, is)) { _defs.release_unique_name (is->Name); }
 
    _extTable.clear ();
+   _instanceNameTable.clear ();
    _instanceTable.empty ();
+   _scriptNameTable.clear ();
    _scriptTable.empty ();
 
    _globalTemplate.Dispose (); _globalTemplate.Clear ();
@@ -257,6 +262,199 @@ dmz::JsModuleV8Basic::update_time_slice (const Float64 DeltaTime) {
       _load_scripts ();
       _reset = False;
    }
+}
+
+// JsModule Interface
+void
+dmz::JsModuleV8Basic::lookup_script_names (StringContainer &list) {
+
+   HashTableHandleIterator it;
+   ScriptStruct *script (0);
+
+   while (_scriptTable.get_next (it, script)) { list.add (script->Name); }
+}
+
+
+void
+dmz::JsModuleV8Basic::lookup_script_file_names (StringContainer &list) {
+
+   HashTableHandleIterator it;
+   ScriptStruct *script (0);
+
+   while (_scriptTable.get_next (it, script)) { list.add (script->FileName); }
+}
+
+
+void
+dmz::JsModuleV8Basic::lookup_script_handles (HandleContainer &list) {
+
+   HashTableHandleIterator it;
+   ScriptStruct *script (0);
+
+   while (_scriptTable.get_next (it, script)) { list.add (script->ScriptHandle); }
+}
+
+
+dmz::Handle
+dmz::JsModuleV8Basic::compile_script (
+      const String &Name,
+      const Int32 Size,
+      char *script) {
+
+   Handle result (0);
+
+   return result;
+}
+
+
+dmz::Boolean
+dmz::JsModuleV8Basic::recompile_script (
+      const Handle ScriptHandle,
+      const Int32 Size,
+      char *script) {
+
+   Boolean result (False);
+
+   return result;
+}
+
+
+dmz::Handle
+dmz::JsModuleV8Basic::lookup_script (const String &Name) {
+
+   Handle result (0);
+
+   ScriptStruct *script (_scriptNameTable.lookup (Name));
+
+   if (script) { result = script->ScriptHandle; }
+
+   return result;
+}
+
+
+dmz::String
+dmz::JsModuleV8Basic::lookup_script_name (const Handle ScriptHandle) {
+
+   String result;
+
+   ScriptStruct *script (_scriptTable.lookup (ScriptHandle));
+
+   if (script) { result = script->Name; }
+
+   return result;
+}
+
+
+dmz::String
+dmz::JsModuleV8Basic::lookup_script_file_name (const Handle ScriptHandle) {
+
+   String result;
+
+   ScriptStruct *script (_scriptTable.lookup (ScriptHandle));
+
+   if (script) { result = script->FileName; }
+
+   return result;
+}
+
+
+dmz::Boolean
+dmz::JsModuleV8Basic::destroy_script (const Handle ScriptHandle) {
+
+   Boolean result (False);
+
+   return result;
+}
+
+
+void
+dmz::JsModuleV8Basic::lookup_instance_names (const Handle Script, StringContainer &list) {
+
+   HashTableHandleIterator it;
+   InstanceStruct *instance (0);
+
+   while (_instanceTable.get_next (it, instance)) { list.add (instance->Name); }
+}
+
+
+void
+dmz::JsModuleV8Basic::lookup_instance_handles (
+      const Handle Script,
+      HandleContainer &list) {
+
+   HashTableHandleIterator it;
+   InstanceStruct *instance (0);
+
+   while (_instanceTable.get_next (it, instance)) { list.add (instance->Object); }
+}
+
+
+dmz::Handle
+dmz::JsModuleV8Basic::create_instance (
+      const String &Name,
+      const Handle ScriptHandle,
+      const Config &Init) {
+
+   Handle result (0);
+
+   return result;
+}
+
+
+dmz::Handle
+dmz::JsModuleV8Basic::lookup_instance (const String &InstanceName) {
+
+   Handle result (0);
+
+   InstanceStruct *instance (_instanceNameTable.lookup (InstanceName));
+
+   if (instance) { result = instance->Object; }
+
+   return result;
+}
+
+
+dmz::Handle
+dmz::JsModuleV8Basic::lookup_instance_script (const Handle Instance) {
+
+   Handle result (0);
+
+   InstanceStruct *instance (_instanceTable.lookup (Instance));
+
+   if (instance) { result = instance->script.ScriptHandle; }
+
+   return result;
+}
+
+
+dmz::String
+dmz::JsModuleV8Basic::lookup_instance_name (const Handle Instance) {
+
+   String result;
+
+   InstanceStruct *instance (_instanceTable.lookup (Instance));
+
+   if (instance) { result = instance->Name; }
+
+   return result;
+}
+
+
+dmz::Boolean
+dmz::JsModuleV8Basic::recreate_instance (const Handle Instance, const Config &Init) {
+
+   Boolean result (False);
+
+   return result;
+}
+
+
+dmz::Boolean
+dmz::JsModuleV8Basic::destroy_instance (const Handle Instance) {
+
+   Boolean result (False);
+
+   return result;
 }
 
 
@@ -497,7 +695,7 @@ dmz::JsModuleV8Basic::set_external_instance_handle_and_name (
       const String &TheName,
       v8::Handle<v8::Value> value) {
 
-   dmz::Boolean result (False);
+   Boolean result (False);
 
    v8::HandleScope scope;
 
@@ -522,6 +720,7 @@ dmz::JsModuleV8Basic::set_external_instance_handle_and_name (
             obj->SetHiddenValue (_instanceAttrName, v8::External::Wrap ((void *)is));
             V8ObjectPersist dtor = V8ObjectPersist::New (obj);
             dtor.MakeWeak ((void *)is, local_instance_struct_delete); 
+            result = True;
          }
       }
    }
@@ -552,7 +751,7 @@ dmz::JsModuleV8Basic::_release_instances () {
 
       v8::HandleScope scope;
 
-      HashTableStringIterator it;
+      HashTableHandleIterator it;
       InstanceStruct *is (0);
 
       while (_instanceTable.get_next (it, is)) {
@@ -732,7 +931,7 @@ dmz::JsModuleV8Basic::_load_scripts () {
    v8::Context::Scope cscope (_context);
    v8::HandleScope hscope;
 
-   HashTableStringIterator it;
+   HashTableHandleIterator it;
    ScriptStruct *info (0);
 
    while (_scriptTable.get_next (it, info)) {
@@ -823,11 +1022,11 @@ dmz::JsModuleV8Basic::_load_scripts () {
 dmz::JsModuleV8Basic::ScriptStruct *
 dmz::JsModuleV8Basic::_find_script (Config &script) {
 
-   ScriptStruct *result (0);
-
    const String Name = config_to_string ("name", script);
 
-   if (Name) {
+   ScriptStruct *result (_scriptNameTable.lookup (Name));
+
+   if (!result && Name) {
 
       String scriptPath = _rc.find_file (Name);
 
@@ -838,13 +1037,17 @@ dmz::JsModuleV8Basic::_find_script (Config &script) {
 
       if (scriptPath) {
 
-         result = _scriptTable.lookup (scriptPath);
+         result = _scriptNameTable.lookup (scriptPath);
 
          if (!result) {
 
-            result = new ScriptStruct (Name, scriptPath);
+            result = new ScriptStruct (Name, scriptPath, get_plugin_runtime_context ());
 
-            if (!_scriptTable.store (scriptPath, result)) {
+            if (result && _scriptTable.store (result->ScriptHandle, result)) {
+
+               _scriptNameTable.store (Name, result);
+            }
+            else {
 
                delete result; result = 0;
                _log.error << "Failed to add script: " << scriptPath << endl
@@ -900,7 +1103,7 @@ dmz::JsModuleV8Basic::_init (Config &local, Config &global) {
                   _defs.create_named_handle (UniqueName),
                   *ss);
 
-               if (!_instanceTable.store (UniqueName, ptr)) {
+               if (!_instanceTable.store (ptr->Object, ptr)) {
 
                   delete ptr; ptr = 0;
                   _log.error << "Script instance name: " << UniqueName
@@ -908,6 +1111,7 @@ dmz::JsModuleV8Basic::_init (Config &local, Config &global) {
                }
                else {
 
+                  _instanceNameTable.store (ptr->Name, ptr);
                   Config local (ScopeName);
                   global.lookup_all_config_merged (String ("dmz.") + ScopeName, local);
                   ptr->local = local;
