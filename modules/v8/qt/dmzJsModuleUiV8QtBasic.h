@@ -7,8 +7,6 @@
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
 
-class QObject;
-
 
 namespace dmz {
 
@@ -48,22 +46,18 @@ namespace dmz {
          // Static Functions
          static JsModuleUiV8QtBasic *_to_self (const v8::Arguments &Args);
          
-         // static JsModuleUiV8QtBasic *_to_object (
-         //    const v8::Arguments &Args,
-         //    V8QtObject *object);
-         
-         // Qt API
+         // QUiLoader bindings
          static V8Value _uiloader_load (const v8::Arguments &Args);
 
-         // QWidget API
+         // QWidget bindings implemented in JsModuleUiV8QtBasicWidget.cpp
          static V8Value _widget_close (const v8::Arguments &Args);
+         static V8Value _widget_enabled (const v8::Arguments &Args);
          static V8Value _widget_hide (const v8::Arguments &Args);
          static V8Value _widget_lookup (const v8::Arguments &Args);
          static V8Value _widget_observe (const v8::Arguments &Args);
-         // static V8Value _widget_property (const v8::Arguments &Args);
          static V8Value _widget_show (const v8::Arguments &Args);
 
-         // QAbstraceButton API
+         // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
          static V8Value _button_text (const v8::Arguments &Args);
 
          QWidget *_to_qt_widget (V8Value value);
@@ -74,7 +68,6 @@ namespace dmz {
          Log _log;
          
          JsModuleV8 *_core;
-         QObject *_root;
          
          v8::Handle<v8::Context> _v8Context;
          V8ValuePersist _self;

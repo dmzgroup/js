@@ -1,14 +1,14 @@
 #include "dmzJsModuleUiV8QtBasic.h"
-#include "dmzJsModuleUiV8QtBasicWidgets.h"
 #include <dmzJsModuleV8.h>
 #include <dmzJsV8UtilConvert.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
 #include <dmzTypesStringTokenizer.h>
-#include <QtGui/QtGui>
+#include "dmzV8QtTypes.h"
+#include <QtCore/QFile>
+#include <QtGui/QWidget>
 #include <QtUiTools/QUiLoader>
 
-#include <QtCore/QDebug>
 
 namespace {
 
@@ -55,197 +55,20 @@ dmz::JsModuleUiV8QtBasic::_uiloader_load (const v8::Arguments &Args) {
 }
 
 
-dmz::V8Value
-dmz::JsModuleUiV8QtBasic::_widget_close (const v8::Arguments &Args) {
-
-   v8::HandleScope scope;
-   V8Value result = v8::Undefined ();
-
-   JsModuleUiV8QtBasic *self = _to_self (Args);
-   if (self) {
-
-      QWidget *widget = self->_to_qt_widget (Args.This ());
-      if (widget) { widget->close (); }
-   }
-
-   return scope.Close (result);
-}
-
-
-dmz::V8Value
-dmz::JsModuleUiV8QtBasic::_widget_hide (const v8::Arguments &Args) {
-
-   v8::HandleScope scope;
-   V8Value result = v8::Undefined ();
-
-   JsModuleUiV8QtBasic *self = _to_self (Args);
-   if (self) {
-
-      QWidget *widget = self->_to_qt_widget (Args.This ());
-      if (widget) { widget->hide (); }
-   }
-
-   return scope.Close (result);
-}
-
-
-dmz::V8Value
-dmz::JsModuleUiV8QtBasic::_widget_lookup (const v8::Arguments &Args) {
-
-   v8::HandleScope scope;
-   V8Value result = v8::Undefined ();
-
-   JsModuleUiV8QtBasic *self = _to_self (Args);
-
-   if (self) {
-
-      QWidget *widget = self->_to_qt_widget (Args.This ());
-      String param = v8_to_string (Args[0]);
-
-      if (widget && param) {
-
-         QWidget *child = widget->findChild<QWidget *>(param.get_buffer ());
-
-         if (child) {
-
-            result = self->create_v8_widget (child);
-         }
-      }
-   }
-
-   return scope.Close (result);
-}
-
-
-dmz::V8Value
-dmz::JsModuleUiV8QtBasic::_widget_observe (const v8::Arguments &Args) {
-
-   v8::HandleScope scope;
-   V8Value result = v8::Undefined ();
-
-   JsModuleUiV8QtBasic *self = _to_self (Args);
-
-   if (self && Args[0]->IsObject () && Args[2]->IsFunction ()) {
-
-      V8QtObject *jsObject = self->_to_js_qt_object (Args.This ());
-      if (jsObject) {
-         
-         QWidget *qtWidget = jsObject->get_qt_widget ();
-
-         V8Object src = V8Object::Cast (Args[0]);
-         const String Signal = v8_to_string (Args[1]).to_lower ();
-         V8Function func = v8_to_function (Args[2]);
-
-         if (qtWidget) {
-
-            if (jsObject->bind (qtWidget, Signal)) {
-               
-               jsObject->add_callback (src, func);
-            }
-         }
-         
-         result = func;
-      }
-   }
-
-   return scope.Close (result);
-}
-
-
-#if 0
-dmz::V8Value
-dmz::JsModuleUiV8QtBasic::_widget_property (const v8::Arguments &Args) {
-
-   v8::HandleScope scope;
-   V8Value result = v8::Undefined ();
-
-   JsModuleUiV8QtBasic *self = _to_self (Args);
-   if (self) {
-
-      QWidget *widget = self->_to_qt_widget (Args.This ());
-      if (widget) {
-
-         // if (Args.Lengt () > 2) {
-         //    
-         //    const String Value = v8_to_string (Args[1]);
-         // }
-         // else {
-         //    
-         //    String Value;
-         // }
-      }
-   }
-
-   return scope.Close (result);
-}
-#endif
-
-
-dmz::V8Value
-dmz::JsModuleUiV8QtBasic::_widget_show (const v8::Arguments &Args) {
-
-   v8::HandleScope scope;
-   V8Value result = v8::Undefined ();
-
-   JsModuleUiV8QtBasic *self = _to_self (Args);
-   if (self) {
-
-      QWidget *widget = self->_to_qt_widget (Args.This ());
-      if (widget) { widget->show (); }
-   }
-
-   return scope.Close (result);
-}
-
-
-dmz::V8Value
-dmz::JsModuleUiV8QtBasic::_button_text (const v8::Arguments &Args) {
-
-   v8::HandleScope scope;
-   V8Value result = v8::Undefined ();
-
-   JsModuleUiV8QtBasic *self = _to_self (Args);
-
-   if (self) {
-
-      QWidget *widget = self->_to_qt_widget (Args.This ());
-      String param = v8_to_string (Args[0]);
-
-      if (widget && param) {
-
-         QAbstractButton *button = qobject_cast<QAbstractButton *>(widget);
-         
-         if (button) {
-
-            button->setText (param.get_buffer ());
-         }
-      }
-   }
-
-   return scope.Close (result);
-}
-
-
 dmz::JsModuleUiV8QtBasic::JsModuleUiV8QtBasic (const PluginInfo &Info, Config &local) :
       Plugin (Info),
       JsModuleUiV8Qt (Info),
       JsExtV8 (Info),
       _log (Info),
       _core (0),
-      _root (0),
       _qtApi () {
 
-   _root = new QObject (0);
-   _root->setObjectName (get_plugin_name ().get_buffer ());
-   
    _init (local);
 }
 
 
 dmz::JsModuleUiV8QtBasic::~JsModuleUiV8QtBasic () {
 
-   delete _root;
-   _root = 0;
 }
 
 
@@ -421,16 +244,16 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
 
    // API
    _qtApi.add_function ("load", _uiloader_load, _self);
-   // _qtApi.add_function ("observer"< _global_observer, _self);
+   // _qtApi.add_function ("observer", _global_observer, _self);
 
    _widgetTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
    V8ObjectTemplate widgetProto = _widgetTemp->PrototypeTemplate ();
    widgetProto->Set ("close", v8::FunctionTemplate::New (_widget_close, _self));
+   widgetProto->Set ("enabled", v8::FunctionTemplate::New (_widget_enabled, _self));
    widgetProto->Set ("lookup", v8::FunctionTemplate::New (_widget_lookup, _self));
    widgetProto->Set ("show", v8::FunctionTemplate::New (_widget_show, _self));
    widgetProto->Set ("hide", v8::FunctionTemplate::New (_widget_hide, _self));
    widgetProto->Set ("observe", v8::FunctionTemplate::New (_widget_observe, _self));
-   // widgetProto->Set ("property", v8::FunctionTemplate::New (_widget_property, _self));
    V8ObjectTemplate widgetInstance = _widgetTemp->InstanceTemplate ();
    widgetInstance->SetInternalFieldCount (1);
 
