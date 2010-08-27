@@ -42,6 +42,15 @@ namespace dmz {
          virtual void update_js_context_v8 (v8::Handle<v8::Context> context);
          virtual void update_js_ext_v8_state (const StateEnum State);
 
+         struct State {
+            
+            JsModuleV8 *core;
+            JsModuleUiV8QtBasic *ui;
+            v8::Handle<v8::Context> context;
+            
+            State () : core (0), ui (0) {;}
+         };
+
       protected:
          // Static Functions
          static JsModuleUiV8QtBasic *_to_self (const v8::Arguments &Args);
@@ -67,9 +76,7 @@ namespace dmz {
 
          Log _log;
          
-         JsModuleV8 *_core;
-         
-         v8::Handle<v8::Context> _v8Context;
+         State _state;
          V8ValuePersist _self;
 
          V8InterfaceHelper _qtApi;

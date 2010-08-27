@@ -2,9 +2,10 @@
 #include <QtGui/QWidget>
 
 
-dmz::V8QtObject::V8QtObject (QWidget *widget, QObject *parent) :
-      QObject (parent),
-      _widget (widget) {;}
+dmz::V8QtObject::V8QtObject (QWidget *widget, JsModuleUiV8QtBasic::State *state) :
+      QObject (0),
+      _widget (widget),
+      _state (state) {;}
 
 
 dmz::V8QtObject::~V8QtObject () {

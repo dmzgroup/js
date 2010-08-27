@@ -1,9 +1,10 @@
+#include <dmzJsModuleV8.h>
 #include "dmzV8QtButton.h"
 #include <QtGui/QWidget>
 
 
-dmz::V8QtButton::V8QtButton (QWidget *widget, QObject *parent) :
-      V8QtObject (widget, parent) {;}
+dmz::V8QtButton::V8QtButton (QWidget *widget, JsModuleUiV8QtBasic::State *state) :
+      V8QtObject (widget, state) {;}
 
 
 dmz::V8QtButton::~V8QtButton () {;}
@@ -37,28 +38,26 @@ dmz::V8QtButton::bind (QWidget *sender, const String &Signal) {
 void
 dmz::V8QtButton::on_clicked () {
 
-   v8::HandleScope scope;
-   
-   foreach (CallbackStruct *cbs, _cbList) {
+   if (_state) {
       
-      if (!cbs->func.IsEmpty () && !cbs->self.IsEmpty ()) {
+      v8::Context::Scope cscope (_state->context);
+      v8::HandleScope scope;
 
-         // V8Object localSelf = v8::Local<v8::Object>::New (cbs->self);
-         // V8Function localFunc = v8::Local<v8::Function>::New (cbs->func);
+      foreach (CallbackStruct *cbs, _cbList) {
 
-         V8Value argv[] = { cbs->self };
-         // V8Value argv[] = { localSelf };
-         
-         v8::TryCatch tc;
-         
-         cbs->func->Call (cbs->self, 1, argv);
-         // localFunc->Call (localSelf, 1, argv);
+         if (!(cbs->func.IsEmpty ()) && !(cbs->self.IsEmpty ())) {
 
-         if (tc.HasCaught ()) {
+            V8Value argv[] = { cbs->self };
 
-            // if (_core) { _core->handle_v8_exception (tc); }
+            v8::TryCatch tc;
+
+            cbs->func->Call (cbs->self, 1, argv);
+
+            if (tc.HasCaught ()) {
+
+               if (_state->core) { _state->core->handle_v8_exception (tc); }
+            }
          }
       }
    }
-}   
-
+}

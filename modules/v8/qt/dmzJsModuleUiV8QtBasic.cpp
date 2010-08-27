@@ -60,9 +60,9 @@ dmz::JsModuleUiV8QtBasic::JsModuleUiV8QtBasic (const PluginInfo &Info, Config &l
       JsModuleUiV8Qt (Info),
       JsExtV8 (Info),
       _log (Info),
-      _core (0),
       _qtApi () {
 
+   _state.ui = this;
    _init (local);
 }
 
@@ -112,7 +112,7 @@ dmz::JsModuleUiV8QtBasic::discover_plugin (
 dmz::V8Value
 dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
 
-   v8::Context::Scope cscope (_v8Context);
+   v8::Context::Scope cscope (_state.context);
    v8::HandleScope scope;
 
    V8Value result = v8::Undefined ();
@@ -127,7 +127,7 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
          if (!_buttonCtor.IsEmpty ()) {
             
             vobj = _buttonCtor->NewInstance ();
-            qobj = new V8QtButton (value);
+            qobj = new V8QtButton (value, &_state);
          }
       }
       else if (value->inherits ("QWidget")) {
@@ -135,7 +135,7 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
          if (!_widgetCtor.IsEmpty ()) {
             
             vobj = _widgetCtor->NewInstance ();
-            qobj = new V8QtWidget (value);
+            qobj = new V8QtWidget (value, &_state);
          }
       }
       
@@ -160,11 +160,11 @@ dmz::JsModuleUiV8QtBasic::update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &
 
    if (Mode == JsExtV8::Store) {
       
-      if (!_core) { _core = &module; }
+      if (!_state.core) { _state.core = &module; }
    }
    else if (Mode == JsExtV8::Remove) {
       
-      if (_core == &module) { _core = 0; }
+      if (_state.core == &module) { _state.core = 0; }
    }
 }
 
@@ -172,7 +172,7 @@ dmz::JsModuleUiV8QtBasic::update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &
 void
 dmz::JsModuleUiV8QtBasic::update_js_context_v8 (v8::Handle<v8::Context> context) {
 
-   _v8Context = context;
+   _state.context = context;
 }
 
 
@@ -183,9 +183,9 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
    if (State == JsExtV8::Register) {
       
-      if (_core) {
+      if (_state.core) {
 
-         _core->register_interface ("dmz/components/ui", _qtApi.get_new_instance ());
+         _state.core->register_interface ("dmz/components/ui", _qtApi.get_new_instance ());
       }
    }
    else if (State == JsExtV8::Init) {
@@ -199,7 +199,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _buttonCtor.Dispose (); _buttonCtor.Clear ();
 
       _qtApi.clear ();
-      _v8Context.Clear ();
+      _state.context.Clear ();
    }
 }
 
@@ -222,9 +222,8 @@ dmz::JsModuleUiV8QtBasic::_to_js_qt_object (V8Value value) {
    
    V8Object obj = v8_to_object (value);
    if (!obj.IsEmpty ()) {
-
-      if (_widgetTemp->HasInstance (obj) ||
-            _buttonTemp->HasInstance (obj)) {
+      
+      if (_widgetTemp->HasInstance (obj)) {
 
          result = (V8QtObject *)v8::External::Unwrap (obj->GetInternalField (0));
       }

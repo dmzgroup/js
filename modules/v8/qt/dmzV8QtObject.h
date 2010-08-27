@@ -1,6 +1,7 @@
 #ifndef DMZ_V8_QT_OBJECT_DOT_H
 #define DMZ_V8_QT_OBJECT_DOT_H
 
+#include "dmzJsModuleUiV8QtBasic.h"
 #include <dmzJsV8UtilTypes.h>
 #include <dmzTypes.h>
 #include <QtCore/QList>
@@ -9,15 +10,14 @@
 
 class QWidget;
 
-
 namespace dmz {
-
+   
    class V8QtObject : public QObject {
    
       Q_OBJECT
       
       public:
-         V8QtObject (QWidget *widget, QObject *parent);
+         V8QtObject (QWidget *widget, JsModuleUiV8QtBasic::State *state);
          virtual ~V8QtObject ();
          
          QWidget *get_qt_widget () const;
@@ -42,6 +42,7 @@ namespace dmz {
          };
          
          QWidget *_widget;
+         JsModuleUiV8QtBasic::State *_state;
          QList<CallbackStruct *>_cbList;
    };
 };
