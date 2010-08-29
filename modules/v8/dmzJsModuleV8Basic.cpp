@@ -363,6 +363,28 @@ dmz::JsModuleV8Basic::destroy_script (const Handle ScriptHandle) {
 
    Boolean result (False);
 
+   ScriptStruct *script = _scriptTable.lookup (ScriptHandle);
+
+   if (script) {
+
+      HashTableHandleIterator it;
+      InstanceStruct *instance (0);
+
+      while (script->table.get_next (it, instance)) {
+
+         destroy_instance (it.get_hash_key ());
+      }
+
+      script = _scriptTable.remove (ScriptHandle);
+
+      if (script) {
+
+         _scriptNameTable.remove (script->Name);
+         delete script; script = 0;
+         result = True;
+      }
+   }
+
    return result;
 }
 
@@ -453,6 +475,29 @@ dmz::Boolean
 dmz::JsModuleV8Basic::destroy_instance (const Handle Instance) {
 
    Boolean result (False);
+
+   InstanceStruct *is = _instanceTable.lookup (Instance);
+
+   if (is) {
+
+
+      HashTableHandleIterator it;
+      JsExtV8 *ext (0);
+
+      while (_extTable.get_next (it, ext)) {
+
+         ext->release_js_instance_v8 (is->Object, is->Name, is->self);
+      }
+
+      is = _instanceTable.lookup (Instance);
+
+      if (is) {
+
+         _instanceNameTable.remove (is->Name);
+         delete is; is = 0;
+         result = True;
+      }
+   }
 
    return result;
 }
