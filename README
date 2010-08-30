@@ -1,4 +1,4 @@
 JavaScript Bindings
 ===================
 
-Uses V8 JavaScript Engine to provide JavaScript bindings to DMZ.
+Uses [V8 JavaScript Engine](http://code.google.com/p/v8/) to provide JavaScript bindings to DMZ.
