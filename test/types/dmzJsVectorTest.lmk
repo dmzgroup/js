@@ -1,0 +1,9 @@
+lmk.set_name ("dmzJsVectorTest")
+lmk.add_files {"dmzJsVectorTest.lua"}
+lmk.add_preqs {
+   "dmzKernel",
+   "dmzAppTest",
+   "dmzJsModuleV8Basic",
+   "dmzJsExtV8Test",
+}
+lmk.add_vars { test = {"$(dmzAppTest.localBinTarget) -f $(name).xml"} }
