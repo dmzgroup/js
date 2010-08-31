@@ -469,6 +469,10 @@ dmz::JsPluginV8ConsoleQt::on_executeButton_clicked () {
    if (str.trimmed ().isEmpty ()) { _console.inputBox->clear (); }
    else if (_v8Context.IsEmpty () == false){
 
+      _console.displayBox->setTextColor (QColor ("blue"));
+      _console.displayBox->append (str);
+      _console.displayBox->setTextColor (_defaultColor);
+
       v8::Context::Scope cscope (_v8Context);
       v8::HandleScope scope;
 

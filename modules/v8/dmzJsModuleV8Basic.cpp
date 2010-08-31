@@ -88,8 +88,7 @@ local_require (const v8::Arguments &Args) {
       dmz::String msg ("Require unable to resolve: '");
       msg << dmz::v8_to_string (Args[0]) << "'.";
 
-      return v8::ThrowException (
-         v8::Exception::Error (v8::String::New (msg.get_buffer())));
+      return dmz::v8_throw (msg);
    }
    else { return scope.Close (result); }
 }
@@ -586,6 +585,18 @@ dmz::JsModuleV8Basic::recreate_instance (const Handle Instance, const Config &In
 
    Boolean result (False);
 
+   InstanceStruct *is = _instanceTable.lookup (Instance);
+
+   if (is) {
+
+      _shutdown_instance (*is);
+      _release_instance (*is);
+
+      is->local = Init;
+
+      if (is) { result = _create_instance (*is); }
+   }
+
    return result;
 }
 
@@ -602,7 +613,7 @@ dmz::JsModuleV8Basic::destroy_instance (const Handle Instance) {
       _shutdown_instance (*is);
       _release_instance (*is);
 
-      is = _instanceTable.lookup (Instance);
+      is = _instanceTable.remove (Instance);
 
       if (is) {
 
@@ -883,7 +894,6 @@ dmz::JsModuleV8Basic::set_external_instance_handle_and_name (
       }
    }
 
-
    return result;
 }
 
@@ -907,6 +917,7 @@ dmz::JsModuleV8Basic::_release_instances () {
 
    if (_context.IsEmpty () == false) {
 
+      v8::Context::Scope cscope (_context);
       v8::HandleScope scope;
 
       HashTableHandleIterator it;
@@ -1122,69 +1133,87 @@ dmz::JsModuleV8Basic::_load_scripts () {
 }
 
 
-void
+dmz::Boolean
 dmz::JsModuleV8Basic::_create_instance (InstanceStruct &instance) {
 
-   if (instance.script.ctor.IsEmpty () == false) {
+   Boolean result (False);
 
-      v8::TryCatch tc;
+   if (_context.IsEmpty () == false) {
 
-      if (instance.self.IsEmpty () == false) {
+      v8::Context::Scope cscope (_context);
+      v8::HandleScope scope;
 
-         instance.self.Dispose (); instance.self.Clear ();
-      }
+      if (instance.script.ctor.IsEmpty () == false) {
 
-      instance.self =
-         v8::Persistent<v8::Object>::New (_instanceTemplate->NewInstance ());;
+         v8::TryCatch tc;
 
-      InstanceStructBase *isb = &instance;
+         if (instance.self.IsEmpty () == false) {
 
-      instance.self->SetHiddenValue (
-         _instanceAttrName,
-         v8::External::Wrap ((void *)isb));
+            instance.self.Dispose (); instance.self.Clear ();
+         }
 
-      instance.self->Set (
-         v8::String::NewSymbol ("name"),
-         v8::String::New (instance.Name.get_buffer ()));
+         instance.self =
+            v8::Persistent<v8::Object>::New (_instanceTemplate->NewInstance ());
 
-      if (_runtime) {
+         InstanceStructBase *isb = &instance;
 
-         instance.self->Set (
-            v8::String::NewSymbol ("config"),
-            _runtime->create_v8_config (&(instance.local)));
+         instance.self->SetHiddenValue (
+            _instanceAttrName,
+            v8::External::Wrap ((void *)isb));
 
          instance.self->Set (
-            v8::String::NewSymbol ("log"),
-            _runtime->create_v8_log (instance.Name));
-      }
+            v8::String::NewSymbol ("name"),
+            v8::String::New (instance.Name.get_buffer ()));
 
-      v8::Handle<v8::Value> argv[] = { instance.self, _requireFunc };
+         if (_runtime) {
 
-      V8Value value = instance.script.ctor->Call (instance.self, 2, argv);
+            instance.self->Set (
+               v8::String::NewSymbol ("config"),
+               _runtime->create_v8_config (&(instance.local)));
 
-      if (tc.HasCaught ()) { handle_v8_exception (tc); }
-      else {
+            instance.self->Set (
+               v8::String::NewSymbol ("log"),
+               _runtime->create_v8_log (instance.Name));
+         }
 
-         _log.info << "Created instance: " << instance.Name
-            << " from script: " << instance.script.FileName << endl;
+         v8::Handle<v8::Value> argv[] = { instance.self, _requireFunc };
+
+         V8Value value = instance.script.ctor->Call (instance.self, 2, argv);
+
+         if (tc.HasCaught ()) { handle_v8_exception (tc); }
+         else {
+
+            _log.info << "Created instance: " << instance.Name
+               << " from script: " << instance.script.FileName << endl;
+
+            result = True;
+         }
       }
    }
+
+   return result;
 }
 
 
 void
 dmz::JsModuleV8Basic::_shutdown_instance (InstanceStruct &instance) {
 
-   if (instance.self.IsEmpty () == false) {
+   if (_context.IsEmpty () == false) {
 
-      V8Function func = v8_to_function (instance.self->Get (_shutdownFuncName));
+      v8::Context::Scope cscope (_context);
+      v8::HandleScope scope;
 
-      if (func.IsEmpty () == false) {
+      if (instance.self.IsEmpty () == false) {
 
-         v8::TryCatch tc;
-         v8::Handle<v8::Value> argv[] = { instance.self };
-         func->Call (instance.self, 1, argv);
-         if (tc.HasCaught ()) { handle_v8_exception (tc); }
+         V8Function func = v8_to_function (instance.self->Get (_shutdownFuncName));
+
+         if (func.IsEmpty () == false) {
+
+            v8::TryCatch tc;
+            v8::Handle<v8::Value> argv[] = { instance.self };
+            func->Call (instance.self, 1, argv);
+            if (tc.HasCaught ()) { handle_v8_exception (tc); }
+         }
       }
    }
 }
@@ -1203,7 +1232,12 @@ dmz::JsModuleV8Basic::_release_instance (InstanceStruct &instance) {
          ext->release_js_instance_v8 (instance.Object, instance.Name, instance.self);
       }
 
-      instance.self.Dispose (); instance.self.Clear ();
+      if (_context.IsEmpty () == false) {
+
+         v8::Context::Scope cscope (_context);
+         v8::HandleScope scope;
+         instance.self.Dispose (); instance.self.Clear ();
+      }
    }
 }
 

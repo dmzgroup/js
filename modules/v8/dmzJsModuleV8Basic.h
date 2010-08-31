@@ -175,7 +175,7 @@ namespace dmz {
          void _stop_ext ();
          void _shutdown_ext ();
          void _load_scripts ();
-         void _create_instance (InstanceStruct &instance);
+         Boolean _create_instance (InstanceStruct &instance);
          void _shutdown_instance (InstanceStruct &instance);
          void _release_instance (InstanceStruct &instance);
          ScriptStruct *_find_script (Config &script);
