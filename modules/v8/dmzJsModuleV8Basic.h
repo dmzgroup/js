@@ -61,13 +61,14 @@ namespace dmz {
 
          virtual Handle compile_script (
             const String &Name,
-            const Int32 Size,
-            char *script);
+            const String &FileName,
+            const char *Script,
+            const Int32 Size);
 
          virtual Boolean recompile_script (
             const Handle ScriptHandle,
-            const Int32 Size,
-            char *script);
+            const char *Script,
+            const Int32 Size);
 
          virtual Handle lookup_script (const String &Name);
          virtual String lookup_script_name (const Handle ScriptHandle);
@@ -174,6 +175,9 @@ namespace dmz {
          void _stop_ext ();
          void _shutdown_ext ();
          void _load_scripts ();
+         void _create_instance (InstanceStruct &instance);
+         void _shutdown_instance (InstanceStruct &instance);
+         void _release_instance (InstanceStruct &instance);
          ScriptStruct *_find_script (Config &script);
          void _init (Config &local, Config &global);
 

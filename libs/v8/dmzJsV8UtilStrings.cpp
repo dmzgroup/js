@@ -130,3 +130,75 @@ dmz::V8EmbeddedString::data () const { return _state.Buffer; }
 size_t
 dmz::V8EmbeddedString::length () const { return _state.Length; }
 
+struct dmz::V8ExternalString::State {
+
+   char *buffer;
+   size_t length;
+
+   State (
+         const char *Buffer,
+         const size_t Length,
+         const String Header,
+         const String &Footer) :
+         buffer (0),
+         length (Length) {
+
+      if (Header) { length += Header.get_length (); }
+      if (Footer) { length += Footer.get_length (); }
+
+      if (length > 0) {
+
+         size_t place (0);
+
+         buffer = new char[length + 1];
+
+         if (buffer) {
+
+            buffer[length] = '\0';
+
+            if (Header) {
+
+               strncpy (buffer, Header.get_buffer (), Header.get_length ());
+               place += Header.get_length ();
+            }
+
+            if (Length) {
+
+               strncpy (&(buffer[place]), Buffer, Length);
+               place += Length;
+            }
+
+            if (Footer) {
+
+               strncpy (&(buffer[place]), Footer.get_buffer (), Footer.get_length ());
+            }
+         }
+      }
+   }
+
+   ~State () { if (buffer) { delete buffer; buffer = 0; } }
+};
+
+
+dmz::V8ExternalString::V8ExternalString (
+      const char *Buffer,
+      const size_t Length,
+      const String &Header,
+      const String &Footer) :
+      _state (*(new State (Buffer, Length, Header, Footer))) {;}
+
+
+dmz::V8ExternalString::V8ExternalString (const char *Buffer, const size_t Length) :
+      _state (*(new State (Buffer, Length, "", ""))) {;}
+
+
+dmz::V8ExternalString::~V8ExternalString () { delete &_state; }
+
+
+const char *
+dmz::V8ExternalString::data () const { return _state.buffer; } 
+
+
+size_t
+dmz::V8ExternalString::length () const { return _state.length; }
+

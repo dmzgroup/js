@@ -503,7 +503,7 @@ dmz::JsModuleRuntimeV8Basic::_reset_messaging () { _msgTable.empty (); }
 void
 dmz::JsModuleRuntimeV8Basic::_release_message_observer (const Handle InstanceHandle) {
 
-   MessageStruct *ms = _msgTable.lookup (InstanceHandle);
+   MessageStruct *ms = _msgTable.remove (InstanceHandle);
 
    if (ms) {
 

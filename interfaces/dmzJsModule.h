@@ -29,13 +29,14 @@ class JsModule {
 
       virtual Handle compile_script (
          const String &Name,
-         const Int32 Size,
-         char *script) = 0;
+         const String &FileName,
+         const char *Script,
+         const Int32 Size) = 0;
 
       virtual Boolean recompile_script (
          const Handle ScriptHandle,
-         const Int32 Size,
-         char *script) = 0;
+         const char *Script,
+         const Int32 Size) = 0;
 
       virtual Handle lookup_script (const String &Name) = 0;
       virtual String lookup_script_name (const Handle ScriptHandle) = 0;

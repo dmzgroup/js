@@ -59,6 +59,36 @@ class DMZ_JS_V8_UTIL_LINK_SYMBOL V8EmbeddedString :
       V8EmbeddedString &operator= (const V8EmbeddedString &);
 };
 
+class DMZ_JS_V8_UTIL_LINK_SYMBOL V8ExternalString :
+      public v8::String::ExternalAsciiStringResource {
+
+   public:
+      V8ExternalString (
+         const char *Buffer,
+         const size_t Length);
+
+      V8ExternalString (
+         const char *Buffer,
+         const size_t Length,
+         const String &Header,
+         const String &Footer);
+
+      virtual ~V8ExternalString ();
+
+      // ExternalAsciiStringResource Interface.
+      virtual const char *data () const;
+      virtual size_t length () const;
+
+   protected:
+      struct State;
+      State &_state;
+
+   private:
+      V8ExternalString ();
+      V8ExternalString (const V8ExternalString &);
+      V8ExternalString &operator= (const V8ExternalString &);
+};
+
 };
 
 #endif // DMZ_JS_V8_UTIL_STRINGS_DOT_H
