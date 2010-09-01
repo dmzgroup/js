@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmz>
+<plugin-list>
+   <plugin name="dmzJsModuleV8Basic" scope="javascript"/>
+   <plugin name="dmzJsExtV8Test" scope="javascript"/>
+   <plugin name="dmzPluginExitOnLogError"/>
+</plugin-list>
+<javascript>
+   <path value="../../scripts"/>
+   <instance name="dmzJsVectorTest"/>
+</javascript>
+</dmz>
