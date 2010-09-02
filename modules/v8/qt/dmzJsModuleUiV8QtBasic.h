@@ -69,8 +69,21 @@ namespace dmz {
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
          static V8Value _button_text (const v8::Arguments &Args);
 
+         // QListWidgetItem bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
+         static V8Value _list_widget_add_item (const v8::Arguments &Args);
+         static V8Value _list_widget_current_item (const v8::Arguments &Args);
+         static V8Value _list_widget_item (const v8::Arguments &Args);
+
+         static V8Value _create_list_widget_item (const v8::Arguments &Args);
+         static V8Value _list_widget_item_text (const v8::Arguments &Args);
+
          QWidget *_to_qt_widget (V8Value value);
          V8QtObject *_to_js_qt_object (V8Value value);
+         
+         void _init_widget ();
+         void _init_button ();
+         void _init_list_widget ();
+         void _init_list_widget_item ();
          
          void _init (Config &local);
 
@@ -86,6 +99,13 @@ namespace dmz {
 
          V8FunctionTemplatePersist _buttonTemp;
          V8FunctionPersist _buttonCtor;
+
+         V8InterfaceHelper _listWidgetItemApi; 
+         V8FunctionTemplatePersist _listWidgetItemTemp;
+         V8FunctionPersist _listWidgetItemCtor;
+
+         V8FunctionTemplatePersist _listWidgetTemp;
+         V8FunctionPersist _listWidgetCtor;
          
       private:
          JsModuleUiV8QtBasic ();

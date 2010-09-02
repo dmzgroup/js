@@ -130,6 +130,24 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
             qobj = new V8QtButton (value, &_state);
          }
       }
+/*
+      else if (value->inherits ("QListWidget")) {
+         
+         if (!_listWidgetCtor.IsEmpty ()) {
+            
+            vobj = _listWidgetCtor->NewInstance ();
+            qobj = new V8QtListWidget (value, &_state);
+         }
+      }
+      else if (value->inherits ("QListWidgetItem")) {
+
+         if (!_listWidgetItemCtor) {
+            
+            vobj = _listWidgetItemCtor->NewInstance ();
+            qobj = new V8QtListWidgetItem (value, &_state);
+         }
+      }
+*/
       else if (value->inherits ("QWidget")) {
 
          if (!_widgetCtor.IsEmpty ()) {
@@ -138,7 +156,7 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
             qobj = new V8QtWidget (value, &_state);
          }
       }
-      
+
       if (!vobj.IsEmpty () && qobj) {
          
          vobj->SetInternalField (0, v8::External::Wrap ((void *)qobj));
@@ -243,25 +261,11 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
 
    // API
    _qtApi.add_function ("load", _uiloader_load, _self);
-   // _qtApi.add_function ("observer", _global_observer, _self);
 
-   _widgetTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
-   V8ObjectTemplate widgetProto = _widgetTemp->PrototypeTemplate ();
-   widgetProto->Set ("close", v8::FunctionTemplate::New (_widget_close, _self));
-   widgetProto->Set ("enabled", v8::FunctionTemplate::New (_widget_enabled, _self));
-   widgetProto->Set ("lookup", v8::FunctionTemplate::New (_widget_lookup, _self));
-   widgetProto->Set ("show", v8::FunctionTemplate::New (_widget_show, _self));
-   widgetProto->Set ("hide", v8::FunctionTemplate::New (_widget_hide, _self));
-   widgetProto->Set ("observe", v8::FunctionTemplate::New (_widget_observe, _self));
-   V8ObjectTemplate widgetInstance = _widgetTemp->InstanceTemplate ();
-   widgetInstance->SetInternalFieldCount (1);
-
-   _buttonTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
-   _buttonTemp->Inherit (_widgetTemp);
-   V8ObjectTemplate buttonProto = _buttonTemp->PrototypeTemplate ();
-   buttonProto->Set ("text", v8::FunctionTemplate::New (_button_text, _self));
-   V8ObjectTemplate buttonInstance = _buttonTemp->InstanceTemplate ();
-   buttonInstance->SetInternalFieldCount (1);
+   _init_widget ();
+   _init_button ();
+   // _init_list_widget ();
+   // _init_list_widget_item ();
 }
 
 

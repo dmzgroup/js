@@ -6,12 +6,14 @@ lmkV8.set_name ("dmzJsModuleUiV8QtBasic", lmkQt.get_flags ())
 lmk.set_type "plugin"
 
 lmk.add_files ({
-   "dmzV8QtObject.h",
-   "dmzV8QtWidget.h",
+   -- "dmzV8QtListWidget.h",
    "dmzV8QtButton.h",
+   "dmzV8QtWidget.h",
+   "dmzV8QtObject.h",
 },{src="moc"})
 
 lmk.add_files {
+   -- "dmzV8QtListWidget.cpp",
    "dmzV8QtButton.cpp",
    "dmzV8QtWidget.cpp",
    "dmzV8QtObject.cpp",

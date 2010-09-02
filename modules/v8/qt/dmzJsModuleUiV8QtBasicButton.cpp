@@ -31,3 +31,17 @@ dmz::JsModuleUiV8QtBasic::_button_text (const v8::Arguments &Args) {
 }
 
 
+void
+dmz::JsModuleUiV8QtBasic::_init_button () {
+
+   v8::HandleScope scope;
+
+   _buttonTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
+   _buttonTemp->Inherit (_widgetTemp);
+
+   V8ObjectTemplate instance = _buttonTemp->InstanceTemplate ();
+   instance->SetInternalFieldCount (1);
+
+   V8ObjectTemplate proto = _buttonTemp->PrototypeTemplate ();
+   proto->Set ("text", v8::FunctionTemplate::New (_button_text, _self));
+}

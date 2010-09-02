@@ -177,3 +177,24 @@ dmz::JsModuleUiV8QtBasic::_widget_show (const v8::Arguments &Args) {
 
    return scope.Close (result);
 }
+
+
+void
+dmz::JsModuleUiV8QtBasic::_init_widget () {
+
+   v8::HandleScope scope;
+
+   _widgetTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
+
+   V8ObjectTemplate instance = _widgetTemp->InstanceTemplate ();
+   instance->SetInternalFieldCount (1);
+
+   V8ObjectTemplate proto = _widgetTemp->PrototypeTemplate ();
+   proto->Set ("close", v8::FunctionTemplate::New (_widget_close, _self));
+   proto->Set ("enabled", v8::FunctionTemplate::New (_widget_enabled, _self));
+   proto->Set ("lookup", v8::FunctionTemplate::New (_widget_lookup, _self));
+   proto->Set ("show", v8::FunctionTemplate::New (_widget_show, _self));
+   proto->Set ("hide", v8::FunctionTemplate::New (_widget_hide, _self));
+   proto->Set ("observe", v8::FunctionTemplate::New (_widget_observe, _self));
+}
+
