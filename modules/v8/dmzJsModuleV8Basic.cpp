@@ -805,22 +805,21 @@ dmz::JsModuleV8Basic::handle_v8_exception (const Handle Source, v8::TryCatch &tc
 
       const String FileName = v8_to_string (message->GetScriptResourceName ());
       const Int32 Line = message->GetLineNumber ();
-      errorStr << FileName << ":" << Line << ": " << ExStr;
+      errorStr.flush () << FileName << ":" << Line << ": " << ExStr;
       _log.error << errorStr << endl;
 
       // Print line of source code.
       _log.error << v8_to_string (message->GetSourceLine ()) << endl;
 
-      // Print wavy underline (GetUnderline is deprecated).
       int start = message->GetStartColumn ();
       int end = message->GetEndColumn ();
 
       String space;
-      space.repeat ("-", start - 1);
+      if (start > 1) { space.repeat ("-", start - 1); }
       String line;
       line.repeat ("^", end - start);
 
-      _log.error << " " << space << line << endl;
+      _log.error << (start > 0 ? " " : "") << space << line << endl;
 
       stackStr = v8_to_string (tc.StackTrace ());
 
