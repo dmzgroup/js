@@ -212,9 +212,9 @@ dmz::JsModuleRuntimeV8Basic::release_js_instance_v8 (
 
 // JsModuleRuntimeV8Basic Interface
 void
-dmz::JsModuleRuntimeV8Basic::handle_v8_exception (v8::TryCatch &tc) {
+dmz::JsModuleRuntimeV8Basic::handle_v8_exception (const Handle Source, v8::TryCatch &tc) {
 
-   if (_core) { _core->handle_v8_exception (tc); }
+   if (_core) { _core->handle_v8_exception (Source, tc); }
 }
 
 

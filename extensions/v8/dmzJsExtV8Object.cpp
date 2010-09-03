@@ -2892,7 +2892,7 @@ dmz::JsExtV8Object::_do_callback (
 
       if (tc.HasCaught ()) {
 
-         if (_core) { _core->handle_v8_exception (tc); }
+         if (_core) { _core->handle_v8_exception (ObsHandle, tc); }
 
          ObsStruct *os = _obsTable.lookup (ObsHandle);
 

@@ -205,6 +205,13 @@ dmz::JsModuleV8Basic::discover_plugin (
       }
 
       if (!_runtime) { _runtime = JsModuleRuntimeV8::cast (PluginPtr); }
+
+      JsObserver *obs = JsObserver::cast (PluginPtr);
+
+      if (obs && _obsTable.store (obs->get_js_observer_handle (), obs)) {
+
+         _dump_to_observer (*obs);
+      }
    }
    else if (Mode == PluginDiscoverRemove) {
 
@@ -224,6 +231,9 @@ dmz::JsModuleV8Basic::discover_plugin (
       }
 
       if (_runtime && (_runtime == JsModuleRuntimeV8::cast (PluginPtr))) { _runtime = 0; }
+
+      JsObserver *obs = JsObserver::cast (PluginPtr);
+      if (obs) { _obsTable.remove (obs->get_js_observer_handle ()); }
    }
 }
 
@@ -343,51 +353,52 @@ dmz::JsModuleV8Basic::recompile_script (
       HashTableHandleIterator inIt;
       InstanceStruct *is (0);
 
+      while (info->table.get_next (inIt, is)) { _shutdown_instance (*is); }
       while (info->table.get_next (inIt, is)) { _release_instance (*is); }
 
-      HashTableHandleIterator scriptIt;
-      ScriptStruct *info (0);
+      _observe_script (JsObserverRelease, info->ScriptHandle);
+      info->clear ();
 
-      while (_scriptTable.get_next (scriptIt, info)) {
+      v8::TryCatch tc;
 
-         info->clear ();
+      V8ExternalString *sptr = new V8ExternalString (
+         Script,
+         Size,
+         LocalInstanceHeader,
+         LocalFooter);
 
-         v8::TryCatch tc;
+      v8::Handle<v8::Script> script = v8::Script::Compile (
+         v8::String::NewExternal (sptr),
+         v8::String::New (info->FileName.get_buffer ()));
 
-         V8ExternalString *sptr = new V8ExternalString (
-            Script,
-            Size,
-            LocalInstanceHeader,
-            LocalFooter);
+      if (tc.HasCaught ()) { handle_v8_exception (info->ScriptHandle, tc); }
+      else {
 
-         v8::Handle<v8::Script> script = v8::Script::Compile (
-            v8::String::NewExternal (sptr),
-            v8::String::New (info->FileName.get_buffer ()));
+         _log.info << "Loaded script: " << info->FileName << endl;
 
-         if (tc.HasCaught ()) { handle_v8_exception (tc); }
+         info->script = v8::Persistent<v8::Script>::New (script);
+         v8::Handle<v8::Value> value = info->script->Run ();
+
+         if (tc.HasCaught ()) { handle_v8_exception (info->ScriptHandle, tc); }
          else {
 
-            _log.info << "Loaded script: " << info->FileName << endl;
+            V8Function func = v8_to_function (value);
 
-            info->script = v8::Persistent<v8::Script>::New (script);
-            v8::Handle<v8::Value> value = info->script->Run ();
+            if (func.IsEmpty ()) {
 
-            if (tc.HasCaught ()) { handle_v8_exception (tc); }
+               _log.error << "No function returned from: " << info->FileName << endl;
+            }
             else {
 
-               V8Function func = v8_to_function (value);
-               if (func.IsEmpty ()) {
-                  // Error! no function returned.
-                  _log.error << "No function returned from: " << info->FileName << endl;
-               }
-               else {
+               info->ctor = v8::Persistent<v8::Function>::New (func);
 
-                  info->ctor = v8::Persistent<v8::Function>::New (func);
-                  result = True;
-               }
+               _observe_script (JsObserverCreate, info->ScriptHandle);
+               result = True;
             }
          }
       }
+
+      if (result) { while (info->table.get_next (inIt, is)) { _create_instance (*is); } }
    }
 
    return result;
@@ -450,10 +461,13 @@ dmz::JsModuleV8Basic::destroy_script (const Handle ScriptHandle) {
          destroy_instance (it.get_hash_key ());
       }
 
-      script = _scriptTable.remove (ScriptHandle);
+      script = _scriptTable.lookup (ScriptHandle);
 
       if (script) {
 
+         _observe_script (JsObserverDestroy, script->ScriptHandle);
+
+         _scriptTable.remove (script->ScriptHandle);
          _scriptNameTable.remove (script->Name);
          delete script; script = 0;
          result = True;
@@ -613,11 +627,15 @@ dmz::JsModuleV8Basic::destroy_instance (const Handle Instance) {
       _shutdown_instance (*is);
       _release_instance (*is);
 
-      is = _instanceTable.remove (Instance);
+      is = _instanceTable.lookup (Instance);
 
       if (is) {
 
+         _observe_instance (JsObserverDestroy, is->Object);
+
+         _instanceTable.remove (is->Object);
          _instanceNameTable.remove (is->Name);
+
          delete is; is = 0;
          result = True;
       }
@@ -708,12 +726,12 @@ dmz::JsModuleV8Basic::require (const String &Value) {
             v8::String::NewExternal (sptr),
             v8::String::New (scriptPath.get_buffer ()));
 
-         if (tc.HasCaught ()) { handle_v8_exception (tc); }
+         if (tc.HasCaught ()) { handle_v8_exception (0, tc); }
          else {
 
             V8Value value = script->Run ();
 
-            if (tc.HasCaught ()) { handle_v8_exception (tc); }
+            if (tc.HasCaught ()) { handle_v8_exception (0, tc); }
             else {
 
                V8Function func = v8_to_function (value);
@@ -733,7 +751,7 @@ dmz::JsModuleV8Basic::require (const String &Value) {
                      v8::Handle<v8::Value> argv[] = { result, _requireFunc };
                      v8::Handle<v8::Value> value = func->Call (result, 2, argv);
 
-                     if (tc.HasCaught ()) { handle_v8_exception (tc); }
+                     if (tc.HasCaught ()) { handle_v8_exception (0, tc); }
                   }
                   else {
 
@@ -768,12 +786,14 @@ dmz::JsModuleV8Basic::get_require_list (StringContainer &list) {
 
 
 void
-dmz::JsModuleV8Basic::handle_v8_exception (v8::TryCatch &tc) {
+dmz::JsModuleV8Basic::handle_v8_exception (const Handle Source, v8::TryCatch &tc) {
 
    v8::Context::Scope cscope (_context);
    v8::HandleScope hscope;
 
    const String ExStr = v8_to_string (tc.Exception ());
+   String errorStr (ExStr);
+   String stackStr;
 
    v8::Handle<v8::Message> message = tc.Message ();
 
@@ -785,23 +805,55 @@ dmz::JsModuleV8Basic::handle_v8_exception (v8::TryCatch &tc) {
 
       const String FileName = v8_to_string (message->GetScriptResourceName ());
       const Int32 Line = message->GetLineNumber ();
-      _log.error << FileName << ":" << Line << ": " << ExStr << endl;
+      errorStr << FileName << ":" << Line << ": " << ExStr;
+      _log.error << errorStr << endl;
 
-         // Print line of source code.
-         _log.error << v8_to_string (message->GetSourceLine ()) << endl;
+      // Print line of source code.
+      _log.error << v8_to_string (message->GetSourceLine ()) << endl;
 
-         // Print wavy underline (GetUnderline is deprecated).
-         int start = message->GetStartColumn ();
-         int end = message->GetEndColumn ();
+      // Print wavy underline (GetUnderline is deprecated).
+      int start = message->GetStartColumn ();
+      int end = message->GetEndColumn ();
 
-         String space;
-         space.repeat ("-", start - 1);
-         String line;
-         line.repeat ("^", end - start);
+      String space;
+      space.repeat ("-", start - 1);
+      String line;
+      line.repeat ("^", end - start);
 
-         _log.error << " " << space << line << endl;
+      _log.error << " " << space << line << endl;
 
-         _log.error << "Stack trace: " << endl << v8_to_string (tc.StackTrace ()) << endl;
+      stackStr = v8_to_string (tc.StackTrace ());
+
+      _log.error << "Stack trace: " << endl << stackStr << endl;
+   }
+
+   if (_obsTable.get_count () > 0) {
+
+      const Handle Module (get_plugin_handle ());
+      Handle script (0);
+      Handle instance (0);
+
+      InstanceStruct *is (_instanceTable.lookup (Source));
+
+      if (is) {
+
+         instance = is->Object;
+         script = is->script.ScriptHandle;
+      }
+      else {
+
+         ScriptStruct *ss (_scriptTable.lookup (Source));
+
+         if (ss) { script = ss->ScriptHandle; }
+      }
+
+      HashTableHandleIterator it;
+      JsObserver *obs (0);
+
+      while (_obsTable.get_next (it, obs)) {
+
+         obs->update_js_error (Module, script, instance, errorStr, stackStr);
+      }
    }
 }
 
@@ -895,6 +947,64 @@ dmz::JsModuleV8Basic::set_external_instance_handle_and_name (
    }
 
    return result;
+}
+
+
+void
+dmz::JsModuleV8Basic::_dump_to_observer (JsObserver &obs) {
+
+   const Handle Module (get_plugin_handle ());
+
+   HashTableHandleIterator it;
+   ScriptStruct *ss (0);
+
+   while (_scriptTable.get_next (it, ss)) {
+
+      if (ss->ctor.IsEmpty () == False) {
+
+         obs.update_js_script (JsObserverCreate, Module, ss->ScriptHandle);
+      }
+   }
+
+   it.reset ();
+   InstanceStruct *is (0);
+
+   while (_instanceTable.get_next (it, is)) {
+
+      if (is->self.IsEmpty () == False) {
+
+         obs.update_js_instance (JsObserverCreate, Module, is->Object);
+      }
+   }
+}
+
+
+void
+dmz::JsModuleV8Basic::_observe_script (
+      const JsObserverModeEnum Mode,
+      const Handle Script) {
+
+   const Handle Module (get_plugin_handle ());
+   HashTableHandleIterator it;
+   JsObserver *obs (0);
+
+   while (_obsTable.get_next (it, obs)) { obs->update_js_script (Mode, Module, Script); }
+}
+
+
+void
+dmz::JsModuleV8Basic::_observe_instance (
+      const JsObserverModeEnum Mode,
+      const Handle Instance) {
+
+   const Handle Module (get_plugin_handle ());
+   HashTableHandleIterator it;
+   JsObserver *obs (0);
+
+   while (_obsTable.get_next (it, obs)) {
+
+      obs->update_js_instance (Mode, Module, Instance);
+   }
 }
 
 
@@ -1102,7 +1212,7 @@ dmz::JsModuleV8Basic::_load_scripts () {
          v8::String::NewExternal (sptr),
          v8::String::New (info->FileName.get_buffer ()));
 
-      if (tc.HasCaught ()) { handle_v8_exception (tc); }
+      if (tc.HasCaught ()) { handle_v8_exception (info->ScriptHandle, tc); }
       else {
 
          _log.info << "Loaded script: " << info->FileName << endl;
@@ -1110,7 +1220,7 @@ dmz::JsModuleV8Basic::_load_scripts () {
          info->script = v8::Persistent<v8::Script>::New (script);
          v8::Handle<v8::Value> value = info->script->Run ();
 
-         if (tc.HasCaught ()) { handle_v8_exception (tc); }
+         if (tc.HasCaught ()) { handle_v8_exception (info->ScriptHandle, tc); }
          else {
 
             V8Function func = v8_to_function (value);
@@ -1121,6 +1231,7 @@ dmz::JsModuleV8Basic::_load_scripts () {
             else {
 
                info->ctor = v8::Persistent<v8::Function>::New (func);
+               _observe_script (JsObserverCreate, info->ScriptHandle);
             }
          }
       }
@@ -1180,11 +1291,13 @@ dmz::JsModuleV8Basic::_create_instance (InstanceStruct &instance) {
 
          V8Value value = instance.script.ctor->Call (instance.self, 2, argv);
 
-         if (tc.HasCaught ()) { handle_v8_exception (tc); }
+         if (tc.HasCaught ()) { handle_v8_exception (instance.Object, tc); }
          else {
 
             _log.info << "Created instance: " << instance.Name
                << " from script: " << instance.script.FileName << endl;
+
+            _observe_instance (JsObserverCreate, instance.Object);
 
             result = True;
          }
@@ -1212,7 +1325,7 @@ dmz::JsModuleV8Basic::_shutdown_instance (InstanceStruct &instance) {
             v8::TryCatch tc;
             v8::Handle<v8::Value> argv[] = { instance.self };
             func->Call (instance.self, 1, argv);
-            if (tc.HasCaught ()) { handle_v8_exception (tc); }
+            if (tc.HasCaught ()) { handle_v8_exception (instance.Object, tc); }
          }
       }
    }
@@ -1223,6 +1336,8 @@ void
 dmz::JsModuleV8Basic::_release_instance (InstanceStruct &instance) {
 
    if (instance.self.IsEmpty () == false) {
+
+      _observe_instance (JsObserverRelease, instance.Object);
 
       HashTableHandleIterator it;
       JsExtV8 *ext (0);

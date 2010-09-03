@@ -8,16 +8,10 @@
 
 namespace dmz {
 
-enum JsScriptModeEmum {
-   JsScriptCompile,
-   JsScriptRecompile,
-   JsScriptDestroy
-};
-
-enum JsInstanceModeEnum {
-   JsInstanceCreate,
-   JsInstanceRecreate,
-   JsInstanceDestroy
+enum JsObserverModeEnum {
+   JsObserverCreate,
+   JsObserverRelease,
+   JsObserverDestroy
 };
 
 class JsObserver {
@@ -31,10 +25,18 @@ class JsObserver {
       Handle get_js_observer_handle () const;
 
       // JsObserver Interface
-      void update_js_script (const JsScriptModeEmum Mode, const Handle Script) = 0;
-      void update_js_instance (const JsInstanceModeEmum Mode, const Handle Instance) = 0;
+      virtual void update_js_script (
+         const JsObserverModeEnum Mode,
+         const Handle Module,
+         const Handle Script) = 0;
 
-      void update_js_error (
+      virtual void update_js_instance (
+         const JsObserverModeEnum Mode,
+         const Handle Module,
+         const Handle Instance) = 0;
+
+      virtual void update_js_error (
+         const Handle Module,
          const Handle Script,
          const Handle Instance,
          const String &ErrorMessage,

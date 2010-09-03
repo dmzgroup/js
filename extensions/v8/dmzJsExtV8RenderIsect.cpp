@@ -260,11 +260,11 @@ dmz::JsExtV8RenderIsect::_isect_do_isect (const v8::Arguments &Args) {
 
                if (tc.HasCaught ()) {
 
-                  if (self->_core) { self->_core->handle_v8_exception (tc); }
+                  if (self->_core) { self->_core->handle_v8_exception (0, tc); }
 
-                  V8Function *ptr = table.remove (Id);
+                  V8FunctionPersist *ptr = table.remove (Id);
 
-                  if (ptr) { delete ptr; ptr = 0; }
+                  if (ptr) { ptr->Dispose (); ptr->Clear (); delete ptr; ptr = 0; }
                }
             }
 

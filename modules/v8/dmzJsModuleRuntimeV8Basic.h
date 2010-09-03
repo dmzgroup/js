@@ -66,7 +66,7 @@ namespace dmz {
             v8::Handle<v8::Object> &instance);
 
          // JsModuleRuntimeV8Basic Interface
-         void handle_v8_exception (v8::TryCatch &tc);
+         void handle_v8_exception (const Handle Source, v8::TryCatch &tc);
          // implemented in dmzJsModuleRuntimeV8BasicTimer.cpp
          Boolean delete_timer (V8Object self, V8Function callback);
          Boolean delete_all_timers (V8Object self);

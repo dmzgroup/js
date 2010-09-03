@@ -489,13 +489,13 @@ dmz::JsPluginV8ConsoleQt::on_executeButton_clicked () {
 
       if (tc.HasCaught ()) {
 
-         if (_core) { _core->handle_v8_exception (tc); }
+         if (_core) { _core->handle_v8_exception (0, tc); }
       }
       else {
 
          v8::Handle<v8::Value> value = script->Run ();
 
-         if (tc.HasCaught ()) { if (_core) { _core->handle_v8_exception (tc); } }
+         if (tc.HasCaught ()) { if (_core) { _core->handle_v8_exception (0, tc); } }
          else {
  
             V8Function func = v8_to_function (value); 
@@ -510,7 +510,7 @@ dmz::JsPluginV8ConsoleQt::on_executeButton_clicked () {
 
                if (tc.HasCaught ()) {
 
-                  if (_core) { _core->handle_v8_exception (tc); }
+                  if (_core) { _core->handle_v8_exception (0, tc); }
                }
                else {
 

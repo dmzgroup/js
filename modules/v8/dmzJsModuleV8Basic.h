@@ -3,6 +3,7 @@
 
 #include <dmzJsModule.h>
 #include <dmzJsModuleV8.h>
+#include <dmzJsObserver.h>
 #include <dmzJsV8UtilTypes.h>
 #include <dmzRuntimeConfig.h>
 #include <dmzRuntimeDefinitions.h>
@@ -104,7 +105,7 @@ namespace dmz {
          virtual v8::Handle<v8::Object> require (const String &Value);
          virtual void get_require_list (StringContainer &list);
 
-         virtual void handle_v8_exception (v8::TryCatch &tc);
+         virtual void handle_v8_exception (const Handle Source, v8::TryCatch &tc);
 
          virtual String get_instance_name (v8::Handle<v8::Value> value);
          virtual Handle get_instance_handle (v8::Handle<v8::Value> value);
@@ -167,6 +168,9 @@ namespace dmz {
             }
          };
 
+         void _dump_to_observer (JsObserver &obs);
+         void _observe_script (const JsObserverModeEnum Mode, const Handle Script);
+         void _observe_instance (const JsObserverModeEnum Mode, const Handle Instance);
          void _empty_require ();
          void _release_instances ();
          void _init_context ();
@@ -198,6 +202,8 @@ namespace dmz {
          HashTableStringTemplate<InstanceStruct> _instanceNameTable;
          HashTableHandleTemplate<JsExtV8> _extTable;
          HashTableStringTemplate<v8::Persistent<v8::Object> > _requireTable;
+
+         HashTableHandleTemplate<JsObserver> _obsTable;
 
          v8::Persistent<v8::Context> _context;
          v8::Persistent<v8::ObjectTemplate> _instanceTemplate;

@@ -930,7 +930,7 @@ dmz::JsExtV8Input::_do_callback (
 
          if (tc.HasCaught ()) {
 
-            if (_core) { _core->handle_v8_exception (tc); }
+            if (_core) { _core->handle_v8_exception (it.get_hash_key (), tc); }
             _release_callback (localSelf, localFunc);
             cb = 0;
          }

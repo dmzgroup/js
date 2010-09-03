@@ -99,7 +99,7 @@ dmz::JsModuleRuntimeV8Basic::MessageStruct::receive_message (
 
       if (tc.HasCaught ()) {
 
-         module.handle_v8_exception (tc);
+         module.handle_v8_exception (current.get_handle (), tc);
 
          cb = cbTable.remove (current.get_handle ());
          if (cb) { delete cb; cb = 0; }

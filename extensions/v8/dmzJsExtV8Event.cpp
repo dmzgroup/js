@@ -1050,7 +1050,7 @@ dmz::JsExtV8Event::_do_callback (
 
             if (tc.HasCaught ()) {
 
-               if (_core) { _core->handle_v8_exception (tc); }
+               if (_core) { _core->handle_v8_exception (Observer, tc); }
 
                cs = table->table.remove (Observer);
 
