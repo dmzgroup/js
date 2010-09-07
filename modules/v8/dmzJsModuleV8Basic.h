@@ -15,6 +15,7 @@
 #include <dmzSystemFile.h>
 #include <dmzTypesHashTableHandleTemplate.h>
 #include <dmzTypesHashTableStringTemplate.h>
+#include <dmzJsV8UtilStrings.h>
 
 namespace dmz {
 
@@ -90,6 +91,7 @@ namespace dmz {
          virtual Handle lookup_instance (const String &InstanceName);
          virtual Handle lookup_instance_script (const Handle Instance);
          virtual String lookup_instance_name (const Handle Instance);
+         virtual Boolean lookup_instance_config (const Handle Instance, Config &data);
          virtual Boolean recreate_instance (const Handle Instance, const Config &Init);
          virtual Boolean destroy_instance (const Handle Instance);
 
@@ -124,6 +126,7 @@ namespace dmz {
             const Handle ScriptHandle;
             const String Name;
             const String FileName;
+            V8ExternalString *externalStr;
             v8::Persistent<v8::Script> script;
             v8::Persistent<v8::Function> ctor;
             HashTableHandleTemplate<InstanceStruct> table;
@@ -141,9 +144,10 @@ namespace dmz {
                   HandleObject (String ("JavaScript Script: ") + TheName, context),
                   ScriptHandle (HandleObject.get_runtime_handle ()),
                   Name (TheName),
-                  FileName (TheFileName) {;}
+                  FileName (TheFileName),
+                  externalStr (0) {;}
 
-            ~ScriptStruct () { clear (); }
+            ~ScriptStruct () { clear (); if (externalStr) { externalStr->Dispose (); } }
          };
 
          struct InstanceStruct : public InstanceStructBase {

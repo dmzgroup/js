@@ -75,7 +75,10 @@ class DMZ_JS_V8_UTIL_LINK_SYMBOL V8ExternalString :
 
       virtual ~V8ExternalString ();
 
+      void ref ();
+
       // ExternalAsciiStringResource Interface.
+      virtual void Dispose ();
       virtual const char *data () const;
       virtual size_t length () const;
 
