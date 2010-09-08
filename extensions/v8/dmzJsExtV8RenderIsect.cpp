@@ -132,6 +132,16 @@ dmz::JsExtV8RenderIsect::update_js_ext_v8_state (const StateEnum State) {
 }
 
 
+void
+dmz::JsExtV8RenderIsect::release_js_instance_v8 (
+      const Handle InstanceHandle,
+      const String &InstanceName,
+      v8::Handle<v8::Object> &instance) {
+
+   // Nothing to release.
+}
+
+
 dmz::V8Value
 dmz::JsExtV8RenderIsect::_isect_do_isect (const v8::Arguments &Args) {
 
@@ -250,11 +260,11 @@ dmz::JsExtV8RenderIsect::_isect_do_isect (const v8::Arguments &Args) {
 
                if (tc.HasCaught ()) {
 
-                  if (self->_core) { self->_core->handle_v8_exception (tc); }
+                  if (self->_core) { self->_core->handle_v8_exception (0, tc); }
 
-                  V8Function *ptr = table.remove (Id);
+                  V8FunctionPersist *ptr = table.remove (Id);
 
-                  if (ptr) { delete ptr; ptr = 0; }
+                  if (ptr) { ptr->Dispose (); ptr->Clear (); delete ptr; ptr = 0; }
                }
             }
 

@@ -438,6 +438,15 @@ dmz::JsPluginV8ConsoleQt::update_js_ext_v8_state (const StateEnum State) {
 }
 
 
+void
+dmz::JsPluginV8ConsoleQt::release_js_instance_v8 (
+      const Handle InstanceHandle,
+      const String &InstanceName,
+      v8::Handle<v8::Object> &instance) {
+
+}
+
+
 // JsPluginV8ConsoleQt Inteface
 void
 dmz::JsPluginV8ConsoleQt::append (const String &Str) {
@@ -460,6 +469,10 @@ dmz::JsPluginV8ConsoleQt::on_executeButton_clicked () {
    if (str.trimmed ().isEmpty ()) { _console.inputBox->clear (); }
    else if (_v8Context.IsEmpty () == false){
 
+      _console.displayBox->setTextColor (QColor ("blue"));
+      _console.displayBox->append (str);
+      _console.displayBox->setTextColor (_defaultColor);
+
       v8::Context::Scope cscope (_v8Context);
       v8::HandleScope scope;
 
@@ -476,13 +489,13 @@ dmz::JsPluginV8ConsoleQt::on_executeButton_clicked () {
 
       if (tc.HasCaught ()) {
 
-         if (_core) { _core->handle_v8_exception (tc); }
+         if (_core) { _core->handle_v8_exception (0, tc); }
       }
       else {
 
          v8::Handle<v8::Value> value = script->Run ();
 
-         if (tc.HasCaught ()) { if (_core) { _core->handle_v8_exception (tc); } }
+         if (tc.HasCaught ()) { if (_core) { _core->handle_v8_exception (0, tc); } }
          else {
  
             V8Function func = v8_to_function (value); 
@@ -497,7 +510,7 @@ dmz::JsPluginV8ConsoleQt::on_executeButton_clicked () {
 
                if (tc.HasCaught ()) {
 
-                  if (_core) { _core->handle_v8_exception (tc); }
+                  if (_core) { _core->handle_v8_exception (0, tc); }
                }
                else {
 

@@ -56,7 +56,7 @@ dmz::JsModuleRuntimeV8Basic::TimerStruct::update_time_slice (const Float64 Delta
       localCallback->Call (localSelf, 2, argv);
       if (tc.HasCaught ()) {
 
-         modulePtr->handle_v8_exception (tc);
+         modulePtr->handle_v8_exception (get_time_slice_handle (), tc);
          deleteTimer = True;
       }
    }

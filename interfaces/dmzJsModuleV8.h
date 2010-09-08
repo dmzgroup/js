@@ -33,7 +33,7 @@ namespace dmz {
          virtual v8::Handle<v8::Object> require (const String &Value) = 0;
          virtual void get_require_list (StringContainer &list) = 0;
 
-         virtual void handle_v8_exception (v8::TryCatch &tc) = 0;
+         virtual void handle_v8_exception (const Handle Source, v8::TryCatch &tc) = 0;
 
          virtual String get_instance_name (v8::Handle<v8::Value> value) = 0;
          virtual Handle get_instance_handle (v8::Handle<v8::Value> value) = 0;

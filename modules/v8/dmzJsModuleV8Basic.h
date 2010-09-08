@@ -1,10 +1,13 @@
 #ifndef DMZ_JS_MODULE_V8_BASIC_DOT_H
 #define DMZ_JS_MODULE_V8_BASIC_DOT_H
 
+#include <dmzJsModule.h>
 #include <dmzJsModuleV8.h>
+#include <dmzJsObserver.h>
 #include <dmzJsV8UtilTypes.h>
 #include <dmzRuntimeConfig.h>
 #include <dmzRuntimeDefinitions.h>
+#include <dmzRuntimeHandle.h>
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
 #include <dmzRuntimeResources.h>
@@ -12,6 +15,7 @@
 #include <dmzSystemFile.h>
 #include <dmzTypesHashTableHandleTemplate.h>
 #include <dmzTypesHashTableStringTemplate.h>
+#include <dmzJsV8UtilStrings.h>
 
 namespace dmz {
 
@@ -20,8 +24,9 @@ namespace dmz {
 
    class JsModuleV8Basic :
          public Plugin,
-         public JsModuleV8,
-         public TimeSlice {
+         public TimeSlice,
+         public JsModule,
+         public JsModuleV8 {
 
       public:
          struct InstanceStructBase {
@@ -51,6 +56,45 @@ namespace dmz {
          // TimeSlice Interface
          virtual void update_time_slice (const Float64 DeltaTime);
 
+         // JsModule Interface
+         virtual void lookup_script_names (StringContainer &list);
+         virtual void lookup_script_file_names (StringContainer &list);
+         virtual void lookup_script_handles (HandleContainer &list);
+
+         virtual Handle compile_script (
+            const String &Name,
+            const String &FileName,
+            const char *Script,
+            const Int32 Size);
+
+         virtual Boolean recompile_script (
+            const Handle ScriptHandle,
+            const char *Script,
+            const Int32 Size);
+
+         virtual Handle lookup_script (const String &Name);
+         virtual String lookup_script_name (const Handle ScriptHandle);
+         virtual String lookup_script_file_name (const Handle ScriptHandle);
+         virtual Boolean destroy_script (const Handle ScriptHandle);
+
+         virtual void lookup_instance_names (const Handle Script, StringContainer &list);
+
+         virtual void lookup_instance_handles (
+            const Handle Script,
+            HandleContainer &list);
+
+         virtual Handle create_instance (
+            const String &Name,
+            const Handle ScriptHandle,
+            const Config &Init);
+
+         virtual Handle lookup_instance (const String &InstanceName);
+         virtual Handle lookup_instance_script (const Handle Instance);
+         virtual String lookup_instance_name (const Handle Instance);
+         virtual Boolean lookup_instance_config (const Handle Instance, Config &data);
+         virtual Boolean recreate_instance (const Handle Instance, const Config &Init);
+         virtual Boolean destroy_instance (const Handle Instance);
+
          // JsModuleV8 Interface
          virtual void reset_v8 ();
 
@@ -63,7 +107,7 @@ namespace dmz {
          virtual v8::Handle<v8::Object> require (const String &Value);
          virtual void get_require_list (StringContainer &list);
 
-         virtual void handle_v8_exception (v8::TryCatch &tc);
+         virtual void handle_v8_exception (const Handle Source, v8::TryCatch &tc);
 
          virtual String get_instance_name (v8::Handle<v8::Value> value);
          virtual Handle get_instance_handle (v8::Handle<v8::Value> value);
@@ -74,12 +118,18 @@ namespace dmz {
             v8::Handle<v8::Value> value);
 
       protected:
+         struct InstanceStruct;
+
          struct ScriptStruct {
 
+            const RuntimeHandle HandleObject;
+            const Handle ScriptHandle;
             const String Name;
             const String FileName;
+            V8ExternalString *externalStr;
             v8::Persistent<v8::Script> script;
             v8::Persistent<v8::Function> ctor;
+            HashTableHandleTemplate<InstanceStruct> table;
 
             void clear () {
 
@@ -87,11 +137,17 @@ namespace dmz {
                ctor.Dispose (); ctor.Clear ();
             }
 
-            ScriptStruct (const String &TheName, const String &TheFileName) :
+            ScriptStruct (
+                  const String &TheName,
+                  const String &TheFileName,
+                  RuntimeContext *context) :
+                  HandleObject (String ("JavaScript Script: ") + TheName, context),
+                  ScriptHandle (HandleObject.get_runtime_handle ()),
                   Name (TheName),
-                  FileName (TheFileName) {;}
+                  FileName (TheFileName),
+                  externalStr (0) {;}
 
-            ~ScriptStruct () { clear (); }
+            ~ScriptStruct () { clear (); if (externalStr) { externalStr->Dispose (); } }
          };
 
          struct InstanceStruct : public InstanceStructBase {
@@ -105,11 +161,20 @@ namespace dmz {
                   const Handle TheObject,
                   ScriptStruct &theScript) :
                   InstanceStructBase (TheName, TheObject),
-                  script (theScript) {;}
+                  script (theScript) { script.table.store (TheObject, this); }
 
-            ~InstanceStruct () { self.Dispose (); self.Clear (); }
+            ~InstanceStruct () {
+
+               InstanceStruct *instance = script.table.remove (Object);
+               if (instance != this) { script.table.store (Object, instance); }
+               self.Dispose ();
+               self.Clear ();
+            }
          };
 
+         void _dump_to_observer (JsObserver &obs);
+         void _observe_script (const JsObserverModeEnum Mode, const Handle Script);
+         void _observe_instance (const JsObserverModeEnum Mode, const Handle Instance);
          void _empty_require ();
          void _release_instances ();
          void _init_context ();
@@ -118,6 +183,9 @@ namespace dmz {
          void _stop_ext ();
          void _shutdown_ext ();
          void _load_scripts ();
+         Boolean _create_instance (InstanceStruct &instance);
+         void _shutdown_instance (InstanceStruct &instance);
+         void _release_instance (InstanceStruct &instance);
          ScriptStruct *_find_script (Config &script);
          void _init (Config &local, Config &global);
 
@@ -132,10 +200,14 @@ namespace dmz {
 
          StringContainer _localPaths;
 
-         HashTableStringTemplate<ScriptStruct> _scriptTable;
-         HashTableStringTemplate<InstanceStruct> _instanceTable;
+         HashTableHandleTemplate<ScriptStruct> _scriptTable;
+         HashTableStringTemplate<ScriptStruct> _scriptNameTable;
+         HashTableHandleTemplate<InstanceStruct> _instanceTable;
+         HashTableStringTemplate<InstanceStruct> _instanceNameTable;
          HashTableHandleTemplate<JsExtV8> _extTable;
          HashTableStringTemplate<v8::Persistent<v8::Object> > _requireTable;
+
+         HashTableHandleTemplate<JsObserver> _obsTable;
 
          v8::Persistent<v8::Context> _context;
          v8::Persistent<v8::ObjectTemplate> _instanceTemplate;

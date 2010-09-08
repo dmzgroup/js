@@ -1,0 +1,8 @@
+lmk.set_name "dmzJsPluginObserver"
+lmk.set_type "plugin"
+lmk.add_files {"dmzJsPluginObserver.cpp",}
+lmk.add_libs {
+   "dmzKernel",
+}
+lmk.add_preqs {"dmzJsFramework",}
+
