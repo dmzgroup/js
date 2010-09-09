@@ -400,11 +400,91 @@ dmz::JsExtV8HTTPCurl::update_js_ext_v8_state (const StateEnum State) {
 
          current = current->next;
       }
+
+      if (_ulList) {
+
+         Upload *current (_ulList);
+
+         while (current) {
+
+            if (current->func.IsEmpty () == false) {
+
+               current->func.Dispose (); current->func.Clear ();
+            }
+
+            if (current->self.IsEmpty () == false) {
+
+               current->self.Dispose (); current->self.Clear ();
+            }
+
+            current = current->next;
+         }
+      }
    }
    else if (State == JsExtV8::Shutdown) {
 
       _httpApi.clear ();
       _v8Context.Clear ();
+   }
+}
+
+
+void
+dmz::JsExtV8HTTPCurl::release_js_instance_v8 (
+      const Handle InstanceHandle,
+      const String &InstanceName,
+      v8::Handle<v8::Object> &instance) {
+
+   if (_v8Context.IsEmpty () == false) {
+
+      v8::Context::Scope cscope (_v8Context);
+      v8::HandleScope scope;
+
+      if (_dlList) {
+
+         Download *current (_dlList);
+
+         while (current) {
+
+            if (current->self == instance) {
+
+               if (current->func.IsEmpty () == false) {
+
+                  current->func.Dispose (); current->func.Clear ();
+               }
+
+               if (current->self.IsEmpty () == false) {
+
+                  current->self.Dispose (); current->self.Clear ();
+               }
+            }
+
+            current = current->next;
+         }
+      }
+
+      if (_ulList) {
+
+         Upload *current (_ulList);
+
+         while (current) {
+
+            if (current->self == instance) {
+
+               if (current->func.IsEmpty () == false) {
+
+                  current->func.Dispose (); current->func.Clear ();
+               }
+
+               if (current->self.IsEmpty () == false) {
+
+                  current->self.Dispose (); current->self.Clear ();
+               }
+            }
+
+            current = current->next;
+         }
+      }
    }
 }
 

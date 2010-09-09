@@ -103,7 +103,7 @@ dmz::JsModuleTypesV8Basic::to_v8_vector (const Vector &Value) {
 
       result = v8_to_object (_vectorCtor->Call (_vector, 3, argv));
 
-      if (tc.HasCaught () && _core) { _core->handle_v8_exception (tc); }
+      if (tc.HasCaught () && _core) { _core->handle_v8_exception (0, tc); }
    }
 
    return result.IsEmpty () ? result : scope.Close (result);
@@ -187,7 +187,7 @@ dmz::JsModuleTypesV8Basic::to_v8_matrix (const Matrix &Value) {
 
       result = v8_to_object (_matrixCtor->Call (_matrix, 9, argv));
 
-      if (tc.HasCaught () && _core) { _core->handle_v8_exception (tc); }
+      if (tc.HasCaught () && _core) { _core->handle_v8_exception (0, tc); }
    }
 
    return result.IsEmpty () ? result : scope.Close (result);
@@ -267,7 +267,7 @@ dmz::JsModuleTypesV8Basic::to_v8_mask (const Mask &Value) {
 
       result = v8_to_object (_maskCtor->Call (_mask, 1, argv));
 
-      if (tc.HasCaught () && _core) { _core->handle_v8_exception (tc); }
+      if (tc.HasCaught () && _core) { _core->handle_v8_exception (0, tc); }
    }
 
    return result.IsEmpty () ? result : scope.Close (result);
@@ -367,6 +367,15 @@ dmz::JsModuleTypesV8Basic::update_js_ext_v8_state (const StateEnum State) {
       }
    }
    else if (State == JsExtV8::Shutdown) { _clear (); }
+}
+
+
+void
+dmz::JsModuleTypesV8Basic::release_js_instance_v8 (
+      const Handle InstanceHandle,
+      const String &InstanceName,
+      v8::Handle<v8::Object> &instance) {
+
 }
 
 

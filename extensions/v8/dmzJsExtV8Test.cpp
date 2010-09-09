@@ -97,6 +97,12 @@ dmz::JsExtV8Test::update_js_ext_v8_state (const StateEnum State) {
 }
 
 
+void
+dmz::JsExtV8Test::release_js_instance_v8 (
+      const Handle InstanceHandle,
+      const String &InstanceName,
+      v8::Handle<v8::Object> &instance) {;}
+
 // JsExtV8Test Interface
 dmz::V8Value
 dmz::JsExtV8Test::_start_test (const v8::Arguments &Args) {

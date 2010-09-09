@@ -10,6 +10,8 @@
 #include <dmzRuntimeConfigToStringContainer.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
+#include <dmzTypesHandleContainer.h>
+#include <dmzTypesStringContainer.h>
 
 #include <string.h>
 #include <stdio.h>
@@ -86,8 +88,7 @@ local_require (const v8::Arguments &Args) {
       dmz::String msg ("Require unable to resolve: '");
       msg << dmz::v8_to_string (Args[0]) << "'.";
 
-      return v8::ThrowException (
-         v8::Exception::Error (v8::String::New (msg.get_buffer())));
+      return dmz::v8_throw (msg);
    }
    else { return scope.Close (result); }
 }
@@ -116,6 +117,7 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (
       Config &global) :
       Plugin (Info),
       TimeSlice (Info),
+      JsModule (Info),
       JsModuleV8 (Info),
       _log (Info),
       _out ("", LogLevelOut, Info.get_context ()),
@@ -131,13 +133,15 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (
 
 dmz::JsModuleV8Basic::~JsModuleV8Basic () {
 
-   HashTableStringIterator it;
+   HashTableHandleIterator it;
    InstanceStruct *is (0);
 
    while (_instanceTable.get_next (it, is)) { _defs.release_unique_name (is->Name); }
 
    _extTable.clear ();
+   _instanceNameTable.clear ();
    _instanceTable.empty ();
+   _scriptNameTable.clear ();
    _scriptTable.empty ();
 
    _globalTemplate.Dispose (); _globalTemplate.Clear ();
@@ -201,6 +205,13 @@ dmz::JsModuleV8Basic::discover_plugin (
       }
 
       if (!_runtime) { _runtime = JsModuleRuntimeV8::cast (PluginPtr); }
+
+      JsObserver *obs = JsObserver::cast (PluginPtr);
+
+      if (obs && _obsTable.store (obs->get_js_observer_handle (), obs)) {
+
+         _dump_to_observer (*obs);
+      }
    }
    else if (Mode == PluginDiscoverRemove) {
 
@@ -220,6 +231,9 @@ dmz::JsModuleV8Basic::discover_plugin (
       }
 
       if (_runtime && (_runtime == JsModuleRuntimeV8::cast (PluginPtr))) { _runtime = 0; }
+
+      JsObserver *obs = JsObserver::cast (PluginPtr);
+      if (obs) { _obsTable.remove (obs->get_js_observer_handle ()); }
    }
 }
 
@@ -257,6 +271,394 @@ dmz::JsModuleV8Basic::update_time_slice (const Float64 DeltaTime) {
       _load_scripts ();
       _reset = False;
    }
+}
+
+// JsModule Interface
+void
+dmz::JsModuleV8Basic::lookup_script_names (StringContainer &list) {
+
+   HashTableHandleIterator it;
+   ScriptStruct *script (0);
+
+   while (_scriptTable.get_next (it, script)) { list.add (script->Name); }
+}
+
+
+void
+dmz::JsModuleV8Basic::lookup_script_file_names (StringContainer &list) {
+
+   HashTableHandleIterator it;
+   ScriptStruct *script (0);
+
+   while (_scriptTable.get_next (it, script)) { list.add (script->FileName); }
+}
+
+
+void
+dmz::JsModuleV8Basic::lookup_script_handles (HandleContainer &list) {
+
+   HashTableHandleIterator it;
+   ScriptStruct *script (0);
+
+   while (_scriptTable.get_next (it, script)) { list.add (script->ScriptHandle); }
+}
+
+
+dmz::Handle
+dmz::JsModuleV8Basic::compile_script (
+      const String &Name,
+      const String &FileName,
+      const char *Script,
+      const Int32 Size) {
+
+   Handle result (0);
+
+   ScriptStruct *info = _scriptNameTable.lookup (Name);
+
+   if (!info) {
+
+      info = new ScriptStruct (Name, FileName, get_plugin_runtime_context ());
+
+      if (info && _scriptTable.store (info->ScriptHandle, info)) {
+
+         _scriptNameTable.store (Name, info);
+      }
+      else if (info) { delete info; info = 0; }
+   }
+
+   if (info) {
+
+      if (recompile_script (info->ScriptHandle, Script, Size)) {
+
+         result = info->ScriptHandle;
+      }
+   }
+
+   return result;
+}
+
+
+dmz::Boolean
+dmz::JsModuleV8Basic::recompile_script (
+      const Handle ScriptHandle,
+      const char *Script,
+      const Int32 Size) {
+
+   Boolean result (False);
+
+   ScriptStruct *info = _scriptTable.lookup (ScriptHandle);
+
+   if (info) {
+
+      HashTableHandleIterator inIt;
+      InstanceStruct *is (0);
+
+      while (info->table.get_next (inIt, is)) { _shutdown_instance (*is); }
+      while (info->table.get_next (inIt, is)) { _release_instance (*is); }
+
+      _observe_script (JsObserverRelease, info->ScriptHandle);
+      info->clear ();
+
+      v8::TryCatch tc;
+
+      V8ExternalString *sptr = new V8ExternalString (
+         Script,
+         Size,
+         LocalInstanceHeader,
+         LocalFooter);
+
+      if (info->externalStr) { info->externalStr->Dispose (); info->externalStr = 0; }
+      info->externalStr = sptr;
+      if (info->externalStr) { info->externalStr->ref (); }
+
+      v8::Handle<v8::Script> script = v8::Script::Compile (
+         v8::String::NewExternal (sptr),
+         v8::String::New (info->FileName.get_buffer ()));
+
+      if (tc.HasCaught ()) { handle_v8_exception (info->ScriptHandle, tc); }
+      else {
+
+         _log.info << "Loaded script: " << info->FileName << endl;
+
+         info->script = v8::Persistent<v8::Script>::New (script);
+         v8::Handle<v8::Value> value = info->script->Run ();
+
+         if (tc.HasCaught ()) { handle_v8_exception (info->ScriptHandle, tc); }
+         else {
+
+            V8Function func = v8_to_function (value);
+
+            if (func.IsEmpty ()) {
+
+               _log.error << "No function returned from: " << info->FileName << endl;
+            }
+            else {
+
+               info->ctor = v8::Persistent<v8::Function>::New (func);
+
+               _observe_script (JsObserverCreate, info->ScriptHandle);
+               result = True;
+            }
+         }
+      }
+
+      if (result) { while (info->table.get_next (inIt, is)) { _create_instance (*is); } }
+   }
+
+   return result;
+}
+
+
+dmz::Handle
+dmz::JsModuleV8Basic::lookup_script (const String &Name) {
+
+   Handle result (0);
+
+   ScriptStruct *script (_scriptNameTable.lookup (Name));
+
+   if (script) { result = script->ScriptHandle; }
+
+   return result;
+}
+
+
+dmz::String
+dmz::JsModuleV8Basic::lookup_script_name (const Handle ScriptHandle) {
+
+   String result;
+
+   ScriptStruct *script (_scriptTable.lookup (ScriptHandle));
+
+   if (script) { result = script->Name; }
+
+   return result;
+}
+
+
+dmz::String
+dmz::JsModuleV8Basic::lookup_script_file_name (const Handle ScriptHandle) {
+
+   String result;
+
+   ScriptStruct *script (_scriptTable.lookup (ScriptHandle));
+
+   if (script) { result = script->FileName; }
+
+   return result;
+}
+
+
+dmz::Boolean
+dmz::JsModuleV8Basic::destroy_script (const Handle ScriptHandle) {
+
+   Boolean result (False);
+
+   ScriptStruct *script = _scriptTable.lookup (ScriptHandle);
+
+   if (script) {
+
+      HashTableHandleIterator it;
+      InstanceStruct *instance (0);
+
+      while (script->table.get_next (it, instance)) {
+
+         destroy_instance (it.get_hash_key ());
+      }
+
+      script = _scriptTable.lookup (ScriptHandle);
+
+      if (script) {
+
+         _observe_script (JsObserverDestroy, script->ScriptHandle);
+
+         _scriptTable.remove (script->ScriptHandle);
+         _scriptNameTable.remove (script->Name);
+         delete script; script = 0;
+         result = True;
+      }
+   }
+
+   return result;
+}
+
+
+void
+dmz::JsModuleV8Basic::lookup_instance_names (const Handle Script, StringContainer &list) {
+
+   HashTableHandleIterator it;
+   InstanceStruct *instance (0);
+
+   while (_instanceTable.get_next (it, instance)) { list.add (instance->Name); }
+}
+
+
+void
+dmz::JsModuleV8Basic::lookup_instance_handles (
+      const Handle Script,
+      HandleContainer &list) {
+
+   HashTableHandleIterator it;
+   InstanceStruct *instance (0);
+
+   while (_instanceTable.get_next (it, instance)) { list.add (instance->Object); }
+}
+
+
+dmz::Handle
+dmz::JsModuleV8Basic::create_instance (
+      const String &Name,
+      const Handle ScriptHandle,
+      const Config &Init) {
+
+   Handle result (0);
+
+   InstanceStruct *instance = _instanceNameTable.lookup (Name);
+
+   if (!instance) {
+
+      ScriptStruct *ss = _scriptTable.lookup (ScriptHandle);
+
+      if (ss) {
+
+         if (_defs.create_unique_name (Name)) {
+
+            instance = new InstanceStruct (
+               Name,
+               _defs.create_named_handle (Name),
+               *ss);
+
+            if (!_instanceTable.store (instance->Object, instance)) {
+
+               delete instance; instance = 0;
+               _log.error << "Script instance name: " << Name
+                  << " is not unique." << endl;
+            }
+            else {
+
+               _instanceNameTable.store (instance->Name, instance);
+               instance->local = Init;
+            }
+         }
+         else {
+
+            _log.error << "Unable to register script instance: " << Name
+               << ". Because name is not unique." << endl;
+         }
+      }
+      else {
+
+      }
+   }
+
+   if (instance) {
+
+      if (recreate_instance (instance->Object, Init)) { result = instance->Object; }
+   }
+
+   return result;
+}
+
+
+dmz::Handle
+dmz::JsModuleV8Basic::lookup_instance (const String &InstanceName) {
+
+   Handle result (0);
+
+   InstanceStruct *instance (_instanceNameTable.lookup (InstanceName));
+
+   if (instance) { result = instance->Object; }
+
+   return result;
+}
+
+
+dmz::Handle
+dmz::JsModuleV8Basic::lookup_instance_script (const Handle Instance) {
+
+   Handle result (0);
+
+   InstanceStruct *instance (_instanceTable.lookup (Instance));
+
+   if (instance) { result = instance->script.ScriptHandle; }
+
+   return result;
+}
+
+
+dmz::String
+dmz::JsModuleV8Basic::lookup_instance_name (const Handle Instance) {
+
+   String result;
+
+   InstanceStruct *instance (_instanceTable.lookup (Instance));
+
+   if (instance) { result = instance->Name; }
+
+   return result;
+}
+
+
+dmz::Boolean
+dmz::JsModuleV8Basic::lookup_instance_config (const Handle Instance, Config &data) {
+
+   Boolean result (False);
+
+   InstanceStruct *instance (_instanceTable.lookup (Instance));
+
+   if (instance) { data = instance->local; result = True; }
+
+   return result;
+}
+
+
+dmz::Boolean
+dmz::JsModuleV8Basic::recreate_instance (const Handle Instance, const Config &Init) {
+
+   Boolean result (False);
+
+   InstanceStruct *is = _instanceTable.lookup (Instance);
+
+   if (is) {
+
+      _shutdown_instance (*is);
+      _release_instance (*is);
+
+      is->local = Init;
+
+      if (is) { result = _create_instance (*is); }
+   }
+
+   return result;
+}
+
+
+dmz::Boolean
+dmz::JsModuleV8Basic::destroy_instance (const Handle Instance) {
+
+   Boolean result (False);
+
+   InstanceStruct *is = _instanceTable.lookup (Instance);
+
+   if (is) {
+
+      _shutdown_instance (*is);
+      _release_instance (*is);
+
+      is = _instanceTable.lookup (Instance);
+
+      if (is) {
+
+         _observe_instance (JsObserverDestroy, is->Object);
+
+         _instanceTable.remove (is->Object);
+         _instanceNameTable.remove (is->Name);
+
+         delete is; is = 0;
+         result = True;
+      }
+   }
+
+   return result;
 }
 
 
@@ -341,12 +743,12 @@ dmz::JsModuleV8Basic::require (const String &Value) {
             v8::String::NewExternal (sptr),
             v8::String::New (scriptPath.get_buffer ()));
 
-         if (tc.HasCaught ()) { handle_v8_exception (tc); }
+         if (tc.HasCaught ()) { handle_v8_exception (0, tc); }
          else {
 
             V8Value value = script->Run ();
 
-            if (tc.HasCaught ()) { handle_v8_exception (tc); }
+            if (tc.HasCaught ()) { handle_v8_exception (0, tc); }
             else {
 
                V8Function func = v8_to_function (value);
@@ -366,7 +768,7 @@ dmz::JsModuleV8Basic::require (const String &Value) {
                      v8::Handle<v8::Value> argv[] = { result, _requireFunc };
                      v8::Handle<v8::Value> value = func->Call (result, 2, argv);
 
-                     if (tc.HasCaught ()) { handle_v8_exception (tc); }
+                     if (tc.HasCaught ()) { handle_v8_exception (0, tc); }
                   }
                   else {
 
@@ -401,12 +803,14 @@ dmz::JsModuleV8Basic::get_require_list (StringContainer &list) {
 
 
 void
-dmz::JsModuleV8Basic::handle_v8_exception (v8::TryCatch &tc) {
+dmz::JsModuleV8Basic::handle_v8_exception (const Handle Source, v8::TryCatch &tc) {
 
    v8::Context::Scope cscope (_context);
    v8::HandleScope hscope;
 
    const String ExStr = v8_to_string (tc.Exception ());
+   String errorStr (ExStr);
+   String stackStr;
 
    v8::Handle<v8::Message> message = tc.Message ();
 
@@ -418,23 +822,54 @@ dmz::JsModuleV8Basic::handle_v8_exception (v8::TryCatch &tc) {
 
       const String FileName = v8_to_string (message->GetScriptResourceName ());
       const Int32 Line = message->GetLineNumber ();
-      _log.error << FileName << ":" << Line << ": " << ExStr << endl;
+      errorStr.flush () << FileName << ":" << Line << ": " << ExStr;
+      _log.error << errorStr << endl;
 
-         // Print line of source code.
-         _log.error << v8_to_string (message->GetSourceLine ()) << endl;
+      // Print line of source code.
+      _log.error << v8_to_string (message->GetSourceLine ()) << endl;
 
-         // Print wavy underline (GetUnderline is deprecated).
-         int start = message->GetStartColumn ();
-         int end = message->GetEndColumn ();
+      int start = message->GetStartColumn ();
+      int end = message->GetEndColumn ();
 
-         String space;
-         space.repeat ("-", start - 1);
-         String line;
-         line.repeat ("^", end - start);
+      String space;
+      if (start > 1) { space.repeat ("-", start - 1); }
+      String line;
+      line.repeat ("^", end - start);
 
-         _log.error << " " << space << line << endl;
+      _log.error << (start > 0 ? " " : "") << space << line << endl;
 
-         _log.error << "Stack trace: " << endl << v8_to_string (tc.StackTrace ()) << endl;
+      stackStr = v8_to_string (tc.StackTrace ());
+
+      _log.error << "Stack trace: " << endl << stackStr << endl;
+   }
+
+   if (_obsTable.get_count () > 0) {
+
+      const Handle Module (get_plugin_handle ());
+      Handle script (0);
+      Handle instance (0);
+
+      InstanceStruct *is (_instanceTable.lookup (Source));
+
+      if (is) {
+
+         instance = is->Object;
+         script = is->script.ScriptHandle;
+      }
+      else {
+
+         ScriptStruct *ss (_scriptTable.lookup (Source));
+
+         if (ss) { script = ss->ScriptHandle; }
+      }
+
+      HashTableHandleIterator it;
+      JsObserver *obs (0);
+
+      while (_obsTable.get_next (it, obs)) {
+
+         obs->update_js_error (Module, script, instance, errorStr, stackStr);
+      }
    }
 }
 
@@ -497,7 +932,7 @@ dmz::JsModuleV8Basic::set_external_instance_handle_and_name (
       const String &TheName,
       v8::Handle<v8::Value> value) {
 
-   dmz::Boolean result (False);
+   Boolean result (False);
 
    v8::HandleScope scope;
 
@@ -522,12 +957,70 @@ dmz::JsModuleV8Basic::set_external_instance_handle_and_name (
             obj->SetHiddenValue (_instanceAttrName, v8::External::Wrap ((void *)is));
             V8ObjectPersist dtor = V8ObjectPersist::New (obj);
             dtor.MakeWeak ((void *)is, local_instance_struct_delete); 
+            result = True;
          }
       }
    }
 
-
    return result;
+}
+
+
+void
+dmz::JsModuleV8Basic::_dump_to_observer (JsObserver &obs) {
+
+   const Handle Module (get_plugin_handle ());
+
+   HashTableHandleIterator it;
+   ScriptStruct *ss (0);
+
+   while (_scriptTable.get_next (it, ss)) {
+
+      if (ss->ctor.IsEmpty () == False) {
+
+         obs.update_js_script (JsObserverCreate, Module, ss->ScriptHandle);
+      }
+   }
+
+   it.reset ();
+   InstanceStruct *is (0);
+
+   while (_instanceTable.get_next (it, is)) {
+
+      if (is->self.IsEmpty () == False) {
+
+         obs.update_js_instance (JsObserverCreate, Module, is->Object);
+      }
+   }
+}
+
+
+void
+dmz::JsModuleV8Basic::_observe_script (
+      const JsObserverModeEnum Mode,
+      const Handle Script) {
+
+   const Handle Module (get_plugin_handle ());
+   HashTableHandleIterator it;
+   JsObserver *obs (0);
+
+   while (_obsTable.get_next (it, obs)) { obs->update_js_script (Mode, Module, Script); }
+}
+
+
+void
+dmz::JsModuleV8Basic::_observe_instance (
+      const JsObserverModeEnum Mode,
+      const Handle Instance) {
+
+   const Handle Module (get_plugin_handle ());
+   HashTableHandleIterator it;
+   JsObserver *obs (0);
+
+   while (_obsTable.get_next (it, obs)) {
+
+      obs->update_js_instance (Mode, Module, Instance);
+   }
 }
 
 
@@ -550,33 +1043,20 @@ dmz::JsModuleV8Basic::_release_instances () {
 
    if (_context.IsEmpty () == false) {
 
+      v8::Context::Scope cscope (_context);
       v8::HandleScope scope;
 
-      HashTableStringIterator it;
+      HashTableHandleIterator it;
       InstanceStruct *is (0);
 
-      while (_instanceTable.get_next (it, is)) {
-
-         if (is->self.IsEmpty () == False) {
-
-            V8Function func = v8_to_function (is->self->Get (_shutdownFuncName));
-
-            if (func.IsEmpty () == false) {
-
-               v8::TryCatch tc;
-               v8::Handle<v8::Value> argv[] = { is->self };
-               func->Call (is->self, 1, argv);
-               if (tc.HasCaught ()) { handle_v8_exception (tc); }
-            }
-         }
-      }
+      while (_instanceTable.get_next (it, is)) { _shutdown_instance (*is); }
 
       it.reset ();
       is = 0;
 
       while (_instanceTable.get_next (it, is)) {
 
-         if (is->self.IsEmpty () == False) { is->self.Dispose (); is->self.Clear (); }
+         _release_instance (*is);
       }
    }
 }
@@ -732,7 +1212,7 @@ dmz::JsModuleV8Basic::_load_scripts () {
    v8::Context::Scope cscope (_context);
    v8::HandleScope hscope;
 
-   HashTableStringIterator it;
+   HashTableHandleIterator it;
    ScriptStruct *info (0);
 
    while (_scriptTable.get_next (it, info)) {
@@ -741,14 +1221,24 @@ dmz::JsModuleV8Basic::_load_scripts () {
       
       v8::TryCatch tc;
 
-      V8FileString *sptr =
-         new V8FileString (info->FileName, LocalInstanceHeader, LocalFooter);
+      v8::String::ExternalAsciiStringResource *sptr (0);
+
+      if (info->externalStr) {
+
+         sptr = info->externalStr;
+         info->externalStr->ref ();
+      }
+      else {
+
+         sptr = new V8FileString (info->FileName, LocalInstanceHeader, LocalFooter);
+      }
+ 
 
       v8::Handle<v8::Script> script = v8::Script::Compile (
          v8::String::NewExternal (sptr),
          v8::String::New (info->FileName.get_buffer ()));
 
-      if (tc.HasCaught ()) { handle_v8_exception (tc); }
+      if (tc.HasCaught ()) { handle_v8_exception (info->ScriptHandle, tc); }
       else {
 
          _log.info << "Loaded script: " << info->FileName << endl;
@@ -756,7 +1246,7 @@ dmz::JsModuleV8Basic::_load_scripts () {
          info->script = v8::Persistent<v8::Script>::New (script);
          v8::Handle<v8::Value> value = info->script->Run ();
 
-         if (tc.HasCaught ()) { handle_v8_exception (tc); }
+         if (tc.HasCaught ()) { handle_v8_exception (info->ScriptHandle, tc); }
          else {
 
             V8Function func = v8_to_function (value);
@@ -767,6 +1257,7 @@ dmz::JsModuleV8Basic::_load_scripts () {
             else {
 
                info->ctor = v8::Persistent<v8::Function>::New (func);
+               _observe_script (JsObserverCreate, info->ScriptHandle);
             }
          }
       }
@@ -775,46 +1266,118 @@ dmz::JsModuleV8Basic::_load_scripts () {
    it.reset ();
    InstanceStruct *instance (0);
 
-   while (_instanceTable.get_next (it, instance)) {
+   while (_instanceTable.get_next (it, instance)) { _create_instance (*instance); }
+}
 
-      if (!instance->script.ctor.IsEmpty ()) {
+
+dmz::Boolean
+dmz::JsModuleV8Basic::_create_instance (InstanceStruct &instance) {
+
+   Boolean result (False);
+
+   if (_context.IsEmpty () == false) {
+
+      v8::Context::Scope cscope (_context);
+      v8::HandleScope scope;
+
+      if (instance.script.ctor.IsEmpty () == false) {
 
          v8::TryCatch tc;
 
-         instance->self =
-            v8::Persistent<v8::Object>::New (_instanceTemplate->NewInstance ());;
+         if (instance.self.IsEmpty () == false) {
 
-         InstanceStructBase *isb = instance;
+            instance.self.Dispose (); instance.self.Clear ();
+         }
 
-         instance->self->SetHiddenValue (
+         instance.self =
+            v8::Persistent<v8::Object>::New (_instanceTemplate->NewInstance ());
+
+         InstanceStructBase *isb = &instance;
+
+         instance.self->SetHiddenValue (
             _instanceAttrName,
             v8::External::Wrap ((void *)isb));
 
-         instance->self->Set (
+         instance.self->Set (
             v8::String::NewSymbol ("name"),
-            v8::String::New (instance->Name.get_buffer ()));
+            v8::String::New (instance.Name.get_buffer ()));
 
          if (_runtime) {
 
-            instance->self->Set (
+            instance.self->Set (
                v8::String::NewSymbol ("config"),
-               _runtime->create_v8_config (&(instance->local)));
+               _runtime->create_v8_config (&(instance.local)));
 
-            instance->self->Set (
+            instance.self->Set (
                v8::String::NewSymbol ("log"),
-               _runtime->create_v8_log (instance->Name));
+               _runtime->create_v8_log (instance.Name));
          }
 
-         v8::Handle<v8::Value> argv[] = { instance->self, _requireFunc };
+         v8::Handle<v8::Value> argv[] = { instance.self, _requireFunc };
 
-         V8Value value = instance->script.ctor->Call (instance->self, 2, argv);
+         V8Value value = instance.script.ctor->Call (instance.self, 2, argv);
 
-         if (tc.HasCaught ()) { handle_v8_exception (tc); }
+         if (tc.HasCaught ()) { handle_v8_exception (instance.Object, tc); }
          else {
 
-            _log.info << "Created instance: " << instance->Name
-               << " from script: " << instance->script.FileName << endl;
+            _log.info << "Created instance: " << instance.Name
+               << " from script: " << instance.script.FileName << endl;
+
+            _observe_instance (JsObserverCreate, instance.Object);
+
+            result = True;
          }
+      }
+   }
+
+   return result;
+}
+
+
+void
+dmz::JsModuleV8Basic::_shutdown_instance (InstanceStruct &instance) {
+
+   if (_context.IsEmpty () == false) {
+
+      v8::Context::Scope cscope (_context);
+      v8::HandleScope scope;
+
+      if (instance.self.IsEmpty () == false) {
+
+         V8Function func = v8_to_function (instance.self->Get (_shutdownFuncName));
+
+         if (func.IsEmpty () == false) {
+
+            v8::TryCatch tc;
+            v8::Handle<v8::Value> argv[] = { instance.self };
+            func->Call (instance.self, 1, argv);
+            if (tc.HasCaught ()) { handle_v8_exception (instance.Object, tc); }
+         }
+      }
+   }
+}
+
+
+void
+dmz::JsModuleV8Basic::_release_instance (InstanceStruct &instance) {
+
+   if (instance.self.IsEmpty () == false) {
+
+      _observe_instance (JsObserverRelease, instance.Object);
+
+      HashTableHandleIterator it;
+      JsExtV8 *ext (0);
+
+      while (_extTable.get_next (it, ext)) {
+
+         ext->release_js_instance_v8 (instance.Object, instance.Name, instance.self);
+      }
+
+      if (_context.IsEmpty () == false) {
+
+         v8::Context::Scope cscope (_context);
+         v8::HandleScope scope;
+         instance.self.Dispose (); instance.self.Clear ();
       }
    }
 }
@@ -823,11 +1386,11 @@ dmz::JsModuleV8Basic::_load_scripts () {
 dmz::JsModuleV8Basic::ScriptStruct *
 dmz::JsModuleV8Basic::_find_script (Config &script) {
 
-   ScriptStruct *result (0);
-
    const String Name = config_to_string ("name", script);
 
-   if (Name) {
+   ScriptStruct *result (_scriptNameTable.lookup (Name));
+
+   if (!result && Name) {
 
       String scriptPath = _rc.find_file (Name);
 
@@ -838,13 +1401,17 @@ dmz::JsModuleV8Basic::_find_script (Config &script) {
 
       if (scriptPath) {
 
-         result = _scriptTable.lookup (scriptPath);
+         result = _scriptNameTable.lookup (scriptPath);
 
          if (!result) {
 
-            result = new ScriptStruct (Name, scriptPath);
+            result = new ScriptStruct (Name, scriptPath, get_plugin_runtime_context ());
 
-            if (!_scriptTable.store (scriptPath, result)) {
+            if (result && _scriptTable.store (result->ScriptHandle, result)) {
+
+               _scriptNameTable.store (Name, result);
+            }
+            else {
 
                delete result; result = 0;
                _log.error << "Failed to add script: " << scriptPath << endl
@@ -900,7 +1467,7 @@ dmz::JsModuleV8Basic::_init (Config &local, Config &global) {
                   _defs.create_named_handle (UniqueName),
                   *ss);
 
-               if (!_instanceTable.store (UniqueName, ptr)) {
+               if (!_instanceTable.store (ptr->Object, ptr)) {
 
                   delete ptr; ptr = 0;
                   _log.error << "Script instance name: " << UniqueName
@@ -908,6 +1475,7 @@ dmz::JsModuleV8Basic::_init (Config &local, Config &global) {
                }
                else {
 
+                  _instanceNameTable.store (ptr->Name, ptr);
                   Config local (ScopeName);
                   global.lookup_all_config_merged (String ("dmz.") + ScopeName, local);
                   ptr->local = local;
