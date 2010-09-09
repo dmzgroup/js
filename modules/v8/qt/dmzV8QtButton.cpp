@@ -64,7 +64,7 @@ dmz::V8QtButton::on_clicked () {
 
                if (tc.HasCaught ()) {
 
-                  if (_state->core) { _state->core->handle_v8_exception (tc); }
+                  if (_state->core) { _state->core->handle_v8_exception (0, tc); }
                }
             }
 

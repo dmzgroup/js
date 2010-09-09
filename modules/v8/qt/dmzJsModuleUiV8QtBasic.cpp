@@ -216,6 +216,23 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 }
 
 
+void
+dmz::JsModuleUiV8QtBasic::release_js_instance_v8 (
+      const Handle InstanceHandle,
+      const String &InstanceName,
+      v8::Handle<v8::Object> &instance) {
+
+   // ObsStruct *os = _obsTable.remove (InstanceHandle);
+   // 
+   // if (os) {
+   // 
+   //    while (os->list && _release_callback (os->list->self, os->list->func)) {;}
+   // 
+   //    delete os; os = 0;
+   // }
+}
+
+
 QListWidgetItem *
 dmz::JsModuleUiV8QtBasic::_to_qt_list_widget_item (V8Value value) {
 

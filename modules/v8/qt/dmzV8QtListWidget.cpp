@@ -87,7 +87,7 @@ dmz::V8QtListWidget::on_currentItemChanged (
       
                if (tc.HasCaught ()) {
       
-                  if (_state->core) { _state->core->handle_v8_exception (tc); }
+                  if (_state->core) { _state->core->handle_v8_exception (0, tc); }
                }
             }
       
@@ -125,7 +125,7 @@ dmz::V8QtListWidget::on_itemActivated (QListWidgetItem *item) {
    
                if (tc.HasCaught ()) {
    
-                  if (_state->core) { _state->core->handle_v8_exception (tc); }
+                  if (_state->core) { _state->core->handle_v8_exception (0, tc); }
                }
             }
    
