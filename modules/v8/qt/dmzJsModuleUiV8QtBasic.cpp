@@ -130,7 +130,6 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
             qobj = new V8QtButton (value, &_state);
          }
       }
-/*
       else if (value->inherits ("QListWidget")) {
          
          if (!_listWidgetCtor.IsEmpty ()) {
@@ -139,15 +138,6 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
             qobj = new V8QtListWidget (value, &_state);
          }
       }
-      else if (value->inherits ("QListWidgetItem")) {
-
-         if (!_listWidgetItemCtor) {
-            
-            vobj = _listWidgetItemCtor->NewInstance ();
-            qobj = new V8QtListWidgetItem (value, &_state);
-         }
-      }
-*/
       else if (value->inherits ("QWidget")) {
 
          if (!_widgetCtor.IsEmpty ()) {
@@ -210,15 +200,38 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
       _widgetCtor = V8FunctionPersist::New (_widgetTemp->GetFunction ());
       _buttonCtor = V8FunctionPersist::New (_buttonTemp->GetFunction ());
+      _listWidgetItemCtor = V8FunctionPersist::New (_listWidgetItemTemp->GetFunction ());
+      _listWidgetCtor = V8FunctionPersist::New (_listWidgetTemp->GetFunction ());
    }
    else if (State == JsExtV8::Shutdown) {
 
       _widgetCtor.Dispose (); _widgetCtor.Clear ();
       _buttonCtor.Dispose (); _buttonCtor.Clear ();
+      _listWidgetItemCtor.Dispose (); _listWidgetItemCtor.Clear ();
+      _listWidgetCtor.Dispose (); _listWidgetCtor.Clear ();
 
       _qtApi.clear ();
       _state.context.Clear ();
    }
+}
+
+
+QListWidgetItem *
+dmz::JsModuleUiV8QtBasic::_to_qt_list_widget_item (V8Value value) {
+
+   v8::HandleScope scope;
+   QListWidgetItem *result (0);
+   
+   V8Object obj = v8_to_object (value);
+   if (!obj.IsEmpty ()) {
+      
+      if (_listWidgetItemTemp->HasInstance (obj)) {
+
+         result = (QListWidgetItem *)v8::External::Unwrap (obj->GetInternalField (0));
+      }
+   }
+
+   return result;
 }
 
 
@@ -264,8 +277,8 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
 
    _init_widget ();
    _init_button ();
-   // _init_list_widget ();
-   // _init_list_widget_item ();
+   _init_list_widget_item ();
+   _init_list_widget ();
 }
 
 

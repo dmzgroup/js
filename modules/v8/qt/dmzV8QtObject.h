@@ -4,7 +4,8 @@
 #include "dmzJsModuleUiV8QtBasic.h"
 #include <dmzJsV8UtilTypes.h>
 #include <dmzTypes.h>
-#include <QtCore/QList>
+#include <dmzTypesDeleteListTemplate.h>
+#include <dmzTypesHashTableStringTemplate.h>
 #include <QtCore/QObject>
 #include <v8.h>
 
@@ -22,17 +23,21 @@ namespace dmz {
          
          QWidget *get_qt_widget () const;
          
-         void add_callback (const V8Object &Self, const V8Function &Func);
-         
          virtual Boolean bind (QWidget *sender, const String &Signal);
          
+         void add_callback (
+            const String &Signal,
+            const V8Object &Self,
+            const V8Function &Func);
+            
       protected:
          struct CallbackStruct {
          
+            CallbackStruct *next;
             V8ObjectPersist self;
             V8FunctionPersist func;
          
-            CallbackStruct () {;}
+            CallbackStruct () : next (0) {;}
          
             ~CallbackStruct () {
          
@@ -41,9 +46,17 @@ namespace dmz {
             }
          };
          
+         struct ObsStruct {
+            
+            CallbackStruct *list;
+            
+            ObsStruct () : list (0) {;}
+            ~ObsStruct () { delete_list (list); }
+         };
+         
          QWidget *_widget;
          JsModuleUiV8QtBasic::State *_state;
-         QList<CallbackStruct *>_cbList;
+         HashTableStringTemplate<ObsStruct> _obsTable;
    };
 };
 

@@ -114,14 +114,14 @@ dmz::JsModuleUiV8QtBasic::_widget_observe (const v8::Arguments &Args) {
          QWidget *qtWidget = jsObject->get_qt_widget ();
 
          V8Object src = V8Object::Cast (Args[0]);
-         const String Signal = v8_to_string (Args[1]).to_lower ();
+         const String Signal = v8_to_string (Args[1]);
          V8Function func = v8_to_function (Args[2]);
 
          if (qtWidget) {
 
             if (jsObject->bind (qtWidget, Signal)) {
                
-               jsObject->add_callback (src, func);
+               jsObject->add_callback (Signal, src, func);
             }
          }
          

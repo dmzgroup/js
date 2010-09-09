@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>274</width>
-    <height>181</height>
+    <width>475</width>
+    <height>492</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,6 +33,9 @@ p, li { white-space: pre-wrap; }
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
+   </item>
+   <item>
+    <widget class="QListWidget" name="list1"/>
    </item>
    <item>
     <spacer name="verticalSpacer">

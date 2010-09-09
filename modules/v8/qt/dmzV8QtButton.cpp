@@ -2,6 +2,11 @@
 #include "dmzV8QtButton.h"
 #include <QtGui/QWidget>
 
+namespace {
+   
+   static const dmz::String LocalSignalClicked ("clicked");
+};
+
 
 dmz::V8QtButton::V8QtButton (QWidget *widget, JsModuleUiV8QtBasic::State *state) :
       V8QtObject (widget, state) {;}
@@ -17,7 +22,7 @@ dmz::V8QtButton::bind (QWidget *sender, const String &Signal) {
 
    if (sender) {
       
-      if (Signal == "clicked") {
+      if (Signal == LocalSignalClicked) {
    
          connect (
             sender,
@@ -43,20 +48,27 @@ dmz::V8QtButton::on_clicked () {
       v8::Context::Scope cscope (_state->context);
       v8::HandleScope scope;
 
-      foreach (CallbackStruct *cbs, _cbList) {
+      ObsStruct *os = _obsTable.lookup (LocalSignalClicked);
+      if (os) {
+         
+         CallbackStruct *cs (os->list);
+         while (cs) {
+            
+            if (!(cs->func.IsEmpty ()) && !(cs->self.IsEmpty ())) {
 
-         if (!(cbs->func.IsEmpty ()) && !(cbs->self.IsEmpty ())) {
+               V8Value argv[] = { cs->self };
 
-            V8Value argv[] = { cbs->self };
+               v8::TryCatch tc;
 
-            v8::TryCatch tc;
+               cs->func->Call (cs->self, 1, argv);
 
-            cbs->func->Call (cbs->self, 1, argv);
+               if (tc.HasCaught ()) {
 
-            if (tc.HasCaught ()) {
-
-               if (_state->core) { _state->core->handle_v8_exception (tc); }
+                  if (_state->core) { _state->core->handle_v8_exception (tc); }
+               }
             }
+
+            cs = cs->next;
          }
       }
    }

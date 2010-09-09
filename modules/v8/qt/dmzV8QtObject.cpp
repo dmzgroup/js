@@ -1,6 +1,8 @@
 #include "dmzV8QtObject.h"
 #include <QtGui/QWidget>
 
+#include <QtCore/QDebug>
+
 
 dmz::V8QtObject::V8QtObject (QWidget *widget, JsModuleUiV8QtBasic::State *state) :
       QObject (0),
@@ -15,9 +17,8 @@ dmz::V8QtObject::~V8QtObject () {
       if (!_widget->parentWidget ()) { delete _widget; }
       _widget = 0;
    }
-   
-   qDeleteAll (_cbList.begin (), _cbList.end ());
-   _cbList.clear ();
+
+   _obsTable.empty ();
 }
 
 
@@ -29,12 +30,29 @@ dmz::V8QtObject::get_qt_widget () const {
 
 
 void
-dmz::V8QtObject::add_callback (const V8Object &Self, const V8Function &Func) {
+dmz::V8QtObject::add_callback (
+      const String &Signal,
+      const V8Object &Self,
+      const V8Function &Func) {
 
-   CallbackStruct *cbs = new CallbackStruct ();
-   cbs->self = V8ObjectPersist::New (Self);
-   cbs->func = V8FunctionPersist::New (Func);
-   _cbList.append (cbs);
+   ObsStruct *os = _obsTable.lookup (Signal);
+
+   if (Signal && !os) {
+      
+      os = new ObsStruct;
+
+      if (os && !_obsTable.store (Signal, os)) { delete os; os = 0; }
+   }
+   
+   if (os) {
+
+      CallbackStruct *cs = new CallbackStruct;
+      cs->self = V8ObjectPersist::New (Self);
+      cs->func = V8FunctionPersist::New (Func);
+
+      cs->next = os->list;
+      os->list = cs;
+   }
 }
 
 

@@ -3,6 +3,8 @@
 
 #include <dmzV8QtObject.h>
 
+class QListWidgetItem;
+
 
 namespace dmz {
 
@@ -17,7 +19,8 @@ namespace dmz {
          virtual Boolean bind (QWidget *sender, const String &Signal);
 
       public Q_SLOTS:
-         // void on_clicked ();
+         void on_currentItemChanged (QListWidgetItem *current, QListWidgetItem *previous);
+         void on_itemActivated (QListWidgetItem *item);
    };
 };
 

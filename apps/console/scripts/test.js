@@ -4,6 +4,8 @@ var puts = require('sys').puts
   , form
   , button1
   , button2
+  , list1
+  , item
   ;
 
 puts("Script: " + self.name);
@@ -29,12 +31,23 @@ button1.observe (self, "clicked", function () {
    button1.hide();
 });
 
-// lw = form.lookup("list1");
-// lw.observer (self, "itemActivated", function (item) {
-//    puts(item.name);
+list1 = form.lookup("list1");
+list1.addItem("this is item 1");
+list1.addItem("another item");
+list1.addItem("last item");
+self.list1 = list1;
+// timer.setTimer(self, 2, function () {
+//    item.text("Look at me!!!!");
 // });
-// lw.observer(self, "currentChanged", function(curr, prev) {
-//    
+
+list1.observe(self, "itemActivated", function (item) {
+   puts('----- js.itemActivated ------');
+   puts(item.text("hello world"));
+});
+
+// list1.observe(self, "currentItemChanged", function(curr, prev) {
+//    puts('----- js.currentItemChanged ------');
+// //   puts(curr.text);
 // });
 
 // timer.setRepeatingTimer(self, 10, function () {

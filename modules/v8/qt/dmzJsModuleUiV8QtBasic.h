@@ -7,6 +7,8 @@
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
 
+class QListWidgetItem;
+
 
 namespace dmz {
 
@@ -36,6 +38,7 @@ namespace dmz {
 
          // JsModuleUiV8Qt Interface
          virtual v8::Handle<v8::Value> create_v8_widget (QWidget *value);
+         virtual v8::Handle<v8::Value> create_v8_list_widget_item (QListWidgetItem *value);
 
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
@@ -70,13 +73,14 @@ namespace dmz {
          static V8Value _button_text (const v8::Arguments &Args);
 
          // QListWidgetItem bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
-         static V8Value _list_widget_add_item (const v8::Arguments &Args);
-         static V8Value _list_widget_current_item (const v8::Arguments &Args);
-         static V8Value _list_widget_item (const v8::Arguments &Args);
-
          static V8Value _create_list_widget_item (const v8::Arguments &Args);
          static V8Value _list_widget_item_text (const v8::Arguments &Args);
 
+         static V8Value _list_widget_add_item (const v8::Arguments &Args);
+         static V8Value _list_widget_current_item (const v8::Arguments &Args);
+         // static V8Value _list_widget_item (const v8::Arguments &Args);
+
+         QListWidgetItem *_to_qt_list_widget_item (V8Value value);
          QWidget *_to_qt_widget (V8Value value);
          V8QtObject *_to_js_qt_object (V8Value value);
          
@@ -100,7 +104,6 @@ namespace dmz {
          V8FunctionTemplatePersist _buttonTemp;
          V8FunctionPersist _buttonCtor;
 
-         V8InterfaceHelper _listWidgetItemApi; 
          V8FunctionTemplatePersist _listWidgetItemTemp;
          V8FunctionPersist _listWidgetItemCtor;
 
