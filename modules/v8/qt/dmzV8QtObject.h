@@ -5,6 +5,7 @@
 #include <dmzJsV8UtilTypes.h>
 #include <dmzTypes.h>
 #include <dmzTypesDeleteListTemplate.h>
+#include <dmzTypesHashTableHandleTemplate.h>
 #include <dmzTypesHashTableStringTemplate.h>
 #include <QtCore/QObject>
 #include <v8.h>
@@ -13,50 +14,62 @@ class QWidget;
 
 namespace dmz {
    
+   struct V8QtObjectCallbackStruct {
+
+      const Handle Observer;
+      V8ObjectPersist self;
+      V8FunctionPersist func;
+   
+      V8QtObjectCallbackStruct (const Handle TheObserver) : Observer (TheObserver) {;}
+
+      ~V8QtObjectCallbackStruct () {
+         
+         func.Dispose (); func.Clear ();
+         self.Dispose (); self.Clear ();
+      }
+   };
+   
+   
    class V8QtObject : public QObject {
    
       Q_OBJECT
       
       public:
-         V8QtObject (QWidget *widget, JsModuleUiV8QtBasic::State *state);
+         V8QtObject (
+            const V8Object &Self,
+            QWidget *widget,
+            JsModuleUiV8QtBasicState *state);
+
          virtual ~V8QtObject ();
          
          QWidget *get_qt_widget () const;
          
          virtual Boolean bind (QWidget *sender, const String &Signal);
          
-         void add_callback (
+         void register_callback (
             const String &Signal,
             const V8Object &Self,
             const V8Function &Func);
-            
+         
+         void release_callback (const Handle Observer);
+         
+         V8ObjectPersist self;
+         
       protected:
-         struct CallbackStruct {
+         typedef V8QtObjectCallbackStruct CallbackStruct;
          
-            CallbackStruct *next;
-            V8ObjectPersist self;
-            V8FunctionPersist func;
-         
-            CallbackStruct () : next (0) {;}
-         
-            ~CallbackStruct () {
-         
-               func.Dispose (); func.Clear ();
-               self.Dispose (); self.Clear ();
-            }
-         };
-         
-         struct ObsStruct {
+         struct CallbackTable {
+           
+            const String &Signal;
+            HashTableHandleTemplate<CallbackStruct> table;
             
-            CallbackStruct *list;
-            
-            ObsStruct () : list (0) {;}
-            ~ObsStruct () { delete_list (list); }
+            CallbackTable (const String &TheSignal) : Signal (TheSignal) {;}
+            ~CallbackTable () { table.empty (); }
          };
          
          QWidget *_widget;
-         JsModuleUiV8QtBasic::State *_state;
-         HashTableStringTemplate<ObsStruct> _obsTable;
+         JsModuleUiV8QtBasicState *_state;
+         HashTableStringTemplate<CallbackTable> _cbTable;
    };
 };
 

@@ -1,4 +1,5 @@
 #include "dmzJsModuleUiV8QtBasic.h"
+#include <dmzJsModuleV8.h>
 #include <dmzJsV8UtilConvert.h>
 #include "dmzV8QtObject.h"
 #include <QtGui/QWidget>
@@ -16,7 +17,6 @@ dmz::JsModuleUiV8QtBasic::_widget_close (const v8::Arguments &Args) {
       QWidget *widget = self->_to_qt_widget (Args.This ());
       if (widget) {
       
-self->_log.warn << "widget->close ()" << endl;
          widget->close ();
       }
    }
@@ -106,22 +106,39 @@ dmz::JsModuleUiV8QtBasic::_widget_observe (const v8::Arguments &Args) {
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
 
-   if (self && Args[0]->IsObject () && Args[2]->IsFunction ()) {
+   // if (Args.Length () >= 3) {
+   //    
+   // }
+   
+   if (self && v8_is_object (Args[0]) && v8_is_function (Args[2])) {
 
       V8QtObject *jsObject = self->_to_js_qt_object (Args.This ());
       if (jsObject) {
          
          QWidget *qtWidget = jsObject->get_qt_widget ();
 
-         V8Object src = V8Object::Cast (Args[0]);
+         V8Object src = v8_to_object (Args[0]);
          const String Signal = v8_to_string (Args[1]);
          V8Function func = v8_to_function (Args[2]);
 
-         if (qtWidget) {
+         const Handle Obs =
+            self->_state.core ? self->_state.core->get_instance_handle (src) : 0;
 
+         if (qtWidget && Obs) {
+
+            // connect the signal from qtWidget to the desired slot of jsObject
             if (jsObject->bind (qtWidget, Signal)) {
                
-               jsObject->add_callback (Signal, src, func);
+               jsObject->register_callback (Signal, src, func);
+
+               ObsStruct *os = self->_obsTable.lookup (Obs);
+               if (!os) {
+                  
+                  os = new ObsStruct (Obs);
+                  if (!self->_obsTable.store (Obs, os)) { delete os; os = 0; }
+               }
+               
+               if (os) { os->list.append (jsObject); }
             }
          }
          

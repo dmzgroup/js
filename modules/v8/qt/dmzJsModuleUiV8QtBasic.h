@@ -6,17 +6,30 @@
 #include <dmzJsV8UtilHelpers.h>
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
+#include <dmzTypesHashTableHandleTemplate.h>
+#include <QtCore/QList>
+#include <QtCore/QMap>
 
 class QListWidgetItem;
 
 
 namespace dmz {
 
+   class JsModuleUiV8QtBasic;
    class JsModuleV8;
    class V8QtObject;
    class V8QtWidget;
    class V8QtButton;
    
+   struct JsModuleUiV8QtBasicState {
+      
+      JsModuleV8 *core;
+      JsModuleUiV8QtBasic *ui;
+      v8::Handle<v8::Context> context;
+      
+      JsModuleUiV8QtBasicState () : core (0), ui (0) {;}
+   };
+
 
    class JsModuleUiV8QtBasic :
          public Plugin,
@@ -50,16 +63,16 @@ namespace dmz {
             const String &InstanceName,
             v8::Handle<v8::Object> &instance);
 
-         struct State {
-            
-            JsModuleV8 *core;
-            JsModuleUiV8QtBasic *ui;
-            v8::Handle<v8::Context> context;
-            
-            State () : core (0), ui (0) {;}
-         };
-
       protected:
+         struct ObsStruct {
+         
+            const Handle Observer;
+            QList<V8QtObject *>list;
+            
+            ObsStruct (const Handle TheObserver) : Observer (TheObserver) {;}
+            ~ObsStruct () { list.clear (); }
+         };
+         
          // Static Functions
          static JsModuleUiV8QtBasic *_to_self (const v8::Arguments &Args);
          
@@ -98,8 +111,11 @@ namespace dmz {
 
          Log _log;
          
-         State _state;
+         JsModuleUiV8QtBasicState _state;
          V8ValuePersist _self;
+
+         HashTableHandleTemplate<ObsStruct> _obsTable;
+         QMap<QWidget *, V8QtObject *>_widgetMap;
 
          V8InterfaceHelper _qtApi;
 

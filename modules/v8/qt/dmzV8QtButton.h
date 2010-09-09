@@ -11,7 +11,11 @@ namespace dmz {
       Q_OBJECT
       
       public:
-         V8QtButton (QWidget *widget, JsModuleUiV8QtBasic::State *state);
+         V8QtButton (
+            const V8Object &Self,
+            QWidget *widget,
+            JsModuleUiV8QtBasicState *state);
+            
          virtual ~V8QtButton ();
          
          virtual Boolean bind (QWidget *sender, const String &Signal);

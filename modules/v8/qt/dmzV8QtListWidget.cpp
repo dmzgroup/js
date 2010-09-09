@@ -13,8 +13,11 @@ namespace {
 };
 
 
-dmz::V8QtListWidget::V8QtListWidget (QWidget *widget, JsModuleUiV8QtBasic::State *state) :
-      V8QtObject (widget, state) {;}
+dmz::V8QtListWidget::V8QtListWidget (
+      const V8Object &Self,
+      QWidget *widget,
+      JsModuleUiV8QtBasicState *state) :
+      V8QtObject (Self, widget, state) {;}
 
 
 dmz::V8QtListWidget::~V8QtListWidget () {;}
@@ -62,18 +65,22 @@ dmz::V8QtListWidget::on_currentItemChanged (
       QListWidgetItem *current,
       QListWidgetItem *previous) {
 
-   if (_state && _state->ui) {
+   if (_state && _state->core && _state->ui) {
 
       v8::Context::Scope cscope (_state->context);
       v8::HandleScope scope;
       
-      ObsStruct *os = _obsTable.lookup (LocalSignalCurrentItemChanged);
-      if (os) {
-      
-         CallbackStruct *cs (os->list);
-         while (cs) {
+      CallbackTable *ct = _cbTable.lookup (LocalSignalCurrentItemChanged);
+      if (ct) {
+         
+         HashTableHandleIterator it;
+         CallbackStruct *cs (0);
+         
+         while (ct->table.get_next (it, cs)) {
       
             if (!(cs->func.IsEmpty ()) && !(cs->self.IsEmpty ())) {
+      
+               const Handle Observer = cs->Observer;
       
                const int Argc (3);
                V8Value argv[Argc];
@@ -87,11 +94,13 @@ dmz::V8QtListWidget::on_currentItemChanged (
       
                if (tc.HasCaught ()) {
       
-                  if (_state->core) { _state->core->handle_v8_exception (0, tc); }
+                  _state->core->handle_v8_exception (Observer, tc);
+                  
+                  cs = ct->table.remove (Observer);
+                  
+                  if (cs) { delete cs; cs = 0; }
                }
             }
-      
-            cs = cs->next;
          }
       }
    }
@@ -101,18 +110,22 @@ dmz::V8QtListWidget::on_currentItemChanged (
 void
 dmz::V8QtListWidget::on_itemActivated (QListWidgetItem *item) {
    
-   if (_state && _state->ui) {
+   if (_state && _state->core && _state->ui) {
 
       v8::Context::Scope cscope (_state->context);
       v8::HandleScope scope;
    
-      ObsStruct *os = _obsTable.lookup (LocalSignalItemActivated);
-      if (os) {
-   
-         CallbackStruct *cs (os->list);
-         while (cs) {
+      CallbackTable *ct = _cbTable.lookup (LocalSignalItemActivated);
+      if (ct) {
+         
+         HashTableHandleIterator it;
+         CallbackStruct *cs (0);
+         
+         while (ct->table.get_next (it, cs)) {
    
             if (!(cs->func.IsEmpty ()) && !(cs->self.IsEmpty ())) {
+   
+               const Handle Observer = cs->Observer;
    
                const int Argc (2);
                V8Value argv[Argc];
@@ -125,11 +138,13 @@ dmz::V8QtListWidget::on_itemActivated (QListWidgetItem *item) {
    
                if (tc.HasCaught ()) {
    
-                  if (_state->core) { _state->core->handle_v8_exception (0, tc); }
+                  _state->core->handle_v8_exception (Observer, tc);
+                  
+                  cs = ct->table.remove (Observer);
+                  
+                  if (cs) { delete cs; cs = 0; }
                }
             }
-   
-            cs = cs->next;
          }
       }
    }

@@ -11,7 +11,11 @@ namespace dmz {
       Q_OBJECT
       
       public:
-         V8QtWidget (QWidget *widget, JsModuleUiV8QtBasic::State *state);
+         V8QtWidget (
+            const V8Object &Self,
+            QWidget *widget,
+            JsModuleUiV8QtBasicState *state);
+         
          virtual ~V8QtWidget ();
    };
 };

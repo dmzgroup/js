@@ -11,7 +11,6 @@ var puts = require('sys').puts
 puts("Script: " + self.name);
 
 form = ui.load("./scripts/TestForm.ui");
-self.form = form;
 form.show();
 
 button2 = form.lookup("button2");
@@ -35,24 +34,17 @@ list1 = form.lookup("list1");
 list1.addItem("this is item 1");
 list1.addItem("another item");
 list1.addItem("last item");
-self.list1 = list1;
-// timer.setTimer(self, 2, function () {
-//    item.text("Look at me!!!!");
-// });
 
 list1.observe(self, "itemActivated", function (item) {
-   puts('----- js.itemActivated ------');
-   puts(item.text("hello world"));
+   puts(item.text());
+   item.text("hello world");
 });
 
-// list1.observe(self, "currentItemChanged", function(curr, prev) {
-//    puts('----- js.currentItemChanged ------');
-// //   puts(curr.text);
-// });
+var list2 = form.lookup("list1");
+list2.addItem('adding to list2');
 
-// timer.setRepeatingTimer(self, 10, function () {
-   // var btn1 = button;
-   // var form1 = form;
-// });
+list2.observe(self, "currentItemChanged", function(curr, prev) {
+   puts(curr.text());
+});
 
 puts("Done.");

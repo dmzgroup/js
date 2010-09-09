@@ -12,19 +12,19 @@
 
 namespace {
 
-static void
-local_v8_qt_object_delete (dmz::V8ValuePersist object, void *param) {
-
-   if (param) {
-
-      dmz::V8QtObject *obj = (dmz::V8QtObject *)param;
-      delete obj;
-      obj = 0;
-   }
-
-   object.Dispose ();
-   object.Clear ();
-}
+// static void
+// local_v8_qt_object_delete (dmz::V8ValuePersist object, void *param) {
+// 
+//    if (param) {
+// 
+//       dmz::V8QtObject *obj = (dmz::V8QtObject *)param;
+//       delete obj;
+//       obj = 0;
+//    }
+// 
+//    object.Dispose ();
+//    object.Clear ();
+// }
 
 };
 
@@ -48,7 +48,10 @@ dmz::JsModuleUiV8QtBasic::_uiloader_load (const v8::Arguments &Args) {
 
       result = self->create_v8_widget (widget);
       
-      self->_log.info << "Loaded UI: " << Name << endl;
+      if (!result.IsEmpty ()) {
+         
+         self->_log.info << "Loaded UI: " << Name << endl;
+      }
    }
 
    return scope.Close (result);
@@ -120,42 +123,39 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
    if (value) {
       
       V8Object vobj;
-      V8QtObject *qobj;
-
-      if (value->inherits ("QAbstractButton")) {
+      V8QtObject *qobj = _widgetMap[value];
       
-         if (!_buttonCtor.IsEmpty ()) {
-            
-            vobj = _buttonCtor->NewInstance ();
-            qobj = new V8QtButton (value, &_state);
-         }
-      }
-      else if (value->inherits ("QListWidget")) {
+      if (!qobj) {
          
-         if (!_listWidgetCtor.IsEmpty ()) {
-            
-            vobj = _listWidgetCtor->NewInstance ();
-            qobj = new V8QtListWidget (value, &_state);
-         }
-      }
-      else if (value->inherits ("QWidget")) {
+         if (value->inherits ("QAbstractButton")) {
 
-         if (!_widgetCtor.IsEmpty ()) {
-            
-            vobj = _widgetCtor->NewInstance ();
-            qobj = new V8QtWidget (value, &_state);
+            if (!_buttonCtor.IsEmpty ()) {
+
+               vobj = _buttonCtor->NewInstance ();
+               qobj = new V8QtButton (vobj, value, &_state);
+            }
          }
+         else if (value->inherits ("QListWidget")) {
+
+            if (!_listWidgetCtor.IsEmpty ()) {
+
+               vobj = _listWidgetCtor->NewInstance ();
+               qobj = new V8QtListWidget (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QWidget")) {
+
+            if (!_widgetCtor.IsEmpty ()) {
+
+               vobj = _widgetCtor->NewInstance ();
+               qobj = new V8QtWidget (vobj, value, &_state);
+            }
+         }
+         
+         if (qobj) { _widgetMap.insert (value, qobj); }
       }
 
-      if (!vobj.IsEmpty () && qobj) {
-         
-         vobj->SetInternalField (0, v8::External::Wrap ((void *)qobj));
-         
-         V8ObjectPersist persist = V8ObjectPersist::New (vobj);
-         persist.MakeWeak ((void *)qobj, local_v8_qt_object_delete);
-         
-         result = vobj;
-      }
+      if (qobj && !(qobj->self.IsEmpty ())) { result = qobj->self; }
    }
 
    return scope.Close (result);
@@ -222,14 +222,17 @@ dmz::JsModuleUiV8QtBasic::release_js_instance_v8 (
       const String &InstanceName,
       v8::Handle<v8::Object> &instance) {
 
-   // ObsStruct *os = _obsTable.remove (InstanceHandle);
-   // 
-   // if (os) {
-   // 
-   //    while (os->list && _release_callback (os->list->self, os->list->func)) {;}
-   // 
-   //    delete os; os = 0;
-   // }
+   ObsStruct *os = _obsTable.remove (InstanceHandle);
+   
+   if (os) {
+   
+      foreach (V8QtObject *obj, os->list) {
+      
+         obj->release_callback (InstanceHandle);
+      }
+   
+      delete os; os = 0;
+   }
 }
 
 
