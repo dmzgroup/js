@@ -38,6 +38,8 @@ class JsModule {
          const char *Script,
          const Int32 Size) = 0;
 
+      virtual Boolean reload_script (const Handle ScriptHandle) = 0;
+      virtual Boolean is_script_external (const Handle ScriptHandle) = 0;
       virtual Handle lookup_script (const String &Name) = 0;
       virtual String lookup_script_name (const Handle ScriptHandle) = 0;
       virtual String lookup_script_file_name (const Handle ScriptHandle) = 0;

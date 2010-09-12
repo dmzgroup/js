@@ -71,6 +71,8 @@ namespace dmz {
             const char *Script,
             const Int32 Size);
 
+         virtual Boolean reload_script (const Handle ScriptHandle);
+         virtual Boolean is_script_external (const Handle ScriptHandle);
          virtual Handle lookup_script (const String &Name);
          virtual String lookup_script_name (const Handle ScriptHandle);
          virtual String lookup_script_file_name (const Handle ScriptHandle);

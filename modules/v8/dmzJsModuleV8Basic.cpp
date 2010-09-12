@@ -405,6 +405,24 @@ dmz::JsModuleV8Basic::recompile_script (
 }
 
 
+dmz::Boolean
+dmz::JsModuleV8Basic::reload_script (const Handle ScriptHandle) {
+
+   Boolean result (False);
+
+   return result;
+}
+
+
+dmz::Boolean
+dmz::JsModuleV8Basic::is_script_external (const Handle ScriptHandle) {
+
+   Boolean result (False);
+
+   return result;
+}
+
+
 dmz::Handle
 dmz::JsModuleV8Basic::lookup_script (const String &Name) {
 
