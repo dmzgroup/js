@@ -134,6 +134,7 @@ struct dmz::V8ExternalString::State {
 
    char *buffer;
    size_t length;
+   Int32 count;
 
    State (
          const char *Buffer,
@@ -141,7 +142,8 @@ struct dmz::V8ExternalString::State {
          const String Header,
          const String &Footer) :
          buffer (0),
-         length (Length) {
+         length (Length),
+         count (1) {
 
       if (Header) { length += Header.get_length (); }
       if (Footer) { length += Footer.get_length (); }
@@ -194,6 +196,19 @@ dmz::V8ExternalString::V8ExternalString (const char *Buffer, const size_t Length
 
 dmz::V8ExternalString::~V8ExternalString () { delete &_state; }
 
+
+void
+dmz::V8ExternalString::ref () { _state.count++; }
+
+
+// ExternalAsciiStringResource Interface.
+void
+dmz::V8ExternalString::Dispose () {
+
+   _state.count--;
+
+   if (_state.count <= 0) { delete this; }
+}
 
 const char *
 dmz::V8ExternalString::data () const { return _state.buffer; } 

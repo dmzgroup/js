@@ -59,6 +59,7 @@ class JsModule {
       virtual Handle lookup_instance (const String &InstanceName) = 0;
       virtual Handle lookup_instance_script (const Handle Instance) = 0;
       virtual String lookup_instance_name (const Handle Instance) = 0;
+      virtual Boolean lookup_instance_config (const Handle Instance, Config &data) = 0;
       virtual Boolean recreate_instance (const Handle Instance, const Config &Init) = 0;
       virtual Boolean destroy_instance (const Handle Instance) = 0;
 

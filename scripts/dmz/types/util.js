@@ -7,7 +7,7 @@ exports.defineConst = function (target, name, value) {
 
    var type = typeof value;
 
-   if (value && ((type === 'Object') || (type === 'Function'))) {
+   if (value && ((type === 'object') || (type === 'function'))) {
 
       Object.freeze(value);
    }
@@ -76,7 +76,7 @@ exports.isUndefined = function (val) { var ud; return val === ud; };
 
 exports.hasFunction = function (obj, name) {
  
-   return typeof obj[name] === "function";
+   return typeof obj[name] === 'function';
 };
 
 

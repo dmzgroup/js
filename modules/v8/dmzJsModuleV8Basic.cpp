@@ -367,6 +367,10 @@ dmz::JsModuleV8Basic::recompile_script (
          LocalInstanceHeader,
          LocalFooter);
 
+      if (info->externalStr) { info->externalStr->Dispose (); info->externalStr = 0; }
+      info->externalStr = sptr;
+      if (info->externalStr) { info->externalStr->ref (); }
+
       v8::Handle<v8::Script> script = v8::Script::Compile (
          v8::String::NewExternal (sptr),
          v8::String::New (info->FileName.get_buffer ()));
@@ -607,6 +611,19 @@ dmz::JsModuleV8Basic::lookup_instance_name (const Handle Instance) {
    InstanceStruct *instance (_instanceTable.lookup (Instance));
 
    if (instance) { result = instance->Name; }
+
+   return result;
+}
+
+
+dmz::Boolean
+dmz::JsModuleV8Basic::lookup_instance_config (const Handle Instance, Config &data) {
+
+   Boolean result (False);
+
+   InstanceStruct *instance (_instanceTable.lookup (Instance));
+
+   if (instance) { data = instance->local; result = True; }
 
    return result;
 }
@@ -1222,8 +1239,18 @@ dmz::JsModuleV8Basic::_load_scripts () {
       
       v8::TryCatch tc;
 
-      V8FileString *sptr =
-         new V8FileString (info->FileName, LocalInstanceHeader, LocalFooter);
+      v8::String::ExternalAsciiStringResource *sptr (0);
+
+      if (info->externalStr) {
+
+         sptr = info->externalStr;
+         info->externalStr->ref ();
+      }
+      else {
+
+         sptr = new V8FileString (info->FileName, LocalInstanceHeader, LocalFooter);
+      }
+ 
 
       v8::Handle<v8::Script> script = v8::Script::Compile (
          v8::String::NewExternal (sptr),
