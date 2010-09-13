@@ -423,6 +423,10 @@ dmz::JsModuleV8Basic::is_script_external (const Handle ScriptHandle) {
 
    Boolean result (False);
 
+   ScriptStruct *ss = _scriptTable.lookup (ScriptHandle);
+
+   if (ss) { result = ss->externalStr != 0; }
+
    return result;
 }
 
