@@ -1,0 +1,37 @@
+require "lmkV8"
+require "lmkQt"
+
+lmkV8.set_name ("dmzJsModuleUiV8QtBasic", lmkQt.get_flags ())
+
+lmk.set_type "plugin"
+
+lmk.add_files ({
+   "dmzV8QtListWidget.h",
+   "dmzV8QtButton.h",
+   "dmzV8QtWidget.h",
+   "dmzV8QtObject.h",
+},{src="moc"})
+
+lmk.add_files {
+   "dmzV8QtListWidget.cpp",
+   "dmzV8QtButton.cpp",
+   "dmzV8QtWidget.cpp",
+   "dmzV8QtObject.cpp",
+   "dmzJsModuleUiV8QtBasicListWidget.cpp",
+   "dmzJsModuleUiV8QtBasicButton.cpp",
+   "dmzJsModuleUiV8QtBasicWidget.cpp",
+   "dmzJsModuleUiV8QtBasic.cpp",
+}
+
+lmk.add_libs {
+   "dmzJsV8Util",
+   "dmzKernel",
+}
+
+lmk.add_preqs {
+   "dmzJsFramework",
+}
+
+lmkV8.add_libs ()
+lmkQt.add_libs {"QtCore", "QtGui"}
+lmkQt.add_uitools ()

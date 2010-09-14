@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dmz>
+<plugin-list>
+   <plugin name="dmzInputModuleBasic"/>
+   <plugin name="dmzInputPluginControllerKey" scope="keyboard-controller"/>
+   <plugin name="dmzInputPluginExit"/>
+   <plugin name="dmzInputPluginKeyEventToMessage" scope="key-messages"/>
+</plugin-list>
+<key-messages>
+   <channel>
+      <converter key="J">
+         <target name="dmzJsPluginV8ConsoleQt" message="DMZ_Show_Java_Script_Console"/>
+      </converter>
+      <converter key="N">
+         <target
+            name="dmzQtPluginNetworkActivity"
+            message="DMZ_Show_Network_Activity_Console"
+         />
+      </converter>
+   </channel>
+</key-messages>
+</dmz>
