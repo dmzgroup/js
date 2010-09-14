@@ -1,5 +1,5 @@
 lmk.set_name ("dmzJsVectorTest")
-lmk.add_files {"dmzJsVectorTest.lua"}
+lmk.add_files {"dmzJsVectorTest.js"}
 lmk.add_preqs {
    "dmzKernel",
    "dmzAppTest",
