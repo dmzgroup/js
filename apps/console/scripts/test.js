@@ -31,20 +31,25 @@ button1.observe (self, "clicked", function () {
 });
 
 list1 = form.lookup("list1");
-list1.addItem("this is item 1");
-list1.addItem("another item");
-list1.addItem("last item");
+if(list1) {
+   
+   list1.addItem("this is item 1");
+   list1.addItem("another item");
+   list1.addItem("last item");
 
-list1.observe(self, "itemActivated", function (item) {
-   puts(item.text());
-   item.text("hello world");
-});
+   list1.observe(self, "itemActivated", function (item) {
+      puts(item.text());
+      item.text("hello world");
+   });
+}
 
 var list2 = form.lookup("list1");
-list2.addItem('adding to list2');
-
-list2.observe(self, "currentItemChanged", function(curr, prev) {
-   puts(curr.text());
-});
+if(list2) {
+   list2.addItem('adding to list2');
+   
+   // list2.observe(self, "currentItemChanged", function(curr, prev) {
+   //    puts(curr.text());
+   // });
+}
 
 puts("Done.");

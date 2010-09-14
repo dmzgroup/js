@@ -12,19 +12,19 @@
 
 namespace {
 
-// static void
-// local_v8_qt_object_delete (dmz::V8ValuePersist object, void *param) {
-// 
-//    if (param) {
-// 
-//       dmz::V8QtObject *obj = (dmz::V8QtObject *)param;
-//       delete obj;
-//       obj = 0;
-//    }
-// 
-//    object.Dispose ();
-//    object.Clear ();
-// }
+static void
+local_v8_qt_object_delete (dmz::V8ValuePersist object, void *param) {
+
+   if (param) {
+
+      dmz::V8QtObject *obj = (dmz::V8QtObject *)param;
+      delete obj;
+      obj = 0;
+   }
+
+   object.Dispose ();
+   object.Clear ();
+}
 
 };
 
@@ -203,7 +203,21 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _listWidgetItemCtor = V8FunctionPersist::New (_listWidgetItemTemp->GetFunction ());
       _listWidgetCtor = V8FunctionPersist::New (_listWidgetTemp->GetFunction ());
    }
+   else if (State == JsExtV8::Stop) {
+   
+   }
    else if (State == JsExtV8::Shutdown) {
+      
+      QMapIterator<QWidget *, V8QtObject *> it (_widgetMap);
+      while (it.hasNext ()) {
+
+         it.next ();
+         
+         V8QtObject *obj = it.value ();
+         delete obj; obj = 0;
+      }
+
+      _widgetMap.clear ();
 
       _widgetCtor.Dispose (); _widgetCtor.Clear ();
       _buttonCtor.Dispose (); _buttonCtor.Clear ();

@@ -2,6 +2,8 @@
 #include "dmzV8QtObject.h"
 #include <QtGui/QWidget>
 
+#include <QtCore/QDebug>
+
 
 dmz::V8QtObject::V8QtObject (
       const V8Object &Self,
@@ -23,7 +25,7 @@ dmz::V8QtObject::~V8QtObject () {
    
    if (_widget) {
       
-      if (!_widget->parentWidget ()) { delete _widget; }
+      if (!_widget->parentWidget ()) { _widget->deleteLater (); }
       _widget = 0;
    }
 
@@ -37,6 +39,13 @@ QWidget *
 dmz::V8QtObject::get_qt_widget () const {
    
    return _widget;
+}
+
+
+dmz::Boolean
+dmz::V8QtObject::bind (QWidget *sender, const String &Signal) {
+
+   return False;
 }
 
 
@@ -82,13 +91,23 @@ dmz::V8QtObject::register_callback (
 
 void
 dmz::V8QtObject::release_callback (const Handle Observer) {
-   
-}
 
+   if (Observer && _state && _state->core) {
 
-dmz::Boolean
-dmz::V8QtObject::bind (QWidget *sender, const String &Signal) {
+      v8::Context::Scope cscope (_state->context);
+      v8::HandleScope scope;
 
-   return False;
+      HashTableStringIterator it;
+      CallbackTable *ct (0);
+      
+      while (_cbTable.get_next (it, ct)) {
+                  
+         CallbackStruct *cs = ct->table.remove (Observer);
+         if (cs) {
+            
+            delete cs; cs = 0;
+         }
+      }
+   }
 }
 

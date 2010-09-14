@@ -8,27 +8,12 @@
 #include <dmzTypesHashTableHandleTemplate.h>
 #include <dmzTypesHashTableStringTemplate.h>
 #include <QtCore/QObject>
+#include <QtCore/QPointer>
 #include <v8.h>
 
 class QWidget;
 
 namespace dmz {
-   
-   struct V8QtObjectCallbackStruct {
-
-      const Handle Observer;
-      V8ObjectPersist self;
-      V8FunctionPersist func;
-   
-      V8QtObjectCallbackStruct (const Handle TheObserver) : Observer (TheObserver) {;}
-
-      ~V8QtObjectCallbackStruct () {
-         
-         func.Dispose (); func.Clear ();
-         self.Dispose (); self.Clear ();
-      }
-   };
-   
    
    class V8QtObject : public QObject {
    
@@ -43,7 +28,7 @@ namespace dmz {
          virtual ~V8QtObject ();
          
          QWidget *get_qt_widget () const;
-         
+
          virtual Boolean bind (QWidget *sender, const String &Signal);
          
          void register_callback (
@@ -56,7 +41,7 @@ namespace dmz {
          V8ObjectPersist self;
          
       protected:
-         typedef V8QtObjectCallbackStruct CallbackStruct;
+         struct CallbackStruct;
          
          struct CallbackTable {
            
@@ -67,7 +52,22 @@ namespace dmz {
             ~CallbackTable () { table.empty (); }
          };
          
-         QWidget *_widget;
+         struct CallbackStruct {
+
+            const Handle Observer;
+            V8ObjectPersist self;
+            V8FunctionPersist func;
+
+            CallbackStruct (const Handle TheObserver) : Observer (TheObserver) {;}
+
+            ~CallbackStruct () {
+
+               func.Dispose (); func.Clear ();
+               self.Dispose (); self.Clear ();
+            }
+         };
+         
+         QPointer<QWidget> _widget;
          JsModuleUiV8QtBasicState *_state;
          HashTableStringTemplate<CallbackTable> _cbTable;
    };
