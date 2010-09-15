@@ -164,7 +164,7 @@ dmz::JsModuleRuntimeV8Basic::_set_base_timer (
 
 
 dmz::V8Value
-dmz::JsModuleRuntimeV8Basic::_cancle_timer (const v8::Arguments &Args) {
+dmz::JsModuleRuntimeV8Basic::_cancel_timer (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result;
@@ -189,7 +189,7 @@ dmz::JsModuleRuntimeV8Basic::_cancle_timer (const v8::Arguments &Args) {
 
 
 dmz::V8Value
-dmz::JsModuleRuntimeV8Basic::_cancle_all_timers (const v8::Arguments &Args) {
+dmz::JsModuleRuntimeV8Basic::_cancel_all_timers (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result = v8::False ();
@@ -311,13 +311,14 @@ dmz::JsModuleRuntimeV8Basic::delete_all_timers (V8Object self) {
    return result;
 }
 
+
 void
 dmz::JsModuleRuntimeV8Basic::_init_time () {
 
    _timeApi.add_function ("setTimer", _set_timer, _self);
    _timeApi.add_function ("setRepeatingTimer", _set_repeating_timer, _self);
-   _timeApi.add_function ("cancleTimer", _cancle_timer, _self);
-   _timeApi.add_function ("cancleAllTimers", _cancle_all_timers, _self);
+   _timeApi.add_function ("cancelTimer", _cancel_timer, _self);
+   _timeApi.add_function ("cancelAllTimers", _cancel_all_timers, _self);
    _timeApi.add_function ("getFrameDelta", _get_frame_delta, _self);
    _timeApi.add_function ("getFrameTime", _get_frame_time, _self);
    _timeApi.add_function ("getSystemTime", _get_system_time, _self);

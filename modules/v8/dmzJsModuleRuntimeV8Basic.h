@@ -154,8 +154,8 @@ namespace dmz {
          static V8Value _set_base_timer (
             const v8::Arguments &Args,
             const Boolean Repeating);
-         static V8Value _cancle_timer (const v8::Arguments &Args);
-         static V8Value _cancle_all_timers (const v8::Arguments &Args);
+         static V8Value _cancel_timer (const v8::Arguments &Args);
+         static V8Value _cancel_all_timers (const v8::Arguments &Args);
          static V8Value _get_frame_delta (const v8::Arguments &Args);
          static V8Value _get_frame_time (const v8::Arguments &Args);
          static V8Value _get_system_time (const v8::Arguments &Args);
