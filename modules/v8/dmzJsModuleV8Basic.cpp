@@ -356,11 +356,6 @@ dmz::JsModuleV8Basic::recompile_script (
       while (info->table.get_next (inIt, is)) { _shutdown_instance (*is); }
       while (info->table.get_next (inIt, is)) { _release_instance (*is); }
 
-      _observe_script (JsObserverRelease, info->ScriptHandle);
-      info->clear ();
-
-      v8::TryCatch tc;
-
       V8ExternalString *sptr = new V8ExternalString (
          Script,
          Size,
@@ -371,36 +366,7 @@ dmz::JsModuleV8Basic::recompile_script (
       info->externalStr = sptr;
       if (info->externalStr) { info->externalStr->ref (); }
 
-      v8::Handle<v8::Script> script = v8::Script::Compile (
-         v8::String::NewExternal (sptr),
-         v8::String::New (info->FileName.get_buffer ()));
-
-      if (tc.HasCaught ()) { handle_v8_exception (info->ScriptHandle, tc); }
-      else {
-
-         _log.info << "Loaded script: " << info->FileName << endl;
-
-         info->script = v8::Persistent<v8::Script>::New (script);
-         v8::Handle<v8::Value> value = info->script->Run ();
-
-         if (tc.HasCaught ()) { handle_v8_exception (info->ScriptHandle, tc); }
-         else {
-
-            V8Function func = v8_to_function (value);
-
-            if (func.IsEmpty ()) {
-
-               _log.error << "No function returned from: " << info->FileName << endl;
-            }
-            else {
-
-               info->ctor = v8::Persistent<v8::Function>::New (func);
-
-               _observe_script (JsObserverCreate, info->ScriptHandle);
-               result = True;
-            }
-         }
-      }
+      result = _reload_script (*info);
 
       if (result) { while (info->table.get_next (inIt, is)) { _create_instance (*is); } }
    }
@@ -413,6 +379,21 @@ dmz::Boolean
 dmz::JsModuleV8Basic::reload_script (const Handle ScriptHandle) {
 
    Boolean result (False);
+
+   ScriptStruct *info = _scriptTable.lookup (ScriptHandle);
+
+   if (info) {
+
+      HashTableHandleIterator inIt;
+      InstanceStruct *is (0);
+
+      while (info->table.get_next (inIt, is)) { _shutdown_instance (*is); }
+      while (info->table.get_next (inIt, is)) { _release_instance (*is); }
+
+      result = _reload_script (*info);
+
+      if (result) { while (info->table.get_next (inIt, is)) { _create_instance (*is); } }
+   }
 
    return result;
 }
@@ -1228,6 +1209,65 @@ dmz::JsModuleV8Basic::_shutdown_ext () {
 }
 
 
+dmz::Boolean
+dmz::JsModuleV8Basic::_reload_script (ScriptStruct &info) {
+
+   Boolean result (False);
+
+   if (info.script.IsEmpty () == false) {
+
+      _observe_script (JsObserverRelease, info.ScriptHandle);
+   }
+
+   info.clear ();
+      
+   v8::TryCatch tc;
+
+   v8::String::ExternalAsciiStringResource *sptr (0);
+
+   if (info.externalStr) {
+
+      sptr = info.externalStr;
+      info.externalStr->ref ();
+   }
+   else {
+
+      sptr = new V8FileString (info.FileName, LocalInstanceHeader, LocalFooter);
+   }
+
+   v8::Handle<v8::Script> script = v8::Script::Compile (
+      v8::String::NewExternal (sptr),
+      v8::String::New (info.FileName.get_buffer ()));
+
+   if (tc.HasCaught ()) { handle_v8_exception (info.ScriptHandle, tc); }
+   else {
+
+      _log.info << "Loaded script: " << info.FileName << endl;
+
+      info.script = v8::Persistent<v8::Script>::New (script);
+      v8::Handle<v8::Value> value = info.script->Run ();
+
+      if (tc.HasCaught ()) { handle_v8_exception (info.ScriptHandle, tc); }
+      else {
+
+         V8Function func = v8_to_function (value);
+         if (func.IsEmpty ()) {
+            // Error! no function returned.
+            _log.error << "No function returned from: " << info.FileName << endl;
+         }
+         else {
+
+            info.ctor = v8::Persistent<v8::Function>::New (func);
+            _observe_script (JsObserverCreate, info.ScriptHandle);
+            result = True;
+         }
+      }
+   }
+
+   return result;
+}
+
+
 void
 dmz::JsModuleV8Basic::_load_scripts () {
 
@@ -1237,53 +1277,7 @@ dmz::JsModuleV8Basic::_load_scripts () {
    HashTableHandleIterator it;
    ScriptStruct *info (0);
 
-   while (_scriptTable.get_next (it, info)) {
-
-      info->clear ();
-      
-      v8::TryCatch tc;
-
-      v8::String::ExternalAsciiStringResource *sptr (0);
-
-      if (info->externalStr) {
-
-         sptr = info->externalStr;
-         info->externalStr->ref ();
-      }
-      else {
-
-         sptr = new V8FileString (info->FileName, LocalInstanceHeader, LocalFooter);
-      }
- 
-
-      v8::Handle<v8::Script> script = v8::Script::Compile (
-         v8::String::NewExternal (sptr),
-         v8::String::New (info->FileName.get_buffer ()));
-
-      if (tc.HasCaught ()) { handle_v8_exception (info->ScriptHandle, tc); }
-      else {
-
-         _log.info << "Loaded script: " << info->FileName << endl;
-
-         info->script = v8::Persistent<v8::Script>::New (script);
-         v8::Handle<v8::Value> value = info->script->Run ();
-
-         if (tc.HasCaught ()) { handle_v8_exception (info->ScriptHandle, tc); }
-         else {
-
-            V8Function func = v8_to_function (value);
-            if (func.IsEmpty ()) {
-               // Error! no function returned.
-               _log.error << "No function returned from: " << info->FileName << endl;
-            }
-            else {
-
-               info->ctor = v8::Persistent<v8::Function>::New (func);
-               _observe_script (JsObserverCreate, info->ScriptHandle);
-            }
-         }
-      }
-   }
+   while (_scriptTable.get_next (it, info)) { _reload_script (*info); }
 
    it.reset ();
    InstanceStruct *instance (0);
