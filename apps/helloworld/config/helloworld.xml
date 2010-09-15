@@ -4,33 +4,13 @@
    <time>
       <frequency value="60.0"/>
    </time>
-   <state name="Dead"/>
-   <object-type name="ground-vehicle"/>
-   <object-type name="car" parent="ground-vehicle"/>
-   <object-type name="truck" parent="ground-vehicle"/>
-   <object-type name="tank" parent="ground-vehicle"/>
 </runtime>
 <plugin-list>
-   <plugin name="dmzPluginConsole"/>
-<!--
-   <plugin name="dmzPluginMsgDump"/>
--->
    <plugin name="dmzJsModuleV8Basic" scope="javascript"/>
-   <plugin name="dmzJsModuleTypesV8Basic" scope="javascript"/>
-   <plugin name="dmzJsModuleRuntimeV8Basic" scope="javascript"/>
+   <plugin name="dmzPluginExit"/>
 </plugin-list>
 <javascript>
    <path value="./scripts"/>
-   <path value="../../scripts"/>
    <instance name="helloworld"/>
 </javascript>
-<helloworld>
-   <vec x="1" y="2" z="3"/>
-   <name value="hello"/>
-   <obj value="one"/>
-   <obj value="two"/>
-   <obj value="three"/>
-   <obj value="four"/>
-   <obj value="five"/>
-</helloworld>
 </dmz>
