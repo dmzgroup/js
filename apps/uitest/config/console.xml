@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmz>
+<plugin-list>
+   <plugin name="dmzPluginConsole" scope="console"/>
+</plugin-list>
+<console>
+   <message key="J" name="DMZ_Show_Java_Script_Console"/>
+   <message key="N" name="DMZ_Show_Network_Activity_Console"/>
+</console>
+</dmz>
