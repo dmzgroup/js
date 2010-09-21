@@ -130,7 +130,15 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
       if (!qobj) {
          
 
-         if (value->inherits ("QLineEdit")) {
+         if (value->inherits ("QTextEdit")) {
+
+            if (!_textEditCtor.IsEmpty ()) {
+
+               vobj = _textEditCtor->NewInstance ();
+               qobj = new V8QtTextEdit (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QLineEdit")) {
 
             if (!_lineEditCtor.IsEmpty ()) {
 
@@ -248,6 +256,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _comboBoxCtor = V8FunctionPersist::New (_comboBoxTemp->GetFunction ());
       _sliderCtor = V8FunctionPersist::New (_sliderTemp->GetFunction ());
       _lineEditCtor = V8FunctionPersist::New (_lineEditTemp->GetFunction ());
+      _textEditCtor = V8FunctionPersist::New (_textEditTemp->GetFunction ());
    }
    else if (State == JsExtV8::Stop) {
    
@@ -273,6 +282,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _comboBoxCtor.Dispose (); _comboBoxTemp.Clear ();
       _sliderCtor.Dispose (); _sliderTemp.Clear ();
       _lineEditCtor.Dispose (); _lineEditTemp.Clear ();
+      _textEditCtor.Dispose (); _textEditTemp.Clear ();
 
       _qtApi.clear ();
       _state.context.Clear ();
@@ -367,6 +377,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_combobox ();
    _init_slider ();
    _init_lineEdit ();
+   _init_textEdit ();
 }
 
 

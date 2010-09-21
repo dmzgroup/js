@@ -22,6 +22,7 @@
    <instance name="combobox"/>
    <instance name="slider"/>
    <instance name="line"/>
+   <instance name="textedit"/>
 </javascript>
 <test>
    <name value="my_name"/>

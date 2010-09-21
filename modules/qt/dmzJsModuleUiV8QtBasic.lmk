@@ -15,6 +15,7 @@ lmk.add_files ({
    "dmzV8QtComboBox.h",
    "dmzV8QtSlider.h",
    "dmzV8QtLineEdit.h",
+   "dmzV8QtTextEdit.h",
 },{src="moc"})
 
 lmk.add_files {
@@ -27,6 +28,7 @@ lmk.add_files {
    "dmzV8QtComboBox.cpp",
    "dmzV8QtSlider.cpp",
    "dmzV8QtLineEdit.cpp",
+   "dmzV8QtTextEdit.cpp",
    "dmzJsModuleUiV8QtBasicListWidget.cpp",
    "dmzJsModuleUiV8QtBasicButton.cpp",
    "dmzJsModuleUiV8QtBasicWidget.cpp",
@@ -34,6 +36,7 @@ lmk.add_files {
    "dmzJsModuleUiV8QtBasicComboBox.cpp",   
    "dmzJsModuleUiV8QtBasicSlider.cpp",
    "dmzJsModuleUiV8QtBasicLineEdit.cpp",
+   "dmzJsModuleUiV8QtBasicTextEdit.cpp",
    "dmzJsModuleUiV8QtBasic.cpp",
 }
 

@@ -123,6 +123,13 @@ namespace dmz {
          static V8Value _lineEdit_undo (const v8::Arguments &Args);
          static V8Value _lineEdit_redo (const v8::Arguments &Args);
 
+         // QTextEdit bindings implemented in JsModuleUiV8QtBasicTextEdit.cpp
+         static V8Value _textEdit_append (const v8::Arguments &Args);
+         static V8Value _textEdit_clear (const v8::Arguments &Args);
+         static V8Value _textEdit_redo (const v8::Arguments &Args);
+         static V8Value _textEdit_undo (const v8::Arguments &Args);
+         static V8Value _textEdit_text (const v8::Arguments &Args);
+
          // QListWidgetItem bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _create_list_widget_item (const v8::Arguments &Args);
          static V8Value _list_widget_item_text (const v8::Arguments &Args);
@@ -143,6 +150,7 @@ namespace dmz {
          void _init_combobox ();
          void _init_slider ();
          void _init_lineEdit ();
+         void _init_textEdit ();
          
          void _init (Config &local);
 
@@ -179,6 +187,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _lineEditTemp;
          V8FunctionPersist _lineEditCtor;
+
+         V8FunctionTemplatePersist _textEditTemp;
+         V8FunctionPersist _textEditCtor;
 
       private:
          JsModuleUiV8QtBasic ();
