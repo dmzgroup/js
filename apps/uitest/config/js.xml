@@ -21,6 +21,7 @@
    <instance name="spin"/>
    <instance name="combobox"/>
    <instance name="slider"/>
+   <instance name="line"/>
 </javascript>
 <test>
    <name value="my_name"/>

@@ -1,7 +1,7 @@
 #include "dmzJsModuleUiV8QtBasic.h"
 #include <dmzJsModuleV8.h>
 #include "dmzV8QtSlider.h"
-#include <QtGui/QComboBox>
+#include <QtGui/QSlider>
 #include <QtCore/QDebug>
 
 

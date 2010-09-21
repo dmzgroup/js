@@ -23,6 +23,7 @@ namespace dmz {
    class V8QtSpinBox;
    class V8QtDoubleSpinBox;
    class V8QtComboBox;
+   class V8QtLineEdit;
    
    struct JsModuleUiV8QtBasicState {
       
@@ -116,6 +117,12 @@ namespace dmz {
          static V8Value _slider_value (const v8::Arguments &Args);
          static V8Value _slider_is_down (const v8::Arguments &Args);
 
+         // QLineEdit bindings implemented in JsModuleUiV8QtBasicLineEdit.cpp
+         static V8Value _lineEdit_text (const v8::Arguments &Args);
+         static V8Value _lineEdit_clear (const v8::Arguments &Args);
+         static V8Value _lineEdit_undo (const v8::Arguments &Args);
+         static V8Value _lineEdit_redo (const v8::Arguments &Args);
+
          // QListWidgetItem bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _create_list_widget_item (const v8::Arguments &Args);
          static V8Value _list_widget_item_text (const v8::Arguments &Args);
@@ -135,6 +142,7 @@ namespace dmz {
          void _init_spinbox ();
          void _init_combobox ();
          void _init_slider ();
+         void _init_lineEdit ();
          
          void _init (Config &local);
 
@@ -168,6 +176,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _sliderTemp;
          V8FunctionPersist _sliderCtor;
+
+         V8FunctionTemplatePersist _lineEditTemp;
+         V8FunctionPersist _lineEditCtor;
 
       private:
          JsModuleUiV8QtBasic ();
