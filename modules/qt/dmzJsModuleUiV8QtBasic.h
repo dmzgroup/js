@@ -110,6 +110,12 @@ namespace dmz {
          static V8Value _combobox_clear (const v8::Arguments &Args);
          static V8Value _combobox_item_text (const v8::Arguments &Args);
 
+         // QSlider bindings implemented in JsModuleUiV8QtBasicSlider.cpp
+         static V8Value _slider_maximum (const v8::Arguments &Args);
+         static V8Value _slider_minimum (const v8::Arguments &Args);
+         static V8Value _slider_value (const v8::Arguments &Args);
+         static V8Value _slider_is_down (const v8::Arguments &Args);
+
          // QListWidgetItem bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _create_list_widget_item (const v8::Arguments &Args);
          static V8Value _list_widget_item_text (const v8::Arguments &Args);
@@ -128,6 +134,7 @@ namespace dmz {
          void _init_list_widget_item ();
          void _init_spinbox ();
          void _init_combobox ();
+         void _init_slider ();
          
          void _init (Config &local);
 
@@ -158,6 +165,9 @@ namespace dmz {
          
          V8FunctionTemplatePersist _comboBoxTemp;
          V8FunctionPersist _comboBoxCtor;
+
+         V8FunctionTemplatePersist _sliderTemp;
+         V8FunctionPersist _sliderCtor;
 
       private:
          JsModuleUiV8QtBasic ();

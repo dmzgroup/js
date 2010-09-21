@@ -20,6 +20,7 @@
    <instance name="test"/>
    <instance name="spin"/>
    <instance name="combobox"/>
+   <instance name="slider"/>
 </javascript>
 <test>
    <name value="my_name"/>

@@ -137,6 +137,14 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
                qobj = new V8QtComboBox (vobj, value, &_state);
             }
          }
+         else if (value->inherits ("QAbstractSlider")) {
+
+            if (!_sliderCtor.IsEmpty ()) {
+
+               vobj = _sliderCtor->NewInstance ();
+               qobj = new V8QtSlider (vobj, value, &_state);
+            }
+         }
          else if (value->inherits ("QAbstractButton")) {
 
             if (!_buttonCtor.IsEmpty ()) {
@@ -229,6 +237,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _listWidgetCtor = V8FunctionPersist::New (_listWidgetTemp->GetFunction ());
       _spinBoxCtor = V8FunctionPersist::New (_spinBoxTemp->GetFunction ());
       _comboBoxCtor = V8FunctionPersist::New (_comboBoxTemp->GetFunction ());
+      _sliderCtor = V8FunctionPersist::New (_sliderTemp->GetFunction ());
    }
    else if (State == JsExtV8::Stop) {
    
@@ -252,6 +261,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _listWidgetCtor.Dispose (); _listWidgetCtor.Clear ();
       _spinBoxCtor.Dispose (); _spinBoxTemp.Clear ();
       _comboBoxCtor.Dispose (); _comboBoxTemp.Clear ();
+      _sliderCtor.Dispose (); _sliderTemp.Clear ();
 
       _qtApi.clear ();
       _state.context.Clear ();
@@ -344,6 +354,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_list_widget ();
    _init_spinbox ();
    _init_combobox ();
+   _init_slider ();
 }
 
 
