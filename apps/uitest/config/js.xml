@@ -18,6 +18,7 @@
    <path value="./scripts"/>
    <path value="../../scripts"/>
    <instance name="test"/>
+   <instance name="spin"/>
 </javascript>
 <test>
    <name value="my_name"/>

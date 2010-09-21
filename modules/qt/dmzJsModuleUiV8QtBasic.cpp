@@ -8,6 +8,8 @@
 #include <QtCore/QFile>
 #include <QtGui/QWidget>
 #include <QtUiTools/QUiLoader>
+#include <QtGui/QSpinBox>
+#include <QtGui/QDoubleSpinBox>
 
 
 namespace {
@@ -135,6 +137,23 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
                qobj = new V8QtButton (vobj, value, &_state);
             }
          }
+         else if (value->inherits ("QAbstractSpinBox")) {
+
+            _log.error << "value->inherits(QAbstractSpinBox)" << endl;
+
+            if (!_spinBoxCtor.IsEmpty ()) {
+
+               vobj = _spinBoxCtor->NewInstance ();
+               if (qobject_cast<QSpinBox *>(value)) {
+
+                  qobj = new V8QtSpinBox (vobj, value, &_state);
+               }
+               else if (qobject_cast<QDoubleSpinBox *>(value)) {
+
+                  qobj = new V8QtDoubleSpinBox (vobj, value, &_state);
+               }
+            }
+         }
          else if (value->inherits ("QListWidget")) {
 
             if (!_listWidgetCtor.IsEmpty ()) {
@@ -202,6 +221,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _buttonCtor = V8FunctionPersist::New (_buttonTemp->GetFunction ());
       _listWidgetItemCtor = V8FunctionPersist::New (_listWidgetItemTemp->GetFunction ());
       _listWidgetCtor = V8FunctionPersist::New (_listWidgetTemp->GetFunction ());
+      _spinBoxCtor = V8FunctionPersist::New (_spinBoxTemp->GetFunction ());
    }
    else if (State == JsExtV8::Stop) {
    
@@ -223,6 +243,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _buttonCtor.Dispose (); _buttonCtor.Clear ();
       _listWidgetItemCtor.Dispose (); _listWidgetItemCtor.Clear ();
       _listWidgetCtor.Dispose (); _listWidgetCtor.Clear ();
+      _spinBoxCtor.Dispose (); _spinBoxTemp.Clear ();
 
       _qtApi.clear ();
       _state.context.Clear ();
@@ -313,6 +334,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_button ();
    _init_list_widget_item ();
    _init_list_widget ();
+   _init_spinbox ();
 }
 
 

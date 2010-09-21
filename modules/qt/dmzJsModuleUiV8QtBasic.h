@@ -20,6 +20,7 @@ namespace dmz {
    class V8QtObject;
    class V8QtWidget;
    class V8QtButton;
+   class V8QtSpinBox;
    
    struct JsModuleUiV8QtBasicState {
       
@@ -90,6 +91,12 @@ namespace dmz {
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
          static V8Value _button_text (const v8::Arguments &Args);
 
+         // QSpinBox bindings implemented in JsModuleUiV8QtBasicSpinBox.cpp
+         static V8Value _spinbox_maximum (const v8::Arguments &Args);
+         static V8Value _spinbox_minimum (const v8::Arguments &Args);
+         static V8Value _spinbox_value (const v8::Arguments &Args);
+         static V8Value _spinbox_text (const v8::Arguments &Args);
+
          // QListWidgetItem bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _create_list_widget_item (const v8::Arguments &Args);
          static V8Value _list_widget_item_text (const v8::Arguments &Args);
@@ -106,6 +113,7 @@ namespace dmz {
          void _init_button ();
          void _init_list_widget ();
          void _init_list_widget_item ();
+         void _init_spinbox ();
          
          void _init (Config &local);
 
@@ -130,6 +138,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _listWidgetTemp;
          V8FunctionPersist _listWidgetCtor;
+
+         V8FunctionTemplatePersist _spinBoxTemp;
+         V8FunctionPersist _spinBoxCtor;
          
       private:
          JsModuleUiV8QtBasic ();
