@@ -12,6 +12,7 @@ lmk.add_files ({
    "dmzV8QtObject.h",
    "dmzV8QtSpinBox.h",
    "dmzV8QtDoubleSpinBox.h",
+   "dmzV8QtComboBox.h",
 },{src="moc"})
 
 lmk.add_files {
@@ -21,10 +22,12 @@ lmk.add_files {
    "dmzV8QtObject.cpp",
    "dmzV8QtSpinBox.cpp",
    "dmzV8QtDoubleSpinBox.cpp",
+   "dmzV8QtComboBox.cpp",   
    "dmzJsModuleUiV8QtBasicListWidget.cpp",
    "dmzJsModuleUiV8QtBasicButton.cpp",
    "dmzJsModuleUiV8QtBasicWidget.cpp",
    "dmzJsModuleUiV8QtBasicSpinBox.cpp",
+   "dmzJsModuleUiV8QtBasicComboBox.cpp",   
    "dmzJsModuleUiV8QtBasic.cpp",
 }
 

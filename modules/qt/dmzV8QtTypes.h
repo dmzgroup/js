@@ -7,5 +7,6 @@
 #include <dmzV8QtListWidget.h>
 #include <dmzV8QtDoubleSpinBox.h>
 #include <dmzV8QtSpinBox.h>
+#include <dmzV8QtComboBox.h>
 
 #endif // DMZ_V8_QT_TYPES_DOT_H

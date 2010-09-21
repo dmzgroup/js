@@ -21,6 +21,8 @@ namespace dmz {
    class V8QtWidget;
    class V8QtButton;
    class V8QtSpinBox;
+   class V8QtDoubleSpinBox;
+   class V8QtComboBox;
    
    struct JsModuleUiV8QtBasicState {
       
@@ -97,6 +99,17 @@ namespace dmz {
          static V8Value _spinbox_value (const v8::Arguments &Args);
          static V8Value _spinbox_text (const v8::Arguments &Args);
 
+         // QComboBox bindings implemented in JsModuleUiV8QtBasicComboBox.cpp
+         static V8Value _combobox_count (const v8::Arguments &Args);
+         static V8Value _combobox_current_index (const v8::Arguments &Args);
+         static V8Value _combobox_current_text (const v8::Arguments &Args);
+         static V8Value _combobox_add_item (const v8::Arguments &Args);
+         static V8Value _combobox_add_items (const v8::Arguments &Args);
+         static V8Value _combobox_find_text (const v8::Arguments &Args);
+         static V8Value _combobox_remove_item (const v8::Arguments &Args);
+         static V8Value _combobox_clear (const v8::Arguments &Args);
+         static V8Value _combobox_item_text (const v8::Arguments &Args);
+
          // QListWidgetItem bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _create_list_widget_item (const v8::Arguments &Args);
          static V8Value _list_widget_item_text (const v8::Arguments &Args);
@@ -114,6 +127,7 @@ namespace dmz {
          void _init_list_widget ();
          void _init_list_widget_item ();
          void _init_spinbox ();
+         void _init_combobox ();
          
          void _init (Config &local);
 
@@ -142,6 +156,9 @@ namespace dmz {
          V8FunctionTemplatePersist _spinBoxTemp;
          V8FunctionPersist _spinBoxCtor;
          
+         V8FunctionTemplatePersist _comboBoxTemp;
+         V8FunctionPersist _comboBoxCtor;
+
       private:
          JsModuleUiV8QtBasic ();
          JsModuleUiV8QtBasic (const JsModuleUiV8QtBasic &);

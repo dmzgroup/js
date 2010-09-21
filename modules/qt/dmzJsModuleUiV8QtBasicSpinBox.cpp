@@ -172,7 +172,7 @@ dmz::JsModuleUiV8QtBasic::_spinbox_text (const v8::Arguments &Args) {
          if (spinbox) {
 
             if (!Args.Length ()) {
-               self->_log.error << "spin: " << qPrintable(spinbox->text ()) << endl;
+
                result = v8::String::New (qPrintable(spinbox->text ()));
             }
          }
@@ -182,7 +182,7 @@ dmz::JsModuleUiV8QtBasic::_spinbox_text (const v8::Arguments &Args) {
             if (dspinbox) {
 
                if (!Args.Length ()) {
-                  self->_log.error << "dspin: " << qPrintable(dspinbox->text ()) << endl;
+
                   result = v8::String::New (qPrintable(dspinbox->text ()));
                }
             }

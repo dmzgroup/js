@@ -19,6 +19,7 @@
    <path value="../../scripts"/>
    <instance name="test"/>
    <instance name="spin"/>
+   <instance name="combobox"/>
 </javascript>
 <test>
    <name value="my_name"/>
