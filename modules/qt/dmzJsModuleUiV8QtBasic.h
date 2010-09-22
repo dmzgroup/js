@@ -93,6 +93,9 @@ namespace dmz {
 
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
          static V8Value _button_text (const v8::Arguments &Args);
+         static V8Value _button_is_checked (const v8::Arguments &Args);
+         static V8Value _button_set_checked (const v8::Arguments &Args);
+         static V8Value _button_click (const v8::Arguments &Args);
 
          // QSpinBox bindings implemented in JsModuleUiV8QtBasicSpinBox.cpp
          static V8Value _spinbox_maximum (const v8::Arguments &Args);
@@ -117,6 +120,10 @@ namespace dmz {
          static V8Value _slider_value (const v8::Arguments &Args);
          static V8Value _slider_is_down (const v8::Arguments &Args);
 
+         // QDial bindings implemented in JsModuleUiV8QtBasicSlider.cpp
+         static V8Value _dial_wrapping (const v8::Arguments &Args);
+         static V8Value _dial_notches_visible (const v8::Arguments &Args);
+
          // QLineEdit bindings implemented in JsModuleUiV8QtBasicLineEdit.cpp
          static V8Value _lineEdit_text (const v8::Arguments &Args);
          static V8Value _lineEdit_clear (const v8::Arguments &Args);
@@ -129,6 +136,18 @@ namespace dmz {
          static V8Value _textEdit_redo (const v8::Arguments &Args);
          static V8Value _textEdit_undo (const v8::Arguments &Args);
          static V8Value _textEdit_text (const v8::Arguments &Args);
+
+         // QLabel bindings implemented in JsModuleUiV8QtLabel.cpp
+         static V8Value _label_text (const v8::Arguments &Args);
+         static V8Value _label_word_wrap (const v8::Arguments &Args);
+         static V8Value _label_clear (const v8::Arguments &Args);
+
+         // QProgressBar bindings implemented in JsModuleUiV8QtLabel.cpp
+         static V8Value _progress_bar_maximum (const v8::Arguments &Args);
+         static V8Value _progress_bar_minimum (const v8::Arguments &Args);
+         static V8Value _progress_bar_text (const v8::Arguments &Args);
+         static V8Value _progress_bar_value (const v8::Arguments &Args);
+         static V8Value _progress_bar_reset (const v8::Arguments &Args);
 
          // QListWidgetItem bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _create_list_widget_item (const v8::Arguments &Args);
@@ -151,6 +170,9 @@ namespace dmz {
          void _init_slider ();
          void _init_lineEdit ();
          void _init_textEdit ();
+         void _init_dial ();
+         void _init_label ();
+         void _init_progressBar ();
          
          void _init (Config &local);
 
@@ -185,11 +207,20 @@ namespace dmz {
          V8FunctionTemplatePersist _sliderTemp;
          V8FunctionPersist _sliderCtor;
 
+         V8FunctionTemplatePersist _dialTemp;
+         V8FunctionPersist _dialCtor;
+
          V8FunctionTemplatePersist _lineEditTemp;
          V8FunctionPersist _lineEditCtor;
 
          V8FunctionTemplatePersist _textEditTemp;
          V8FunctionPersist _textEditCtor;
+
+         V8FunctionTemplatePersist _labelTemp;
+         V8FunctionPersist _labelCtor;
+
+         V8FunctionTemplatePersist _progressBarTemp;
+         V8FunctionPersist _progressBarCtor;
 
       private:
          JsModuleUiV8QtBasic ();

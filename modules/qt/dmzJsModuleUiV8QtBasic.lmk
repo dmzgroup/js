@@ -16,6 +16,9 @@ lmk.add_files ({
    "dmzV8QtSlider.h",
    "dmzV8QtLineEdit.h",
    "dmzV8QtTextEdit.h",
+   "dmzV8QtDial.h",
+   "dmzV8QtLabel.h",
+   "dmzV8QtProgressBar.h",
 },{src="moc"})
 
 lmk.add_files {
@@ -29,6 +32,9 @@ lmk.add_files {
    "dmzV8QtSlider.cpp",
    "dmzV8QtLineEdit.cpp",
    "dmzV8QtTextEdit.cpp",
+   "dmzV8QtDial.cpp",
+   "dmzV8QtLabel.cpp",
+   "dmzV8QtProgressBar.cpp",
    "dmzJsModuleUiV8QtBasicListWidget.cpp",
    "dmzJsModuleUiV8QtBasicButton.cpp",
    "dmzJsModuleUiV8QtBasicWidget.cpp",
@@ -37,6 +43,8 @@ lmk.add_files {
    "dmzJsModuleUiV8QtBasicSlider.cpp",
    "dmzJsModuleUiV8QtBasicLineEdit.cpp",
    "dmzJsModuleUiV8QtBasicTextEdit.cpp",
+   "dmzJsModuleUiV8QtBasicLabel.cpp",
+   "dmzJsModuleUiV8QtBasicProgressBar.cpp",
    "dmzJsModuleUiV8QtBasic.cpp",
 }
 

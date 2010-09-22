@@ -129,8 +129,15 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
       
       if (!qobj) {
          
+         if (value->inherits ("QProgressBar")) {
 
-         if (value->inherits ("QTextEdit")) {
+            if (!_progressBarCtor.IsEmpty ()) {
+
+               vobj = _progressBarCtor->NewInstance ();
+               qobj = new V8QtProgressBar (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QTextEdit")) {
 
             if (!_textEditCtor.IsEmpty ()) {
 
@@ -154,12 +161,28 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
                qobj = new V8QtComboBox (vobj, value, &_state);
             }
          }
-         else if (value->inherits ("QAbstractSlider")) {
+         else if (value->inherits ("QSlider")) {
 
             if (!_sliderCtor.IsEmpty ()) {
 
                vobj = _sliderCtor->NewInstance ();
                qobj = new V8QtSlider (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QDial")) {
+
+            if (!_dialCtor.IsEmpty ()) {
+
+               vobj = _dialCtor->NewInstance ();
+               qobj = new V8QtDial (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QLabel")) {
+
+            if (!_labelCtor.IsEmpty ()) {
+
+               vobj = _labelCtor->NewInstance ();
+               qobj = new V8QtLabel (vobj, value, &_state);
             }
          }
          else if (value->inherits ("QAbstractButton")) {
@@ -257,6 +280,9 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _sliderCtor = V8FunctionPersist::New (_sliderTemp->GetFunction ());
       _lineEditCtor = V8FunctionPersist::New (_lineEditTemp->GetFunction ());
       _textEditCtor = V8FunctionPersist::New (_textEditTemp->GetFunction ());
+      _dialCtor = V8FunctionPersist::New (_dialTemp->GetFunction ());
+      _labelCtor = V8FunctionPersist::New (_labelTemp->GetFunction ());
+      _progressBarCtor = V8FunctionPersist::New (_progressBarTemp->GetFunction ());
    }
    else if (State == JsExtV8::Stop) {
    
@@ -283,6 +309,9 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _sliderCtor.Dispose (); _sliderTemp.Clear ();
       _lineEditCtor.Dispose (); _lineEditTemp.Clear ();
       _textEditCtor.Dispose (); _textEditTemp.Clear ();
+      _dialCtor.Dispose (); _dialTemp.Clear ();
+      _labelCtor.Dispose (); _labelTemp.Clear ();
+      _progressBarCtor.Dispose (); _progressBarTemp.Clear ();
 
       _qtApi.clear ();
       _state.context.Clear ();
@@ -378,6 +407,9 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_slider ();
    _init_lineEdit ();
    _init_textEdit ();
+   _init_dial ();
+   _init_label ();
+   _init_progressBar ();
 }
 
 
