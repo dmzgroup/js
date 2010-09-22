@@ -14,21 +14,28 @@ form = ui.load("./scripts/TestForm.ui");
 form.show();
 
 button2 = form.lookup("button2");
-button2.observe(self, "clicked", function () {
-   button2.text("Don't Push Me!!!");
-   timer.setTimer(self, 2, function () {
-      button2.text("Push Me");
-      button1.enabled(true);
-      button1.show();
+if(button2) {
+   button2.observe(self, "clicked", function () {
+      button2.text("Don't Push Me!!!");
+      timer.setTimer(self, 2, function () {
+         button2.text("Push Me");
+         if(button1) {
+            button1.enabled(true);
+            button1.show();
+         }
+      });
    });
-});
+}
 
 button1 = form.lookup("button1");
-button1.observe (self, "clicked", function () {
-   button1.text(self.name);
+if(button1) {
    button1.enabled(false);
-   button1.hide();
-});
+   button1.observe (self, "clicked", function () {
+      button1.text(self.name);
+      // button1.enabled(false);
+      button1.hide();
+   });
+}
 
 list1 = form.lookup("list1");
 if(list1) {
@@ -44,7 +51,7 @@ if(list1) {
 }
 
 var list2 = form.lookup("list1");
-if(list2) {
+if(list2 == list1) {
    list2.addItem('adding to list2');
    
    // list2.observe(self, "currentItemChanged", function(curr, prev) {

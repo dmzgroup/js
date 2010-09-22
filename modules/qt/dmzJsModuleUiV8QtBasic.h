@@ -20,13 +20,13 @@ namespace dmz {
    class V8QtObject;
    class V8QtWidget;
    class V8QtButton;
-   
+
    struct JsModuleUiV8QtBasicState {
-      
+
       JsModuleV8 *core;
       JsModuleUiV8QtBasic *ui;
       v8::Handle<v8::Context> context;
-      
+
       JsModuleUiV8QtBasicState () : core (0), ui (0) {;}
    };
 
@@ -65,17 +65,17 @@ namespace dmz {
 
       protected:
          struct ObsStruct {
-         
+
             const Handle Observer;
             QList<V8QtObject *>list;
-            
+
             ObsStruct (const Handle TheObserver) : Observer (TheObserver) {;}
             ~ObsStruct () { list.clear (); }
          };
-         
+
          // Static Functions
          static JsModuleUiV8QtBasic *_to_self (const v8::Arguments &Args);
-         
+
          // QUiLoader bindings
          static V8Value _uiloader_load (const v8::Arguments &Args);
 
@@ -94,6 +94,7 @@ namespace dmz {
          static V8Value _create_list_widget_item (const v8::Arguments &Args);
          static V8Value _list_widget_item_text (const v8::Arguments &Args);
 
+         // QListWidget bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _list_widget_add_item (const v8::Arguments &Args);
          static V8Value _list_widget_current_item (const v8::Arguments &Args);
          // static V8Value _list_widget_item (const v8::Arguments &Args);
@@ -101,16 +102,16 @@ namespace dmz {
          QListWidgetItem *_to_qt_list_widget_item (V8Value value);
          QWidget *_to_qt_widget (V8Value value);
          V8QtObject *_to_js_qt_object (V8Value value);
-         
+
          void _init_widget ();
          void _init_button ();
          void _init_list_widget ();
          void _init_list_widget_item ();
-         
+
          void _init (Config &local);
 
          Log _log;
-         
+
          JsModuleUiV8QtBasicState _state;
          V8ValuePersist _self;
 
@@ -130,7 +131,7 @@ namespace dmz {
 
          V8FunctionTemplatePersist _listWidgetTemp;
          V8FunctionPersist _listWidgetCtor;
-         
+
       private:
          JsModuleUiV8QtBasic ();
          JsModuleUiV8QtBasic (const JsModuleUiV8QtBasic &);
@@ -148,7 +149,7 @@ dmz::JsModuleUiV8QtBasic::_to_self (const v8::Arguments &Args) {
 
 // inline dmz::JsModuleUiV8QtBasic *
 // dmz::JsModuleUiV8QtBasic::_to_object (const v8::Arguments &Args, V8QtObject *object) {
-// 
+//
 //    object = _to_object_ptr (Args.This ());
 //    return (dmz::JsModuleUiV8QtBasic *)v8::External::Unwrap (Args.Data ());
 // }
