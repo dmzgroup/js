@@ -20,7 +20,11 @@ namespace dmz {
    class V8QtObject;
    class V8QtWidget;
    class V8QtButton;
-
+   class V8QtSpinBox;
+   class V8QtDoubleSpinBox;
+   class V8QtComboBox;
+   class V8QtLineEdit;
+   
    struct JsModuleUiV8QtBasicState {
 
       JsModuleV8 *core;
@@ -90,6 +94,42 @@ namespace dmz {
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
          static V8Value _button_text (const v8::Arguments &Args);
 
+         // QSpinBox bindings implemented in JsModuleUiV8QtBasicSpinBox.cpp
+         static V8Value _spinbox_maximum (const v8::Arguments &Args);
+         static V8Value _spinbox_minimum (const v8::Arguments &Args);
+         static V8Value _spinbox_value (const v8::Arguments &Args);
+         static V8Value _spinbox_text (const v8::Arguments &Args);
+
+         // QComboBox bindings implemented in JsModuleUiV8QtBasicComboBox.cpp
+         static V8Value _combobox_count (const v8::Arguments &Args);
+         static V8Value _combobox_current_index (const v8::Arguments &Args);
+         static V8Value _combobox_current_text (const v8::Arguments &Args);
+         static V8Value _combobox_add_item (const v8::Arguments &Args);
+         static V8Value _combobox_add_items (const v8::Arguments &Args);
+         static V8Value _combobox_find_text (const v8::Arguments &Args);
+         static V8Value _combobox_remove_item (const v8::Arguments &Args);
+         static V8Value _combobox_clear (const v8::Arguments &Args);
+         static V8Value _combobox_item_text (const v8::Arguments &Args);
+
+         // QSlider bindings implemented in JsModuleUiV8QtBasicSlider.cpp
+         static V8Value _slider_maximum (const v8::Arguments &Args);
+         static V8Value _slider_minimum (const v8::Arguments &Args);
+         static V8Value _slider_value (const v8::Arguments &Args);
+         static V8Value _slider_is_down (const v8::Arguments &Args);
+
+         // QLineEdit bindings implemented in JsModuleUiV8QtBasicLineEdit.cpp
+         static V8Value _lineEdit_text (const v8::Arguments &Args);
+         static V8Value _lineEdit_clear (const v8::Arguments &Args);
+         static V8Value _lineEdit_undo (const v8::Arguments &Args);
+         static V8Value _lineEdit_redo (const v8::Arguments &Args);
+
+         // QTextEdit bindings implemented in JsModuleUiV8QtBasicTextEdit.cpp
+         static V8Value _textEdit_append (const v8::Arguments &Args);
+         static V8Value _textEdit_clear (const v8::Arguments &Args);
+         static V8Value _textEdit_redo (const v8::Arguments &Args);
+         static V8Value _textEdit_undo (const v8::Arguments &Args);
+         static V8Value _textEdit_text (const v8::Arguments &Args);
+
          // QListWidgetItem bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _create_list_widget_item (const v8::Arguments &Args);
          static V8Value _list_widget_item_text (const v8::Arguments &Args);
@@ -107,7 +147,12 @@ namespace dmz {
          void _init_button ();
          void _init_list_widget ();
          void _init_list_widget_item ();
-
+         void _init_spinbox ();
+         void _init_combobox ();
+         void _init_slider ();
+         void _init_lineEdit ();
+         void _init_textEdit ();
+         
          void _init (Config &local);
 
          Log _log;
@@ -131,6 +176,21 @@ namespace dmz {
 
          V8FunctionTemplatePersist _listWidgetTemp;
          V8FunctionPersist _listWidgetCtor;
+
+         V8FunctionTemplatePersist _spinBoxTemp;
+         V8FunctionPersist _spinBoxCtor;
+         
+         V8FunctionTemplatePersist _comboBoxTemp;
+         V8FunctionPersist _comboBoxCtor;
+
+         V8FunctionTemplatePersist _sliderTemp;
+         V8FunctionPersist _sliderCtor;
+
+         V8FunctionTemplatePersist _lineEditTemp;
+         V8FunctionPersist _lineEditCtor;
+
+         V8FunctionTemplatePersist _textEditTemp;
+         V8FunctionPersist _textEditCtor;
 
       private:
          JsModuleUiV8QtBasic ();

@@ -8,6 +8,8 @@
 #include <QtCore/QFile>
 #include <QtGui/QWidget>
 #include <QtUiTools/QUiLoader>
+#include <QtGui/QSpinBox>
+#include <QtGui/QDoubleSpinBox>
 
 
 namespace {
@@ -127,12 +129,60 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
       
       if (!qobj) {
          
-         if (value->inherits ("QAbstractButton")) {
+
+         if (value->inherits ("QTextEdit")) {
+
+            if (!_textEditCtor.IsEmpty ()) {
+
+               vobj = _textEditCtor->NewInstance ();
+               qobj = new V8QtTextEdit (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QLineEdit")) {
+
+            if (!_lineEditCtor.IsEmpty ()) {
+
+               vobj = _lineEditCtor->NewInstance ();
+               qobj = new V8QtLineEdit (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QComboBox")) {
+
+            if (!_comboBoxCtor.IsEmpty ()) {
+
+               vobj = _comboBoxCtor->NewInstance ();
+               qobj = new V8QtComboBox (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QAbstractSlider")) {
+
+            if (!_sliderCtor.IsEmpty ()) {
+
+               vobj = _sliderCtor->NewInstance ();
+               qobj = new V8QtSlider (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QAbstractButton")) {
 
             if (!_buttonCtor.IsEmpty ()) {
 
                vobj = _buttonCtor->NewInstance ();
                qobj = new V8QtButton (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QAbstractSpinBox")) {
+
+            if (!_spinBoxCtor.IsEmpty ()) {
+
+               vobj = _spinBoxCtor->NewInstance ();
+               if (qobject_cast<QSpinBox *>(value)) {
+
+                  qobj = new V8QtSpinBox (vobj, value, &_state);
+               }
+               else if (qobject_cast<QDoubleSpinBox *>(value)) {
+
+                  qobj = new V8QtDoubleSpinBox (vobj, value, &_state);
+               }
             }
          }
          else if (value->inherits ("QListWidget")) {
@@ -202,6 +252,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _buttonCtor = V8FunctionPersist::New (_buttonTemp->GetFunction ());
       _listWidgetItemCtor = V8FunctionPersist::New (_listWidgetItemTemp->GetFunction ());
       _listWidgetCtor = V8FunctionPersist::New (_listWidgetTemp->GetFunction ());
+      _spinBoxCtor = V8FunctionPersist::New (_spinBoxTemp->GetFunction ());
+      _comboBoxCtor = V8FunctionPersist::New (_comboBoxTemp->GetFunction ());
+      _sliderCtor = V8FunctionPersist::New (_sliderTemp->GetFunction ());
+      _lineEditCtor = V8FunctionPersist::New (_lineEditTemp->GetFunction ());
+      _textEditCtor = V8FunctionPersist::New (_textEditTemp->GetFunction ());
    }
    else if (State == JsExtV8::Stop) {
    
@@ -223,6 +278,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _buttonCtor.Dispose (); _buttonCtor.Clear ();
       _listWidgetItemCtor.Dispose (); _listWidgetItemCtor.Clear ();
       _listWidgetCtor.Dispose (); _listWidgetCtor.Clear ();
+      _spinBoxCtor.Dispose (); _spinBoxTemp.Clear ();
+      _comboBoxCtor.Dispose (); _comboBoxTemp.Clear ();
+      _sliderCtor.Dispose (); _sliderTemp.Clear ();
+      _lineEditCtor.Dispose (); _lineEditTemp.Clear ();
+      _textEditCtor.Dispose (); _textEditTemp.Clear ();
 
       _qtApi.clear ();
       _state.context.Clear ();
@@ -313,6 +373,11 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_button ();
    _init_list_widget_item ();
    _init_list_widget ();
+   _init_spinbox ();
+   _init_combobox ();
+   _init_slider ();
+   _init_lineEdit ();
+   _init_textEdit ();
 }
 
 

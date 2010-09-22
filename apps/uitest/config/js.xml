@@ -18,6 +18,11 @@
    <path value="./scripts"/>
    <path value="../../scripts"/>
    <instance name="test"/>
+   <instance name="spin"/>
+   <instance name="combobox"/>
+   <instance name="slider"/>
+   <instance name="line"/>
+   <instance name="textedit"/>
 </javascript>
 <test>
    <name value="my_name"/>
