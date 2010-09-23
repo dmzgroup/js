@@ -22,6 +22,7 @@ namespace dmz {
          
       public Q_SLOTS:
          void on_clicked ();
+         void on_toggle (bool checked);
    };
 };
 

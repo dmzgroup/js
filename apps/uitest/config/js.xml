@@ -23,6 +23,10 @@
    <instance name="slider"/>
    <instance name="line"/>
    <instance name="textedit"/>
+   <instance name="button"/>
+   <instance name="dial"/>
+   <instance name="label"/>
+   <instance name="pbar"/>
    <instance name="dialog"/>
 </javascript>
 <test>

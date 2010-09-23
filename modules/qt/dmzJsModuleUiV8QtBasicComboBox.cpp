@@ -105,7 +105,6 @@ dmz::JsModuleUiV8QtBasic::_combobox_add_item (const v8::Arguments &Args) {
             if (Args.Length () > 0) {
 
                String item = v8_to_string(Args[0]);
-               self->_log.error << "item: " << item << endl;
                cb->addItem (item.get_buffer ());
             }
          }
@@ -139,16 +138,12 @@ dmz::JsModuleUiV8QtBasic::_combobox_add_items (const v8::Arguments &Args) {
                QStringList list;
                V8Array array = v8_to_array (Args[0]);
                const int Length = array->Length ();
-               self->_log.error << "additems: " << Length << endl;
                for (int ix = 0; ix < Length; ++ix) {
 
                   V8Value value = array->Get (v8::Integer::New (ix));
-
-                  self->_log.error << v8_to_string(value) << endl;
                   String val = v8_to_string(value);
                   list << val.get_buffer ();
                }
-               self->_log.error << qPrintable(list.at(0)) << endl;
                cb->addItems (list);
             }
          }
