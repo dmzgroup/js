@@ -23,6 +23,7 @@
    <instance name="slider"/>
    <instance name="line"/>
    <instance name="textedit"/>
+   <instance name="dialog"/>
 </javascript>
 <test>
    <name value="my_name"/>

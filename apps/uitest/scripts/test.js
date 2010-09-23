@@ -1,6 +1,7 @@
 var puts = require('sys').puts
   , timer = require('dmz/runtime/time')
   , ui = require('dmz/components/ui')
+  , messageBox = require('dmz/components/ui/messageBox')
   , form
   , button1
   , button2
@@ -33,13 +34,17 @@ if(button1) {
    button1.observe (self, "clicked", function () {
       button1.text(self.name);
       // button1.enabled(false);
+//      messageBox.critical();
+      messageBox.information();
+//      messageBox.question();
+//      messageBox.warning();
       button1.hide();
    });
 }
 
 list1 = form.lookup("list1");
 if(list1) {
-   
+
    list1.addItem("this is item 1");
    list1.addItem("another item");
    list1.addItem("last item");
@@ -53,7 +58,7 @@ if(list1) {
 var list2 = form.lookup("list1");
 if(list2 == list1) {
    list2.addItem('adding to list2');
-   
+
    // list2.observe(self, "currentItemChanged", function(curr, prev) {
    //    puts(curr.text());
    // });

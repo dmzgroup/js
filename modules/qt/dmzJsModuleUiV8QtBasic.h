@@ -8,9 +8,12 @@
 #include <dmzRuntimePlugin.h>
 #include <dmzTypesHashTableHandleTemplate.h>
 #include <QtCore/QList>
+//#include <QtCore/QObject>
+//#include <QtCore/QPointer>
 #include <QtCore/QMap>
+#include <v8.h>
 
-class QListWidgetItem;
+class QDialog;
 
 
 namespace dmz {
@@ -18,13 +21,8 @@ namespace dmz {
    class JsModuleUiV8QtBasic;
    class JsModuleV8;
    class V8QtObject;
-   class V8QtWidget;
-   class V8QtButton;
-   class V8QtSpinBox;
-   class V8QtDoubleSpinBox;
-   class V8QtComboBox;
-   class V8QtLineEdit;
-   
+
+
    struct JsModuleUiV8QtBasicState {
 
       JsModuleV8 *core;
@@ -94,6 +92,10 @@ namespace dmz {
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
          static V8Value _button_text (const v8::Arguments &Args);
 
+         // QDialog bindings implemented in JsModuleUiV8QtBasicDialog.cpp
+//         static V8Value _create_dialog (const v8::Arguments &Args);
+         static V8Value _dialog_open (const v8::Arguments &Args);
+
          // QSpinBox bindings implemented in JsModuleUiV8QtBasicSpinBox.cpp
          static V8Value _spinbox_maximum (const v8::Arguments &Args);
          static V8Value _spinbox_minimum (const v8::Arguments &Args);
@@ -131,7 +133,6 @@ namespace dmz {
          static V8Value _textEdit_text (const v8::Arguments &Args);
 
          // QListWidgetItem bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
-         static V8Value _create_list_widget_item (const v8::Arguments &Args);
          static V8Value _list_widget_item_text (const v8::Arguments &Args);
 
          // QListWidget bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
@@ -139,7 +140,16 @@ namespace dmz {
          static V8Value _list_widget_current_item (const v8::Arguments &Args);
          // static V8Value _list_widget_item (const v8::Arguments &Args);
 
+         // QMessageBox bindings implemented in JsModuleUiV8QtBasicMessageBox.cpp
+         static V8Value _create_message_box (const v8::Arguments &Args);
+         static V8Value _message_box_open (const v8::Arguments &Args);
+         // static V8Value _message_box_critical (const v8::Arguments &Args);
+         static V8Value _message_box_information (const v8::Arguments &Args);
+         // static V8Value _message_box_question (const v8::Arguments &Args);
+         // static V8Value _message_box_warning (const v8::Arguments &Args);
+
          QListWidgetItem *_to_qt_list_widget_item (V8Value value);
+         QDialog *_to_qt_dialog (V8Value value);
          QWidget *_to_qt_widget (V8Value value);
          V8QtObject *_to_js_qt_object (V8Value value);
 
@@ -152,7 +162,13 @@ namespace dmz {
          void _init_slider ();
          void _init_lineEdit ();
          void _init_textEdit ();
-         
+         void _init_dialog ();
+         void _init_message_box ();
+
+//         void _reset_message_box_observers ();
+//         void _release_message_box_observer (const Handle InstanceHandle);
+//         V8QtMessageBox * _to_message_box_ptr (V8Value value);
+
          void _init (Config &local);
 
          Log _log;
@@ -163,7 +179,11 @@ namespace dmz {
          HashTableHandleTemplate<ObsStruct> _obsTable;
          QMap<QWidget *, V8QtObject *>_widgetMap;
 
+//         HashTableHandleTemplate<V8QtCallbackStruct> _cbTable;
+
          V8InterfaceHelper _qtApi;
+//         V8InterfaceHelper _dialogApi;
+         V8InterfaceHelper _messageBoxApi;
 
          V8FunctionTemplatePersist _widgetTemp;
          V8FunctionPersist _widgetCtor;
@@ -179,7 +199,7 @@ namespace dmz {
 
          V8FunctionTemplatePersist _spinBoxTemp;
          V8FunctionPersist _spinBoxCtor;
-         
+
          V8FunctionTemplatePersist _comboBoxTemp;
          V8FunctionPersist _comboBoxCtor;
 
@@ -191,6 +211,12 @@ namespace dmz {
 
          V8FunctionTemplatePersist _textEditTemp;
          V8FunctionPersist _textEditCtor;
+
+         V8FunctionTemplatePersist _dialogTemp;
+         V8FunctionPersist _dialogCtor;
+
+//         V8FunctionTemplatePersist _messageBoxTemp;
+//         V8FunctionPersist _messageBoxCtor;
 
       private:
          JsModuleUiV8QtBasic ();

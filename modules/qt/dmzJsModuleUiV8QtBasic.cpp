@@ -6,29 +6,49 @@
 #include <dmzTypesStringTokenizer.h>
 #include "dmzV8QtTypes.h"
 #include <QtCore/QFile>
+#include <QtGui/QDialog>
+#include <QtGui/QDoubleSpinBox>
+#include <QtGui/QSpinBox>
 #include <QtGui/QWidget>
 #include <QtUiTools/QUiLoader>
-#include <QtGui/QSpinBox>
-#include <QtGui/QDoubleSpinBox>
+
+//using namespace dmz;
+
+//namespace {
+
+//static void
+//local_v8_qt_callback_struct_delete (V8ValuePersist object, void *param) {
+
+//   if (param) {
+
+//      V8QtCallbackStruct *obj = (V8QtCallbackStruct *)param;
+//      delete obj;
+//      obj = 0;
+//   }
+
+//   object.Dispose ();
+//   object.Clear ();
+//}
+
+//};
 
 
-namespace {
+//dmz::V8QtCallbackStruct::V8QtCallbackStruct (
+//      QWidget *theWidget,
+//      JsModuleUiV8QtBasicState &TheState) :
+//      QObject (0),
+//      next (0),
+//      widget (theWidget),
+//      state (TheState) {;}
 
-static void
-local_v8_qt_object_delete (dmz::V8ValuePersist object, void *param) {
 
-   if (param) {
+//dmz::V8QtCallbackStruct::~V8QtCallbackStruct () {
 
-      dmz::V8QtObject *obj = (dmz::V8QtObject *)param;
-      delete obj;
-      obj = 0;
-   }
+//   if (widget) { delete widget; widget = 0; }
 
-   object.Dispose ();
-   object.Clear ();
-}
-
-};
+//   self.Dispose (); self.Clear ();
+//   callback.Dispose (); callback.Clear ();
+//}
 
 
 dmz::V8Value
@@ -49,9 +69,9 @@ dmz::JsModuleUiV8QtBasic::_uiloader_load (const v8::Arguments &Args) {
       file.close ();
 
       result = self->create_v8_widget (widget);
-      
+
       if (!result.IsEmpty ()) {
-         
+
          self->_log.info << "Loaded UI: " << Name << endl;
       }
    }
@@ -64,8 +84,7 @@ dmz::JsModuleUiV8QtBasic::JsModuleUiV8QtBasic (const PluginInfo &Info, Config &l
       Plugin (Info),
       JsModuleUiV8Qt (Info),
       JsExtV8 (Info),
-      _log (Info),
-      _qtApi () {
+      _log (Info) {
 
    _state.ui = this;
    _init (local);
@@ -123,14 +142,21 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
    V8Value result = v8::Undefined ();
 
    if (value) {
-      
+
       V8Object vobj;
       V8QtObject *qobj = _widgetMap[value];
-      
-      if (!qobj) {
-         
 
-         if (value->inherits ("QTextEdit")) {
+      if (!qobj) {
+
+         if (value->inherits ("QDialog")) {
+
+            if (!_dialogCtor.IsEmpty ()) {
+
+               vobj = _dialogCtor->NewInstance ();
+               qobj = new V8QtDialog (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QTextEdit")) {
 
             if (!_textEditCtor.IsEmpty ()) {
 
@@ -201,7 +227,7 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
                qobj = new V8QtWidget (vobj, value, &_state);
             }
          }
-         
+
          if (qobj) { _widgetMap.insert (value, qobj); }
       }
 
@@ -217,11 +243,11 @@ void
 dmz::JsModuleUiV8QtBasic::update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module) {
 
    if (Mode == JsExtV8::Store) {
-      
+
       if (!_state.core) { _state.core = &module; }
    }
    else if (Mode == JsExtV8::Remove) {
-      
+
       if (_state.core == &module) { _state.core = 0; }
    }
 }
@@ -240,10 +266,14 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
    v8::HandleScope scope;
 
    if (State == JsExtV8::Register) {
-      
+
       if (_state.core) {
 
          _state.core->register_interface ("dmz/components/ui", _qtApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/components/ui/messageBox",
+            _messageBoxApi.get_new_instance ());
       }
    }
    else if (State == JsExtV8::Init) {
@@ -257,17 +287,18 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _sliderCtor = V8FunctionPersist::New (_sliderTemp->GetFunction ());
       _lineEditCtor = V8FunctionPersist::New (_lineEditTemp->GetFunction ());
       _textEditCtor = V8FunctionPersist::New (_textEditTemp->GetFunction ());
+      _dialogCtor = V8FunctionPersist::New (_dialogTemp->GetFunction ());
    }
    else if (State == JsExtV8::Stop) {
-   
+
    }
    else if (State == JsExtV8::Shutdown) {
-      
+
       QMapIterator<QWidget *, V8QtObject *> it (_widgetMap);
       while (it.hasNext ()) {
 
          it.next ();
-         
+
          V8QtObject *obj = it.value ();
          delete obj; obj = 0;
       }
@@ -283,8 +314,10 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _sliderCtor.Dispose (); _sliderTemp.Clear ();
       _lineEditCtor.Dispose (); _lineEditTemp.Clear ();
       _textEditCtor.Dispose (); _textEditTemp.Clear ();
+      _dialogCtor.Dispose (); _dialogTemp.Clear ();
 
       _qtApi.clear ();
+      _messageBoxApi.clear ();
       _state.context.Clear ();
    }
 }
@@ -297,14 +330,14 @@ dmz::JsModuleUiV8QtBasic::release_js_instance_v8 (
       v8::Handle<v8::Object> &instance) {
 
    ObsStruct *os = _obsTable.remove (InstanceHandle);
-   
+
    if (os) {
-   
+
       foreach (V8QtObject *obj, os->list) {
-      
+
          obj->release_callback (InstanceHandle);
       }
-   
+
       delete os; os = 0;
    }
 }
@@ -315,10 +348,10 @@ dmz::JsModuleUiV8QtBasic::_to_qt_list_widget_item (V8Value value) {
 
    v8::HandleScope scope;
    QListWidgetItem *result (0);
-   
+
    V8Object obj = v8_to_object (value);
    if (!obj.IsEmpty ()) {
-      
+
       if (_listWidgetItemTemp->HasInstance (obj)) {
 
          result = (QListWidgetItem *)v8::External::Unwrap (obj->GetInternalField (0));
@@ -329,9 +362,19 @@ dmz::JsModuleUiV8QtBasic::_to_qt_list_widget_item (V8Value value) {
 }
 
 
+QDialog  *
+dmz::JsModuleUiV8QtBasic::_to_qt_dialog (V8Value value) {
+
+   QDialog *result (0);
+   QWidget *widget = _to_qt_widget (value);
+   if (widget) { result = qobject_cast<QDialog *>(widget); }
+   return result;
+}
+
+
 QWidget  *
 dmz::JsModuleUiV8QtBasic::_to_qt_widget (V8Value value) {
-   
+
    QWidget *result (0);
    V8QtObject *object = _to_js_qt_object (value);
    if (object) { result = object->get_qt_widget (); }
@@ -344,10 +387,10 @@ dmz::JsModuleUiV8QtBasic::_to_js_qt_object (V8Value value) {
 
    v8::HandleScope scope;
    V8QtObject *result (0);
-   
+
    V8Object obj = v8_to_object (value);
    if (!obj.IsEmpty ()) {
-      
+
       if (_widgetTemp->HasInstance (obj)) {
 
          result = (V8QtObject *)v8::External::Unwrap (obj->GetInternalField (0));
@@ -378,6 +421,8 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_slider ();
    _init_lineEdit ();
    _init_textEdit ();
+   _init_message_box ();
+   _init_dialog ();
 }
 
 

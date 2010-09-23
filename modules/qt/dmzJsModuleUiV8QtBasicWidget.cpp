@@ -16,7 +16,7 @@ dmz::JsModuleUiV8QtBasic::_widget_close (const v8::Arguments &Args) {
 
       QWidget *widget = self->_to_qt_widget (Args.This ());
       if (widget) {
-      
+
          widget->close ();
       }
    }
@@ -38,12 +38,12 @@ dmz::JsModuleUiV8QtBasic::_widget_enabled (const v8::Arguments &Args) {
       if (widget) {
 
          if (Args.Length ()) {
-            
+
             const Boolean Value = v8_to_boolean (Args[0]);
             widget->setEnabled (Value);
          }
          else {
-            
+
             result = v8::Boolean::New (widget->isEnabled ());
          }
       }
@@ -107,14 +107,14 @@ dmz::JsModuleUiV8QtBasic::_widget_observe (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
 
    // if (Args.Length () >= 3) {
-   //    
+   //
    // }
-   
+
    if (self && v8_is_object (Args[0]) && v8_is_function (Args[2])) {
 
       V8QtObject *jsObject = self->_to_js_qt_object (Args.This ());
       if (jsObject) {
-         
+
          QWidget *qtWidget = jsObject->get_qt_widget ();
 
          V8Object src = v8_to_object (Args[0]);
@@ -128,20 +128,20 @@ dmz::JsModuleUiV8QtBasic::_widget_observe (const v8::Arguments &Args) {
 
             // connect the signal from qtWidget to the desired slot of jsObject
             if (jsObject->bind (qtWidget, Signal)) {
-               
+
                jsObject->register_callback (Signal, src, func);
 
                ObsStruct *os = self->_obsTable.lookup (Obs);
                if (!os) {
-                  
+
                   os = new ObsStruct (Obs);
                   if (!self->_obsTable.store (Obs, os)) { delete os; os = 0; }
                }
-               
+
                if (os) { os->list.append (jsObject); }
             }
          }
-         
+
          result = func;
       }
    }
@@ -164,11 +164,11 @@ dmz::JsModuleUiV8QtBasic::_widget_property (const v8::Arguments &Args) {
       if (widget) {
 
          // if (Args.Lengt () > 2) {
-         //    
+         //
          //    const String Value = v8_to_string (Args[1]);
          // }
          // else {
-         //    
+         //
          //    String Value;
          // }
       }
