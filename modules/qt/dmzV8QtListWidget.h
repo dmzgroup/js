@@ -9,9 +9,9 @@ class QListWidgetItem;
 namespace dmz {
 
    class V8QtListWidget : public V8QtObject {
-      
+
       Q_OBJECT
-      
+
       public:
          V8QtListWidget (
             const V8Object &Self,
@@ -19,8 +19,11 @@ namespace dmz {
             JsModuleUiV8QtBasicState *state);
 
          virtual ~V8QtListWidget ();
-         
-         virtual Boolean bind (QWidget *sender, const String &Signal);
+
+         virtual Boolean bind (
+            const String &Signal,
+            const V8Object &Self,
+            const V8Function &Func);
 
       public Q_SLOTS:
          void on_currentItemChanged (QListWidgetItem *current, QListWidgetItem *previous);
@@ -29,4 +32,4 @@ namespace dmz {
 };
 
 
-#endif // DMZ_V8_QT_WIDGET_DOT_H
+#endif // DMZ_V8_QT_LIST_WIDGET_DOT_H

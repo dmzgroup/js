@@ -23,18 +23,20 @@ dmz::V8QtComboBox::~V8QtComboBox () {;}
 
 
 dmz::Boolean
-dmz::V8QtComboBox::bind (QWidget *sender, const String &Signal) {
+dmz::V8QtComboBox::bind (
+      const String &Signal,
+      const V8Object &Self,
+      const V8Function &Func) {
 
    Boolean results (False);
 
-   if (sender) {
+   if (_widget) {
 
       if (Signal == CurrentIndexChanged) {
 
          connect (
-            sender,
+            _widget,
             SIGNAL (currentIndexChanged (int)),
-            this,
             SLOT (on_currentIndexChanged (int)),
             Qt::UniqueConnection);
 
@@ -42,7 +44,7 @@ dmz::V8QtComboBox::bind (QWidget *sender, const String &Signal) {
       }
    }
 
-   if (!results) { results = V8QtObject::bind (sender, Signal); }
+   if (results) { _register_callback (Signal, Self, Func); }
 
    return results;
 }

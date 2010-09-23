@@ -24,18 +24,20 @@ dmz::V8QtSlider::~V8QtSlider () {;}
 
 
 dmz::Boolean
-dmz::V8QtSlider::bind (QWidget *sender, const String &Signal) {
+dmz::V8QtSlider::bind (
+      const String &Signal,
+      const V8Object &Self,
+      const V8Function &Func) {
 
    Boolean results (False);
 
-   if (sender) {
+   if (_widget) {
 
       if (Signal == SliderPressed) {
 
          connect (
-            sender,
+            _widget,
             SIGNAL (sliderPressed ()),
-            this,
             SLOT (on_sliderPressed ()),
             Qt::UniqueConnection);
 
@@ -45,9 +47,8 @@ dmz::V8QtSlider::bind (QWidget *sender, const String &Signal) {
       if (Signal == SliderReleased) {
 
          connect (
-            sender,
+            _widget,
             SIGNAL (sliderReleased ()),
-            this,
             SLOT (on_sliderReleased ()),
             Qt::UniqueConnection);
 
@@ -57,9 +58,8 @@ dmz::V8QtSlider::bind (QWidget *sender, const String &Signal) {
       if (Signal == ValueChanged) {
 
          connect (
-            sender,
+            _widget,
             SIGNAL (valueChanged (int)),
-            this,
             SLOT (on_valueChanged (int)),
             Qt::UniqueConnection);
 
@@ -67,7 +67,7 @@ dmz::V8QtSlider::bind (QWidget *sender, const String &Signal) {
       }
    }
 
-   if (!results) { results = V8QtObject::bind (sender, Signal); }
+   if (results) { _register_callback (Signal, Self, Func); }
 
    return results;
 }

@@ -16,7 +16,10 @@ dmz::V8QtLabel::~V8QtLabel () {;}
 
 
 dmz::Boolean
-dmz::V8QtLabel::bind (QWidget *sender, const String &Signal) {
+dmz::V8QtLabel::bind (
+      const String &Signal,
+      const V8Object &Self,
+      const V8Function &Func) {
 
-   return V8QtObject::bind (sender, Signal);
+   return False;
 }

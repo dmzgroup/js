@@ -20,7 +20,10 @@ namespace dmz {
 
          virtual ~V8QtSpinBox ();
 
-         virtual Boolean bind (QWidget *sender, const String &Signal);
+         virtual Boolean bind (
+            const String &Signal,
+            const V8Object &Self,
+            const V8Function &Func);
 
       public Q_SLOTS:
          void on_valueChanged (int val);
@@ -28,4 +31,4 @@ namespace dmz {
 };
 
 
-#endif // DMZ_V8_QT_WIDGET_DOT_H
+#endif // DMZ_V8_QT_SPINBOX_DOT_H

@@ -20,16 +20,19 @@ dmz::V8QtButton::~V8QtButton () {;}
 
 
 dmz::Boolean
-dmz::V8QtButton::bind (QWidget *sender, const String &Signal) {
+dmz::V8QtButton::bind (
+      const String &Signal,
+      const V8Object &Self,
+      const V8Function &Func) {
 
    Boolean results (False);
 
-   if (sender) {
+   if (_widget) {
       
       if (Signal == LocalSignalClicked) {
    
          connect (
-            sender,
+            _widget,
             SIGNAL (clicked ()),
             SLOT (on_clicked ()),
             Qt::UniqueConnection);
@@ -40,7 +43,7 @@ dmz::V8QtButton::bind (QWidget *sender, const String &Signal) {
       else if (Signal == ToggledSignal) {
 
          connect (
-            sender,
+            _widget,
             SIGNAL (toggled (bool)),
             SLOT (on_toggle (bool)),
             Qt::UniqueConnection);
@@ -49,7 +52,7 @@ dmz::V8QtButton::bind (QWidget *sender, const String &Signal) {
       }
    }
    
-   if (!results) { results = V8QtObject::bind (sender, Signal); }
+   if (results) { _register_callback (Signal, Self, Func); }
    
    return results;
 }

@@ -19,7 +19,10 @@ namespace dmz {
 
          virtual ~V8QtComboBox ();
 
-         virtual Boolean bind (QWidget *sender, const String &Signal);
+         virtual Boolean bind (
+            const String &Signal,
+            const V8Object &Self,
+            const V8Function &Func);
 
       public Q_SLOTS:
          void on_currentIndexChanged (int value);

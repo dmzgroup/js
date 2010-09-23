@@ -22,18 +22,20 @@ dmz::V8QtTextEdit::~V8QtTextEdit () {;}
 
 
 dmz::Boolean
-dmz::V8QtTextEdit::bind (QWidget *sender, const String &Signal) {
+dmz::V8QtTextEdit::bind (
+      const String &Signal,
+      const V8Object &Self,
+      const V8Function &Func) {
 
    Boolean results (False);
 
-   if (sender) {
+   if (_widget) {
 
       if (Signal == TextChanged) {
 
          connect (
-            sender,
+            _widget,
             SIGNAL (textChanged ()),
-            this,
             SLOT (on_textChanged ()),
             Qt::UniqueConnection);
 
@@ -41,7 +43,7 @@ dmz::V8QtTextEdit::bind (QWidget *sender, const String &Signal) {
       }
    }
 
-   if (!results) { results = V8QtObject::bind (sender, Signal); }
+   if (results) { _register_callback (Signal, Self, Func); }
 
    return results;
 }

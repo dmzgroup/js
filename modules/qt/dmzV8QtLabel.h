@@ -19,7 +19,10 @@ namespace dmz {
 
          virtual ~V8QtLabel ();
 
-         virtual Boolean bind (QWidget *sender, const String &Signal);
+         virtual Boolean bind (
+            const String &Signal,
+            const V8Object &Self,
+            const V8Function &Func);
 
       public Q_SLOTS:
    };

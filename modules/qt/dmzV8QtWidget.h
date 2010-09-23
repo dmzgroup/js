@@ -7,16 +7,21 @@
 namespace dmz {
 
    class V8QtWidget : public V8QtObject {
-      
+
       Q_OBJECT
-      
+
       public:
          V8QtWidget (
             const V8Object &Self,
             QWidget *widget,
             JsModuleUiV8QtBasicState *state);
-         
+
          virtual ~V8QtWidget ();
+
+         virtual Boolean bind (
+            const String &Signal,
+            const V8Object &Self,
+            const V8Function &Func);
    };
 };
 

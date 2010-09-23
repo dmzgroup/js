@@ -23,18 +23,20 @@ dmz::V8QtSpinBox::~V8QtSpinBox () {;}
 
 
 dmz::Boolean
-dmz::V8QtSpinBox::bind (QWidget *sender, const String &Signal) {
+dmz::V8QtSpinBox::bind (
+      const String &Signal,
+      const V8Object &Self,
+      const V8Function &Func) {
 
    Boolean results (False);
 
-   if (sender) {
+   if (_widget) {
 
       if (Signal == ValueChanged) {
 
          connect (
-            sender,
+            _widget,
             SIGNAL (valueChanged (int)),
-            this,
             SLOT (on_valueChanged (int)),
             Qt::UniqueConnection);
 
@@ -42,10 +44,11 @@ dmz::V8QtSpinBox::bind (QWidget *sender, const String &Signal) {
       }
    }
 
-   if (!results) { results = V8QtObject::bind (sender, Signal); }
+   if (results) { _register_callback (Signal, Self, Func); }
 
    return results;
 }
+
 
 void
 dmz::V8QtSpinBox::on_valueChanged (int val) {

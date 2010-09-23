@@ -13,12 +13,13 @@
 
 class QWidget;
 
+
 namespace dmz {
-   
+
    class V8QtObject : public QObject {
-   
+
       Q_OBJECT
-      
+
       public:
          V8QtObject (
             const V8Object &Self,
@@ -26,32 +27,30 @@ namespace dmz {
             JsModuleUiV8QtBasicState *state);
 
          virtual ~V8QtObject ();
-         
+
          QWidget *get_qt_widget () const;
 
-         virtual Boolean bind (QWidget *sender, const String &Signal);
-         
-         void register_callback (
+         virtual Boolean bind (
             const String &Signal,
             const V8Object &Self,
-            const V8Function &Func);
-         
+            const V8Function &Func) = 0;
+
          void release_callback (const Handle Observer);
-         
+
          V8ObjectPersist self;
-         
+
       protected:
          struct CallbackStruct;
-         
+
          struct CallbackTable {
-           
+
             const String &Signal;
             HashTableHandleTemplate<CallbackStruct> table;
-            
+
             CallbackTable (const String &TheSignal) : Signal (TheSignal) {;}
             ~CallbackTable () { table.empty (); }
          };
-         
+
          struct CallbackStruct {
 
             const Handle Observer;
@@ -66,7 +65,12 @@ namespace dmz {
                self.Dispose (); self.Clear ();
             }
          };
-         
+
+         void _register_callback (
+            const String &Signal,
+            const V8Object &Self,
+            const V8Function &Func);
+
          QPointer<QWidget> _widget;
          JsModuleUiV8QtBasicState *_state;
          HashTableStringTemplate<CallbackTable> _cbTable;

@@ -11,3 +11,12 @@ dmz::V8QtWidget::V8QtWidget (
 
 dmz::V8QtWidget::~V8QtWidget () {;}
 
+
+dmz::Boolean
+dmz::V8QtWidget::bind (
+      const String &Signal,
+      const V8Object &Self,
+      const V8Function &Func) {
+
+   return False;
+}

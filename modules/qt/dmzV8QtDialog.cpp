@@ -19,16 +19,19 @@ dmz::V8QtDialog::~V8QtDialog () {;}
 
 
 dmz::Boolean
-dmz::V8QtDialog::bind (QWidget *sender, const String &Signal) {
+dmz::V8QtDialog::bind (
+      const String &Signal,
+      const V8Object &Self,
+      const V8Function &Func) {
 
    Boolean results (False);
 
-   if (sender) {
+   if (_widget) {
 
       if (Signal == LocalSignalFinished) {
 
          connect (
-            sender,
+            _widget,
             SIGNAL (finished (int)),
             SLOT (on_finished (int)),
             Qt::UniqueConnection);
@@ -37,7 +40,7 @@ dmz::V8QtDialog::bind (QWidget *sender, const String &Signal) {
       }
    }
 
-   if (!results) { results = V8QtObject::bind (sender, Signal); }
+   if (results) { _register_callback (Signal, Self, Func); }
 
    return results;
 }
@@ -52,9 +55,7 @@ dmz::V8QtDialog::open (
 
    if (dialog) {
 
-      if (bind (dialog, LocalSignalFinished)) {
-
-         register_callback (LocalSignalFinished, Self, Func);
+      if (bind (LocalSignalFinished, Self, Func)) {
 
          dialog->open ();
       }
@@ -82,11 +83,14 @@ dmz::V8QtDialog::on_finished (int value) {
 
                const Handle Observer = cs->Observer;
 
-               V8Value argv[] = { cs->self };
+               const int Argc (2);
+               V8Value argv[Argc];
+               argv[0] = v8::Number::New (value);
+               argv[1] = cs->self;
 
                v8::TryCatch tc;
 
-               cs->func->Call (cs->self, 1, argv);
+               cs->func->Call (cs->self, Argc, argv);
 
                if (tc.HasCaught ()) {
 

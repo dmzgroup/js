@@ -19,7 +19,10 @@ namespace dmz {
 
          virtual ~V8QtProgressBar ();
 
-         virtual Boolean bind (QWidget *sender, const String &Signal);
+         virtual Boolean bind (
+            const String &Signal,
+            const V8Object &Self,
+            const V8Function &Func);
 
       public Q_SLOTS:
          void on_valueChanged (int);

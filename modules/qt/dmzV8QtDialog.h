@@ -18,7 +18,10 @@ namespace dmz {
 
          virtual ~V8QtDialog ();
 
-         virtual Boolean bind (QWidget *sender, const String &Signal);
+         virtual Boolean bind (
+               const String &Signal,
+               const V8Object &Self,
+               const V8Function &Func);
 
          virtual void open  (const V8Object &Self, const V8Function &Func);
 
