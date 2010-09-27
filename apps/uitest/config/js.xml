@@ -28,6 +28,7 @@
    <instance name="label"/>
    <instance name="pbar"/>
    <instance name="dialog"/>
+   <instance name="lcd"/>
 </javascript>
 <test>
    <name value="my_name"/>

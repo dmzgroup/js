@@ -151,6 +151,9 @@ namespace dmz {
          static V8Value _progress_bar_value (const v8::Arguments &Args);
          static V8Value _progress_bar_reset (const v8::Arguments &Args);
 
+         // QLCDNumber bindings implemented in JsModuleUiV8QtLCDNumber.cpp
+         static V8Value _lcd_number_value (const v8::Arguments &Args);
+
          // QListWidgetItem bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _list_widget_item_text (const v8::Arguments &Args);
 
@@ -186,6 +189,7 @@ namespace dmz {
          void _init_progressBar ();      
          void _init_dialog ();
          void _init_message_box ();
+         void _init_lcdNumber ();
 
 //         void _reset_message_box_observers ();
 //         void _release_message_box_observer (const Handle InstanceHandle);
@@ -248,6 +252,9 @@ namespace dmz {
 
 //         V8FunctionTemplatePersist _messageBoxTemp;
 //         V8FunctionPersist _messageBoxCtor;
+
+         V8FunctionTemplatePersist _lcdNumberTemp;
+         V8FunctionPersist _lcdNumberCtor;
 
       private:
          JsModuleUiV8QtBasic ();
