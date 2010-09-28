@@ -252,6 +252,33 @@ dmz::JsModuleRuntimeV8Basic::_object_type_get_config (const v8::Arguments &Args)
 }
 
 
+V8Value
+dmz::JsModuleRuntimeV8Basic::_object_type_find_config (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self) {
+
+      ObjectType *ptr = self->_to_object_type_ptr (Args.This ());
+      String param = v8_to_string (Args[0]);
+
+      if (ptr) {
+
+         Config cd;
+         ObjectType type;
+         ptr->find_config (param, type);
+
+         result = self->create_v8_object_type (&type);
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
 // JsModuleRuntimeV8 Interface
 v8::Handle<v8::Value>
 dmz::JsModuleRuntimeV8Basic::create_v8_object_type (const ObjectType *Value) {
@@ -329,6 +356,7 @@ dmz::JsModuleRuntimeV8Basic::_init_object_type () {
       v8::FunctionTemplate::New (_object_type_is_of_exact_type, _self));
 
    proto->Set ("config", v8::FunctionTemplate::New (_object_type_get_config, _self));
+   proto->Set ("find", v8::FunctionTemplate::New (_object_type_find_config, _self));
 
    _objTypeApi.add_function ("lookup", _object_type_lookup, _self);
    _objTypeApi.add_function ("isTypeOf", _object_type_is_type_of, _self);
