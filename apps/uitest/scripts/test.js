@@ -30,12 +30,23 @@ if(button2) {
 
 button1 = form.lookup("button1");
 if(button1) {
-   button1.enabled(false);
+   // button1.enabled(false);
    button1.observe (self, "clicked", function () {
       button1.text(self.name);
       // button1.enabled(false);
 //      messageBox.critical();
-      messageBox.information();
+      var mb = messageBox.create(
+         form,
+         {
+            type: messageBox.Information,
+            text: "Some Text",
+            informativeText: "This is some informative Text"
+            // standardButtons: [messageBox.Ok]
+         }
+      );
+      mb.open(self, function () {
+         puts("mb: dialog closed");
+      });
 //      messageBox.question();
 //      messageBox.warning();
       button1.hide();

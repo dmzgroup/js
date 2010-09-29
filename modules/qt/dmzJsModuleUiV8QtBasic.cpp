@@ -147,13 +147,15 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
       V8QtObject *qobj = _widgetMap[value];
 
       if (!qobj) {
-         
+
          if (value->inherits ("QDialog")) {
 
             if (!_dialogCtor.IsEmpty ()) {
 
                vobj = _dialogCtor->NewInstance ();
                qobj = new V8QtDialog (vobj, value, &_state);
+
+               _dialogList.append (value);
             }
          }
          else if (value->inherits ("QProgressBar")) {
@@ -315,11 +317,24 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _labelCtor = V8FunctionPersist::New (_labelTemp->GetFunction ());
       _progressBarCtor = V8FunctionPersist::New (_progressBarTemp->GetFunction ());
       _dialogCtor = V8FunctionPersist::New (_dialogTemp->GetFunction ());
+
+      _mbTypeStr = V8StringPersist::New (v8::String::NewSymbol ("type"));
+      _mbTextStr = V8StringPersist::New (v8::String::NewSymbol ("text"));
+      _mbInfoTextStr = V8StringPersist::New (v8::String::NewSymbol ("informativeText"));
+      _mbStandardButtonsStr = V8StringPersist::New (v8::String::NewSymbol ("standardButtons"));
+      _mbDefaultButtonStr = V8StringPersist::New (v8::String::NewSymbol ("defaultButton"));
    }
    else if (State == JsExtV8::Stop) {
 
    }
    else if (State == JsExtV8::Shutdown) {
+
+      foreach (QWidget *dialog, _dialogList) {
+
+         dialog->close ();
+      }
+
+      _dialogList.clear ();
 
       QMapIterator<QWidget *, V8QtObject *> it (_widgetMap);
       while (it.hasNext ()) {
@@ -345,6 +360,12 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _labelCtor.Dispose (); _labelTemp.Clear ();
       _progressBarCtor.Dispose (); _progressBarTemp.Clear ();
       _dialogCtor.Dispose (); _dialogTemp.Clear ();
+
+      _mbTypeStr.Dispose (); _mbTypeStr.Clear ();
+      _mbTextStr.Dispose (); _mbTextStr.Clear ();
+      _mbInfoTextStr.Dispose (); _mbInfoTextStr.Clear ();
+      _mbStandardButtonsStr.Dispose (); _mbStandardButtonsStr.Clear ();
+      _mbDefaultButtonStr.Dispose (); _mbDefaultButtonStr.Clear ();
 
       _qtApi.clear ();
       _messageBoxApi.clear ();
@@ -388,16 +409,6 @@ dmz::JsModuleUiV8QtBasic::_to_qt_list_widget_item (V8Value value) {
       }
    }
 
-   return result;
-}
-
-
-QDialog  *
-dmz::JsModuleUiV8QtBasic::_to_qt_dialog (V8Value value) {
-
-   QDialog *result (0);
-   QWidget *widget = _to_qt_widget (value);
-   if (widget) { result = qobject_cast<QDialog *>(widget); }
    return result;
 }
 
