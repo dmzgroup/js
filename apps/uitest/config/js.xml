@@ -29,6 +29,7 @@
    <instance name="pbar"/>
    <instance name="dialog"/>
    <instance name="lcd"/>
+   <instance name="stacked"/>
 </javascript>
 <test>
    <name value="my_name"/>

@@ -17,13 +17,13 @@
    <property name="geometry">
     <rect>
      <x>100</x>
-     <y>10</y>
+     <y>70</y>
      <width>62</width>
-     <height>281</height>
+     <height>131</height>
     </rect>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string>Label</string>
    </property>
   </widget>
  </widget>

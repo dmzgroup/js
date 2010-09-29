@@ -16,6 +16,7 @@
 #include <dmzV8QtLabel.h>
 #include <dmzV8QtProgressBar.h>
 #include <dmzV8QtLCDNumber.h>
+#include <dmzV8QtStackedWidget.h>
 #include <dmzV8QtTypes.h>
 
 #endif // DMZ_V8_QT_TYPES_DOT_H

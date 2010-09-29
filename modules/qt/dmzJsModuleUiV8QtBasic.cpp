@@ -148,7 +148,15 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
 
       if (!qobj) {
 
-         if (value->inherits ("QLCDNumber")) {
+         if (value->inherits ("QStackedWidget")) {
+
+            if (!_stackedCtor.IsEmpty ()) {
+
+               vobj = _stackedCtor->NewInstance ();
+               qobj = new V8QtStackedWidget (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QLCDNumber")) {
 
             if (!_dialogCtor.IsEmpty ()) {
 
@@ -324,6 +332,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _progressBarCtor = V8FunctionPersist::New (_progressBarTemp->GetFunction ());
       _dialogCtor = V8FunctionPersist::New (_dialogTemp->GetFunction ());
       _lcdNumberCtor = V8FunctionPersist::New (_lcdNumberTemp->GetFunction ());
+      _stackedCtor = V8FunctionPersist::New (_stackedWidgetTemp->GetFunction ());
    }
    else if (State == JsExtV8::Stop) {
 
@@ -355,6 +364,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _progressBarCtor.Dispose (); _progressBarTemp.Clear ();
       _dialogCtor.Dispose (); _dialogTemp.Clear ();
       _lcdNumberCtor.Dispose (); _lcdNumberTemp.Clear ();
+      _stackedCtor.Dispose (); _stackedWidgetTemp.Clear ();
 
       _qtApi.clear ();
       _messageBoxApi.clear ();
@@ -467,6 +477,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_message_box ();
    _init_dialog ();
    _init_lcdNumber ();
+   _init_stacked_widget ();
 }
 
 

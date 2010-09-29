@@ -21,6 +21,7 @@ lmk.add_files ({
    "dmzV8QtLabel.h",
    "dmzV8QtProgressBar.h",
    "dmzV8QtLCDNumber.h",
+   "dmzV8QtStackedWidget.h",
 },{src="moc"})
 
 lmk.add_files {
@@ -39,6 +40,7 @@ lmk.add_files {
    "dmzV8QtLabel.cpp",
    "dmzV8QtProgressBar.cpp",
    "dmzV8QtLCDNumber.cpp",
+   "dmzV8QtStackedWidget.cpp",
    "dmzJsModuleUiV8QtBasicDialog.cpp",
    "dmzJsModuleUiV8QtBasicMessageBox.cpp",
    "dmzJsModuleUiV8QtBasicListWidget.cpp",
@@ -52,6 +54,7 @@ lmk.add_files {
    "dmzJsModuleUiV8QtBasicLabel.cpp",
    "dmzJsModuleUiV8QtBasicProgressBar.cpp",
    "dmzJsModuleUiV8QtBasicLCDNumber.cpp",
+   "dmzJsModuleUiV8QtBasicStackedWidget.cpp",
    "dmzJsModuleUiV8QtBasic.cpp",
 }
 

@@ -162,6 +162,16 @@ namespace dmz {
          static V8Value _list_widget_current_item (const v8::Arguments &Args);
          // static V8Value _list_widget_item (const v8::Arguments &Args);
 
+         // QStackedWidget bindings implemented in JsModuleUiV8QtBasicStackedWidget.cpp
+         static V8Value _stacked_widget_add (const v8::Arguments &Args);
+         static V8Value _stacked_widget_remove (const v8::Arguments &Args);
+         static V8Value _stacked_widget_count (const v8::Arguments &Args);
+         static V8Value _stacked_widget_current_index (const v8::Arguments &Args);
+         static V8Value _stacked_widget_current_widget (const v8::Arguments &Args);
+         static V8Value _stacked_widget_at (const v8::Arguments &Args);
+         static V8Value _stacked_widget_index_of (const v8::Arguments &Args);
+
+
          // QMessageBox bindings implemented in JsModuleUiV8QtBasicMessageBox.cpp
          static V8Value _create_message_box (const v8::Arguments &Args);
          static V8Value _message_box_open (const v8::Arguments &Args);
@@ -190,6 +200,7 @@ namespace dmz {
          void _init_dialog ();
          void _init_message_box ();
          void _init_lcdNumber ();
+         void _init_stacked_widget ();
 
 //         void _reset_message_box_observers ();
 //         void _release_message_box_observer (const Handle InstanceHandle);
@@ -255,6 +266,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _lcdNumberTemp;
          V8FunctionPersist _lcdNumberCtor;
+
+         V8FunctionTemplatePersist _stackedWidgetTemp;
+         V8FunctionPersist _stackedCtor;
 
       private:
          JsModuleUiV8QtBasic ();
