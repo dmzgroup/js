@@ -57,6 +57,7 @@ namespace dmz {
          virtual void update_time_slice (const Float64 DeltaTime);
 
          // JsModule Interface
+         virtual String find_script (const String &Name);
          virtual void lookup_script_names (StringContainer &list);
          virtual void lookup_script_file_names (StringContainer &list);
          virtual void lookup_script_handles (HandleContainer &list);
@@ -132,6 +133,7 @@ namespace dmz {
             v8::Persistent<v8::Script> script;
             v8::Persistent<v8::Function> ctor;
             HashTableHandleTemplate<InstanceStruct> table;
+            UInt32 compileCount;
 
             void clear () {
 
@@ -147,7 +149,8 @@ namespace dmz {
                   ScriptHandle (HandleObject.get_runtime_handle ()),
                   Name (TheName),
                   FileName (TheFileName),
-                  externalStr (0) {;}
+                  externalStr (0),
+                  compileCount (0) {;}
 
             ~ScriptStruct () { clear (); if (externalStr) { externalStr->Dispose (); } }
          };
@@ -157,13 +160,15 @@ namespace dmz {
             Config local;
             ScriptStruct &script;
             V8ObjectPersist self;
+            UInt32 compileCount;
 
             InstanceStruct (
                   const String &TheName,
                   const Handle TheObject,
                   ScriptStruct &theScript) :
                   InstanceStructBase (TheName, TheObject),
-                  script (theScript) { script.table.store (TheObject, this); }
+                  script (theScript),
+                  compileCount (0) { script.table.store (TheObject, this); }
 
             ~InstanceStruct () {
 
