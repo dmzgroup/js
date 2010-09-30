@@ -1,6 +1,6 @@
 #include "dmzJsModuleUiV8QtBasic.h"
 #include <dmzJsV8UtilConvert.h>
-#include "dmzV8QtstackedWidget.h"
+#include "dmzV8QtStackedWidget.h"
 #include <QtGui/QAbstractButton>
 #include <QtGui/QStackedWidget>
 
@@ -157,8 +157,8 @@ dmz::JsModuleUiV8QtBasic::_stacked_widget_current_widget (const v8::Arguments &A
                sw->setCurrentWidget (qw);
             }
             else {
-               qw = sw->currentWidget ();
 
+               qw = sw->currentWidget ();
                if (qw) {
 
                   result = self->create_v8_widget (qw);

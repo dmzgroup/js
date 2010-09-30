@@ -148,7 +148,15 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
 
       if (!qobj) {
 
-         if (value->inherits ("QStackedWidget")) {
+         if (value->inherits ("QTabWidget")) {
+
+            if (!_tabCtor.IsEmpty ()) {
+
+               vobj = _tabCtor->NewInstance ();
+               qobj = new V8QtTabWidget (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QStackedWidget")) {
 
             if (!_stackedCtor.IsEmpty ()) {
 
@@ -333,6 +341,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _dialogCtor = V8FunctionPersist::New (_dialogTemp->GetFunction ());
       _lcdNumberCtor = V8FunctionPersist::New (_lcdNumberTemp->GetFunction ());
       _stackedCtor = V8FunctionPersist::New (_stackedWidgetTemp->GetFunction ());
+      _tabCtor = V8FunctionPersist::New (_tabWidgetTemp->GetFunction ());
    }
    else if (State == JsExtV8::Stop) {
 
@@ -365,6 +374,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _dialogCtor.Dispose (); _dialogTemp.Clear ();
       _lcdNumberCtor.Dispose (); _lcdNumberTemp.Clear ();
       _stackedCtor.Dispose (); _stackedWidgetTemp.Clear ();
+      _tabCtor.Dispose (); _tabWidgetTemp.Clear ();
 
       _qtApi.clear ();
       _messageBoxApi.clear ();
@@ -478,6 +488,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_dialog ();
    _init_lcdNumber ();
    _init_stacked_widget ();
+   _init_tab_widget ();
 }
 
 

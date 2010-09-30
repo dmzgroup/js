@@ -171,6 +171,15 @@ namespace dmz {
          static V8Value _stacked_widget_at (const v8::Arguments &Args);
          static V8Value _stacked_widget_index_of (const v8::Arguments &Args);
 
+         // QTabWidget bindings implemented in JsModuleUiV8QtBasicTabWidget.cpp
+         static V8Value _tab_widget_add (const v8::Arguments &Args);
+         static V8Value _tab_widget_remove (const v8::Arguments &Args);
+         static V8Value _tab_widget_current_widget (const v8::Arguments &Args);
+         static V8Value _tab_widget_current_index (const v8::Arguments &Args);
+         static V8Value _tab_widget_count (const v8::Arguments &Args);
+         static V8Value _tab_widget_index_of (const v8::Arguments &Args);
+         static V8Value _tab_widget_tab_text (const v8::Arguments &Args);
+         static V8Value _tab_widget_at (const v8::Arguments &Args);
 
          // QMessageBox bindings implemented in JsModuleUiV8QtBasicMessageBox.cpp
          static V8Value _create_message_box (const v8::Arguments &Args);
@@ -201,6 +210,7 @@ namespace dmz {
          void _init_message_box ();
          void _init_lcdNumber ();
          void _init_stacked_widget ();
+         void _init_tab_widget ();
 
 //         void _reset_message_box_observers ();
 //         void _release_message_box_observer (const Handle InstanceHandle);
@@ -269,6 +279,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _stackedWidgetTemp;
          V8FunctionPersist _stackedCtor;
+
+         V8FunctionTemplatePersist _tabWidgetTemp;
+         V8FunctionPersist _tabCtor;
 
       private:
          JsModuleUiV8QtBasic ();
