@@ -252,6 +252,33 @@ dmz::JsModuleRuntimeV8Basic::_event_type_get_config (const v8::Arguments &Args) 
 }
 
 
+V8Value
+dmz::JsModuleRuntimeV8Basic::_event_type_find_config (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self) {
+
+      EventType *ptr = self->_to_event_type_ptr (Args.This ());
+      String param = v8_to_string (Args[0]);
+
+      if (ptr) {
+
+         Config cd;
+         EventType type;
+         ptr->find_config (param, type);
+
+         result = self->create_v8_event_type (&type);
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
 // JsModuleRuntimeV8 Interface
 v8::Handle<v8::Value>
 dmz::JsModuleRuntimeV8Basic::create_v8_event_type (const EventType *Value) {

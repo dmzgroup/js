@@ -13,17 +13,14 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QLabel" name="label">
+  <widget class="QLCDNumber" name="lcd">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>70</y>
-     <width>62</width>
+     <x>70</x>
+     <y>50</y>
+     <width>251</width>
      <height>131</height>
     </rect>
-   </property>
-   <property name="text">
-    <string>Label</string>
    </property>
   </widget>
  </widget>

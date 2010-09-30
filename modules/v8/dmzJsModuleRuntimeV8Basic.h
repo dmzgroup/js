@@ -99,6 +99,7 @@ namespace dmz {
          static V8Value _event_type_is_of_type (const v8::Arguments &Args);
          static V8Value _event_type_is_of_exact_type (const v8::Arguments &Args);
          static V8Value _event_type_get_config (const v8::Arguments &Args);
+         static V8Value _event_type_find_config (const v8::Arguments &Args);
 
          // Data bindings implemented in dmzJsModuleRuntimeV8BasicData.cpp
          static V8Value _create_data (const v8::Arguments &Args);
@@ -147,6 +148,7 @@ namespace dmz {
          static V8Value _object_type_is_of_type (const v8::Arguments &Args);
          static V8Value _object_type_is_of_exact_type (const v8::Arguments &Args);
          static V8Value _object_type_get_config (const v8::Arguments &Args);
+         static V8Value _object_type_find_config (const v8::Arguments &Args);
 
          // Timer bindings implemented in dmzJsModuleRuntimeV8BasicTimer.cpp
          static V8Value _set_timer (const v8::Arguments &Args);

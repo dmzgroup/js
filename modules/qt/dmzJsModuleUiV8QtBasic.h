@@ -149,6 +149,9 @@ namespace dmz {
          static V8Value _progress_bar_value (const v8::Arguments &Args);
          static V8Value _progress_bar_reset (const v8::Arguments &Args);
 
+         // QLCDNumber bindings implemented in JsModuleUiV8QtLCDNumber.cpp
+         static V8Value _lcd_number_value (const v8::Arguments &Args);
+
          // QListWidgetItem bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _list_widget_item_text (const v8::Arguments &Args);
 
@@ -156,6 +159,25 @@ namespace dmz {
          static V8Value _list_widget_add_item (const v8::Arguments &Args);
          static V8Value _list_widget_current_item (const v8::Arguments &Args);
          // static V8Value _list_widget_item (const v8::Arguments &Args);
+
+         // QStackedWidget bindings implemented in JsModuleUiV8QtBasicStackedWidget.cpp
+         static V8Value _stacked_widget_add (const v8::Arguments &Args);
+         static V8Value _stacked_widget_remove (const v8::Arguments &Args);
+         static V8Value _stacked_widget_count (const v8::Arguments &Args);
+         static V8Value _stacked_widget_current_index (const v8::Arguments &Args);
+         static V8Value _stacked_widget_current_widget (const v8::Arguments &Args);
+         static V8Value _stacked_widget_at (const v8::Arguments &Args);
+         static V8Value _stacked_widget_index_of (const v8::Arguments &Args);
+
+         // QTabWidget bindings implemented in JsModuleUiV8QtBasicTabWidget.cpp
+         static V8Value _tab_widget_add (const v8::Arguments &Args);
+         static V8Value _tab_widget_remove (const v8::Arguments &Args);
+         static V8Value _tab_widget_current_widget (const v8::Arguments &Args);
+         static V8Value _tab_widget_current_index (const v8::Arguments &Args);
+         static V8Value _tab_widget_count (const v8::Arguments &Args);
+         static V8Value _tab_widget_index_of (const v8::Arguments &Args);
+         static V8Value _tab_widget_tab_text (const v8::Arguments &Args);
+         static V8Value _tab_widget_at (const v8::Arguments &Args);
 
          // QMessageBox bindings implemented in JsModuleUiV8QtBasicMessageBox.cpp
          static V8Value _create_message_box (const v8::Arguments &Args);
@@ -179,6 +201,9 @@ namespace dmz {
          void _init_progressBar ();
          void _init_dialog ();
          void _init_message_box ();
+         void _init_lcdNumber ();
+         void _init_stacked_widget ();
+         void _init_tab_widget ();
 
          void _init (Config &local);
 
@@ -240,6 +265,15 @@ namespace dmz {
          V8StringPersist _mbInfoTextStr;
          V8StringPersist _mbStandardButtonsStr;
          V8StringPersist _mbDefaultButtonStr;
+
+         V8FunctionTemplatePersist _lcdNumberTemp;
+         V8FunctionPersist _lcdNumberCtor;
+
+         V8FunctionTemplatePersist _stackedWidgetTemp;
+         V8FunctionPersist _stackedCtor;
+
+         V8FunctionTemplatePersist _tabWidgetTemp;
+         V8FunctionPersist _tabCtor;
 
       private:
          JsModuleUiV8QtBasic ();

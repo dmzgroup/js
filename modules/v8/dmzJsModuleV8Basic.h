@@ -184,6 +184,7 @@ namespace dmz {
          void _init_ext ();
          void _stop_ext ();
          void _shutdown_ext ();
+         Boolean _reload_script (ScriptStruct &info);
          void _load_scripts ();
          Boolean _create_instance (InstanceStruct &instance);
          void _shutdown_instance (InstanceStruct &instance);

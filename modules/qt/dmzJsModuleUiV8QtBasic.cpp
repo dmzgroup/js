@@ -148,7 +148,31 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
 
       if (!qobj) {
 
-         if (value->inherits ("QDialog")) {
+         if (value->inherits ("QTabWidget")) {
+
+            if (!_tabCtor.IsEmpty ()) {
+
+               vobj = _tabCtor->NewInstance ();
+               qobj = new V8QtTabWidget (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QStackedWidget")) {
+
+            if (!_stackedCtor.IsEmpty ()) {
+
+               vobj = _stackedCtor->NewInstance ();
+               qobj = new V8QtStackedWidget (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QLCDNumber")) {
+
+            if (!_dialogCtor.IsEmpty ()) {
+
+               vobj = _lcdNumberCtor->NewInstance ();
+               qobj = new V8QtLCDNumber (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QDialog")) {
 
             if (!_dialogCtor.IsEmpty ()) {
 
@@ -376,6 +400,9 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
    }
    else if (State == JsExtV8::Init) {
 
+      _lcdNumberCtor = V8FunctionPersist::New (_lcdNumberTemp->GetFunction ());
+      _stackedCtor = V8FunctionPersist::New (_stackedWidgetTemp->GetFunction ());
+      _tabCtor = V8FunctionPersist::New (_tabWidgetTemp->GetFunction ());
    }
    else if (State == JsExtV8::Stop) {
 
@@ -413,12 +440,9 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _labelCtor.Dispose (); _labelCtor.Clear ();
       _progressBarCtor.Dispose (); _progressBarCtor.Clear ();
       _dialogCtor.Dispose (); _dialogCtor.Clear ();
-
-      _mbTypeStr.Dispose (); _mbTypeStr.Clear ();
-      _mbTextStr.Dispose (); _mbTextStr.Clear ();
-      _mbInfoTextStr.Dispose (); _mbInfoTextStr.Clear ();
-      _mbStandardButtonsStr.Dispose (); _mbStandardButtonsStr.Clear ();
-      _mbDefaultButtonStr.Dispose (); _mbDefaultButtonStr.Clear ();
+      _lcdNumberCtor.Dispose (); _lcdNumberCtor.Clear ();
+      _stackedCtor.Dispose (); _stackedWidgetCtor.Clear ();
+      _tabCtor.Dispose (); _tabWidgetCtor.Clear ();
 
       _qtApi.clear ();
       _messageBoxApi.clear ();
@@ -522,6 +546,9 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_progressBar ();
    _init_message_box ();
    _init_dialog ();
+   _init_lcdNumber ();
+   _init_stacked_widget ();
+   _init_tab_widget ();
 }
 
 
