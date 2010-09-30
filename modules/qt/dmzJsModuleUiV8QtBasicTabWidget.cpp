@@ -266,7 +266,6 @@ dmz::JsModuleUiV8QtBasic::_tab_widget_tab_text (const v8::Arguments &Args) {
             }
             else {
 
-               self->_log.warn << "index: " << index << " -> text: " << qPrintable(tw->tabText (index)) << endl;
                result = v8::String::New (qPrintable (tw->tabText (index)));
             }
          }
