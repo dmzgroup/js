@@ -12,9 +12,9 @@ dmz::V8QtObject::V8QtObject (
       QObject (0),
       _widget (widget),
       _state (state) {
-         
+
    if (!Self.IsEmpty ()) {
-   
+
       Self->SetInternalField (0, v8::External::Wrap ((void *)this));
       self = V8ObjectPersist::New (Self);
    }
@@ -22,22 +22,22 @@ dmz::V8QtObject::V8QtObject (
 
 
 dmz::V8QtObject::~V8QtObject () {
-   
+
    if (_widget) {
-      
-      if (!_widget->parentWidget ()) { _widget->deleteLater (); }
+
+      if (!_widget->parentWidget ()) { delete _widget; }
       _widget = 0;
    }
 
    _cbTable.empty ();
-   
+
    self.Dispose (); self.Clear ();
 }
 
 
 QWidget *
 dmz::V8QtObject::get_qt_widget () const {
-   
+
    return _widget;
 }
 
@@ -52,12 +52,12 @@ dmz::V8QtObject::release_callback (const Handle Observer) {
 
       HashTableStringIterator it;
       CallbackTable *ct (0);
-      
+
       while (_cbTable.get_next (it, ct)) {
-                  
+
          CallbackStruct *cs = ct->table.remove (Observer);
          if (cs) {
-            
+
             delete cs; cs = 0;
          }
       }
@@ -75,7 +75,7 @@ dmz::V8QtObject::_register_callback (
 
       CallbackTable *ct = _cbTable.lookup (Signal);
 
-      if (Signal && !ct) { 
+      if (Signal && !ct) {
 
          ct = new CallbackTable (Signal);
 

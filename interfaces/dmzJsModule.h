@@ -23,6 +23,7 @@ class JsModule {
       Handle get_js_module_handle () const;
 
       // JsModule Interface
+      virtual String find_script (const String &Name) = 0;
       virtual void lookup_script_names (StringContainer &list) = 0;
       virtual void lookup_script_file_names (StringContainer &list) = 0;
       virtual void lookup_script_handles (HandleContainer &list) = 0;

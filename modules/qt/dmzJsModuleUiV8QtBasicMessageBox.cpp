@@ -2,7 +2,6 @@
 #include <dmzJsModuleV8.h>
 #include <dmzJsV8UtilConvert.h>
 #include "dmzV8QtObject.h"
-#include <QtGui/QMessageBox>
 
 
 dmz::V8Value
@@ -14,147 +13,90 @@ dmz::JsModuleUiV8QtBasic::_create_message_box (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      if (Args.Length () == 0) {
+      QWidget *parent = 0;
+      V8Object params;
 
+      if (Args.Length () >= 2) {
 
+         parent = self->_to_qt_widget (Args[0]);
+         params = v8_to_object (Args[1]);
       }
       else {
 
+         params = v8_to_object (Args[0]);
       }
 
-      QMessageBox *msgBox = new QMessageBox;
-      msgBox->setIcon (QMessageBox::Question);
-      msgBox->setText("The document has been modified.");
-      msgBox->setInformativeText("Do you want to save your changes?");
-      msgBox->setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-      msgBox->setDefaultButton(QMessageBox::Save);
+      if (!params.IsEmpty ()) {
 
-//      QMessageBox::StandardButton ret;
-      QObject *obj = new QObject (0);
-      msgBox->open (obj, SLOT (deleteLater ()));
-
-//         QMessageBox::information (
-//            0,
-//            "Title",
-//            "This is a info mb",
-//            QMessageBox::Ok | QMessageBox::Cancel);
-
-//      result = v8::Number::New (ret);
+         QMessageBox *dialog = self->_create_message_box (params, parent);
+         result = self->create_v8_widget (dialog);
+      }
    }
 
    return scope.Close (result);
 }
 
 
-dmz::V8Value
-dmz::JsModuleUiV8QtBasic::_message_box_information (const v8::Arguments &Args) {
+QMessageBox *
+dmz::JsModuleUiV8QtBasic::_create_message_box (V8Object params, QWidget *parent) {
 
-   v8::HandleScope scope;
-   V8Value result = v8::Undefined ();
+   QMessageBox *dialog (0);
 
-   JsModuleUiV8QtBasic *self = _to_self (Args);
-   if (self) {
+   if (!params.IsEmpty ()) {
 
-      QMessageBox *msgBox = new QMessageBox;
-      msgBox->setIcon (QMessageBox::Question);
-      msgBox->setText("The document has been modified.");
-      msgBox->setInformativeText("Do you want to save your changes?");
-      msgBox->setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-      msgBox->setDefaultButton(QMessageBox::Save);
+      dialog = new QMessageBox (parent);
+//      dialog->setAttribute (Qt::WA_DeleteOnClose);
 
-//      QMessageBox::StandardButton ret;
-      QObject *obj = new QObject (0);
-      msgBox->open (obj, SLOT (deleteLater ()));
+      if (params->Has (_mbTypeStr)) {
 
-//         QMessageBox::information (
-//            0,
-//            "Title",
-//            "This is a info mb",
-//            QMessageBox::Ok | QMessageBox::Cancel);
+         QMessageBox::Icon icon (QMessageBox::Information);
+         const UInt32 TypeValue = v8_to_uint32 (params->Get (_mbTypeStr));
+         if (TypeValue == QMessageBox::Question) { icon = QMessageBox::Question; }
+         else if (TypeValue == QMessageBox::Warning) { icon = QMessageBox::Warning; }
+         else if (TypeValue == QMessageBox::Critical) { icon = QMessageBox::Critical; }
+         dialog->setIcon (icon);
+      }
 
-//      result = v8::Number::New (ret);
+      if (params->Has (_mbTextStr)) {
+
+         String text = v8_to_string (params->Get (_mbTextStr));
+         if (text) { dialog->setText (text.get_buffer ()); }
+      }
+
+      if (params->Has (_mbInfoTextStr)) {
+
+         String infoText = v8_to_string (params->Get (_mbInfoTextStr));
+         if (infoText) { dialog->setInformativeText (infoText.get_buffer ()); }
+      }
+
+      if (params->Has (_mbStandardButtonsStr)) {
+
+         V8Array buttonArray = v8_to_array (params->Get (_mbStandardButtonsStr));
+         if (!buttonArray.IsEmpty ()) {
+
+            QMessageBox::StandardButtons buttons;
+            const uint32_t Length = buttonArray->Length ();
+            for (uint32_t ix = 0; ix < Length; ix++) {
+
+               const UInt32 ButtonValue =
+                  v8_to_uint32 (buttonArray->Get (v8::Integer::NewFromUnsigned (ix)));
+
+               buttons |= (QMessageBox::StandardButton)ButtonValue;
+            }
+
+            dialog->setStandardButtons (buttons);
+         }
+      }
+
+      if (params->Has (_mbDefaultButtonStr)) {
+
+         const UInt32 ButtonValue = v8_to_uint32 (params->Get (_mbDefaultButtonStr));
+         dialog->setDefaultButton ((QMessageBox::StandardButton)ButtonValue);
+      }
    }
 
-   return scope.Close (result);
+   return dialog;
 }
-
-
-// dmz::V8Value
-// dmz::JsModuleUiV8QtBasic::_message_box_question (const v8::Arguments &Args) {
-//
-//    v8::HandleScope scope;
-//    V8Value result = v8::Undefined ();
-//
-//    JsModuleUiV8QtBasic *self = _to_self (Args);
-//    if (self) {
-//
-//       QMessageBox::StandardButton retVal =
-//          QMessageBox::information (
-//             0,
-//             "Title",
-//             "This is a question mb",
-//             QMessageBox::Ok);
-//
-//       result = v8::Number::New (retVal);
-//    }
-//
-//    return scope.Close (result);
-// }
-//
-//
-// dmz::V8Value
-// dmz::JsModuleUiV8QtBasic::_message_box_warning (const v8::Arguments &Args) {
-//
-//    v8::HandleScope scope;
-//    V8Value result = v8::Undefined ();
-//
-//    JsModuleUiV8QtBasic *self = _to_self (Args);
-//    if (self) {
-//
-//       QMessageBox::StandardButton retVal =
-//          QMessageBox::information (
-//             0,
-//             "Title",
-//             "This is a warning mb",
-//             QMessageBox::Ok);
-//
-//       result = v8::Number::New (retVal);
-//    }
-//
-//    return scope.Close (result);
-// }
-
-
-//dmz::V8Value
-//dmz::JsModuleUiV8QtBasic::create_v8_dialog (QDialog *value) {
-
-//   v8::Context::Scope cscope (_state.context);
-//   v8::HandleScope scope;
-
-//   V8Value result = v8::Undefined ();
-
-//   if (value) {
-
-//      V8Object obj;
-
-//      if (!_dialogCtor.IsEmpty ()) {
-
-//         obj = _dialogCtor->NewInstance ();
-
-//         if (!obj.IsEmpty ()) {
-
-//            obj->SetInternalField (0, v8::External::Wrap ((void *)value));
-
-//            V8ObjectPersist persist = V8ObjectPersist (obj);
-//            persist.MakeWeak ((void *)value, local)
-//         }
-//      }
-
-//      if (!obj.IsEmpty ()) { result = obj; }
-//   }
-
-//   return scope.Close (result);
-//}
 
 
 void
@@ -162,81 +104,28 @@ dmz::JsModuleUiV8QtBasic::_init_message_box () {
 
    v8::HandleScope scope;
 
-   _messageBoxApi.add_constant ("Ok", (Float64)QMessageBox::Ok);
-   _messageBoxApi.add_constant ("Open", (Float64)QMessageBox::Open);
-   _messageBoxApi.add_constant ("Save", (Float64)QMessageBox::Save);
-   _messageBoxApi.add_constant ("Cancel", (Float64)QMessageBox::Cancel);
-   _messageBoxApi.add_constant ("Close", (Float64)QMessageBox::Close);
-   _messageBoxApi.add_constant ("Apply", (Float64)QMessageBox::Apply);
-   _messageBoxApi.add_constant ("Reset", (Float64)QMessageBox::Reset);
-   _messageBoxApi.add_constant ("Help", (Float64)QMessageBox::Help);
-   _messageBoxApi.add_constant ("SaveAll", (Float64)QMessageBox::SaveAll);
-   _messageBoxApi.add_constant ("Yes", (Float64)QMessageBox::Yes);
-   _messageBoxApi.add_constant ("YesToAll", (Float64)QMessageBox::YesToAll);
-   _messageBoxApi.add_constant ("No", (Float64)QMessageBox::No);
-   _messageBoxApi.add_constant ("NoToAll", (Float64)QMessageBox::NoToAll);
-   _messageBoxApi.add_constant ("Abort", (Float64)QMessageBox::Abort);
-   _messageBoxApi.add_constant ("Retry", (Float64)QMessageBox::Retry);
-   _messageBoxApi.add_constant ("Ignore", (Float64)QMessageBox::Ignore);
-   _messageBoxApi.add_constant ("NoButton", (Float64)QMessageBox::NoButton);
+   _messageBoxApi.add_constant ("Infomation", (UInt32)QMessageBox::Information);
+   _messageBoxApi.add_constant ("Quesiton", (UInt32)QMessageBox::Question);
+   _messageBoxApi.add_constant ("Warning", (UInt32)QMessageBox::Warning);
+   _messageBoxApi.add_constant ("Critical", (UInt32)QMessageBox::Critical);
 
-   // _messageBoxApi.add_function ("create", _create_message_box, _self);
-   // _messageBoxApi.add_function ("critical", _message_box_critical, _self);
-   _messageBoxApi.add_function ("information", _message_box_information, _self);
-   // _messageBoxApi.add_function ("question", _message_box_question, _self);
-   // _messageBoxApi.add_function ("warning", _message_box_warning, _self);
+   _messageBoxApi.add_constant ("Ok", (UInt32)QMessageBox::Ok);
+   _messageBoxApi.add_constant ("Open", (UInt32)QMessageBox::Open);
+   _messageBoxApi.add_constant ("Save", (UInt32)QMessageBox::Save);
+   _messageBoxApi.add_constant ("Cancel", (UInt32)QMessageBox::Cancel);
+   _messageBoxApi.add_constant ("Close", (UInt32)QMessageBox::Close);
+   _messageBoxApi.add_constant ("Apply", (UInt32)QMessageBox::Apply);
+   _messageBoxApi.add_constant ("Reset", (UInt32)QMessageBox::Reset);
+   _messageBoxApi.add_constant ("Help", (UInt32)QMessageBox::Help);
+   _messageBoxApi.add_constant ("SaveAll", (UInt32)QMessageBox::SaveAll);
+   _messageBoxApi.add_constant ("Yes", (UInt32)QMessageBox::Yes);
+   _messageBoxApi.add_constant ("YesToAll", (UInt32)QMessageBox::YesToAll);
+   _messageBoxApi.add_constant ("No", (UInt32)QMessageBox::No);
+   _messageBoxApi.add_constant ("NoToAll", (UInt32)QMessageBox::NoToAll);
+   _messageBoxApi.add_constant ("Abort", (UInt32)QMessageBox::Abort);
+   _messageBoxApi.add_constant ("Retry", (UInt32)QMessageBox::Retry);
+   _messageBoxApi.add_constant ("Ignore", (UInt32)QMessageBox::Ignore);
+   _messageBoxApi.add_constant ("NoButton", (UInt32)QMessageBox::NoButton);
 
-   // _messageBoxTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
-   // _messageBoxTemp->Inherit (_widgetTemp);
-   //
-   // V8ObjectTemplate instance = _messageBoxTemp->InstanceTemplate ();
-   // instance->SetInternalFieldCount (1);
-   //
-   // V8ObjectTemplate proto = _messageBoxTemp->PrototypeTemplate ();
-   // proto->Set ("addItem", v8::FunctionTemplate::New (_message_box_set_title, _self));
+   _messageBoxApi.add_function ("create", _create_message_box, _self);
 }
-
-
-//void
-//dmz::JsModuleUiV8QtBasic::_reset_message_box_obervers () { _msgTable.empty (); }
-
-
-//void
-//dmz::JsModuleUiV8QtBasic::_release_message_box_observer (const Handle InstanceHandle) {
-
-//   MessageStruct *ms = _msgTable.remove (InstanceHandle);
-
-//   if (ms) {
-
-//      if (!_v8Context.IsEmpty ()) {
-
-//         v8::Context::Scope cscope (_v8Context);
-
-//         ms->cbTable.empty ();
-//         ms->unsubscribe_to_all_messages ();
-//      }
-
-//      delete ms; ms = 0;
-//   }
-//}
-
-
-//dmz::V8QtMessageBox *
-//dmz::JsModuleUiV8QtBasic::_to_message_box_ptr (V8Value value) {
-
-//   v8::HandleScope scope;
-
-//   Message *result (0);
-
-//   V8Object obj = v8_to_object (value);
-
-//   if (!obj.IsEmpty ()) {
-
-//      if (_messageBoxTemp->HasInstance (obj)) {
-
-//         result = (V8QtMessageBox *)v8::External::Unwrap (obj->GetInternalField (0));
-//      }
-//   }
-
-//   return result;
-//}

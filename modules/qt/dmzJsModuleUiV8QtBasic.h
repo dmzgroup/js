@@ -11,9 +11,8 @@
 //#include <QtCore/QObject>
 //#include <QtCore/QPointer>
 #include <QtCore/QMap>
+#include <QtGui/QMessageBox>
 #include <v8.h>
-
-class QDialog;
 
 
 namespace dmz {
@@ -99,7 +98,6 @@ namespace dmz {
          static V8Value _button_click (const v8::Arguments &Args);
 
          // QDialog bindings implemented in JsModuleUiV8QtBasicDialog.cpp
-//         static V8Value _create_dialog (const v8::Arguments &Args);
          static V8Value _dialog_open (const v8::Arguments &Args);
 
          // QSpinBox bindings implemented in JsModuleUiV8QtBasicSpinBox.cpp
@@ -186,11 +184,7 @@ namespace dmz {
 
          // QMessageBox bindings implemented in JsModuleUiV8QtBasicMessageBox.cpp
          static V8Value _create_message_box (const v8::Arguments &Args);
-         static V8Value _message_box_open (const v8::Arguments &Args);
-         // static V8Value _message_box_critical (const v8::Arguments &Args);
-         static V8Value _message_box_information (const v8::Arguments &Args);
-         // static V8Value _message_box_question (const v8::Arguments &Args);
-         // static V8Value _message_box_warning (const v8::Arguments &Args);
+         QMessageBox *_create_message_box (V8Object params, QWidget *parent);
 
          // QLayout bindings implemented in JsModuleUiV8QtBasicLayout.cpp
          static V8Value _layout_index_of (const v8::Arguments &Args);
@@ -206,7 +200,6 @@ namespace dmz {
          static V8Value _box_layout_direction (const v8::Arguments &Args);
 
          QListWidgetItem *_to_qt_list_widget_item (V8Value value);
-         QDialog *_to_qt_dialog (V8Value value);
          QWidget *_to_qt_widget (V8Value value);
          QLayout *_to_qt_layout (V8Value value);
          V8QtObject *_to_js_qt_object (V8Value value);
@@ -222,7 +215,7 @@ namespace dmz {
          void _init_textEdit ();
          void _init_dial ();
          void _init_label ();
-         void _init_progressBar ();      
+         void _init_progressBar ();
          void _init_dialog ();
          void _init_message_box ();
          void _init_lcdNumber ();
@@ -234,10 +227,6 @@ namespace dmz {
          void _init_hbox_layout ();
          void _init_vbox_layout ();
 
-//         void _reset_message_box_observers ();
-//         void _release_message_box_observer (const Handle InstanceHandle);
-//         V8QtMessageBox * _to_message_box_ptr (V8Value value);
-
          void _init (Config &local);
 
          Log _log;
@@ -247,11 +236,11 @@ namespace dmz {
 
          HashTableHandleTemplate<ObsStruct> _obsTable;
          QMap<QWidget *, V8QtObject *>_widgetMap;
+         QList<QWidget *>_dialogList;
 
 //         HashTableHandleTemplate<V8QtCallbackStruct> _cbTable;
 
          V8InterfaceHelper _qtApi;
-//         V8InterfaceHelper _dialogApi;
          V8InterfaceHelper _messageBoxApi;
 
          V8FunctionTemplatePersist _widgetTemp;
@@ -293,8 +282,11 @@ namespace dmz {
          V8FunctionTemplatePersist _dialogTemp;
          V8FunctionPersist _dialogCtor;
 
-//         V8FunctionTemplatePersist _messageBoxTemp;
-//         V8FunctionPersist _messageBoxCtor;
+         V8StringPersist _mbTypeStr;
+         V8StringPersist _mbTextStr;
+         V8StringPersist _mbInfoTextStr;
+         V8StringPersist _mbStandardButtonsStr;
+         V8StringPersist _mbDefaultButtonStr;
 
          V8FunctionTemplatePersist _lcdNumberTemp;
          V8FunctionPersist _lcdNumberCtor;
@@ -330,14 +322,6 @@ dmz::JsModuleUiV8QtBasic::_to_self (const v8::Arguments &Args) {
 
    return (dmz::JsModuleUiV8QtBasic *)v8::External::Unwrap (Args.Data ());
 }
-
-
-// inline dmz::JsModuleUiV8QtBasic *
-// dmz::JsModuleUiV8QtBasic::_to_object (const v8::Arguments &Args, V8QtObject *object) {
-//
-//    object = _to_object_ptr (Args.This ());
-//    return (dmz::JsModuleUiV8QtBasic *)v8::External::Unwrap (Args.Data ());
-// }
 
 
 #endif // DMZ_JS_MODULE_UI_V8_QT_BASIC_DOT_H
