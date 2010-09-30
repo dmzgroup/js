@@ -45,6 +45,7 @@ dmz::JsModuleUiV8QtBasic::_create_message_box (V8Object params, QWidget *parent)
    if (!params.IsEmpty ()) {
 
       dialog = new QMessageBox (parent);
+//      dialog->setAttribute (Qt::WA_DeleteOnClose);
 
       if (params->Has (_mbTypeStr)) {
 

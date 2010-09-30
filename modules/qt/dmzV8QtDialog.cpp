@@ -2,6 +2,8 @@
 #include "dmzV8QtDialog.h"
 #include <QtGui/QDialog>
 
+#include <QtCore/QDebug>
+
 namespace {
 
    static const dmz::String LocalSignalFinished ("finished");
@@ -15,7 +17,10 @@ dmz::V8QtDialog::V8QtDialog (
       V8QtObject (Self, widget, state) {;}
 
 
-dmz::V8QtDialog::~V8QtDialog () {;}
+dmz::V8QtDialog::~V8QtDialog () {
+
+   qWarning () << "--=-=-=-=-=-=-=--=-=---===--==-=-=-=-=-=-=-=---=-=-= V8QtDialog dtor";
+}
 
 
 dmz::Boolean
@@ -102,6 +107,8 @@ dmz::V8QtDialog::on_finished (int value) {
                }
             }
          }
+
+         self.Dispose (); self.Clear ();
       }
    }
 }

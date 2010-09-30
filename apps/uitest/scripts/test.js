@@ -28,28 +28,33 @@ if(button2) {
    });
 }
 
+
 button1 = form.lookup("button1");
 if(button1) {
    // button1.enabled(false);
    button1.observe (self, "clicked", function () {
       button1.text(self.name);
       // button1.enabled(false);
-//      messageBox.critical();
+
+puts("messageBox.create");
       var mb = messageBox.create(
          form,
          {
             type: messageBox.Information,
             text: "Some Text",
-            informativeText: "This is some informative Text"
-            // standardButtons: [messageBox.Ok]
+            informativeText: "This is some informative Text",
+            standardButtons: [messageBox.Ok, messageBox.Cancel, messageBox.Save],
+            defaultButton: messageBox.Cancel
          }
       );
-      mb.open(self, function () {
-         puts("mb: dialog closed");
-      });
-//      messageBox.question();
-//      messageBox.warning();
-      button1.hide();
+      
+      if (mb) {
+         
+         mb.open(self, function () {
+            puts("mb: dialog closed");
+            button1.hide();
+         });
+      }
    });
 }
 

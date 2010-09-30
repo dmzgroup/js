@@ -289,9 +289,75 @@ dmz::JsModuleUiV8QtBasic::update_js_context_v8 (v8::Handle<v8::Context> context)
 void
 dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
+   v8::Context::Scope cscope (_state.context);
    v8::HandleScope scope;
 
    if (State == JsExtV8::Register) {
+
+      if (!_widgetTemp.IsEmpty ()) {
+
+         _widgetCtor = V8FunctionPersist::New (_widgetTemp->GetFunction ());
+      }
+
+      if (!_buttonTemp.IsEmpty ()) {
+
+         _buttonCtor = V8FunctionPersist::New (_buttonTemp->GetFunction ());
+      }
+
+      if (!_listWidgetItemTemp.IsEmpty ()) {
+
+         _listWidgetItemCtor = V8FunctionPersist::New (_listWidgetItemTemp->GetFunction ());
+      }
+
+      if (!_listWidgetTemp.IsEmpty ()) {
+
+         _listWidgetCtor = V8FunctionPersist::New (_listWidgetTemp->GetFunction ());
+      }
+
+      if (!_spinBoxTemp.IsEmpty ()) {
+
+         _spinBoxCtor = V8FunctionPersist::New (_spinBoxTemp->GetFunction ());
+      }
+
+      if (!_comboBoxTemp.IsEmpty ()) {
+
+         _comboBoxCtor = V8FunctionPersist::New (_comboBoxTemp->GetFunction ());
+      }
+
+      if (!_sliderTemp.IsEmpty ()) {
+
+         _sliderCtor = V8FunctionPersist::New (_sliderTemp->GetFunction ());
+      }
+
+      if (!_lineEditTemp.IsEmpty ()) {
+
+         _lineEditCtor = V8FunctionPersist::New (_lineEditTemp->GetFunction ());
+      }
+
+      if (!_textEditTemp.IsEmpty ()) {
+
+         _textEditCtor = V8FunctionPersist::New (_textEditTemp->GetFunction ());
+      }
+
+      if (!_dialTemp.IsEmpty ()) {
+
+         _dialCtor = V8FunctionPersist::New (_dialTemp->GetFunction ());
+      }
+
+      if (!_labelTemp.IsEmpty ()) {
+
+         _labelCtor = V8FunctionPersist::New (_labelTemp->GetFunction ());
+      }
+
+      if (!_progressBarTemp.IsEmpty ()) {
+
+         _progressBarCtor = V8FunctionPersist::New (_progressBarTemp->GetFunction ());
+      }
+
+      if (!_dialogTemp.IsEmpty ()) {
+
+         _dialogCtor = V8FunctionPersist::New (_dialogTemp->GetFunction ());
+      }
 
       if (_state.core) {
 
@@ -301,28 +367,15 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
             "dmz/components/ui/messageBox",
             _messageBoxApi.get_new_instance ());
       }
-   }
-   else if (State == JsExtV8::Init) {
-
-      _widgetCtor = V8FunctionPersist::New (_widgetTemp->GetFunction ());
-      _buttonCtor = V8FunctionPersist::New (_buttonTemp->GetFunction ());
-      _listWidgetItemCtor = V8FunctionPersist::New (_listWidgetItemTemp->GetFunction ());
-      _listWidgetCtor = V8FunctionPersist::New (_listWidgetTemp->GetFunction ());
-      _spinBoxCtor = V8FunctionPersist::New (_spinBoxTemp->GetFunction ());
-      _comboBoxCtor = V8FunctionPersist::New (_comboBoxTemp->GetFunction ());
-      _sliderCtor = V8FunctionPersist::New (_sliderTemp->GetFunction ());
-      _lineEditCtor = V8FunctionPersist::New (_lineEditTemp->GetFunction ());
-      _textEditCtor = V8FunctionPersist::New (_textEditTemp->GetFunction ());
-      _dialCtor = V8FunctionPersist::New (_dialTemp->GetFunction ());
-      _labelCtor = V8FunctionPersist::New (_labelTemp->GetFunction ());
-      _progressBarCtor = V8FunctionPersist::New (_progressBarTemp->GetFunction ());
-      _dialogCtor = V8FunctionPersist::New (_dialogTemp->GetFunction ());
 
       _mbTypeStr = V8StringPersist::New (v8::String::NewSymbol ("type"));
       _mbTextStr = V8StringPersist::New (v8::String::NewSymbol ("text"));
       _mbInfoTextStr = V8StringPersist::New (v8::String::NewSymbol ("informativeText"));
       _mbStandardButtonsStr = V8StringPersist::New (v8::String::NewSymbol ("standardButtons"));
       _mbDefaultButtonStr = V8StringPersist::New (v8::String::NewSymbol ("defaultButton"));
+   }
+   else if (State == JsExtV8::Init) {
+
    }
    else if (State == JsExtV8::Stop) {
 
@@ -351,15 +404,15 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _buttonCtor.Dispose (); _buttonCtor.Clear ();
       _listWidgetItemCtor.Dispose (); _listWidgetItemCtor.Clear ();
       _listWidgetCtor.Dispose (); _listWidgetCtor.Clear ();
-      _spinBoxCtor.Dispose (); _spinBoxTemp.Clear ();
-      _comboBoxCtor.Dispose (); _comboBoxTemp.Clear ();
-      _sliderCtor.Dispose (); _sliderTemp.Clear ();
-      _lineEditCtor.Dispose (); _lineEditTemp.Clear ();
-      _textEditCtor.Dispose (); _textEditTemp.Clear ();
-      _dialCtor.Dispose (); _dialTemp.Clear ();
-      _labelCtor.Dispose (); _labelTemp.Clear ();
-      _progressBarCtor.Dispose (); _progressBarTemp.Clear ();
-      _dialogCtor.Dispose (); _dialogTemp.Clear ();
+      _spinBoxCtor.Dispose (); _spinBoxCtor.Clear ();
+      _comboBoxCtor.Dispose (); _comboBoxCtor.Clear ();
+      _sliderCtor.Dispose (); _sliderCtor.Clear ();
+      _lineEditCtor.Dispose (); _lineEditCtor.Clear ();
+      _textEditCtor.Dispose (); _textEditCtor.Clear ();
+      _dialCtor.Dispose (); _dialCtor.Clear ();
+      _labelCtor.Dispose (); _labelCtor.Clear ();
+      _progressBarCtor.Dispose (); _progressBarCtor.Clear ();
+      _dialogCtor.Dispose (); _dialogCtor.Clear ();
 
       _mbTypeStr.Dispose (); _mbTypeStr.Clear ();
       _mbTextStr.Dispose (); _mbTextStr.Clear ();
@@ -370,6 +423,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _qtApi.clear ();
       _messageBoxApi.clear ();
       _state.context.Clear ();
+
+      _obsTable.empty ();
    }
 }
 
