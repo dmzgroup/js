@@ -383,6 +383,21 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _dialogCtor = V8FunctionPersist::New (_dialogTemp->GetFunction ());
       }
 
+      if (!_lcdNumberTemp.IsEmpty ()) {
+
+         _lcdNumberCtor = V8FunctionPersist::New (_lcdNumberTemp->GetFunction ());
+      }
+
+      if (!_stackedCtor.IsEmpty ()) {
+
+         _stackedCtor = V8FunctionPersist::New (_stackedWidgetTemp->GetFunction ());
+      }
+
+      if (!_tabCtor.IsEmpty ()) {
+
+         _tabCtor = V8FunctionPersist::New (_tabWidgetTemp->GetFunction ());
+      }
+
       if (_state.core) {
 
          _state.core->register_interface ("dmz/components/ui", _qtApi.get_new_instance ());
@@ -400,9 +415,6 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
    }
    else if (State == JsExtV8::Init) {
 
-      _lcdNumberCtor = V8FunctionPersist::New (_lcdNumberTemp->GetFunction ());
-      _stackedCtor = V8FunctionPersist::New (_stackedWidgetTemp->GetFunction ());
-      _tabCtor = V8FunctionPersist::New (_tabWidgetTemp->GetFunction ());
    }
    else if (State == JsExtV8::Stop) {
 
@@ -441,8 +453,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _progressBarCtor.Dispose (); _progressBarCtor.Clear ();
       _dialogCtor.Dispose (); _dialogCtor.Clear ();
       _lcdNumberCtor.Dispose (); _lcdNumberCtor.Clear ();
-      _stackedCtor.Dispose (); _stackedWidgetCtor.Clear ();
-      _tabCtor.Dispose (); _tabWidgetCtor.Clear ();
+      _stackedCtor.Dispose (); _stackedCtor.Clear ();
+      _tabCtor.Dispose (); _tabCtor.Clear ();
 
       _qtApi.clear ();
       _messageBoxApi.clear ();
