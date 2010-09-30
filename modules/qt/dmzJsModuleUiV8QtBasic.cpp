@@ -342,6 +342,10 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _lcdNumberCtor = V8FunctionPersist::New (_lcdNumberTemp->GetFunction ());
       _stackedCtor = V8FunctionPersist::New (_stackedWidgetTemp->GetFunction ());
       _tabCtor = V8FunctionPersist::New (_tabWidgetTemp->GetFunction ());
+      _hBoxLayoutCtor = V8FunctionPersist::New (_hBoxLayoutTemp->GetFunction ());
+      _vBoxLayoutCtor = V8FunctionPersist::New (_vBoxLayoutTemp->GetFunction ());
+      _boxLayoutCtor = V8FunctionPersist::New (_boxLayoutTemp->GetFunction ());
+      _layoutCtor = V8FunctionPersist::New (_layoutTemp->GetFunction ());
    }
    else if (State == JsExtV8::Stop) {
 
@@ -375,6 +379,10 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _lcdNumberCtor.Dispose (); _lcdNumberTemp.Clear ();
       _stackedCtor.Dispose (); _stackedWidgetTemp.Clear ();
       _tabCtor.Dispose (); _tabWidgetTemp.Clear ();
+      _hBoxLayoutCtor.Dispose (); _hBoxLayoutTemp.Clear ();
+      _vBoxLayoutCtor.Dispose (); _vBoxLayoutTemp.Clear ();
+      _boxLayoutCtor.Dispose (); _boxLayoutTemp.Clear ();
+      _layoutCtor.Dispose (); _layoutTemp.Clear ();
 
       _qtApi.clear ();
       _messageBoxApi.clear ();
@@ -442,6 +450,24 @@ dmz::JsModuleUiV8QtBasic::_to_qt_widget (V8Value value) {
 }
 
 
+QLayout *
+dmz::JsModuleUiV8QtBasic::_to_qt_layout (V8Value value) {
+
+   v8::HandleScope scope;
+   QLayout *result (0);
+
+   V8Object obj = v8_to_object (value);
+   if (!obj.IsEmpty ()) {
+
+      if (_layoutTemp->HasInstance (obj)) {
+
+         result = (QLayout *)v8::External::Unwrap (obj->GetInternalField (0));
+      }
+   }
+
+   return result;
+}
+
 dmz::V8QtObject *
 dmz::JsModuleUiV8QtBasic::_to_js_qt_object (V8Value value) {
 
@@ -489,6 +515,11 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_lcdNumber ();
    _init_stacked_widget ();
    _init_tab_widget ();
+
+   _init_layout ();
+   _init_box_layout ();
+   _init_hbox_layout ();
+   _init_vbox_layout ();
 }
 
 
