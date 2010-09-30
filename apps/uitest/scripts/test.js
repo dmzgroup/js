@@ -11,7 +11,7 @@ var puts = require('sys').puts
 
 puts("Script: " + self.name);
 
-form = ui.load("./scripts/TestForm.ui");
+form = ui.load("TestForm");
 form.show();
 
 button2 = form.lookup("button2");

@@ -7,6 +7,7 @@
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
 #include <dmzTypesHashTableHandleTemplate.h>
+#include <dmzTypesStringContainer.h>
 #include <QtCore/QList>
 //#include <QtCore/QObject>
 //#include <QtCore/QPointer>
@@ -187,6 +188,7 @@ namespace dmz {
          QWidget *_to_qt_widget (V8Value value);
          V8QtObject *_to_js_qt_object (V8Value value);
 
+
          void _init_widget ();
          void _init_button ();
          void _init_list_widget ();
@@ -205,9 +207,12 @@ namespace dmz {
          void _init_stacked_widget ();
          void _init_tab_widget ();
 
+         String _find_ui_file (const String &Name);
          void _init (Config &local);
 
          Log _log;
+
+         StringContainer _searchPaths;
 
          JsModuleUiV8QtBasicState _state;
          V8ValuePersist _self;

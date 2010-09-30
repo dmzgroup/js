@@ -1,8 +1,10 @@
 #include "dmzJsModuleUiV8QtBasic.h"
 #include <dmzJsModuleV8.h>
 #include <dmzJsV8UtilConvert.h>
+#include <dmzRuntimeConfigToStringContainer.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
+#include <dmzSystemFile.h>
 #include <dmzTypesStringTokenizer.h>
 #include "dmzV8QtTypes.h"
 #include <QtCore/QFile>
@@ -62,18 +64,28 @@ dmz::JsModuleUiV8QtBasic::_uiloader_load (const v8::Arguments &Args) {
 
    if (self && Name) {
 
-      QUiLoader loader;
-      QFile file (Name.get_buffer ());
-      file.open (QFile::ReadOnly);
-      QWidget *widget = loader.load (&file, 0);
-      file.close ();
+      const String FileName = self->_find_ui_file (Name);
 
-      result = self->create_v8_widget (widget);
+      if (FileName) {
 
-      if (!result.IsEmpty ()) {
+         QUiLoader loader;
+         QFile file (FileName.get_buffer ());
+         file.open (QFile::ReadOnly);
+         QWidget *widget = loader.load (&file, 0);
+         file.close ();
 
-         self->_log.info << "Loaded UI: " << Name << endl;
+         result = self->create_v8_widget (widget);
+
+         if (!result.IsEmpty ()) {
+
+            self->_log.info << "Loaded UI: " << FileName << endl;
+         }
+         else {
+
+            self->_log.error << "Failed to load UI file: " << FileName << endl;
+         }
       }
+      else { self->_log.error << "Failed to find UI file: " << Name << endl; }
    }
 
    return scope.Close (result);
@@ -534,8 +546,25 @@ dmz::JsModuleUiV8QtBasic::_to_js_qt_object (V8Value value) {
 
 
 // JsModuleUiV8QtBasic Interface
+
+dmz::String
+dmz::JsModuleUiV8QtBasic::_find_ui_file (const String &Name) {
+
+   String result;
+
+   if (!find_file (_searchPaths, Name, result)) {
+
+      find_file (_searchPaths, Name + ".ui", result);
+   }
+
+   return result;
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init (Config &local) {
+
+   _searchPaths = config_to_path_string_container (local);
 
    v8::HandleScope scope;
 
