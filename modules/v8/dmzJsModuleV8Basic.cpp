@@ -274,6 +274,20 @@ dmz::JsModuleV8Basic::update_time_slice (const Float64 DeltaTime) {
 }
 
 // JsModule Interface
+dmz::String
+dmz::JsModuleV8Basic::find_script (const String &Name) {
+
+   String result;
+
+   if (!find_file (_localPaths, Name, result)) {
+
+      find_file (_localPaths, Name + ".js", result);
+   }
+
+   return result;
+}
+
+
 void
 dmz::JsModuleV8Basic::lookup_script_names (StringContainer &list) {
 
@@ -354,6 +368,8 @@ dmz::JsModuleV8Basic::recompile_script (
       InstanceStruct *is (0);
 
       while (info->table.get_next (inIt, is)) { _shutdown_instance (*is); }
+
+      inIt.reset ();
       while (info->table.get_next (inIt, is)) { _release_instance (*is); }
 
       V8ExternalString *sptr = new V8ExternalString (
@@ -368,6 +384,7 @@ dmz::JsModuleV8Basic::recompile_script (
 
       result = _reload_script (*info);
 
+      inIt.reset ();
       if (result) { while (info->table.get_next (inIt, is)) { _create_instance (*is); } }
    }
 
@@ -655,6 +672,7 @@ dmz::JsModuleV8Basic::destroy_instance (const Handle Instance) {
 
          _instanceTable.remove (is->Object);
          _instanceNameTable.remove (is->Name);
+         _defs.release_unique_name (is->Name);
 
          delete is; is = 0;
          result = True;
@@ -1235,6 +1253,8 @@ dmz::JsModuleV8Basic::_reload_script (ScriptStruct &info) {
       sptr = new V8FileString (info.FileName, LocalInstanceHeader, LocalFooter);
    }
 
+   info.compileCount++;
+
    v8::Handle<v8::Script> script = v8::Script::Compile (
       v8::String::NewExternal (sptr),
       v8::String::New (info.FileName.get_buffer ()));
@@ -1291,7 +1311,10 @@ dmz::JsModuleV8Basic::_create_instance (InstanceStruct &instance) {
 
    Boolean result (False);
 
-   if (_context.IsEmpty () == false) {
+   if ((_context.IsEmpty () == false) &&
+         (instance.compileCount != instance.script.compileCount)) {
+
+      instance.compileCount = instance.script.compileCount;
 
       v8::Context::Scope cscope (_context);
       v8::HandleScope scope;
