@@ -58,6 +58,7 @@ lmk.add_files {
    "dmzJsModuleUiV8QtBasicLCDNumber.cpp",
    "dmzJsModuleUiV8QtBasicStackedWidget.cpp",
    "dmzJsModuleUiV8QtBasicTabWidget.cpp",
+   "dmzJsModuleUiV8QtBasicLayout.cpp",
    "dmzJsModuleUiV8QtBasic.cpp",
 }
 

@@ -425,6 +425,10 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _state.core->register_interface (
             "dmz/components/ui/messageBox",
             _messageBoxApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/components/ui/layout",
+            _layoutApi.get_new_instance ());
       }
 
       _mbTypeStr = V8StringPersist::New (v8::String::NewSymbol ("type"));
@@ -482,6 +486,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
       _qtApi.clear ();
       _messageBoxApi.clear ();
+      _layoutApi.clear ();
       _state.context.Clear ();
 
       _obsTable.empty ();

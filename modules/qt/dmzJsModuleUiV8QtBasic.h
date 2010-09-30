@@ -198,6 +198,9 @@ namespace dmz {
          static V8Value _box_layout_add_stretch (const v8::Arguments &Args);
          static V8Value _box_layout_add_widget (const v8::Arguments &Args);
          static V8Value _box_layout_direction (const v8::Arguments &Args);
+         static V8Value _create_box_layout (const v8::Arguments &Args);
+         static V8Value _create_hbox_layout (const v8::Arguments &Args);
+         static V8Value _create_vbox_layout (const v8::Arguments &Args);
 
          QListWidgetItem *_to_qt_list_widget_item (V8Value value);
          QWidget *_to_qt_widget (V8Value value);
@@ -242,6 +245,7 @@ namespace dmz {
 
          V8InterfaceHelper _qtApi;
          V8InterfaceHelper _messageBoxApi;
+         V8InterfaceHelper _layoutApi;
 
          V8FunctionTemplatePersist _widgetTemp;
          V8FunctionPersist _widgetCtor;

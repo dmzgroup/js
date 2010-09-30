@@ -113,7 +113,7 @@ dmz::JsModuleUiV8QtBasic::_layout_enabled (const v8::Arguments &Args) {
 
 
 dmz::V8Value
-dmz::JsModuleUiV8QtBasic::_layout_enabled (const v8::Arguments &Args) {
+dmz::JsModuleUiV8QtBasic::_layout_at (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result = v8::Undefined ();
@@ -128,7 +128,12 @@ dmz::JsModuleUiV8QtBasic::_layout_enabled (const v8::Arguments &Args) {
 
          if (Args.Length () > 0) {
 
-            result = layout->itemAt (v8_to_int32 (Args[0]));
+            QWidget *qw = layout->itemAt (v8_to_int32 (Args[0]))->widget ();
+
+            if (qw) {
+
+               result = self->create_v8_widget (qw);
+            }
          }
       }
    }
@@ -173,7 +178,7 @@ dmz::JsModuleUiV8QtBasic::_layout_parent (const v8::Arguments &Args) {
 
       if (layout) {
 
-         result = self->create_v8_widget (layout->parent ());
+         result = self->create_v8_widget (layout->parentWidget ());
       }
    }
 
@@ -340,4 +345,109 @@ dmz::JsModuleUiV8QtBasic::_init_box_layout () {
    proto->Set ("addStretch", v8::FunctionTemplate::New (_box_layout_add_stretch, _self));
    proto->Set ("addWidget", v8::FunctionTemplate::New (_box_layout_add_widget, _self));
    proto->Set ("direction", v8::FunctionTemplate::New (_box_layout_direction, _self));
+
+//   enum	Direction { LeftToRight, RightToLeft, TopToBottom, BottomToTop }
+   _layoutApi.add_constant ("LeftToRight", (UInt32)QBoxLayout::LeftToRight);
+   _layoutApi.add_constant ("RightToLeft", (UInt32)QBoxLayout::RightToLeft);
+   _layoutApi.add_constant ("TopToBottom", (UInt32)QBoxLayout::TopToBottom);
+   _layoutApi.add_constant ("BottomToTop", (UInt32)QBoxLayout::BottomToTop);
+   _layoutApi.add_function ("createBoxLayout", _create_box_layout, _self);
+}
+
+void
+dmz::JsModuleUiV8QtBasic::_init_hbox_layout () {
+
+   v8::HandleScope scope;
+
+   _hBoxLayoutTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
+   _hBoxLayoutTemp->Inherit (_boxLayoutTemp);
+
+   V8ObjectTemplate instance = _hBoxLayoutTemp->InstanceTemplate ();
+   instance->SetInternalFieldCount (1);
+
+   _layoutApi.add_function ("createHBoxLayout", _create_hbox_layout, _self);
+}
+
+void
+dmz::JsModuleUiV8QtBasic::_init_vbox_layout () {
+
+   v8::HandleScope scope;
+
+   _vBoxLayoutTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
+   _vBoxLayoutTemp->Inherit (_boxLayoutTemp);
+
+   V8ObjectTemplate instance = _vBoxLayoutTemp->InstanceTemplate ();
+   instance->SetInternalFieldCount (1);
+
+   _layoutApi.add_function ("createVBoxLayout", _create_vbox_layout, _self);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_box_layout (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = 0;
+
+      parent = self->_to_qt_widget (Args[0]);
+
+      if (!parent) {
+
+         parent = self->_to_qt_widget (Args[1]);
+      }
+
+      int direction = v8_to_int32 (Args[0]);
+      if ((direction < 0) || (direction > 3)) {
+
+         direction = 0;
+      }
+
+      QBoxLayout *layout = new QBoxLayout((QBoxLayout::Direction)direction, parent);
+      result = self->create_v8_layout (layout);
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_hbox_layout (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = self->_to_qt_widget (Args[0]);
+
+      QHBoxLayout *layout = new QHBoxLayout(parent);
+      result = self->create_v8_layout (layout);
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_vbox_layout (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = self->_to_qt_widget (Args[0]);
+
+      QVBoxLayout *layout = new QVBoxLayout(parent);
+      result = self->create_v8_layout (layout);
+   }
+
+   return scope.Close (result);
 }
