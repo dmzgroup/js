@@ -17,8 +17,7 @@
 <javascript>
    <path value="./scripts"/>
    <path value="../../scripts"/>
-   <instance name="test"/>
-<!--
+<!--   <instance name="test"/>
    <instance name="spin"/>
    <instance name="combobox"/>
    <instance name="slider"/>
@@ -31,8 +30,9 @@
    <instance name="dialog"/>
    <instance name="lcd"/>
    <instance name="stacked"/>
-   <instance name="tab"/>
--->
+   <instance name="tab"/>-->
+   <instance name="layout"/>
+
 </javascript>
 <test>
    <name value="my_name"/>

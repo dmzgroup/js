@@ -187,6 +187,56 @@ dmz::JsModuleUiV8QtBasic::_widget_show (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_set_layout (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qt_widget (Args.This ());
+      if (Args.Length () > 0) {
+
+         QLayout *layout = self->_to_qt_layout (Args[0]);
+         if (layout) {
+
+            widget->setLayout (layout);
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_set_layout_direction (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qt_widget (Args.This ());
+      if (Args.Length () > 0) {
+
+         int direction = v8_to_int32 (Args[0]);
+         if ((direction < 0) || (direction > 3)) {
+
+            direction = 0;
+         }
+
+         widget->setLayoutDirection ((Qt::LayoutDirection)direction);
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_widget () {
 
@@ -204,5 +254,9 @@ dmz::JsModuleUiV8QtBasic::_init_widget () {
    proto->Set ("show", v8::FunctionTemplate::New (_widget_show, _self));
    proto->Set ("hide", v8::FunctionTemplate::New (_widget_hide, _self));
    proto->Set ("observe", v8::FunctionTemplate::New (_widget_observe, _self));
+   proto->Set ("setLayout", v8::FunctionTemplate::New (_widget_set_layout, _self));
+   proto->Set (
+      "setLayoutDirection",
+      v8::FunctionTemplate::New (_widget_set_layout_direction, _self));
 }
 
