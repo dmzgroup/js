@@ -183,6 +183,19 @@ namespace dmz {
          static V8Value _create_message_box (const v8::Arguments &Args);
          QMessageBox *_create_message_box (V8Object params, QWidget *parent);
 
+         // QFileDialog bindings implemented in JsModuleUiV8QtBasicFileDialog.cpp
+         static V8Value _file_dialog_get_existing_directory (const v8::Arguments &Args);
+         static V8Value _file_dialog_get_open_file_name (const v8::Arguments &Args);
+//         static V8Value _file_dialog_get_save_file_name (const v8::Arguments &Args);
+
+         void _get_file_dialog_params (
+            V8Object params,
+            QString &caption,
+            QString &dir,
+            QString &filter,
+            Boolean &allowMultiple);
+
+
          QListWidgetItem *_to_qt_list_widget_item (V8Value value);
          QWidget *_to_qt_widget (V8Value value);
          V8QtObject *_to_js_qt_object (V8Value value);
@@ -204,6 +217,7 @@ namespace dmz {
          void _init_lcdNumber ();
          void _init_stacked_widget ();
          void _init_tab_widget ();
+         void _init_file_dialog ();
 
          void _init (Config &local);
 
@@ -220,6 +234,7 @@ namespace dmz {
 
          V8InterfaceHelper _qtApi;
          V8InterfaceHelper _messageBoxApi;
+         V8InterfaceHelper _fileDialogApi;
 
          V8FunctionTemplatePersist _widgetTemp;
          V8FunctionPersist _widgetCtor;
@@ -260,12 +275,6 @@ namespace dmz {
          V8FunctionTemplatePersist _dialogTemp;
          V8FunctionPersist _dialogCtor;
 
-         V8StringPersist _mbTypeStr;
-         V8StringPersist _mbTextStr;
-         V8StringPersist _mbInfoTextStr;
-         V8StringPersist _mbStandardButtonsStr;
-         V8StringPersist _mbDefaultButtonStr;
-
          V8FunctionTemplatePersist _lcdNumberTemp;
          V8FunctionPersist _lcdNumberCtor;
 
@@ -274,6 +283,18 @@ namespace dmz {
 
          V8FunctionTemplatePersist _tabWidgetTemp;
          V8FunctionPersist _tabCtor;
+
+         V8StringPersist _typeStr;
+         V8StringPersist _textStr;
+         V8StringPersist _infoTextStr;
+         V8StringPersist _standardButtonsStr;
+         V8StringPersist _defaultButtonStr;
+
+         V8StringPersist _captionStr;
+         V8StringPersist _dirStr;
+         V8StringPersist _filterStr;
+         V8StringPersist _optionsStr;
+         V8StringPersist _allowMultipleStr;
 
       private:
          JsModuleUiV8QtBasic ();

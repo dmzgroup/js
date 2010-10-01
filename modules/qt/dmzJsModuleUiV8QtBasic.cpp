@@ -405,13 +405,23 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _state.core->register_interface (
             "dmz/components/ui/messageBox",
             _messageBoxApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/components/ui/fileDialog",
+            _fileDialogApi.get_new_instance ());
       }
 
-      _mbTypeStr = V8StringPersist::New (v8::String::NewSymbol ("type"));
-      _mbTextStr = V8StringPersist::New (v8::String::NewSymbol ("text"));
-      _mbInfoTextStr = V8StringPersist::New (v8::String::NewSymbol ("informativeText"));
-      _mbStandardButtonsStr = V8StringPersist::New (v8::String::NewSymbol ("standardButtons"));
-      _mbDefaultButtonStr = V8StringPersist::New (v8::String::NewSymbol ("defaultButton"));
+      _typeStr = V8StringPersist::New (v8::String::NewSymbol ("type"));
+      _textStr = V8StringPersist::New (v8::String::NewSymbol ("text"));
+      _infoTextStr = V8StringPersist::New (v8::String::NewSymbol ("informativeText"));
+      _standardButtonsStr = V8StringPersist::New (v8::String::NewSymbol ("standardButtons"));
+      _defaultButtonStr = V8StringPersist::New (v8::String::NewSymbol ("defaultButton"));
+
+      _captionStr = V8StringPersist::New (v8::String::NewSymbol ("caption"));
+      _dirStr = V8StringPersist::New (v8::String::NewSymbol ("dir"));
+      _filterStr = V8StringPersist::New (v8::String::NewSymbol ("filter"));
+      _optionsStr = V8StringPersist::New (v8::String::NewSymbol ("options"));
+      _allowMultipleStr = V8StringPersist::New (v8::String::NewSymbol ("allowMultiple"));
    }
    else if (State == JsExtV8::Init) {
 
@@ -458,6 +468,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
       _qtApi.clear ();
       _messageBoxApi.clear ();
+      _fileDialogApi.clear ();
       _state.context.Clear ();
 
       _obsTable.empty ();
@@ -561,6 +572,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_lcdNumber ();
    _init_stacked_widget ();
    _init_tab_widget ();
+   _init_file_dialog ();
 }
 
 
