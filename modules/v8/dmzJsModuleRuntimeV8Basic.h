@@ -26,7 +26,8 @@ namespace dmz {
    class JsModuleRuntimeV8Basic :
          public Plugin,
          public JsModuleRuntimeV8,
-         public JsExtV8 {
+         public JsExtV8,
+         public UndoObserver {
 
       public:
          static JsModuleRuntimeV8Basic *to_self (const v8::Arguments &Args);
@@ -65,6 +66,16 @@ namespace dmz {
             const String &InstanceName,
             v8::Handle<v8::Object> &instance);
 
+         // UndoObserver Interface (implemented in dmzJsModuleRuntimeV8BasicUndo.cpp)
+         virtual void update_recording_state (
+            const UndoRecordingStateEnum RecordingState,
+            const UndoRecordingTypeEnum RecordingType,
+            const UndoTypeEnum UndoType);
+
+         virtual void update_current_undo_names (
+            const String *NextUndoName,
+            const String *NextRedoName);
+
          // JsModuleRuntimeV8Basic Interface
          void handle_v8_exception (const Handle Source, v8::TryCatch &tc);
          // implemented in dmzJsModuleRuntimeV8BasicTimer.cpp
@@ -74,6 +85,7 @@ namespace dmz {
       protected:
          struct MessageStruct;
          struct TimerStruct;
+         struct UndoStruct;
          // Static Functions
          // Config bindings implemented in dmzJsModuleRuntimeV8BasicConfig.cpp
          static V8Value _create_config (const v8::Arguments &Args);
@@ -172,6 +184,8 @@ namespace dmz {
          static V8Value _undo_stop_record (const v8::Arguments &Args);
          static V8Value _undo_abort_record (const v8::Arguments &Args);
          static V8Value _undo_store_action (const v8::Arguments &Args);
+         static V8Value _undo_observe (const v8::Arguments &Args);
+         static V8Value _undo_release (const v8::Arguments &Args);
 
          // JsModuleRuntimeV8Basic Interface
          Handle _to_handle (V8Value value);
@@ -205,6 +219,7 @@ namespace dmz {
          void _reset_time ();
          // implemented in dmzJsModuleRuntimeV8BasicUndo.cpp
          void _init_undo ();
+         void _reset_undo ();
          // implemented in dmzJsModuleRuntimeV8Basic.cpp
          void _init (Config &local);
 
@@ -235,6 +250,9 @@ namespace dmz {
 
          HashTableHandleTemplate<MessageStruct> _msgTable;
          HashTableHandleTemplate<TimerStruct> _timerTable;
+
+         HashTableHandleTemplate<UndoStruct> _undoStateTable;
+         HashTableHandleTemplate<UndoStruct> _undoNamesTable;
 
          v8::Persistent<v8::FunctionTemplate> _configFuncTemplate;
          v8::Persistent<v8::Function> _configFunc;

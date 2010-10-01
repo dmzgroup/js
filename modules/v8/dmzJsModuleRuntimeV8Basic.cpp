@@ -11,6 +11,7 @@ dmz::JsModuleRuntimeV8Basic::JsModuleRuntimeV8Basic (
       Plugin (Info),
       JsModuleRuntimeV8 (Info),
       JsExtV8 (Info),
+      UndoObserver (Info),
       _log (Info),
       _time (Info),
       _defs (Info, &_log),
@@ -194,6 +195,7 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
 
       _reset_time ();
       _reset_messaging ();
+      _reset_undo ();
 
       _v8Context.Clear ();
    }
