@@ -217,9 +217,11 @@ namespace dmz {
          // implemented in dmzJsModuleRuntimeV8BasicTimer.cpp
          void _init_time ();
          void _reset_time ();
+         void _release_timer (const Handle InstanceHandle);
          // implemented in dmzJsModuleRuntimeV8BasicUndo.cpp
          void _init_undo ();
          void _reset_undo ();
+         void _release_undo_observer (const Handle InstanceHandle);
          // implemented in dmzJsModuleRuntimeV8Basic.cpp
          void _init (Config &local);
 

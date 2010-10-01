@@ -339,3 +339,12 @@ dmz::JsModuleRuntimeV8Basic::_reset_time () {
    _timerTable.clear ();
 }
 
+
+void
+dmz::JsModuleRuntimeV8Basic::_release_timer (const Handle InstanceHandle) {
+
+   TimerStruct *list = _timerTable.remove (InstanceHandle);
+
+   if (list) { delete_list (list); }
+}
+

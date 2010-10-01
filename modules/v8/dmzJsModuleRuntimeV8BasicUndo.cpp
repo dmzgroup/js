@@ -28,6 +28,35 @@ dmz::JsModuleRuntimeV8Basic::update_recording_state (
       const UndoRecordingTypeEnum RecordingType,
       const UndoTypeEnum UndoType) {
 
+   if (_v8Context.IsEmpty () == False) {
+
+      v8::Context::Scope cscope (_v8Context);
+      v8::HandleScope scope;
+
+      V8Number state = v8::Integer::NewFromUnsigned (RecordingState);
+      V8Number type = v8::Integer::NewFromUnsigned (RecordingType);
+      V8Number mode = v8::Integer::NewFromUnsigned (UndoType);
+
+      HashTableHandleIterator it;
+      UndoStruct *us (0);
+
+      while (_undoStateTable.get_next (it, us)) {
+
+         v8::Handle<v8::Value> argv[] = { state, type, mode, us->self };
+
+         v8::TryCatch tc;
+
+         us->func->Call (us->self, 4, argv);
+
+         if (tc.HasCaught ()) {
+
+            if (_core) { _core->handle_v8_exception (it.get_hash_key (), tc); }
+
+            us = _undoStateTable.remove (it.get_hash_key ());
+            if (us) { delete us; us = 0; }
+         }
+      }
+   }
 }
 
 
@@ -36,6 +65,37 @@ dmz::JsModuleRuntimeV8Basic::update_current_undo_names (
       const String *NextUndoName,
       const String *NextRedoName) {
 
+   if (_v8Context.IsEmpty () == False) {
+
+      v8::Context::Scope cscope (_v8Context);
+      v8::HandleScope scope;
+
+      V8Value undo = NextUndoName && *NextUndoName ?
+         v8::String::New (NextUndoName->get_buffer ()) : v8::Undefined ();
+
+      V8Value redo = NextRedoName && *NextRedoName ?
+         v8::String::New (NextRedoName->get_buffer ()) : v8::Undefined ();
+
+      HashTableHandleIterator it;
+      UndoStruct *us (0);
+
+      while (_undoNamesTable.get_next (it, us)) {
+
+         v8::Handle<v8::Value> argv[] = { undo, redo, us->self };
+
+         v8::TryCatch tc;
+
+         us->func->Call (us->self, 3, argv);
+
+         if (tc.HasCaught ()) {
+
+            if (_core) { _core->handle_v8_exception (it.get_hash_key (), tc); }
+
+            us = _undoNamesTable.remove (it.get_hash_key ());
+            if (us) { delete us; us = 0; }
+         }
+      }
+   }
 }
 
 
@@ -267,9 +327,68 @@ dmz::JsModuleRuntimeV8Basic::_undo_release (const v8::Arguments &Args) {
 
    JsModuleRuntimeV8Basic *self = to_self (Args);
 
-   if (self) {
+   if (self && self->_core) {
 
-      
+      V8Object obj = v8_to_object (Args[0]);
+      String type;
+      V8Function func;
+
+      const Handle Instance = self->_core->get_instance_handle (obj);
+
+      if (Args.Length () == 1) {
+
+         UndoStruct *us = self->_undoStateTable.remove (Instance);
+         if (us) { result = us->func; delete us; us = 0; }
+
+         us = self->_undoNamesTable.remove (Instance);
+         if (us) { result = us->func; delete us; us = 0; }
+      }
+      else {
+
+         if (Args[1]->IsFunction ()) { func = v8_to_function (Args[1]); }
+         else if (Args[1]->IsString ()) { type = v8_to_string (Args[1]); }
+
+         if (type) {
+
+            HashTableHandleTemplate<UndoStruct> &table =
+               (type == LocalNames ? self->_undoNamesTable : self->_undoStateTable);
+
+            UndoStruct *us = table.lookup (Instance);
+
+            if (us) {
+
+               result = us->func;
+
+               delete us; us = 0;
+            }
+         }
+         else if (func.IsEmpty () == false) {
+
+            UndoStruct *us = self->_undoStateTable.lookup (Instance);
+
+            if (us && us->func == func) {
+
+               result = us->func;
+
+               self->_undoStateTable.remove (Instance);
+
+               delete us; us = 0;
+            }
+            else {
+
+               us = self->_undoNamesTable.lookup (Instance);
+
+               if (us && us->func == func) {
+
+                  result = us->func;
+
+                  self->_undoStateTable.remove (Instance);
+
+                  delete us; us = 0;
+               }
+            }
+         }
+      }
    }
 
    return scope.Close (result);
@@ -308,4 +427,15 @@ dmz::JsModuleRuntimeV8Basic::_reset_undo () {
 
    _undoStateTable.empty ();
    _undoNamesTable.empty ();
+}
+
+
+void
+dmz::JsModuleRuntimeV8Basic::_release_undo_observer (const Handle InstanceHandle) {
+
+   UndoStruct *us = _undoStateTable.remove (InstanceHandle);
+   if (us) { delete us; us = 0; }
+
+   us = _undoNamesTable.remove (InstanceHandle);
+   if (us) { delete us; us = 0; }
 }

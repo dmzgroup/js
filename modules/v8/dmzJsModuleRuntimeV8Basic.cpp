@@ -209,6 +209,8 @@ dmz::JsModuleRuntimeV8Basic::release_js_instance_v8 (
       v8::Handle<v8::Object> &instance) {
 
    _release_message_observer (InstanceHandle);
+   _release_timer (InstanceHandle);
+   _release_undo_observer (InstanceHandle);
 }
 
 
