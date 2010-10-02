@@ -18,8 +18,8 @@ form.show();
 
 button2 = form.lookup("button2");
 if(button2) {
-   button2.observe(self, "clicked", function () {
-      button2.text("Don't Push Me!!!");
+   button2.observe(self, "clicked", function (btn) {
+      btn.text("Don't Push Me!!!");
       timer.setTimer(self, 2, function () {
          button2.text("Push Me");
          if(button1) {

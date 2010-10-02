@@ -81,12 +81,16 @@ namespace dmz {
          static V8Value _uiloader_load (const v8::Arguments &Args);
 
          // QWidget bindings implemented in JsModuleUiV8QtBasicWidget.cpp
+         static V8Value _widget_class_name (const v8::Arguments &Args);
+         static V8Value _widget_object_name (const v8::Arguments &Args);
          static V8Value _widget_close (const v8::Arguments &Args);
          static V8Value _widget_enabled (const v8::Arguments &Args);
          static V8Value _widget_hide (const v8::Arguments &Args);
          static V8Value _widget_lookup (const v8::Arguments &Args);
          static V8Value _widget_observe (const v8::Arguments &Args);
          static V8Value _widget_show (const v8::Arguments &Args);
+         static V8Value _widget_parent (const v8::Arguments &Args);
+         static V8Value _widget_property (const v8::Arguments &Args);
 
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
          static V8Value _button_text (const v8::Arguments &Args);
@@ -207,9 +211,9 @@ namespace dmz {
          void _init_spinbox ();
          void _init_combobox ();
          void _init_slider ();
+         void _init_dial ();
          void _init_lineEdit ();
          void _init_textEdit ();
-         void _init_dial ();
          void _init_label ();
          void _init_progressBar ();
          void _init_dialog ();
@@ -229,8 +233,6 @@ namespace dmz {
          HashTableHandleTemplate<ObsStruct> _obsTable;
          QMap<QWidget *, V8QtObject *>_widgetMap;
          QList<QWidget *>_dialogList;
-
-//         HashTableHandleTemplate<V8QtCallbackStruct> _cbTable;
 
          V8InterfaceHelper _qtApi;
          V8InterfaceHelper _messageBoxApi;

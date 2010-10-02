@@ -164,14 +164,6 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
                qobj = new V8QtStackedWidget (vobj, value, &_state);
             }
          }
-         else if (value->inherits ("QLCDNumber")) {
-
-            if (!_dialogCtor.IsEmpty ()) {
-
-               vobj = _lcdNumberCtor->NewInstance ();
-               qobj = new V8QtLCDNumber (vobj, value, &_state);
-            }
-         }
          else if (value->inherits ("QDialog")) {
 
             if (!_dialogCtor.IsEmpty ()) {
@@ -227,15 +219,8 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
             if (!_dialCtor.IsEmpty ()) {
 
                vobj = _dialCtor->NewInstance ();
-               qobj = new V8QtDial (vobj, value, &_state);
-            }
-         }
-         else if (value->inherits ("QLabel")) {
-
-            if (!_labelCtor.IsEmpty ()) {
-
-               vobj = _labelCtor->NewInstance ();
-               qobj = new V8QtLabel (vobj, value, &_state);
+               // QDial has same signals as QSlider -ss
+               qobj = new V8QtSlider (vobj, value, &_state);
             }
          }
          else if (value->inherits ("QAbstractButton")) {
@@ -251,14 +236,7 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
             if (!_spinBoxCtor.IsEmpty ()) {
 
                vobj = _spinBoxCtor->NewInstance ();
-               if (qobject_cast<QSpinBox *>(value)) {
-
-                  qobj = new V8QtSpinBox (vobj, value, &_state);
-               }
-               else if (qobject_cast<QDoubleSpinBox *>(value)) {
-
-                  qobj = new V8QtDoubleSpinBox (vobj, value, &_state);
-               }
+               qobj = new V8QtSpinBox (vobj, value, &_state);
             }
          }
          else if (value->inherits ("QListWidget")) {
@@ -267,6 +245,26 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
 
                vobj = _listWidgetCtor->NewInstance ();
                qobj = new V8QtListWidget (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QLabel")) {
+
+            if (!_labelCtor.IsEmpty ()) {
+
+               vobj = _labelCtor->NewInstance ();
+
+               // QLabel has no signals so it can be wrapped in a V8QtWidget -ss
+               qobj = new V8QtWidget (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QLCDNumber")) {
+
+            if (!_dialogCtor.IsEmpty ()) {
+
+               vobj = _lcdNumberCtor->NewInstance ();
+
+               // QLCDNumber has no signals so it can be wrapped in a V8QtWidget -ss
+               qobj = new V8QtWidget (vobj, value, &_state);
             }
          }
          else if (value->inherits ("QWidget")) {
@@ -353,6 +351,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _sliderCtor = V8FunctionPersist::New (_sliderTemp->GetFunction ());
       }
 
+      if (!_dialTemp.IsEmpty ()) {
+
+         _dialCtor = V8FunctionPersist::New (_dialTemp->GetFunction ());
+      }
+
       if (!_lineEditTemp.IsEmpty ()) {
 
          _lineEditCtor = V8FunctionPersist::New (_lineEditTemp->GetFunction ());
@@ -361,11 +364,6 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       if (!_textEditTemp.IsEmpty ()) {
 
          _textEditCtor = V8FunctionPersist::New (_textEditTemp->GetFunction ());
-      }
-
-      if (!_dialTemp.IsEmpty ()) {
-
-         _dialCtor = V8FunctionPersist::New (_dialTemp->GetFunction ());
       }
 
       if (!_labelTemp.IsEmpty ()) {
@@ -388,12 +386,12 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _lcdNumberCtor = V8FunctionPersist::New (_lcdNumberTemp->GetFunction ());
       }
 
-      if (!_stackedCtor.IsEmpty ()) {
+      if (!_stackedWidgetTemp.IsEmpty ()) {
 
          _stackedCtor = V8FunctionPersist::New (_stackedWidgetTemp->GetFunction ());
       }
 
-      if (!_tabCtor.IsEmpty ()) {
+      if (!_tabWidgetTemp.IsEmpty ()) {
 
          _tabCtor = V8FunctionPersist::New (_tabWidgetTemp->GetFunction ());
       }
@@ -456,9 +454,9 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _spinBoxCtor.Dispose (); _spinBoxCtor.Clear ();
       _comboBoxCtor.Dispose (); _comboBoxCtor.Clear ();
       _sliderCtor.Dispose (); _sliderCtor.Clear ();
+      _dialCtor.Dispose (); _dialCtor.Clear ();
       _lineEditCtor.Dispose (); _lineEditCtor.Clear ();
       _textEditCtor.Dispose (); _textEditCtor.Clear ();
-      _dialCtor.Dispose (); _dialCtor.Clear ();
       _labelCtor.Dispose (); _labelCtor.Clear ();
       _progressBarCtor.Dispose (); _progressBarCtor.Clear ();
       _dialogCtor.Dispose (); _dialogCtor.Clear ();

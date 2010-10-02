@@ -9,6 +9,8 @@
 #include <dmzTypesHashTableStringTemplate.h>
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
+#include <QtCore/QList>
+#include <QtCore/QVariant>
 #include <v8.h>
 
 class QWidget;
@@ -71,9 +73,21 @@ namespace dmz {
             const V8Object &Self,
             const V8Function &Func);
 
+         CallbackStruct *_get_first_callback (const String &Signal);
+         CallbackStruct *_get_next_callback ();
+         void _handle_exception (const Handle Source, v8::TryCatch &tc);
+
+         void _do_callback (const String &Signal);
+         void _do_callback (const String &Signal, const QVariant &Value);
+         void _do_callback (const String &Signal, const QList<V8Value> &ValueList);
+
+         V8Value _to_v8_value (const QVariant &Value);
+
          QPointer<QWidget> _widget;
          JsModuleUiV8QtBasicState *_state;
          HashTableStringTemplate<CallbackTable> _cbTable;
+         HashTableHandleIterator _it;
+         CallbackTable *_current;
    };
 };
 
