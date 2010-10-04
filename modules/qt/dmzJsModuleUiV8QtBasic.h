@@ -15,11 +15,14 @@
 #include <QtGui/QMessageBox>
 #include <v8.h>
 
+class QMainWindow;
+
 
 namespace dmz {
 
    class JsModuleUiV8QtBasic;
    class JsModuleV8;
+   class QtModuleMainWindow;
    class V8QtObject;
 
 
@@ -27,6 +30,7 @@ namespace dmz {
 
       JsModuleV8 *core;
       JsModuleUiV8QtBasic *ui;
+
       v8::Handle<v8::Context> context;
 
       JsModuleUiV8QtBasicState () : core (0), ui (0) {;}
@@ -64,6 +68,9 @@ namespace dmz {
             const Handle InstanceHandle,
             const String &InstanceName,
             v8::Handle<v8::Object> &instance);
+
+         // Class Interface
+         QMainWindow *get_qt_main_window ();
 
       protected:
          struct ObsStruct {
@@ -193,6 +200,10 @@ namespace dmz {
          static V8Value _file_dialog_get_open_file_name (const v8::Arguments &Args);
 //         static V8Value _file_dialog_get_save_file_name (const v8::Arguments &Args);
 
+         // QMainWindow bindings implemented in JsModuleUiV8QtBasicMainWindow.cpp
+         static V8Value _main_window_central_widget (const v8::Arguments &Args);
+         static V8Value _main_window_close (const v8::Arguments &Args);
+
          void _get_file_dialog_params (
             V8Object params,
             QString &caption,
@@ -200,11 +211,9 @@ namespace dmz {
             QString &filter,
             Boolean &allowMultiple);
 
-
          QListWidgetItem *_to_qt_list_widget_item (V8Value value);
          QWidget *_to_qt_widget (V8Value value);
          V8QtObject *_to_js_qt_object (V8Value value);
-
 
          void _init_widget ();
          void _init_button ();
@@ -224,6 +233,7 @@ namespace dmz {
          void _init_stacked_widget ();
          void _init_tab_widget ();
          void _init_file_dialog ();
+         void _init_main_window ();
 
          String _find_ui_file (const String &Name);
          void _init (Config &local);
@@ -231,6 +241,8 @@ namespace dmz {
          Log _log;
 
          StringContainer _searchPaths;
+         QtModuleMainWindow *_mainWindowModule;
+         String _mainWindowModuleName;
 
          JsModuleUiV8QtBasicState _state;
          V8ValuePersist _self;
@@ -239,7 +251,8 @@ namespace dmz {
          QMap<QWidget *, V8QtObject *>_widgetMap;
          QList<QWidget *>_dialogList;
 
-         V8InterfaceHelper _qtApi;
+         V8InterfaceHelper _uiLoaderApi;
+         V8InterfaceHelper _mainWindowApi;
          V8InterfaceHelper _messageBoxApi;
          V8InterfaceHelper _fileDialogApi;
 
@@ -290,6 +303,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _tabWidgetTemp;
          V8FunctionPersist _tabCtor;
+
+         V8FunctionTemplatePersist _mainWindowTemp;
+         V8FunctionPersist _mainWindowCtor;
 
          V8StringPersist _typeStr;
          V8StringPersist _textStr;

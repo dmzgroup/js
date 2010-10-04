@@ -1,6 +1,6 @@
 var puts = require('sys').puts
   , timer = require('dmz/runtime/time')
-  , ui = require('dmz/components/ui')
+  , uiLoader = require('dmz/components/ui/uiLoader')
   , form
   , spinbox
   , dspinbox
@@ -10,7 +10,7 @@ var puts = require('sys').puts
 
 puts("Script: " + self.name);
 
-form = ui.load("./scripts/SpinBoxTestForm.ui");
+form = uiLoader.load("./scripts/SpinBoxTestForm.ui");
 form.show();
 
 spinbox = form.lookup("spinBox");

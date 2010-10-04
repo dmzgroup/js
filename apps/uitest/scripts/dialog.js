@@ -1,11 +1,11 @@
 var puts = require('sys').puts
-  , ui = require('dmz/components/ui')
+  , uiLoader = require('dmz/components/ui/uiLoader')
   , form
   ;
 
 puts("Script: " + self.name);
 
-form = ui.load("./scripts/TestDialog.ui");
+form = uiLoader.load("./scripts/TestDialog.ui");
 form.open(self, function () {
    puts("dialog closed");
 });
