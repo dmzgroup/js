@@ -1,5 +1,7 @@
 #include <dmzJsModuleV8.h>
 #include "dmzV8QtObject.h"
+#include "dmzV8QtUtil.h"
+#include <QtCore/QVariant>
 #include <QtGui/QWidget>
 
 #include <QtCore/QDebug>
@@ -11,7 +13,8 @@ dmz::V8QtObject::V8QtObject (
       JsModuleUiV8QtBasicState *state) :
       QObject (0),
       _widget (widget),
-      _state (state) {
+      _state (state),
+      _current (0) {
 
    if (!Self.IsEmpty ()) {
 
@@ -104,3 +107,97 @@ dmz::V8QtObject::_register_callback (
    }
 }
 
+
+dmz::V8QtObject::CallbackStruct *
+dmz::V8QtObject::_get_first_callback (const String &Signal) {
+
+   CallbackStruct *cs (0);
+   _current = _cbTable.lookup (Signal);
+   if (_current) { cs = _current->table.get_first (_it); }
+   return cs;
+}
+
+
+dmz::V8QtObject::CallbackStruct *
+dmz::V8QtObject::_get_next_callback () {
+
+   CallbackStruct *cs (0);
+   if (_current) { cs = _current->table.get_next (_it); }
+   return cs;
+}
+
+
+void
+dmz::V8QtObject::_handle_exception (const Handle Source, v8::TryCatch &tc) {
+
+   if (_current && Source) {
+
+      if (_state && _state->core) { _state->core->handle_v8_exception (Source, tc); }
+
+      CallbackStruct *cs = _current->table.remove (Source);
+      if (cs) { delete cs; cs = 0; }
+   }
+}
+
+
+void
+dmz::V8QtObject::_do_callback (const String &Signal) {
+
+   _do_callback (Signal, QVariant ());
+}
+
+
+void
+dmz::V8QtObject::_do_callback (const String &Signal, const QVariant &Value) {
+
+   if (_state) {
+
+      v8::Context::Scope cscope (_state->context);
+      v8::HandleScope scope;
+
+      QList<V8Value> args;
+
+      V8Value newValue = to_v8_value (Value);
+      if (!newValue.IsEmpty ()) { args.append (newValue); }
+
+      _do_callback (Signal, args);
+   }
+}
+
+
+void
+dmz::V8QtObject::_do_callback (const String &Signal, const QList<V8Value> &ValueList) {
+
+   if (_state && _state->core && _state->ui) {
+
+      v8::Context::Scope cscope (_state->context);
+      v8::HandleScope scope;
+
+      CallbackStruct *cs = _get_first_callback (Signal);
+      while (cs) {
+
+         if (!(cs->func.IsEmpty ()) && !(cs->self.IsEmpty ())) {
+
+            const Handle Observer = cs->Observer;
+
+            const int Argc (ValueList.size () + 2);
+
+            V8Value argv[Argc];
+
+            for (int ix = 0; ix < (Argc - 2); ix++) {
+
+               argv[ix] = ValueList.at (ix);
+            }
+
+            argv[Argc - 2] = _state->ui->create_v8_widget (_widget);
+            argv[Argc - 1] = cs->self;
+
+            v8::TryCatch tc;
+            cs->func->Call (cs->self, Argc, argv);
+            if (tc.HasCaught ()) { _handle_exception (Observer, tc); }
+         }
+
+         cs = _get_next_callback ();
+      }
+   }
+}
