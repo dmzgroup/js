@@ -178,7 +178,38 @@ dmz::JsModuleUiV8QtBasic::_layout_parent (const v8::Arguments &Args) {
 
       if (layout) {
 
-         result = self->create_v8_widget (layout->parentWidget ());
+         QObject *obj = layout->parent ();
+         QWidget *parent_widget = qobject_cast<QWidget *>(obj);
+         QLayout *parent_layout = qobject_cast<QLayout *>(obj);
+
+         if (parent_widget) { result = self->create_v8_widget (parent_widget); }
+         else if (parent_layout) { result = self->create_v8_layout (parent_layout); }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_layout_parent_widget (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+
+   if (self) {
+
+      QLayout *layout = self->_to_qt_layout (Args.This ());
+
+      if (layout) {
+
+         QWidget *widget = layout->parentWidget ();
+         if (widget) {
+
+            result = self->create_v8_widget (widget);
+         }
       }
    }
 
@@ -202,6 +233,7 @@ dmz::JsModuleUiV8QtBasic::_init_layout () {
    proto->Set ("at", v8::FunctionTemplate::New (_layout_at, _self));
    proto->Set ("count", v8::FunctionTemplate::New (_layout_count, _self));
    proto->Set ("parent", v8::FunctionTemplate::New (_layout_parent, _self));
+   proto->Set ("parentWidget", v8::FunctionTemplate::New (_layout_parent_widget, _self));
 }
 
 
@@ -221,6 +253,7 @@ dmz::JsModuleUiV8QtBasic::_box_layout_add_layout (const v8::Arguments &Args) {
 
          QBoxLayout *bl = qobject_cast<QBoxLayout *>(layout);
          if (bl) {
+
             if (Args.Length () > 0) {
 
                QLayout *ql = self->_to_qt_layout (Args[0]);
@@ -253,6 +286,7 @@ dmz::JsModuleUiV8QtBasic::_box_layout_add_stretch (const v8::Arguments &Args) {
 
          QBoxLayout *bl = qobject_cast<QBoxLayout *>(layout);
          if (bl) {
+
             if (Args.Length () > 0) {
 
                bl->addStretch (v8_to_int32 (Args[0]));
@@ -281,6 +315,7 @@ dmz::JsModuleUiV8QtBasic::_box_layout_add_widget (const v8::Arguments &Args) {
 
          QBoxLayout *bl = qobject_cast<QBoxLayout *>(layout);
          if (bl) {
+
             if (Args.Length () > 0) {
 
                QWidget *widget = self->_to_qt_widget (Args[0]);
@@ -313,13 +348,15 @@ dmz::JsModuleUiV8QtBasic::_box_layout_direction (const v8::Arguments &Args) {
 
          QBoxLayout *bl = qobject_cast<QBoxLayout *>(layout);
          if (bl) {
+
             if (Args.Length () > 0) {
 
-               QLayout *ql = self->_to_qt_layout (Args[0]);
-               if (ql) {
+               int direction = v8_to_int32 (Args[0]);
+               if ((direction < 0) || (direction > 3)) {
 
-                  bl->addLayout (ql);
+                  direction = 0;
                }
+               bl->setDirection ((QBoxLayout::Direction)direction);
             }
          }
       }
@@ -346,7 +383,6 @@ dmz::JsModuleUiV8QtBasic::_init_box_layout () {
    proto->Set ("addWidget", v8::FunctionTemplate::New (_box_layout_add_widget, _self));
    proto->Set ("direction", v8::FunctionTemplate::New (_box_layout_direction, _self));
 
-//   enum	Direction { LeftToRight, RightToLeft, TopToBottom, BottomToTop }
    _layoutApi.add_constant ("LeftToRight", (UInt32)QBoxLayout::LeftToRight);
    _layoutApi.add_constant ("RightToLeft", (UInt32)QBoxLayout::RightToLeft);
    _layoutApi.add_constant ("TopToBottom", (UInt32)QBoxLayout::TopToBottom);
@@ -392,19 +428,19 @@ dmz::JsModuleUiV8QtBasic::_create_box_layout (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QWidget *parent = 0;
+      QWidget *parent (0);
+      int direction = 0;
+      if (Args.Length () > 0) {
+         direction = v8_to_int32 (Args[0]);
+         if ((direction < 0) || (direction > 3)) {
 
-      parent = self->_to_qt_widget (Args[0]);
-
-      if (!parent) {
-
-         parent = self->_to_qt_widget (Args[1]);
+            direction = 0;
+         }
       }
 
-      int direction = v8_to_int32 (Args[0]);
-      if ((direction < 0) || (direction > 3)) {
+      if (Args.Length () > 1) {
 
-         direction = 0;
+         parent = self->_to_qt_widget (Args[1]);
       }
 
       QBoxLayout *layout = new QBoxLayout((QBoxLayout::Direction)direction, parent);

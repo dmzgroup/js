@@ -88,8 +88,7 @@ namespace dmz {
          static V8Value _widget_lookup (const v8::Arguments &Args);
          static V8Value _widget_observe (const v8::Arguments &Args);
          static V8Value _widget_show (const v8::Arguments &Args);
-         static V8Value _widget_set_layout (const v8::Arguments &Args);
-         static V8Value _widget_set_layout_direction (const v8::Arguments &Args);
+         static V8Value _widget_layout (const v8::Arguments &Args);
 
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
          static V8Value _button_text (const v8::Arguments &Args);
@@ -192,6 +191,7 @@ namespace dmz {
          static V8Value _layout_at (const v8::Arguments &Args);
          static V8Value _layout_count (const v8::Arguments &Args);
          static V8Value _layout_parent (const v8::Arguments &Args);
+         static V8Value _layout_parent_widget (const v8::Arguments &Args);
 
          // QBoxLayout bindings implemented in JsModuleUiV8QtBasicLayout.cpp
          static V8Value _box_layout_add_layout (const v8::Arguments &Args);

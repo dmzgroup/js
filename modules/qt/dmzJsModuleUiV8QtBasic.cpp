@@ -166,7 +166,7 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
          }
          else if (value->inherits ("QLCDNumber")) {
 
-            if (!_dialogCtor.IsEmpty ()) {
+            if (!_lcdNumberCtor.IsEmpty ()) {
 
                vobj = _lcdNumberCtor->NewInstance ();
                qobj = new V8QtLCDNumber (vobj, value, &_state);
@@ -388,32 +388,32 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _lcdNumberCtor = V8FunctionPersist::New (_lcdNumberTemp->GetFunction ());
       }
 
-      if (!_stackedCtor.IsEmpty ()) {
+      if (!_stackedWidgetTemp.IsEmpty ()) {
 
          _stackedCtor = V8FunctionPersist::New (_stackedWidgetTemp->GetFunction ());
       }
 
-      if (!_tabCtor.IsEmpty ()) {
+      if (!_tabWidgetTemp.IsEmpty ()) {
 
          _tabCtor = V8FunctionPersist::New (_tabWidgetTemp->GetFunction ());
       }
 
-      if (!_layoutCtor.IsEmpty ()) {
+      if (!_layoutTemp.IsEmpty ()) {
          
          _layoutCtor = V8FunctionPersist::New (_layoutTemp->GetFunction ());
       }
 
-      if (!_boxLayoutCtor.IsEmpty ()) {
+      if (!_boxLayoutTemp.IsEmpty ()) {
          
          _boxLayoutCtor = V8FunctionPersist::New (_boxLayoutTemp->GetFunction ());
       }
 
-      if (!_hBoxLayoutCtor.IsEmpty ()) {
+      if (!_hBoxLayoutTemp.IsEmpty ()) {
          
          _hBoxLayoutCtor = V8FunctionPersist::New (_hBoxLayoutTemp->GetFunction ());
       }
 
-      if (!_vBoxLayoutCtor.IsEmpty ()) {
+      if (!_vBoxLayoutTemp.IsEmpty ()) {
          
          _vBoxLayoutCtor = V8FunctionPersist::New (_vBoxLayoutTemp->GetFunction ());
       }
@@ -533,7 +533,7 @@ dmz::JsModuleUiV8QtBasic::_to_qt_list_widget_item (V8Value value) {
 }
 
 
-QWidget  *
+QWidget *
 dmz::JsModuleUiV8QtBasic::_to_qt_widget (V8Value value) {
 
    QWidget *result (0);
