@@ -83,6 +83,15 @@ dmz::JsModuleTypesV8Basic::discover_plugin (
 
 
 // JsModuleTypesV8 Interface
+dmz::Boolean
+dmz::JsModuleTypesV8Basic::is_v8_vector (const v8::Handle<v8::Value> &Value) {
+
+   Boolean result (False);
+
+   return result;
+}
+
+
 v8::Handle<v8::Object>
 dmz::JsModuleTypesV8Basic::to_v8_vector (const Vector &Value) {
 
@@ -111,7 +120,7 @@ dmz::JsModuleTypesV8Basic::to_v8_vector (const Vector &Value) {
 
 
 dmz::Vector
-dmz::JsModuleTypesV8Basic::to_dmz_vector (const v8::Handle<v8::Value> Value) {
+dmz::JsModuleTypesV8Basic::to_dmz_vector (const v8::Handle<v8::Value> &Value) {
 
    Vector result;
 
@@ -123,7 +132,7 @@ dmz::JsModuleTypesV8Basic::to_dmz_vector (const v8::Handle<v8::Value> Value) {
 
 dmz::Boolean
 dmz::JsModuleTypesV8Basic::to_dmz_vector (
-      const v8::Handle<v8::Value> Value,
+      const v8::Handle<v8::Value> &Value,
       Vector &out) {
 
    v8::Context::Scope cscope(_v8Context);
@@ -152,6 +161,15 @@ dmz::JsModuleTypesV8Basic::to_dmz_vector (
 
       result = True;
    }
+
+   return result;
+}
+
+
+dmz::Boolean
+dmz::JsModuleTypesV8Basic::is_v8_matrix (const v8::Handle<v8::Value> &Value) {
+
+   Boolean result (False);
 
    return result;
 }
@@ -195,7 +213,7 @@ dmz::JsModuleTypesV8Basic::to_v8_matrix (const Matrix &Value) {
 
 
 dmz::Matrix
-dmz::JsModuleTypesV8Basic::to_dmz_matrix (const v8::Handle<v8::Value> Value) {
+dmz::JsModuleTypesV8Basic::to_dmz_matrix (const v8::Handle<v8::Value> &Value) {
 
    Matrix result;
    to_dmz_matrix (Value, result);
@@ -205,7 +223,7 @@ dmz::JsModuleTypesV8Basic::to_dmz_matrix (const v8::Handle<v8::Value> Value) {
 
 dmz::Boolean
 dmz::JsModuleTypesV8Basic::to_dmz_matrix (
-      const v8::Handle<v8::Value> Value,
+      const v8::Handle<v8::Value> &Value,
       Matrix &out) {
 
    Boolean result (False);
@@ -235,6 +253,15 @@ dmz::JsModuleTypesV8Basic::to_dmz_matrix (
          result = True;
       }
    }
+
+   return result;
+}
+
+
+dmz::Boolean
+dmz::JsModuleTypesV8Basic::is_v8_mask (const v8::Handle<v8::Value> &Value) {
+
+   Boolean result (False);
 
    return result;
 }
@@ -275,7 +302,7 @@ dmz::JsModuleTypesV8Basic::to_v8_mask (const Mask &Value) {
 
 
 dmz::Mask
-dmz::JsModuleTypesV8Basic::to_dmz_mask (const v8::Handle<v8::Value> Value) {
+dmz::JsModuleTypesV8Basic::to_dmz_mask (const v8::Handle<v8::Value> &Value) {
 
    Mask result;
    to_dmz_mask (Value, result);
@@ -285,7 +312,7 @@ dmz::JsModuleTypesV8Basic::to_dmz_mask (const v8::Handle<v8::Value> Value) {
 
 dmz::Boolean
 dmz::JsModuleTypesV8Basic::to_dmz_mask (
-      const v8::Handle<v8::Value> Value,
+      const v8::Handle<v8::Value> &Value,
       Mask &out) {
 
    Boolean result (False);

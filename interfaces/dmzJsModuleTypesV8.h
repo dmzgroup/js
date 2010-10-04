@@ -24,25 +24,28 @@ namespace dmz {
          Handle get_js_module_types_v8_handle () const;
 
          // JsModuleTypesV8 Interface
+         virtual Boolean is_v8_vector (const v8::Handle<v8::Value> &Value) = 0;
          virtual v8::Handle<v8::Object> to_v8_vector (const Vector &Value) = 0;
-         virtual Vector to_dmz_vector (const v8::Handle<v8::Value> Value) = 0;
+         virtual Vector to_dmz_vector (const v8::Handle<v8::Value> &Value) = 0;
 
          virtual Boolean to_dmz_vector (
-            const v8::Handle<v8::Value> Value,
+            const v8::Handle<v8::Value> &Value,
             Vector &out) = 0;
 
+         virtual Boolean is_v8_matrix (const v8::Handle<v8::Value> &Value) = 0;
          virtual v8::Handle<v8::Object> to_v8_matrix (const Matrix &Value) = 0;
-         virtual Matrix to_dmz_matrix (const v8::Handle<v8::Value> Value) = 0;
+         virtual Matrix to_dmz_matrix (const v8::Handle<v8::Value> &Value) = 0;
 
          virtual Boolean to_dmz_matrix (
-            const v8::Handle<v8::Value> Value,
+            const v8::Handle<v8::Value> &Value,
             Matrix &out) = 0;
 
+         virtual Boolean is_v8_mask (const v8::Handle<v8::Value> &Value) = 0;
          virtual v8::Handle<v8::Object> to_v8_mask (const Mask &Value) = 0;
-         virtual Mask to_dmz_mask (const v8::Handle<v8::Value> Value) = 0;
+         virtual Mask to_dmz_mask (const v8::Handle<v8::Value> &Value) = 0;
 
          virtual Boolean to_dmz_mask (
-            const v8::Handle<v8::Value> Value,
+            const v8::Handle<v8::Value> &Value,
             Mask &out) = 0;
 
       protected:

@@ -27,25 +27,28 @@ namespace dmz {
             const Plugin *PluginPtr);
 
          // JsModuleTypesV8 Interface
+         virtual Boolean is_v8_vector (const v8::Handle<v8::Value> &Value);
          virtual v8::Handle<v8::Object> to_v8_vector (const Vector &Value);
-         virtual Vector to_dmz_vector (const v8::Handle<v8::Value> Value);
+         virtual Vector to_dmz_vector (const v8::Handle<v8::Value> &Value);
 
          virtual Boolean to_dmz_vector (
-            const v8::Handle<v8::Value> Value,
+            const v8::Handle<v8::Value> &Value,
             Vector &out);
 
+         virtual Boolean is_v8_matrix (const v8::Handle<v8::Value> &Value);
          virtual v8::Handle<v8::Object> to_v8_matrix (const Matrix &Value);
-         virtual Matrix to_dmz_matrix (const v8::Handle<v8::Value> Value);
+         virtual Matrix to_dmz_matrix (const v8::Handle<v8::Value> &Value);
 
          virtual Boolean to_dmz_matrix (
-            const v8::Handle<v8::Value> Value,
+            const v8::Handle<v8::Value> &Value,
             Matrix &out);
 
+         virtual Boolean is_v8_mask (const v8::Handle<v8::Value> &Value);
          virtual v8::Handle<v8::Object> to_v8_mask (const Mask &Value);
-         virtual Mask to_dmz_mask (const v8::Handle<v8::Value> Value);
+         virtual Mask to_dmz_mask (const v8::Handle<v8::Value> &Value);
 
          virtual Boolean to_dmz_mask (
-            const v8::Handle<v8::Value> Value,
+            const v8::Handle<v8::Value> &Value,
             Mask &out);
 
          // JsExtV8 Interface
@@ -71,10 +74,13 @@ namespace dmz {
 
          v8::Persistent<v8::Object> _mask;
          v8::Persistent<v8::Function> _maskCtor;
+         v8::Persistent<v8::Function> _maskIsType;
          v8::Persistent<v8::Object> _matrix;
          v8::Persistent<v8::Function> _matrixCtor;
+         v8::Persistent<v8::Function> _matrixIsType;
          v8::Persistent<v8::Object> _vector;
          v8::Persistent<v8::Function> _vectorCtor;
+         v8::Persistent<v8::Function> _vectorIsType;
 
          v8::Persistent<v8::String> _bitsStr;
 
