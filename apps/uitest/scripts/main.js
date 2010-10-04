@@ -25,7 +25,7 @@ function add_script (script) {
 
 listWidget.observe(self, 'currentRowChanged', function (row) {
    index = row;
-   puts('row: ' + index);
+   // puts('row: ' + index);
    stackedWidget.currentIndex(index);
    
    var label = mainForm.lookup('infoLabel');
@@ -77,35 +77,35 @@ add_script('Widgets');
 
 mainForm.observe(self, 'comboBox', 'currentIndexChanged', function (value, comboBox) {
    
-   puts('comboBox: ' + value);
+   // puts('comboBox: ' + value);
    var comboBoxLabel = mainForm.lookup ('comboBoxLabel');
    if (comboBoxLabel) { comboBoxLabel.text (comboBox.itemText(value)); }
 });
 
 mainForm.observe(self, 'lineEdit', 'textChanged', function (value) {
    
-   puts('lineEdit: ' + value);
+   // puts('lineEdit: ' + value);
    var lineEditLabel = mainForm.lookup ('lineEditLabel');
    if (lineEditLabel) { lineEditLabel.text (value); }
 });
 
 mainForm.observe(self, 'spinBox', 'valueChanged', function (value) {
    
-   puts('spinBox: ' + value);
+   // puts('spinBox: ' + value);
    var spinBoxLabel = mainForm.lookup ('spinBoxLabel');
    if (spinBoxLabel) { spinBoxLabel.text (value); }
 });
 
 mainForm.observe(self, 'doubleSpinBox', 'valueChanged', function (value) {
    
-   puts('doubleSpinBox: ' + value);
+   // puts('doubleSpinBox: ' + value);
    var doubleSpinBoxLabel = mainForm.lookup ('doubleSpinBoxLabel');
    if (doubleSpinBoxLabel) { doubleSpinBoxLabel.text (value); }
 });
 
 function sliderUpdate (val) {
    
-   puts('slider update: ' + val);
+   // puts('slider update: ' + val);
 
    var lcd = mainForm.lookup ('lcd');
    if (lcd) { lcd.property ('value', val); }

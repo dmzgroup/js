@@ -254,7 +254,6 @@ dmz::JsModuleUiV8QtBasic::_widget_property (const v8::Arguments &Args) {
          }
 
          QVariant prop = widget->property (Name.get_buffer ());
-         qDebug () << "prop: " << prop;
          V8Value outValue = to_v8_value (prop);
          if (!outValue.IsEmpty ()) { result = outValue; }
       }
