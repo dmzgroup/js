@@ -27,6 +27,8 @@ namespace dmz {
 
       public Q_SLOTS:
          void on_currentItemChanged (QListWidgetItem *current, QListWidgetItem *previous);
+         void on_currentRowChanged (int value);
+         void on_currentTextChanged (const QString &Value);
          void on_itemActivated (QListWidgetItem *item);
    };
 };

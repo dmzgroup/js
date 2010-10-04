@@ -9,17 +9,17 @@ using namespace dmz;
 namespace {
 
 
-void
-local_list_widget_delete (v8::Persistent<v8::Value> object, void *param) {
+//void
+//local_list_widget_delete (v8::Persistent<v8::Value> object, void *param) {
 
-   if (param) {
+//   if (param) {
 
-      V8QtListWidget *ptr = (V8QtListWidget *)param;
-      delete ptr; ptr = 0;
-   }
+//      V8QtListWidget *ptr = (V8QtListWidget *)param;
+//      delete ptr; ptr = 0;
+//   }
 
-   object.Dispose (); object.Clear ();
-}
+//   object.Dispose (); object.Clear ();
+//}
 
 };
 

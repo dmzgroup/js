@@ -121,6 +121,7 @@ dmz::JsModuleUiV8QtBasic::_stacked_widget_current_index (const v8::Arguments &Ar
                sw->setCurrentIndex (v8_to_int32 (Args[0]));
             }
             else {
+
                result = v8::Number::New (sw->currentIndex ());
             }
          }

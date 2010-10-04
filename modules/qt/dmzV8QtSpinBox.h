@@ -3,8 +3,6 @@
 
 #include <dmzV8QtObject.h>
 
-class QSpinBox ;
-
 
 namespace dmz {
 
@@ -26,7 +24,8 @@ namespace dmz {
             const V8Function &Func);
 
       public Q_SLOTS:
-         void on_valueChanged (int val);
+         void on_valueChanged (int);
+         void on_valueChanged (double);
    };
 };
 

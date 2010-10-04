@@ -2,8 +2,6 @@
 #include "dmzV8QtDialog.h"
 #include <QtGui/QDialog>
 
-#include <QtCore/QDebug>
-
 namespace {
 
    static const dmz::String LocalSignalFinished ("finished");
@@ -17,10 +15,7 @@ dmz::V8QtDialog::V8QtDialog (
       V8QtObject (Self, widget, state) {;}
 
 
-dmz::V8QtDialog::~V8QtDialog () {
-
-   qWarning () << "--=-=-=-=-=-=-=--=-=---===--==-=-=-=-=-=-=-=---=-=-= V8QtDialog dtor";
-}
+dmz::V8QtDialog::~V8QtDialog () {;}
 
 
 dmz::Boolean
@@ -71,44 +66,5 @@ dmz::V8QtDialog::open (
 void
 dmz::V8QtDialog::on_finished (int value) {
 
-   if (_state && _state->core) {
-
-      v8::Context::Scope cscope (_state->context);
-      v8::HandleScope scope;
-
-      CallbackTable *ct = _cbTable.lookup (LocalSignalFinished);
-      if (ct) {
-
-         HashTableHandleIterator it;
-         CallbackStruct *cs (0);
-
-         while (ct->table.get_next (it, cs)) {
-
-            if (!(cs->func.IsEmpty ()) && !(cs->self.IsEmpty ())) {
-
-               const Handle Observer = cs->Observer;
-
-               const int Argc (2);
-               V8Value argv[Argc];
-               argv[0] = v8::Number::New (value);
-               argv[1] = cs->self;
-
-               v8::TryCatch tc;
-
-               cs->func->Call (cs->self, Argc, argv);
-
-               if (tc.HasCaught ()) {
-
-                  _state->core->handle_v8_exception (Observer, tc);
-
-                  cs = ct->table.remove (Observer);
-
-                  if (cs) { delete cs; cs = 0; }
-               }
-            }
-         }
-
-         self.Dispose (); self.Clear ();
-      }
-   }
+   _do_callback (LocalSignalFinished, value);
 }
