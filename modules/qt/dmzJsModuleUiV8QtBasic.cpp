@@ -1,8 +1,10 @@
 #include "dmzJsModuleUiV8QtBasic.h"
 #include <dmzJsModuleV8.h>
 #include <dmzJsV8UtilConvert.h>
+#include <dmzRuntimeConfigToStringContainer.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
+#include <dmzSystemFile.h>
 #include <dmzTypesStringTokenizer.h>
 #include "dmzV8QtTypes.h"
 #include <QtCore/QFile>
@@ -62,18 +64,28 @@ dmz::JsModuleUiV8QtBasic::_uiloader_load (const v8::Arguments &Args) {
 
    if (self && Name) {
 
-      QUiLoader loader;
-      QFile file (Name.get_buffer ());
-      file.open (QFile::ReadOnly);
-      QWidget *widget = loader.load (&file, 0);
-      file.close ();
+      const String FileName = self->_find_ui_file (Name);
 
-      result = self->create_v8_widget (widget);
+      if (FileName) {
 
-      if (!result.IsEmpty ()) {
+         QUiLoader loader;
+         QFile file (FileName.get_buffer ());
+         file.open (QFile::ReadOnly);
+         QWidget *widget = loader.load (&file, 0);
+         file.close ();
 
-         self->_log.info << "Loaded UI: " << Name << endl;
+         result = self->create_v8_widget (widget);
+
+         if (!result.IsEmpty ()) {
+
+            self->_log.info << "Loaded UI: " << FileName << endl;
+         }
+         else {
+
+            self->_log.error << "Failed to load UI file: " << FileName << endl;
+         }
       }
+      else { self->_log.error << "Failed to find UI file: " << Name << endl; }
    }
 
    return scope.Close (result);
@@ -164,14 +176,6 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
                qobj = new V8QtStackedWidget (vobj, value, &_state);
             }
          }
-         else if (value->inherits ("QLCDNumber")) {
-
-            if (!_lcdNumberCtor.IsEmpty ()) {
-
-               vobj = _lcdNumberCtor->NewInstance ();
-               qobj = new V8QtLCDNumber (vobj, value, &_state);
-            }
-         }
          else if (value->inherits ("QDialog")) {
 
             if (!_dialogCtor.IsEmpty ()) {
@@ -227,15 +231,8 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
             if (!_dialCtor.IsEmpty ()) {
 
                vobj = _dialCtor->NewInstance ();
-               qobj = new V8QtDial (vobj, value, &_state);
-            }
-         }
-         else if (value->inherits ("QLabel")) {
-
-            if (!_labelCtor.IsEmpty ()) {
-
-               vobj = _labelCtor->NewInstance ();
-               qobj = new V8QtLabel (vobj, value, &_state);
+               // QDial has same signals as QSlider -ss
+               qobj = new V8QtSlider (vobj, value, &_state);
             }
          }
          else if (value->inherits ("QAbstractButton")) {
@@ -251,14 +248,7 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
             if (!_spinBoxCtor.IsEmpty ()) {
 
                vobj = _spinBoxCtor->NewInstance ();
-               if (qobject_cast<QSpinBox *>(value)) {
-
-                  qobj = new V8QtSpinBox (vobj, value, &_state);
-               }
-               else if (qobject_cast<QDoubleSpinBox *>(value)) {
-
-                  qobj = new V8QtDoubleSpinBox (vobj, value, &_state);
-               }
+               qobj = new V8QtSpinBox (vobj, value, &_state);
             }
          }
          else if (value->inherits ("QListWidget")) {
@@ -267,6 +257,26 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
 
                vobj = _listWidgetCtor->NewInstance ();
                qobj = new V8QtListWidget (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QLabel")) {
+
+            if (!_labelCtor.IsEmpty ()) {
+
+               vobj = _labelCtor->NewInstance ();
+
+               // QLabel has no signals so it can be wrapped in a V8QtWidget -ss
+               qobj = new V8QtWidget (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QLCDNumber")) {
+
+            if (!_dialogCtor.IsEmpty ()) {
+
+               vobj = _lcdNumberCtor->NewInstance ();
+
+               // QLCDNumber has no signals so it can be wrapped in a V8QtWidget -ss
+               qobj = new V8QtWidget (vobj, value, &_state);
             }
          }
          else if (value->inherits ("QWidget")) {
@@ -353,6 +363,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _sliderCtor = V8FunctionPersist::New (_sliderTemp->GetFunction ());
       }
 
+      if (!_dialTemp.IsEmpty ()) {
+
+         _dialCtor = V8FunctionPersist::New (_dialTemp->GetFunction ());
+      }
+
       if (!_lineEditTemp.IsEmpty ()) {
 
          _lineEditCtor = V8FunctionPersist::New (_lineEditTemp->GetFunction ());
@@ -361,11 +376,6 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       if (!_textEditTemp.IsEmpty ()) {
 
          _textEditCtor = V8FunctionPersist::New (_textEditTemp->GetFunction ());
-      }
-
-      if (!_dialTemp.IsEmpty ()) {
-
-         _dialCtor = V8FunctionPersist::New (_dialTemp->GetFunction ());
       }
 
       if (!_labelTemp.IsEmpty ()) {
@@ -429,13 +439,23 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _state.core->register_interface (
             "dmz/components/ui/layout",
             _layoutApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/components/ui/fileDialog",
+            _fileDialogApi.get_new_instance ());
       }
 
-      _mbTypeStr = V8StringPersist::New (v8::String::NewSymbol ("type"));
-      _mbTextStr = V8StringPersist::New (v8::String::NewSymbol ("text"));
-      _mbInfoTextStr = V8StringPersist::New (v8::String::NewSymbol ("informativeText"));
-      _mbStandardButtonsStr = V8StringPersist::New (v8::String::NewSymbol ("standardButtons"));
-      _mbDefaultButtonStr = V8StringPersist::New (v8::String::NewSymbol ("defaultButton"));
+      _typeStr = V8StringPersist::New (v8::String::NewSymbol ("type"));
+      _textStr = V8StringPersist::New (v8::String::NewSymbol ("text"));
+      _infoTextStr = V8StringPersist::New (v8::String::NewSymbol ("informativeText"));
+      _standardButtonsStr = V8StringPersist::New (v8::String::NewSymbol ("standardButtons"));
+      _defaultButtonStr = V8StringPersist::New (v8::String::NewSymbol ("defaultButton"));
+
+      _captionStr = V8StringPersist::New (v8::String::NewSymbol ("caption"));
+      _dirStr = V8StringPersist::New (v8::String::NewSymbol ("dir"));
+      _filterStr = V8StringPersist::New (v8::String::NewSymbol ("filter"));
+      _optionsStr = V8StringPersist::New (v8::String::NewSymbol ("options"));
+      _allowMultipleStr = V8StringPersist::New (v8::String::NewSymbol ("allowMultiple"));
    }
    else if (State == JsExtV8::Init) {
 
@@ -470,9 +490,9 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _spinBoxCtor.Dispose (); _spinBoxCtor.Clear ();
       _comboBoxCtor.Dispose (); _comboBoxCtor.Clear ();
       _sliderCtor.Dispose (); _sliderCtor.Clear ();
+      _dialCtor.Dispose (); _dialCtor.Clear ();
       _lineEditCtor.Dispose (); _lineEditCtor.Clear ();
       _textEditCtor.Dispose (); _textEditCtor.Clear ();
-      _dialCtor.Dispose (); _dialCtor.Clear ();
       _labelCtor.Dispose (); _labelCtor.Clear ();
       _progressBarCtor.Dispose (); _progressBarCtor.Clear ();
       _dialogCtor.Dispose (); _dialogCtor.Clear ();
@@ -487,6 +507,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _qtApi.clear ();
       _messageBoxApi.clear ();
       _layoutApi.clear ();
+      _fileDialogApi.clear ();
+
       _state.context.Clear ();
 
       _obsTable.empty ();
@@ -581,8 +603,25 @@ dmz::JsModuleUiV8QtBasic::_to_js_qt_object (V8Value value) {
 
 
 // JsModuleUiV8QtBasic Interface
+
+dmz::String
+dmz::JsModuleUiV8QtBasic::_find_ui_file (const String &Name) {
+
+   String result;
+
+   if (!find_file (_searchPaths, Name, result)) {
+
+      find_file (_searchPaths, Name + ".ui", result);
+   }
+
+   return result;
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init (Config &local) {
+
+   _searchPaths = config_to_path_string_container (local);
 
    v8::HandleScope scope;
 
@@ -613,6 +652,8 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_box_layout ();
    _init_hbox_layout ();
    _init_vbox_layout ();
+
+   _init_file_dialog ();
 }
 
 

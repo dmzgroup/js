@@ -17,8 +17,13 @@
 <javascript>
    <path value="./scripts"/>
    <path value="../../scripts"/>
+<<<<<<< HEAD
 <!--   <instance name="test"/>
    <instance name="spin"/>
+=======
+   <instance name="main"/>
+   <!-- <instance name="spin"/>
+>>>>>>> dmzdev/master
    <instance name="combobox"/>
    <instance name="slider"/>
    <instance name="line"/>
@@ -30,9 +35,13 @@
    <instance name="dialog"/>
    <instance name="lcd"/>
    <instance name="stacked"/>
+<<<<<<< HEAD
    <instance name="tab"/>-->
    <instance name="layout"/>
 
+=======
+   <instance name="tab"/> -->
+>>>>>>> dmzdev/master
 </javascript>
 <test>
    <name value="my_name"/>

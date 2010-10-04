@@ -45,33 +45,32 @@ dmz::JsModuleUiV8QtBasic::_create_message_box (V8Object params, QWidget *parent)
    if (!params.IsEmpty ()) {
 
       dialog = new QMessageBox (parent);
-//      dialog->setAttribute (Qt::WA_DeleteOnClose);
 
-      if (params->Has (_mbTypeStr)) {
+      if (params->Has (_typeStr)) {
 
          QMessageBox::Icon icon (QMessageBox::Information);
-         const UInt32 TypeValue = v8_to_uint32 (params->Get (_mbTypeStr));
+         const UInt32 TypeValue = v8_to_uint32 (params->Get (_typeStr));
          if (TypeValue == QMessageBox::Question) { icon = QMessageBox::Question; }
          else if (TypeValue == QMessageBox::Warning) { icon = QMessageBox::Warning; }
          else if (TypeValue == QMessageBox::Critical) { icon = QMessageBox::Critical; }
          dialog->setIcon (icon);
       }
 
-      if (params->Has (_mbTextStr)) {
+      if (params->Has (_textStr)) {
 
-         String text = v8_to_string (params->Get (_mbTextStr));
+         String text = v8_to_string (params->Get (_textStr));
          if (text) { dialog->setText (text.get_buffer ()); }
       }
 
-      if (params->Has (_mbInfoTextStr)) {
+      if (params->Has (_infoTextStr)) {
 
-         String infoText = v8_to_string (params->Get (_mbInfoTextStr));
+         String infoText = v8_to_string (params->Get (_infoTextStr));
          if (infoText) { dialog->setInformativeText (infoText.get_buffer ()); }
       }
 
-      if (params->Has (_mbStandardButtonsStr)) {
+      if (params->Has (_standardButtonsStr)) {
 
-         V8Array buttonArray = v8_to_array (params->Get (_mbStandardButtonsStr));
+         V8Array buttonArray = v8_to_array (params->Get (_standardButtonsStr));
          if (!buttonArray.IsEmpty ()) {
 
             QMessageBox::StandardButtons buttons;
@@ -88,9 +87,9 @@ dmz::JsModuleUiV8QtBasic::_create_message_box (V8Object params, QWidget *parent)
          }
       }
 
-      if (params->Has (_mbDefaultButtonStr)) {
+      if (params->Has (_defaultButtonStr)) {
 
-         const UInt32 ButtonValue = v8_to_uint32 (params->Get (_mbDefaultButtonStr));
+         const UInt32 ButtonValue = v8_to_uint32 (params->Get (_defaultButtonStr));
          dialog->setDefaultButton ((QMessageBox::StandardButton)ButtonValue);
       }
    }

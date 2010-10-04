@@ -9,6 +9,8 @@
 namespace {
 
    static const dmz::String LocalSignalCurrentItemChanged ("currentItemChanged");
+   static const dmz::String LocalSignalCurrentRowChanged ("currentRowChanged");
+   static const dmz::String LocalSignalCurrentTextChanged ("currentTextChanged");
    static const dmz::String LocalSignalItemActivated ("itemActivated");
 };
 
@@ -43,6 +45,26 @@ dmz::V8QtListWidget::bind (
 
          results = True;
       }
+      else if (Signal == LocalSignalCurrentRowChanged) {
+
+         connect (
+            _widget,
+            SIGNAL (currentRowChanged (int)),
+            SLOT (on_currentRowChanged (int)),
+            Qt::UniqueConnection);
+
+         results = True;
+      }
+      else if (Signal == LocalSignalCurrentTextChanged) {
+
+         connect (
+            _widget,
+            SIGNAL (currentTextChanged (const QString &)),
+            SLOT (on_currentTextChanged (const QString &)),
+            Qt::UniqueConnection);
+
+         results = True;
+      }
       else if (Signal == LocalSignalItemActivated) {
 
          connect (
@@ -66,87 +88,45 @@ dmz::V8QtListWidget::on_currentItemChanged (
       QListWidgetItem *current,
       QListWidgetItem *previous) {
 
-   if (_state && _state->core && _state->ui) {
+   if (_state && _state->ui) {
 
       v8::Context::Scope cscope (_state->context);
       v8::HandleScope scope;
 
-      CallbackTable *ct = _cbTable.lookup (LocalSignalCurrentItemChanged);
-      if (ct) {
+      QList<V8Value> args;
+      args.append (_state->ui->create_v8_list_widget_item (current));
+      args.append (_state->ui->create_v8_list_widget_item (previous));
 
-         HashTableHandleIterator it;
-         CallbackStruct *cs (0);
-
-         while (ct->table.get_next (it, cs)) {
-
-            if (!(cs->func.IsEmpty ()) && !(cs->self.IsEmpty ())) {
-
-               const Handle Observer = cs->Observer;
-
-               const int Argc (3);
-               V8Value argv[Argc];
-               argv[0] = _state->ui->create_v8_list_widget_item (current);
-               argv[1] = _state->ui->create_v8_list_widget_item (previous);
-               argv[2] = cs->self;
-
-               v8::TryCatch tc;
-
-               cs->func->Call (cs->self, Argc, argv);
-
-               if (tc.HasCaught ()) {
-
-                  _state->core->handle_v8_exception (Observer, tc);
-
-                  cs = ct->table.remove (Observer);
-
-                  if (cs) { delete cs; cs = 0; }
-               }
-            }
-         }
-      }
+      _do_callback (LocalSignalCurrentItemChanged, args);
    }
+}
+
+
+void
+dmz::V8QtListWidget::on_currentRowChanged (int value) {
+
+   _do_callback (LocalSignalCurrentRowChanged, value);
+}
+
+
+void
+dmz::V8QtListWidget::on_currentTextChanged (const QString &Value) {
+
+   _do_callback (LocalSignalCurrentTextChanged, Value);
 }
 
 
 void
 dmz::V8QtListWidget::on_itemActivated (QListWidgetItem *item) {
 
-   if (_state && _state->core && _state->ui) {
+   if (_state && _state->ui) {
 
       v8::Context::Scope cscope (_state->context);
       v8::HandleScope scope;
 
-      CallbackTable *ct = _cbTable.lookup (LocalSignalItemActivated);
-      if (ct) {
+      QList<V8Value> args;
+      args.append (_state->ui->create_v8_list_widget_item (item));
 
-         HashTableHandleIterator it;
-         CallbackStruct *cs (0);
-
-         while (ct->table.get_next (it, cs)) {
-
-            if (!(cs->func.IsEmpty ()) && !(cs->self.IsEmpty ())) {
-
-               const Handle Observer = cs->Observer;
-
-               const int Argc (2);
-               V8Value argv[Argc];
-               argv[0] = _state->ui->create_v8_list_widget_item (item);
-               argv[1] = cs->self;
-
-               v8::TryCatch tc;
-
-               cs->func->Call (cs->self, Argc, argv);
-
-               if (tc.HasCaught ()) {
-
-                  _state->core->handle_v8_exception (Observer, tc);
-
-                  cs = ct->table.remove (Observer);
-
-                  if (cs) { delete cs; cs = 0; }
-               }
-            }
-         }
-      }
+      _do_callback (LocalSignalItemActivated, args);
    }
 }

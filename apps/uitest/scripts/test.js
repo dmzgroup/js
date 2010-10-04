@@ -2,22 +2,24 @@ var puts = require('sys').puts
   , timer = require('dmz/runtime/time')
   , ui = require('dmz/components/ui')
   , messageBox = require('dmz/components/ui/messageBox')
+  , fileDialog = require('dmz/components/ui/fileDialog')
   , form
   , button1
   , button2
   , list1
   , item
+  , lastFile = "/"
   ;
 
 puts("Script: " + self.name);
 
-form = ui.load("./scripts/TestForm.ui");
+form = ui.load("TestForm");
 form.show();
 
 button2 = form.lookup("button2");
 if(button2) {
-   button2.observe(self, "clicked", function () {
-      button2.text("Don't Push Me!!!");
+   button2.observe(self, "clicked", function (btn) {
+      btn.text("Don't Push Me!!!");
       timer.setTimer(self, 2, function () {
          button2.text("Push Me");
          if(button1) {
@@ -53,6 +55,19 @@ puts("messageBox.create");
          mb.open(self, function () {
             puts("mb: dialog closed");
             button1.hide();
+            var file = fileDialog.getExistingDirectory(
+               form,
+               {
+                  caption: "this is my dialog",
+                  dir: lastFile,
+                  filter_: "Source Code (*.lmk *.h *.cpp)",
+                  allowMultiple: true
+               }
+            );
+            if (file) {
+               puts(file);
+               lastFile = file[0];
+            }
          });
       }
    });
