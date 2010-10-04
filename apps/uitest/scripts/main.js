@@ -3,6 +3,7 @@ var puts = require('sys').puts
   , mainForm = ui.load('./scripts/main.ui')
   , listWidget = mainForm.lookup('listWidget')
   , stackedWidget = mainForm.lookup('stackedWidget')
+  , messageBox = require('dmz/components/ui/messageBox')
   , index = 0
   ;
 
@@ -38,8 +39,33 @@ mainForm.observe(self, 'doneButton', 'clicked', function (button) {
 // mainForm.observe(self, 'prevButton', 'clicked', function (btn) {
 // });
 
-// mainForm.observe(self, 'nextButton', 'clicked', function () {
-// });
+mainForm.observe(self, 'nextButton', 'clicked', function (button) {
+   var mb = messageBox.create(
+      button.parent(),
+      {
+         type: messageBox.Information,
+         text: "Some Text",
+         informativeText: "This is some informative Text",
+         standardButtons: [messageBox.Ok, messageBox.Cancel, messageBox.Save],
+         defaultButton: messageBox.Cancel
+      }
+   );
+   
+   mb.open(self, function (val) {
+      if (val === messageBox.Ok) {
+         
+         puts("mb: OK pressed");
+      }
+      else if (val === messageBox.Save) {
+         
+         puts("mb: Save pressed");
+      }
+      else if (val === messageBox.Cancel) {
+         
+         puts("mb: Cancel pressed");
+      }
+   });
+});
 
 dump(mainForm);
 dump(listWidget);

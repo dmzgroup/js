@@ -2,8 +2,6 @@
 #include "dmzV8QtDialog.h"
 #include <QtGui/QDialog>
 
-#include <QtCore/QDebug>
-
 namespace {
 
    static const dmz::String LocalSignalFinished ("finished");
