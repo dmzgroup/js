@@ -1,6 +1,6 @@
 var puts = require('sys').puts
   , timer = require('dmz/runtime/time')
-  , ui = require('dmz/components/ui')
+  , uiLoader = require('dmz/components/ui/uiLoader')
   , form
   , array
   , cb
@@ -11,7 +11,7 @@ var puts = require('sys').puts
 
 puts("Script: " + self.name);
 
-form = ui.load("./scripts/CheckBoxForm.ui");
+form = uiLoader.load("./scripts/CheckBoxForm.ui");
 form.show();
 
 cb = form.lookup("checkBox");

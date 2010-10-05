@@ -1,6 +1,6 @@
 var puts = require('sys').puts
   , timer = require('dmz/runtime/time')
-  , ui = require('dmz/components/ui')
+  , uiLoader = require('dmz/components/ui/uiLoader')
   , form
   , d1
   , d2
@@ -9,7 +9,7 @@ var puts = require('sys').puts
 
 puts("Script: " + self.name);
 
-form = ui.load("./scripts/DialForm.ui");
+form = uiLoader.load("./scripts/DialForm.ui");
 form.show();
 
 d1 = form.lookup("dial");

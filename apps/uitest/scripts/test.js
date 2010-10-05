@@ -1,6 +1,6 @@
 var puts = require('sys').puts
   , timer = require('dmz/runtime/time')
-  , ui = require('dmz/components/ui')
+  , uiLoader = require('dmz/components/ui/uiLoader')
   , messageBox = require('dmz/components/ui/messageBox')
   , fileDialog = require('dmz/components/ui/fileDialog')
   , form
@@ -13,7 +13,7 @@ var puts = require('sys').puts
 
 puts("Script: " + self.name);
 
-form = ui.load("TestForm");
+form = uiLoader.load("TestForm");
 form.show();
 
 button2 = form.lookup("button2");

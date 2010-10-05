@@ -1,13 +1,13 @@
 var puts = require('sys').puts
   , timer = require('dmz/runtime/time')
-  , ui = require('dmz/components/ui')
+  , uiLoader = require('dmz/components/ui/uiLoader')
   , form
   , slider
   ;
 
 puts("Script: " + self.name);
 
-form = ui.load("./scripts/SliderForm.ui");
+form = uiLoader.load("./scripts/SliderForm.ui");
 form.show();
 
 slider = form.lookup("slider");

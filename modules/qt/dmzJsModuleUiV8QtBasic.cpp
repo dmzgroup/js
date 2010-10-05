@@ -1,7 +1,10 @@
 #include "dmzJsModuleUiV8QtBasic.h"
 #include <dmzJsModuleV8.h>
 #include <dmzJsV8UtilConvert.h>
+#include <dmzQtModuleMainWindow.h>
+#include <dmzRuntimeConfig.h>
 #include <dmzRuntimeConfigToStringContainer.h>
+#include <dmzRuntimeConfigToTypesBase.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
 #include <dmzSystemFile.h>
@@ -96,7 +99,8 @@ dmz::JsModuleUiV8QtBasic::JsModuleUiV8QtBasic (const PluginInfo &Info, Config &l
       Plugin (Info),
       JsModuleUiV8Qt (Info),
       JsExtV8 (Info),
-      _log (Info) {
+      _log (Info),
+      _mainWindowModule (0) {
 
    _state.ui = this;
    _init (local);
@@ -137,9 +141,17 @@ dmz::JsModuleUiV8QtBasic::discover_plugin (
 
    if (Mode == PluginDiscoverAdd) {
 
+      if (!_mainWindowModule) {
+
+         _mainWindowModule = QtModuleMainWindow::cast (PluginPtr, _mainWindowModuleName);
+      }
    }
    else if (Mode == PluginDiscoverRemove) {
 
+      if (_mainWindowModule && (_mainWindowModule == QtModuleMainWindow::cast (PluginPtr))) {
+
+         _mainWindowModule = 0;
+      }
    }
 }
 
@@ -271,7 +283,7 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
          }
          else if (value->inherits ("QLCDNumber")) {
 
-            if (!_dialogCtor.IsEmpty ()) {
+            if (!_lcdNumberCtor.IsEmpty ()) {
 
                vobj = _lcdNumberCtor->NewInstance ();
 
@@ -428,9 +440,20 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _vBoxLayoutCtor = V8FunctionPersist::New (_vBoxLayoutTemp->GetFunction ());
       }
 
+      if (!_mainWindowTemp.IsEmpty ()) {
+
+         _mainWindowCtor = V8FunctionPersist::New (_mainWindowTemp->GetFunction ());
+      }
+
       if (_state.core) {
 
-         _state.core->register_interface ("dmz/components/ui", _qtApi.get_new_instance ());
+         _state.core->register_interface (
+            "dmz/components/ui/uiLoader",
+            _uiLoaderApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/components/ui/mainWindow",
+            _mainWindowApi.get_new_instance ());
 
          _state.core->register_interface (
             "dmz/components/ui/messageBox",
@@ -503,12 +526,13 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _vBoxLayoutCtor.Dispose (); _vBoxLayoutCtor.Clear ();
       _boxLayoutCtor.Dispose (); _boxLayoutCtor.Clear ();
       _layoutCtor.Dispose (); _layoutCtor.Clear ();
+      _mainWindowCtor.Dispose (); _mainWindowCtor.Clear ();
 
-      _qtApi.clear ();
+      _uiLoaderApi.clear ();
+      _mainWindowApi.clear ();
       _messageBoxApi.clear ();
       _layoutApi.clear ();
       _fileDialogApi.clear ();
-
       _state.context.Clear ();
 
       _obsTable.empty ();
@@ -533,6 +557,15 @@ dmz::JsModuleUiV8QtBasic::release_js_instance_v8 (
 
       delete os; os = 0;
    }
+}
+
+
+QMainWindow *
+dmz::JsModuleUiV8QtBasic::get_qt_main_window () {
+
+   QMainWindow *mainWindow (0);
+   if (_mainWindowModule) { mainWindow = _mainWindowModule->get_qt_main_window (); }
+   return mainWindow;
 }
 
 
@@ -623,12 +656,17 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
 
    _searchPaths = config_to_path_string_container (local);
 
+   _mainWindowModuleName = config_to_string (
+      "module.mainWindow.name",
+      local,
+      "dmzQtModuleMainWindowBasic");
+
    v8::HandleScope scope;
 
    _self = V8ValuePersist::New (v8::External::Wrap (this));
 
    // API
-   _qtApi.add_function ("load", _uiloader_load, _self);
+   _uiLoaderApi.add_function ("load", _uiloader_load, _self);
 
    _init_widget ();
    _init_button ();
@@ -654,6 +692,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_vbox_layout ();
 
    _init_file_dialog ();
+   _init_main_window ();
 }
 
 
