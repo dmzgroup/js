@@ -45,6 +45,7 @@ namespace dmz {
 
          // JsModuleRuntimeV8 Interface
          virtual v8::Handle<v8::Value> create_v8_config (const Config *Value);
+         virtual Boolean to_dmz_config (v8::Handle<v8::Value> value, Config &out);
          virtual v8::Handle<v8::Value> create_v8_data (const Data *Value);
          virtual Boolean to_dmz_data (v8::Handle<v8::Value> value, Data &out);
          virtual v8::Handle<v8::Value> create_v8_event_type (const EventType *Value);
@@ -90,6 +91,8 @@ namespace dmz {
          // Config bindings implemented in dmzJsModuleRuntimeV8BasicConfig.cpp
          static V8Value _create_config (const v8::Arguments &Args);
          static V8Value _config_is_type_of (const v8::Arguments &Args);
+         static V8Value _config_to_string (const v8::Arguments &Args);
+         static V8Value _config_add (const v8::Arguments &Args);
          static V8Value _config_get (const v8::Arguments &Args);
          static V8Value _config_string (const v8::Arguments &Args);
          static V8Value _config_number (const v8::Arguments &Args);
@@ -193,6 +196,11 @@ namespace dmz {
          void _init_config ();
          V8Object _to_config (V8Value value);
          Config *_to_config_ptr (V8Value value);
+         void _add_to_config (
+            const String &Name,
+            const Boolean InArray,
+            V8Value value,
+            Config &parent);
          // implemented in dmzJsModuleRuntimeV8BasicData.cpp
          void _init_data ();
          V8Object _to_data (V8Value value);

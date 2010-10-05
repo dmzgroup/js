@@ -27,6 +27,7 @@ namespace dmz {
 
          // JsModuleRuntimeV8 Interface
          virtual v8::Handle<v8::Value> create_v8_config (const Config *Value) = 0;
+         virtual Boolean to_dmz_config (v8::Handle<v8::Value> value, Config &out) = 0;
          virtual v8::Handle<v8::Value> create_v8_data (const Data *Value) = 0;
          virtual Boolean to_dmz_data (v8::Handle<v8::Value> value, Data &out) = 0;
          virtual v8::Handle<v8::Value> create_v8_event_type (const EventType *Value) = 0;

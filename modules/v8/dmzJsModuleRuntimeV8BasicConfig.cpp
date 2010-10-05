@@ -1,10 +1,12 @@
 #include "dmzJsModuleRuntimeV8Basic.h"
 #include <dmzJsModuleTypesV8.h>
+#include <dmzJsV8UtilTypes.h>
 #include <dmzRuntimeConfig.h>
 #include <dmzRuntimeConfigToMatrix.h>
 #include <dmzRuntimeConfigToNamedHandle.h>
 #include <dmzRuntimeConfigToTypesBase.h>
 #include <dmzRuntimeConfigToVector.h>
+#include <dmzRuntimeConfigWrite.h>
 #include <dmzRuntimeEventType.h>
 #include <dmzRuntimeMessaging.h>
 #include <dmzRuntimeObjectType.h>
@@ -70,6 +72,71 @@ dmz::JsModuleRuntimeV8Basic::_config_is_type_of (const v8::Arguments &Args) {
    JsModuleRuntimeV8Basic *self = to_self (Args);
 
    if (self) { result = self->_to_config (Args[0]); }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+V8Value
+dmz::JsModuleRuntimeV8Basic::_config_to_string (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self) {
+
+      Config *ptr = self->_to_config_ptr (Args.This ());
+
+      if (ptr) {
+
+         String str;
+         StreamString out (str);
+
+         out << *ptr;
+
+         if (str) { result = v8::String::New (str.get_buffer ()); }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+V8Value
+dmz::JsModuleRuntimeV8Basic::_config_add (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self) {
+
+      Config *ptr = self->_to_config_ptr (Args.This ());
+
+      if (ptr) {
+
+         if (Args.Length () == 1) {
+         
+            Config *data = self->_to_config_ptr (Args[0]);
+
+            if (data) { ptr->add_config (*data); result = v8::Boolean::New (true); }
+         }
+         else if (Args.Length () > 1) {
+
+            String param = v8_to_string (Args[0]);
+
+            if (param) {
+
+               self->_add_to_config (param, False, Args[1], *ptr);
+
+               result = v8::Boolean::New (true);
+            }
+         }
+      }
+   }
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -371,6 +438,19 @@ dmz::JsModuleRuntimeV8Basic::create_v8_config (const Config *Value) {
 }
 
 
+dmz::Boolean
+dmz::JsModuleRuntimeV8Basic::to_dmz_config (v8::Handle<v8::Value> value, Config &out) {
+
+   Boolean result (False);
+
+   Config *ptr = _to_config_ptr (value);
+
+   if (ptr)  { out = *ptr; result = True; }
+
+   return result;
+}
+
+
 void
 dmz::JsModuleRuntimeV8Basic::_init_config () {
 
@@ -384,6 +464,8 @@ dmz::JsModuleRuntimeV8Basic::_init_config () {
 
    v8::Handle<v8::ObjectTemplate> proto = _configFuncTemplate->PrototypeTemplate ();
 
+   proto->Set ("toString", v8::FunctionTemplate::New (_config_to_string, _self));
+   proto->Set ("add", v8::FunctionTemplate::New (_config_add, _self));
    proto->Set ("get", v8::FunctionTemplate::New (_config_get, _self));
    proto->Set ("string", v8::FunctionTemplate::New (_config_string, _self));
    proto->Set ("number", v8::FunctionTemplate::New (_config_number, _self));
@@ -438,5 +520,151 @@ dmz::JsModuleRuntimeV8Basic::_to_config_ptr (V8Value value) {
    }
 
    return result;
+}
+
+
+void
+dmz::JsModuleRuntimeV8Basic::_add_to_config (
+      const String &Name,
+      const Boolean InArray,
+      V8Value value,
+      Config &parent) {
+
+   v8::HandleScope scope;
+
+   Boolean found (False);
+
+   if (value.IsEmpty () == false) {
+
+      if (value->IsNumber () || value->IsString () || value->IsBoolean () ||
+            value->IsDate ()) {
+
+         const String Value = v8_to_string (value->ToString ());
+
+         if (InArray) {
+
+            Config child (Name);
+            child.set_in_array (True);
+            child.store_attribute ("value", Value);
+            parent.add_config (child);
+         }
+         else { parent.store_attribute (Name, Value); }
+
+         found = True;
+      }
+      else if (value->IsArray ()) {
+
+         V8Array array = v8_to_array (value);
+
+         if (array.IsEmpty () == false) {
+
+            const int Length = array->Length ();
+
+            if (InArray) {
+
+               Config child (Name);
+
+               for (int ix = 0; ix < Length; ix++) {
+
+                  _add_to_config (
+                     "element",
+                     True,
+                     array->Get (v8::Integer::New (ix)),
+                     child);
+               }
+
+               parent.add_config (child);
+            }
+            else {
+
+               for (int ix = 0; ix < Length; ix++) {
+
+                  _add_to_config (Name, True, array->Get (v8::Integer::New (ix)), parent);
+               }
+            }
+         }
+
+         found = True;
+      }
+   }
+
+   V8Object obj = v8_to_object (value);
+
+   if (!found && obj.IsEmpty () == false) {
+
+      if (_types) {
+
+         if (_types->is_v8_vector (obj)) {
+
+            Config value = vector_to_config (Name, _types->to_dmz_vector (obj));
+            parent.add_config (value);
+            found = true;
+         }
+         else if (_types->is_v8_matrix (obj)) {
+
+            Config value = matrix_to_config (Name, _types->to_dmz_matrix (obj));
+            parent.add_config (value);
+            found = true;
+         }
+         else if (_types->is_v8_mask (obj)) {
+
+            found = true;
+         }
+      }
+
+      if (!found) {
+
+         Data data;
+         EventType etype;
+         ObjectType otype;
+
+         if (to_dmz_data (obj, data)) {
+
+            parent.add_config (
+               data_to_config (Name, data, get_plugin_runtime_context ()));
+
+            found = true;
+         }
+         else if (to_dmz_event_type (obj, etype)) {
+
+            Config child (Name);
+            child.store_attribute ("name", etype.get_name ());
+            parent.add_config (child);
+            found = true;
+         }
+         else if (to_dmz_object_type (obj, otype)) {
+
+            Config child (Name);
+            child.store_attribute ("name", otype.get_name ());
+            parent.add_config (child);
+            found = true;
+         }
+      }
+
+      if (!found) {
+
+         V8Array prop = obj->GetPropertyNames ();
+
+         if (prop.IsEmpty () == false) {
+
+            const int Length = prop->Length ();
+
+            for (int ix = 0; ix < Length; ix++) {
+
+               V8Value name = prop->Get (v8::Integer::New (ix));
+
+               if ((name.IsEmpty () == false) && name->IsString () &&
+                     obj->HasRealNamedProperty (name->ToString ())) {
+
+                  Config data (Name);
+
+                  _add_to_config (v8_to_string (name), False, obj->Get (name), data);
+
+                  parent.add_config (data);
+               }
+            }
+         }
+      }
+   }
 }
 

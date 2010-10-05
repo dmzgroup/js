@@ -88,6 +88,21 @@ dmz::JsModuleTypesV8Basic::is_v8_vector (const v8::Handle<v8::Value> &Value) {
 
    Boolean result (False);
 
+   v8::Context::Scope cscope(_v8Context);
+   v8::HandleScope scope;
+
+   if (_vectorIsType.IsEmpty () == false) {
+
+      V8Value argv[] = { Value };
+
+      v8::TryCatch tc;
+
+      V8Value vec = _vectorIsType->Call (_vector, 1, argv);
+
+      if (tc.HasCaught () && _core) { _core->handle_v8_exception (0, tc); }
+      else if ((vec.IsEmpty () == false) && (vec != v8::Undefined ())) { result = True; }
+   }
+
    return result;
 }
 
@@ -170,6 +185,22 @@ dmz::Boolean
 dmz::JsModuleTypesV8Basic::is_v8_matrix (const v8::Handle<v8::Value> &Value) {
 
    Boolean result (False);
+
+   v8::Context::Scope cscope(_v8Context);
+   v8::HandleScope scope;
+
+   if (_matrixIsType.IsEmpty () == false) {
+
+      V8Value argv[] = { Value };
+
+      v8::TryCatch tc;
+
+      V8Value vec = _matrixIsType->Call (_matrix, 1, argv);
+
+      if (tc.HasCaught () && _core) { _core->handle_v8_exception (0, tc); }
+      else if ((vec.IsEmpty () == false) && (vec != v8::Undefined ())) { result = True; }
+   }
+
 
    return result;
 }
@@ -262,6 +293,21 @@ dmz::Boolean
 dmz::JsModuleTypesV8Basic::is_v8_mask (const v8::Handle<v8::Value> &Value) {
 
    Boolean result (False);
+
+   v8::Context::Scope cscope(_v8Context);
+   v8::HandleScope scope;
+
+   if (_maskIsType.IsEmpty () == false) {
+
+      V8Value argv[] = { Value };
+
+      v8::TryCatch tc;
+
+      V8Value vec = _maskIsType->Call (_mask, 1, argv);
+
+      if (tc.HasCaught () && _core) { _core->handle_v8_exception (0, tc); }
+      else if ((vec.IsEmpty () == false) && (vec != v8::Undefined ())) { result = True; }
+   }
 
    return result;
 }
@@ -391,6 +437,11 @@ dmz::JsModuleTypesV8Basic::update_js_ext_v8_state (const StateEnum State) {
          _maskCtor = local_to_v8_function (_mask, create);
          _matrixCtor = local_to_v8_function (_matrix, create);
          _vectorCtor = local_to_v8_function (_vector, create);
+
+         v8::Handle<v8::String> isType = v8::String::NewSymbol ("isTypeOf");
+         _maskIsType = local_to_v8_function (_mask, isType);
+         _matrixIsType = local_to_v8_function (_matrix, isType);
+         _vectorIsType = local_to_v8_function (_vector, isType);
       }
    }
    else if (State == JsExtV8::Shutdown) { _clear (); }
@@ -412,10 +463,13 @@ dmz::JsModuleTypesV8Basic::_clear () {
 
    _mask.Dispose (); _mask.Clear ();
    _maskCtor.Dispose (); _maskCtor.Clear ();
+   _maskIsType.Dispose (); _maskIsType.Clear ();
    _matrix.Dispose (); _matrix.Clear ();
    _matrixCtor.Dispose (); _matrixCtor.Clear ();
+   _matrixIsType.Dispose (); _matrixIsType.Clear ();
    _vector.Dispose (); _vector.Clear ();
    _vectorCtor.Dispose (); _vectorCtor.Clear ();
+   _vectorIsType.Dispose (); _vectorIsType.Clear ();
 
    _bitsStr.Dispose (); _bitsStr.Clear ();
 
