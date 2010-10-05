@@ -1,6 +1,6 @@
 var puts = require('sys').puts
   , timer = require('dmz/runtime/time')
-  , ui = require('dmz/components/ui')
+  , uiLoader = require('dmz/components/ui/uiLoader')
   , form
   , cb
   , count
@@ -8,7 +8,7 @@ var puts = require('sys').puts
 
 puts("Script: " + self.name);
 
-form = ui.load("./scripts/comboBoxForm.ui");
+form = uiLoader.load("./scripts/comboBoxForm.ui");
 form.show();
 
 cb = form.lookup("comboBox");

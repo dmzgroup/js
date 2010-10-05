@@ -1,13 +1,13 @@
 var puts = require('sys').puts
   , timer = require('dmz/runtime/time')
-  , ui = require('dmz/components/ui')
+  , uiLoader = require('dmz/components/ui/uiLoader')
   , form
   , label
   ;
 
 puts("Script: " + self.name);
 
-form = ui.load("./scripts/LabelForm.ui");
+form = uiLoader.load("./scripts/LabelForm.ui");
 form.show();
 
 label = form.lookup("label");

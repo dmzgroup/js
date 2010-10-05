@@ -1,9 +1,10 @@
 var puts = require('sys').puts
-  , ui = require('dmz/components/ui')
-  , mainForm = ui.load('./scripts/main.ui')
+  , uiLoader = require('dmz/components/ui/uiLoader')
+  , mainWindow = require('dmz/components/ui/mainWindow')
+  , messageBox = require('dmz/components/ui/messageBox')
+  , mainForm = uiLoader.load('./scripts/main.ui')
   , listWidget = mainForm.lookup('listWidget')
   , stackedWidget = mainForm.lookup('stackedWidget')
-  , messageBox = require('dmz/components/ui/messageBox')
   , index = 0
   ;
 
@@ -17,7 +18,7 @@ function dump (obj) {
 }
 
 function add_script (script) {
-   var form = ui.load('./scripts/' + script + '.ui');
+   var form = uiLoader.load('./scripts/' + script + '.ui');
    form.objectName(script);
    listWidget.addItem(script);
    stackedWidget.add(form);
@@ -27,13 +28,13 @@ listWidget.observe(self, 'currentRowChanged', function (row) {
    index = row;
    // puts('row: ' + index);
    stackedWidget.currentIndex(index);
-   
+
    var label = mainForm.lookup('infoLabel');
    if (label) { label.text(index);}
 });
 
 mainForm.observe(self, 'doneButton', 'clicked', function (button) {
-   button.parent().close();
+   mainWindow.close();
 });
 
 // mainForm.observe(self, 'prevButton', 'clicked', function (btn) {
@@ -50,18 +51,18 @@ mainForm.observe(self, 'nextButton', 'clicked', function (button) {
          defaultButton: messageBox.Cancel
       }
    );
-   
+
    mb.open(self, function (val) {
       if (val === messageBox.Ok) {
-         
+
          puts("mb: OK pressed");
       }
       else if (val === messageBox.Save) {
-         
+
          puts("mb: Save pressed");
       }
       else if (val === messageBox.Cancel) {
-         
+
          puts("mb: Cancel pressed");
       }
    });
@@ -76,42 +77,42 @@ add_script('Widgets');
 
 
 mainForm.observe(self, 'comboBox', 'currentIndexChanged', function (value, comboBox) {
-   
+
    // puts('comboBox: ' + value);
    var comboBoxLabel = mainForm.lookup ('comboBoxLabel');
    if (comboBoxLabel) { comboBoxLabel.text (comboBox.itemText(value)); }
 });
 
 mainForm.observe(self, 'lineEdit', 'textChanged', function (value) {
-   
+
    // puts('lineEdit: ' + value);
    var lineEditLabel = mainForm.lookup ('lineEditLabel');
    if (lineEditLabel) { lineEditLabel.text (value); }
 });
 
 mainForm.observe(self, 'spinBox', 'valueChanged', function (value) {
-   
+
    // puts('spinBox: ' + value);
    var spinBoxLabel = mainForm.lookup ('spinBoxLabel');
    if (spinBoxLabel) { spinBoxLabel.text (value); }
 });
 
 mainForm.observe(self, 'doubleSpinBox', 'valueChanged', function (value) {
-   
+
    // puts('doubleSpinBox: ' + value);
    var doubleSpinBoxLabel = mainForm.lookup ('doubleSpinBoxLabel');
    if (doubleSpinBoxLabel) { doubleSpinBoxLabel.text (value); }
 });
 
 function sliderUpdate (val) {
-   
+
    // puts('slider update: ' + val);
 
    var lcd = mainForm.lookup ('lcd');
    if (lcd) { lcd.property ('value', val); }
-   
+
    var progressBar = mainForm.lookup ('progressBar');
-   if (progressBar) { 
+   if (progressBar) {
       // progressBar.value (val);
       progressBar.property ('value', val);
    }
@@ -128,6 +129,6 @@ mainForm.observe(self, 'dial', 'valueChanged', sliderUpdate);
 
 stackedWidget.currentIndex(0);
 
-mainForm.show();
+mainWindow.centralWidget (mainForm);
 
 puts('Done with: ' + self.name);

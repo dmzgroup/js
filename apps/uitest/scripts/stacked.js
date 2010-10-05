@@ -1,18 +1,18 @@
 var puts = require('sys').puts
   , timer = require('dmz/runtime/time')
-  , ui = require('dmz/components/ui')
+  , uiLoader = require('dmz/components/ui/uiLoader')
   , form
-  , pbar = ui.load("./scripts/ProgressBarForm.ui")
-  , widget = ui.load("./scripts/SliderForm.ui")
-  , cb = ui.load("./scripts/CheckBoxForm.ui")
-  , label = ui.load("./scripts/LabelForm.ui")
-  , combo = ui.load("./scripts/comboBoxForm.ui")
+  , pbar = uiLoader.load("./scripts/ProgressBarForm.ui")
+  , widget = uiLoader.load("./scripts/SliderForm.ui")
+  , cb = uiLoader.load("./scripts/CheckBoxForm.ui")
+  , label = uiLoader.load("./scripts/LabelForm.ui")
+  , combo = uiLoader.load("./scripts/comboBoxForm.ui")
   , sw
   ;
 
 puts("Script: " + self.name);
 
-form = ui.load("./scripts/StackedWidgetForm.ui");
+form = uiLoader.load("./scripts/StackedWidgetForm.ui");
 form.show();
 
 sw = form.lookup("stackedWidget");

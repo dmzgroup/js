@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmz>
+<plugin-list>
+   <plugin name="dmzQtModuleMainWindowBasic" scope="window" unload="false" delete="false"/>
+   <!-- <plugin name="dmzQtPluginVersion"/> -->
+</plugin-list>
+<window>
+   <!-- <showUnifiedTitleAndToolBar value="true"/> -->
+   <!-- <window title="MBRA" icon="images:IconFiles/AppIconMBRA_32x32.png"/> -->
+   <!-- <central-widget name="central-widget"/> -->
+<!--
+      <menu-bar>
+      <menu text="&amp;File"/>
+      <menu text="&amp;Edit"/>
+      <menu text="&amp;Window"/>
+      <menu text="&amp;Help"/>
+   </menu-bar>
+-->
+<!--
+   <dock-windows>
+      <group area="right">
+         <widget name="charts-palette" title="Charts Palette" visible="false" floating="true">
+            <allowed-areas none="true"/>
+         </widget>
+         <widget name="data-palette" title="Data Table" visible="false" floating="true">
+            <allowed-areas none="true"/>
+         </widget>
+         <widget name="tool-palette" title="Tool Palette" visible="false" floating="true">
+            <allowed-areas none="true"/>
+         </widget>
+         <widget name="NACanvasLayer" title="Network Layers" visible="false" floating="true">
+            <allowed-areas none="true"/>
+         </widget>
+         <widget name="dmzMBRAPluginLinkEditor" title="Network Fault Tree Editor" visible="false" floating="true">
+            <allowed-areas none="true"/>
+         </widget>
+         <widget name="object-inspector" title="Object Inspector" visible="false" floating="true">
+            <allowed-areas none="true"/>
+         </widget>
+      </group>
+   </dock-windows>
+-->
+</window>
+</dmz>
+
