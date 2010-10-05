@@ -32,8 +32,10 @@
    <instance name="dialog"/>
    <instance name="lcd"/>
    <instance name="stacked"/>
-   <instance name="tab"/>-->
-   <instance name="layout"/>
+   <instance name="tab"/>
+   <instance name="layout"/> 
+   <instance name="formlayout"/>-->
+   <instance name="gridlayout"/>
 </javascript>
 <test>
    <name value="my_name"/>

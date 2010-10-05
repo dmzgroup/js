@@ -3,11 +3,6 @@ var puts = require('sys').puts
   , ui = require('dmz/components/ui')
   , layout = require('dmz/components/ui/layout')
   , form
-  , pbar = ui.load("./scripts/ProgressBarForm.ui")
-  , widget = ui.load("./scripts/SliderForm.ui")
-  , cb = ui.load("./scripts/CheckBoxForm.ui")
-  , label = ui.load("./scripts/LabelForm.ui")
-  , combo = ui.load("./scripts/comboBoxForm.ui")
   , buttons = ["pushButton", "pushButton_2", "pushButton_3", "pushButton_4", "pushButton_5",
             "pushButton_6", "pushButton_7", "pushButton_8", "pushButton_9"]
   , tw

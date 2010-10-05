@@ -440,6 +440,16 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _vBoxLayoutCtor = V8FunctionPersist::New (_vBoxLayoutTemp->GetFunction ());
       }
 
+      if (!_gridLayoutTemp.IsEmpty ()) {
+
+         _gridLayoutCtor = V8FunctionPersist::New (_gridLayoutTemp->GetFunction ());
+      }
+
+      if (!_formLayoutTemp.IsEmpty ()) {
+
+         _formLayoutCtor = V8FunctionPersist::New (_formLayoutTemp->GetFunction ());
+      }
+
       if (!_mainWindowTemp.IsEmpty ()) {
 
          _mainWindowCtor = V8FunctionPersist::New (_mainWindowTemp->GetFunction ());
@@ -525,6 +535,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _hBoxLayoutCtor.Dispose (); _hBoxLayoutCtor.Clear ();
       _vBoxLayoutCtor.Dispose (); _vBoxLayoutCtor.Clear ();
       _boxLayoutCtor.Dispose (); _boxLayoutCtor.Clear ();
+      _formLayoutCtor.Dispose (); _formLayoutCtor.Clear ();
+      _gridLayoutCtor.Dispose (); _gridLayoutCtor.Clear ();
       _layoutCtor.Dispose (); _layoutCtor.Clear ();
       _mainWindowCtor.Dispose (); _mainWindowCtor.Clear ();
 
@@ -690,6 +702,8 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_box_layout ();
    _init_hbox_layout ();
    _init_vbox_layout ();
+   _init_grid_layout ();
+   _init_form_layout ();
 
    _init_file_dialog ();
    _init_main_window ();

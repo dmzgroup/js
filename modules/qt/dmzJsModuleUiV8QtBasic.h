@@ -214,6 +214,23 @@ namespace dmz {
          static V8Value _create_hbox_layout (const v8::Arguments &Args);
          static V8Value _create_vbox_layout (const v8::Arguments &Args);
 
+         // QGridLayout bindings implemented in JsModuleUiV8QtBasicLayout.cpp
+         static V8Value _grid_layout_add_layout (const v8::Arguments &Args);
+         static V8Value _grid_layout_add_widget (const v8::Arguments &Args);
+         static V8Value _grid_layout_column_count (const v8::Arguments &Args);
+         static V8Value _grid_layout_row_count (const v8::Arguments &Args);
+         static V8Value _grid_layout_column_stretch (const v8::Arguments &Args);
+         static V8Value _grid_layout_row_stretch (const v8::Arguments &Args);
+         static V8Value _create_grid_layout (const v8::Arguments &Args);
+
+         // QFormLayout bindings implemented in JsModuleUiV8QtBasicLayout.cpp
+         static V8Value _form_layout_add_row (const v8::Arguments &Args);
+         static V8Value _form_layout_insert_row (const v8::Arguments &Args);
+         static V8Value _form_layout_row_count (const v8::Arguments &Args);
+         static V8Value _form_layout_vertical_spacing (const v8::Arguments &Args);
+         static V8Value _form_layout_spacing (const v8::Arguments &Args);
+         static V8Value _create_form_layout (const v8::Arguments &Args);
+
          // QFileDialog bindings implemented in JsModuleUiV8QtBasicFileDialog.cpp
          static V8Value _file_dialog_get_existing_directory (const v8::Arguments &Args);
          static V8Value _file_dialog_get_open_file_name (const v8::Arguments &Args);
@@ -259,6 +276,8 @@ namespace dmz {
          void _init_box_layout ();
          void _init_hbox_layout ();
          void _init_vbox_layout ();
+         void _init_grid_layout ();
+         void _init_form_layout ();
 
          String _find_ui_file (const String &Name);
          void _init (Config &local);
@@ -341,6 +360,12 @@ namespace dmz {
 
          V8FunctionTemplatePersist _vBoxLayoutTemp;
          V8FunctionPersist _vBoxLayoutCtor;
+
+         V8FunctionTemplatePersist _gridLayoutTemp;
+         V8FunctionPersist _gridLayoutCtor;
+
+         V8FunctionTemplatePersist _formLayoutTemp;
+         V8FunctionPersist _formLayoutCtor;
 
          V8FunctionTemplatePersist _mainWindowTemp;
          V8FunctionPersist _mainWindowCtor;
