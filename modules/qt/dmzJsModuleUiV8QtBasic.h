@@ -203,6 +203,12 @@ namespace dmz {
          // QMainWindow bindings implemented in JsModuleUiV8QtBasicMainWindow.cpp
          static V8Value _main_window_central_widget (const v8::Arguments &Args);
          static V8Value _main_window_close (const v8::Arguments &Args);
+         static V8Value _main_window_dock_widget (const v8::Arguments &Args);
+
+         // QDockWidget bindings implemented in JsModuleUiV8QtBasicDockWidget.cpp
+         static V8Value _create_dock_widget (const v8::Arguments &Args);
+//         static V8Value _dock_window_widget (const v8::Arguments &Args);
+//         static V8Value _dock_window_toggle_view_action (const v8::Arguments &Args);
 
          void _get_file_dialog_params (
             V8Object params,
@@ -234,6 +240,7 @@ namespace dmz {
          void _init_tab_widget ();
          void _init_file_dialog ();
          void _init_main_window ();
+         void _init_dock_widget ();
 
          String _find_ui_file (const String &Name);
          void _init (Config &local);
@@ -251,8 +258,10 @@ namespace dmz {
          QMap<QWidget *, V8QtObject *>_widgetMap;
          QList<QWidget *>_dialogList;
 
+         V8InterfaceHelper _qtApi;
          V8InterfaceHelper _uiLoaderApi;
          V8InterfaceHelper _mainWindowApi;
+         V8InterfaceHelper _dockWidgetApi;
          V8InterfaceHelper _messageBoxApi;
          V8InterfaceHelper _fileDialogApi;
 
@@ -306,6 +315,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _mainWindowTemp;
          V8FunctionPersist _mainWindowCtor;
+
+         V8FunctionTemplatePersist _dockWidgetTemp;
+         V8FunctionPersist _dockWidgetCtor;
 
          V8StringPersist _typeStr;
          V8StringPersist _textStr;

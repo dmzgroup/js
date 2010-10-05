@@ -4,6 +4,7 @@
 #include <dmzV8QtButton.h>
 #include <dmzV8QtComboBox.h>
 #include <dmzV8QtDialog.h>
+#include <dmzV8QtDockWidget.h>
 #include <dmzV8QtLineEdit.h>
 #include <dmzV8QtListWidget.h>
 #include <dmzV8QtProgressBar.h>

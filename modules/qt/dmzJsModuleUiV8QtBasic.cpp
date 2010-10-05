@@ -271,6 +271,16 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
                qobj = new V8QtListWidget (vobj, value, &_state);
             }
          }
+         else if (value->inherits ("QDockWidget")) {
+
+_log.warn << "Lets create a dock widget" << endl;
+
+            if (!_dockWidgetCtor.IsEmpty ()) {
+
+               vobj = _dockWidgetCtor->NewInstance ();
+               qobj = new V8QtDockWidget (vobj, value, &_state);
+            }
+         }
          else if (value->inherits ("QLabel")) {
 
             if (!_labelCtor.IsEmpty ()) {
@@ -425,22 +435,30 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _mainWindowCtor = V8FunctionPersist::New (_mainWindowTemp->GetFunction ());
       }
 
+      if (!_dockWidgetTemp.IsEmpty ()) {
+
+         _dockWidgetCtor = V8FunctionPersist::New (_dockWidgetTemp->GetFunction ());
+      }
+
       if (_state.core) {
 
-         _state.core->register_interface (
-            "dmz/components/ui/uiLoader",
-            _uiLoaderApi.get_new_instance ());
+         _state.core->register_interface ("dmz/ui", _qtApi.get_new_instance ());
+         _state.core->register_interface ("dmz/ui/uiLoader", _uiLoaderApi.get_new_instance ());
 
          _state.core->register_interface (
-            "dmz/components/ui/mainWindow",
+            "dmz/ui/mainWindow",
             _mainWindowApi.get_new_instance ());
 
          _state.core->register_interface (
-            "dmz/components/ui/messageBox",
+            "dmz/ui/dockWidget",
+            _dockWidgetApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/messageBox",
             _messageBoxApi.get_new_instance ());
 
          _state.core->register_interface (
-            "dmz/components/ui/fileDialog",
+            "dmz/ui/fileDialog",
             _fileDialogApi.get_new_instance ());
       }
 
@@ -499,9 +517,12 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _stackedCtor.Dispose (); _stackedCtor.Clear ();
       _tabCtor.Dispose (); _tabCtor.Clear ();
       _mainWindowCtor.Dispose (); _mainWindowCtor.Clear ();
+      _dockWidgetCtor.Dispose (); _dockWidgetCtor.Clear ();
 
+      _qtApi.clear ();
       _uiLoaderApi.clear ();
       _mainWindowApi.clear ();
+      _dockWidgetApi.clear ();
       _messageBoxApi.clear ();
       _fileDialogApi.clear ();
       _state.context.Clear ();
@@ -610,7 +631,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _searchPaths = config_to_path_string_container (local);
 
    _mainWindowModuleName = config_to_string (
-      "module.mainWindow.name",
+      "main-window.name",
       local,
       "dmzQtModuleMainWindowBasic");
 
@@ -618,7 +639,78 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
 
    _self = V8ValuePersist::New (v8::External::Wrap (this));
 
-   // API
+   // Qt API
+   // enum Qt::AlignmentFlag
+   _qtApi.add_constant ("AlignLeft", (UInt32)Qt::AlignLeft);
+   _qtApi.add_constant ("AlignRight", (UInt32)Qt::AlignRight);
+   _qtApi.add_constant ("AlignHCenter", (UInt32)Qt::AlignHCenter);
+   _qtApi.add_constant ("AlignJustify", (UInt32)Qt::AlignJustify);
+   _qtApi.add_constant ("AlignTop", (UInt32)Qt::AlignTop);
+   _qtApi.add_constant ("AlignBottom", (UInt32)Qt::AlignBottom);
+   _qtApi.add_constant ("AlignVCenter", (UInt32)Qt::AlignVCenter);
+   _qtApi.add_constant ("AlignCenter", (UInt32)Qt::AlignCenter);
+
+   // enum Qt::CaseSensitivity
+   _qtApi.add_constant ("CaseInsensitive", (UInt32)Qt::CaseInsensitive);
+   _qtApi.add_constant ("CaseInsensitive", (UInt32)Qt::CaseInsensitive);
+
+   // enum Qt::CheckState
+   _qtApi.add_constant ("Unchecked", (UInt32)Qt::Unchecked);
+   _qtApi.add_constant ("PartiallyChecked", (UInt32)Qt::PartiallyChecked);
+   _qtApi.add_constant ("Checked", (UInt32)Qt::Checked);
+
+   // enum Qt::Corner
+   _qtApi.add_constant ("TopLeftCorner", (UInt32)Qt::TopLeftCorner);
+   _qtApi.add_constant ("TopRightCorner", (UInt32)Qt::TopRightCorner);
+   _qtApi.add_constant ("BottomLeftCorner", (UInt32)Qt::BottomLeftCorner);
+   _qtApi.add_constant ("BottomRightCorner", (UInt32)Qt::BottomRightCorner);
+
+   // enum Qt::DockWidgetArea
+   _qtApi.add_constant ("LeftDockWidgetArea", (UInt32)Qt::LeftDockWidgetArea);
+   _qtApi.add_constant ("RightDockWidgetArea", (UInt32)Qt::RightDockWidgetArea);
+   _qtApi.add_constant ("TopDockWidgetArea", (UInt32)Qt::TopDockWidgetArea);
+   _qtApi.add_constant ("LeftDockWidgetArea", (UInt32)Qt::LeftDockWidgetArea);
+   _qtApi.add_constant ("BottomDockWidgetArea", (UInt32)Qt::BottomDockWidgetArea);
+   _qtApi.add_constant ("AllDockWidgetAreas", (UInt32)Qt::AllDockWidgetAreas);
+   _qtApi.add_constant ("NoDockWidgetArea", (UInt32)Qt::NoDockWidgetArea);
+
+   // Qt's predefined QColor objects:
+   _qtApi.add_constant ("white", (UInt32)Qt::white);
+   _qtApi.add_constant ("black", (UInt32)Qt::black);
+   _qtApi.add_constant ("red", (UInt32)Qt::red);
+   _qtApi.add_constant ("darkRed", (UInt32)Qt::darkRed);
+   _qtApi.add_constant ("green", (UInt32)Qt::green);
+   _qtApi.add_constant ("darkGreen", (UInt32)Qt::darkGreen);
+   _qtApi.add_constant ("blue", (UInt32)Qt::blue);
+   _qtApi.add_constant ("darkBlue", (UInt32)Qt::darkBlue);
+   _qtApi.add_constant ("cyan", (UInt32)Qt::cyan);
+   _qtApi.add_constant ("darkCyan", (UInt32)Qt::darkCyan);
+   _qtApi.add_constant ("magenta", (UInt32)Qt::magenta);
+   _qtApi.add_constant ("darkMagenta", (UInt32)Qt::darkMagenta);
+   _qtApi.add_constant ("yellow", (UInt32)Qt::yellow);
+   _qtApi.add_constant ("darkYellow", (UInt32)Qt::darkYellow);
+   _qtApi.add_constant ("gray", (UInt32)Qt::gray);
+   _qtApi.add_constant ("darkGray", (UInt32)Qt::darkGray);
+   _qtApi.add_constant ("lightGray", (UInt32)Qt::lightGray);
+   _qtApi.add_constant ("transparent", (UInt32)Qt::transparent);
+
+   // enum Qt::Orientation
+   _qtApi.add_constant ("Horizontal", (UInt32)Qt::Horizontal);
+   _qtApi.add_constant ("Vertical", (UInt32)Qt::Vertical);
+
+   // enum Qt::SortOrder
+   _qtApi.add_constant ("AscendingOrder", (UInt32)Qt::AscendingOrder);
+   _qtApi.add_constant ("DescendingOrder", (UInt32)Qt::DescendingOrder);
+
+   // enum Qt::ToolBarArea
+   _qtApi.add_constant ("LeftToolBarArea", (UInt32)Qt::LeftToolBarArea);
+   _qtApi.add_constant ("RightToolBarArea", (UInt32)Qt::RightToolBarArea);
+   _qtApi.add_constant ("TopToolBarArea", (UInt32)Qt::TopToolBarArea);
+   _qtApi.add_constant ("BottomToolBarArea", (UInt32)Qt::BottomToolBarArea);
+   _qtApi.add_constant ("AllToolBarAreas", (UInt32)Qt::AllToolBarAreas);
+   _qtApi.add_constant ("NoToolBarArea", (UInt32)Qt::NoToolBarArea);
+
+   // UiLoader API
    _uiLoaderApi.add_function ("load", _uiloader_load, _self);
 
    _init_widget ();
@@ -640,6 +732,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_tab_widget ();
    _init_file_dialog ();
    _init_main_window ();
+   _init_dock_widget ();
 }
 
 

@@ -9,6 +9,7 @@ lmk.add_files ({
    "dmzV8QtButton.h",
    "dmzV8QtComboBox.h",
    "dmzV8QtDialog.h",
+   "dmzV8QtDockWidget.h",
    "dmzV8QtLineEdit.h",
    "dmzV8QtListWidget.h",
    "dmzV8QtObject.h",
@@ -26,6 +27,7 @@ lmk.add_files {
    "dmzJsModuleUiV8QtBasicButton.cpp",
    "dmzJsModuleUiV8QtBasicComboBox.cpp",
    "dmzJsModuleUiV8QtBasicDialog.cpp",
+   "dmzJsModuleUiV8QtBasicDockWidget.cpp",
    "dmzJsModuleUiV8QtBasicFileDialog.cpp",
    "dmzJsModuleUiV8QtBasicLabel.cpp",
    "dmzJsModuleUiV8QtBasicLCDNumber.cpp",
@@ -43,6 +45,7 @@ lmk.add_files {
    "dmzV8QtButton.cpp",
    "dmzV8QtComboBox.cpp",
    "dmzV8QtDialog.cpp",
+   "dmzV8QtDockWidget.cpp",
    "dmzV8QtLineEdit.cpp",
    "dmzV8QtListWidget.cpp",
    "dmzV8QtObject.cpp",
@@ -65,7 +68,6 @@ lmk.add_preqs {
    "dmzQtFramework",
    "dmzJsFramework",
 }
-
 
 lmkV8.add_libs ()
 lmkQt.add_libs {"QtCore", "QtGui"}

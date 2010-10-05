@@ -1,6 +1,6 @@
 var puts = require('sys').puts
   , timer = require('dmz/runtime/time')
-  , uiLoader = require('dmz/components/ui/uiLoader')
+  , uiLoader = require('dmz/ui/uiLoader')
   , form
   , label
   ;
