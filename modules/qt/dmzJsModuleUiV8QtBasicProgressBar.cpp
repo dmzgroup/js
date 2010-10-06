@@ -13,7 +13,7 @@ dmz::JsModuleUiV8QtBasic::_progress_bar_maximum (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -47,7 +47,7 @@ dmz::JsModuleUiV8QtBasic::_progress_bar_minimum (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -81,7 +81,7 @@ dmz::JsModuleUiV8QtBasic::_progress_bar_value (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -115,7 +115,7 @@ dmz::JsModuleUiV8QtBasic::_progress_bar_text (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -142,7 +142,7 @@ dmz::JsModuleUiV8QtBasic::_progress_bar_reset (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 

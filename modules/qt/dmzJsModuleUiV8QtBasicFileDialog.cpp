@@ -18,7 +18,7 @@ dmz::JsModuleUiV8QtBasic::_file_dialog_get_existing_directory (const v8::Argumen
 
       if (Args.Length () >= 2) {
 
-         parent = self->_to_qt_widget (Args[0]);
+         parent = self->_to_qwidget (Args[0]);
          params = v8_to_object (Args[1]);
       }
       else {
@@ -59,7 +59,7 @@ dmz::JsModuleUiV8QtBasic::_file_dialog_get_open_file_name (const v8::Arguments &
 
       if (Args.Length () >= 2) {
 
-         parent = self->_to_qt_widget (Args[0]);
+         parent = self->_to_qwidget (Args[0]);
          params = v8_to_object (Args[1]);
       }
       else {

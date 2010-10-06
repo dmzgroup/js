@@ -20,7 +20,7 @@ namespace dmz {
 
          virtual ~V8QtWidget ();
 
-         QWidget *get_qt_widget () const;
+         QWidget *get_qwidget () const;
 
          virtual Boolean bind (
             const String &Signal,

@@ -10,7 +10,7 @@
 namespace dmz {
 
    V8Value to_v8_value (const QVariant &Value);
-   QVariant to_qt_variant (V8Value value);
+   QVariant to_qvariant (V8Value value);
 
    V8Value to_v8_value (const QString &Value);
    QString v8_to_qstring (V8Value value);

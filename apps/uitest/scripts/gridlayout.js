@@ -1,7 +1,7 @@
 var puts = require('sys').puts
   , timer = require('dmz/runtime/time')
-  , ui = require('dmz/components/ui/uiLoader')
-  , layout = require('dmz/components/ui/layout')
+  , ui = require('dmz/ui/uiLoader')
+  , layout = require('dmz/ui/layout')
   , form
   , buttons = ["pushButton", "pushButton_2", "pushButton_3", "pushButton_4", "pushButton_5",
             "pushButton_6", "pushButton_7", "pushButton_8", "pushButton_9"]

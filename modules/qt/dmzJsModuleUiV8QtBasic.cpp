@@ -11,49 +11,11 @@
 #include <dmzTypesStringTokenizer.h>
 #include "dmzV8QtTypes.h"
 #include <QtCore/QFile>
-#include <QtGui/QDialog>
-#include <QtGui/QDoubleSpinBox>
-#include <QtGui/QSpinBox>
-#include <QtGui/QWidget>
+//#include <QtGui/QDialog>
+//#include <QtGui/QDoubleSpinBox>
+//#include <QtGui/QSpinBox>
+//#include <QtGui/QWidget>
 #include <QtUiTools/QUiLoader>
-
-//using namespace dmz;
-
-//namespace {
-
-//static void
-//local_v8_qt_callback_struct_delete (V8ValuePersist object, void *param) {
-
-//   if (param) {
-
-//      V8QtCallbackStruct *obj = (V8QtCallbackStruct *)param;
-//      delete obj;
-//      obj = 0;
-//   }
-
-//   object.Dispose ();
-//   object.Clear ();
-//}
-
-//};
-
-
-//dmz::V8QtCallbackStruct::V8QtCallbackStruct (
-//      QWidget *theWidget,
-//      JsModuleUiV8QtBasicState &TheState) :
-//      QObject (0),
-//      next (0),
-//      widget (theWidget),
-//      state (TheState) {;}
-
-
-//dmz::V8QtCallbackStruct::~V8QtCallbackStruct () {
-
-//   if (widget) { delete widget; widget = 0; }
-
-//   self.Dispose (); self.Clear ();
-//   callback.Dispose (); callback.Clear ();
-//}
 
 
 dmz::V8Value
@@ -77,7 +39,7 @@ dmz::JsModuleUiV8QtBasic::_uiloader_load (const v8::Arguments &Args) {
          QWidget *widget = loader.load (&file, 0);
          file.close ();
 
-         result = self->create_v8_widget (widget);
+         result = self->create_v8_qwidget (widget);
 
          if (!result.IsEmpty ()) {
 
@@ -158,7 +120,7 @@ dmz::JsModuleUiV8QtBasic::discover_plugin (
 
 // JsModuleUiV8Qt Interface
 dmz::V8Value
-dmz::JsModuleUiV8QtBasic::create_v8_object (QObject *value) {
+dmz::JsModuleUiV8QtBasic::create_v8_qobject (QObject *value) {
 
    v8::Context::Scope cscope (_state.context);
    v8::HandleScope scope;
@@ -172,10 +134,10 @@ dmz::JsModuleUiV8QtBasic::create_v8_object (QObject *value) {
 
       if (!qobj) {
 
-         if (value->inherits ("QWidget")) {
+         if (value->isWidgetType ()) {
 
             QWidget  *widget = qobject_cast<QWidget *>(value);
-            if (widget) { result = create_v8_widget (widget); }
+            if (widget) { result = create_v8_qwidget (widget); }
          }
          else if (value->inherits ("QAction")) {
 
@@ -185,6 +147,55 @@ dmz::JsModuleUiV8QtBasic::create_v8_object (QObject *value) {
                qobj = new V8QtAction (vobj, value, &_state);
             }
          }
+         else if (value->inherits ("QHBoxLayout")) {
+
+            if (!_hBoxLayoutCtor.IsEmpty ()) {
+
+               vobj = _hBoxLayoutCtor->NewInstance ();
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QVBoxLayout")) {
+
+            if (!_vBoxLayoutCtor.IsEmpty ()) {
+
+               vobj = _vBoxLayoutCtor->NewInstance ();
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QBoxLayout")) {
+
+            if (!_boxLayoutCtor.IsEmpty ()) {
+
+               vobj = _boxLayoutCtor->NewInstance ();
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QGridLayout")) {
+
+            if (!_gridLayoutCtor.IsEmpty ()) {
+
+               vobj = _gridLayoutCtor->NewInstance ();
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QFormLayout")) {
+
+            if (!_formLayoutCtor.IsEmpty ()) {
+
+               vobj = _formLayoutCtor->NewInstance ();
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QLayout")) {
+
+            if (!_layoutCtor.IsEmpty ()) {
+
+               vobj = _layoutCtor->NewInstance ();
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
+
 
          if (qobj) { _objectMap.insert (value, qobj); }
       }
@@ -197,7 +208,7 @@ dmz::JsModuleUiV8QtBasic::create_v8_object (QObject *value) {
 
 
 dmz::V8Value
-dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
+dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
 
    v8::Context::Scope cscope (_state.context);
    v8::HandleScope scope;
@@ -473,22 +484,22 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       }
 
       if (!_layoutTemp.IsEmpty ()) {
-         
+
          _layoutCtor = V8FunctionPersist::New (_layoutTemp->GetFunction ());
       }
 
       if (!_boxLayoutTemp.IsEmpty ()) {
-         
+
          _boxLayoutCtor = V8FunctionPersist::New (_boxLayoutTemp->GetFunction ());
       }
 
       if (!_hBoxLayoutTemp.IsEmpty ()) {
-         
+
          _hBoxLayoutCtor = V8FunctionPersist::New (_hBoxLayoutTemp->GetFunction ());
       }
 
       if (!_vBoxLayoutTemp.IsEmpty ()) {
-         
+
          _vBoxLayoutCtor = V8FunctionPersist::New (_vBoxLayoutTemp->GetFunction ());
       }
 
@@ -647,83 +658,18 @@ dmz::JsModuleUiV8QtBasic::release_js_instance_v8 (
 }
 
 
-QListWidgetItem *
-dmz::JsModuleUiV8QtBasic::_to_qt_list_widget_item (V8Value value) {
-
-   v8::HandleScope scope;
-   QListWidgetItem *result (0);
-
-   V8Object obj = v8_to_object (value);
-   if (!obj.IsEmpty ()) {
-
-      if (_listWidgetItemTemp->HasInstance (obj)) {
-
-         result = (QListWidgetItem *)v8::External::Unwrap (obj->GetInternalField (0));
-      }
-   }
-
-   return result;
-}
-
-
-QWidget *
-dmz::JsModuleUiV8QtBasic::_to_qt_widget (V8Value value) {
-
-   QWidget *result (0);
-   V8QtWidget *widget = _to_js_qt_widget (value);
-   if (widget) { result = widget->get_qt_widget (); }
-   return result;
-}
-
-
-QObject  *
-dmz::JsModuleUiV8QtBasic::_to_qt_object (V8Value value) {
-
-   QObject *result (0);
-   V8QtObject *object = _to_js_qt_object (value);
-   if (object) { result = object->get_qt_object (); }
-   return result;
-}
-
-QLayout *
-dmz::JsModuleUiV8QtBasic::_to_qt_layout (V8Value value) {
-
-   v8::HandleScope scope;
-   QLayout *result (0);
-
-   V8Object obj = v8_to_object (value);
-   if (!obj.IsEmpty ()) {
-
-      if (_layoutTemp->HasInstance (obj)) {
-
-         result = (QLayout *)v8::External::Unwrap (obj->GetInternalField (0));
-      }
-   }
-
-   return result;
-}
-
 dmz::V8QtWidget *
-dmz::JsModuleUiV8QtBasic::_to_js_qt_widget (V8Value value) {
+dmz::JsModuleUiV8QtBasic::_to_v8_qt_widget (V8Value value) {
 
-   v8::HandleScope scope;
    V8QtWidget *result (0);
-
-   V8Object obj = v8_to_object (value);
-   if (!obj.IsEmpty ()) {
-
-      if (_objectTemp->HasInstance (obj)) {
-
-         result = (V8QtWidget *)v8::External::Unwrap (obj->GetInternalField (0));
-      }
-   }
-
+   V8QtObject *object = _to_v8_qt_object (value);
+   if (object) { result = qobject_cast<V8QtWidget *>(object); }
    return result;
 }
 
 
 dmz::V8QtObject *
-dmz::JsModuleUiV8QtBasic::_to_js_qt_object (V8Value value) {
+dmz::JsModuleUiV8QtBasic::_to_v8_qt_object (V8Value value) {
 
    v8::HandleScope scope;
    V8QtObject *result (0);
@@ -863,14 +809,12 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_lcdNumber ();
    _init_stacked_widget ();
    _init_tab_widget ();
-
    _init_layout ();
    _init_box_layout ();
    _init_hbox_layout ();
    _init_vbox_layout ();
    _init_grid_layout ();
    _init_form_layout ();
-
    _init_file_dialog ();
    _init_main_window ();
    _init_dock_widget ();

@@ -36,7 +36,7 @@ dmz::to_v8_value (const QVariant &Value) {
 
 
 QVariant
-dmz::to_qt_variant (V8Value value) {
+dmz::to_qvariant (V8Value value) {
 
    QVariant result;
 

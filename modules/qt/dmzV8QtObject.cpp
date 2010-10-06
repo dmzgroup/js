@@ -39,9 +39,19 @@ dmz::V8QtObject::~V8QtObject () {
 
 
 QObject *
-dmz::V8QtObject::get_qt_object () const {
+dmz::V8QtObject::get_qobject () const {
 
    return _object;
+}
+
+
+dmz::Boolean
+dmz::V8QtObject::bind (
+      const String &Signal,
+      const V8Object &Self,
+      const V8Function &Func) {
+
+   return False;
 }
 
 
@@ -189,7 +199,7 @@ dmz::V8QtObject::_do_callback (const String &Signal, const QList<V8Value> &Value
                argv[ix] = ValueList.at (ix);
             }
 
-            argv[Argc - 2] = _state->ui->create_v8_object (_object);
+            argv[Argc - 2] = _state->ui->create_v8_qobject (_object);
             argv[Argc - 1] = cs->self;
 
             v8::TryCatch tc;

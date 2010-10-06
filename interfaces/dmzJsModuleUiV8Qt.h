@@ -11,7 +11,6 @@
 class QListWidgetItem;
 class QObject;
 class QWidget;
-class QLayout;
 
 
 namespace dmz {
@@ -27,10 +26,9 @@ namespace dmz {
          Handle get_js_module_ui_v8_qt_handle () const;
 
          // JsModuleUiV8Qt Interface
-         virtual v8::Handle<v8::Value> create_v8_object (QObject *value) = 0;
-         virtual v8::Handle<v8::Value> create_v8_widget (QWidget *value) = 0;
-         virtual v8::Handle<v8::Value> create_v8_list_widget_item (QListWidgetItem *value) = 0;
-         virtual v8::Handle<v8::Value> create_v8_layout (QLayout *layout) = 0;
+         virtual v8::Handle<v8::Value> create_v8_qobject (QObject *value) = 0;
+         virtual v8::Handle<v8::Value> create_v8_qwidget (QWidget *value) = 0;
+         virtual v8::Handle<v8::Value> create_v8_qlistwidgetitem (QListWidgetItem *value) = 0;
 
       protected:
          JsModuleUiV8Qt (const PluginInfo &Info);

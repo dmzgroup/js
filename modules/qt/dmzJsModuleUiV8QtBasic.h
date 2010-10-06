@@ -10,9 +10,30 @@
 #include <dmzTypesStringContainer.h>
 #include <QtCore/QList>
 #include <QtCore/QMap>
+#include <QtCore/QObject>
+#include <QtGui/QWidget>
 #include <v8.h>
 
+class QAbstractButton;
+class QBoxLayout;
+class QComboBox;
+class QDial;
+class QDialog;
+class QDockWidget;
+class QFormLayout;
+class QGridLayout;
+class QLabel;
+class QLayout;
+class QLCDNumber;
+class QLineEdit;
+class QListWidget;
+class QMainWindow;
 class QMessageBox;
+class QProgressBar;
+class QSlider;
+class QStackedWidget;
+class QTabWidget;
+class QTextEdit;
 
 
 namespace dmz {
@@ -21,6 +42,7 @@ namespace dmz {
    class JsModuleV8;
    class QtModuleMainWindow;
    class V8QtObject;
+   class V8QtDialog;
    class V8QtWidget;
 
 
@@ -58,10 +80,9 @@ namespace dmz {
             const Plugin *PluginPtr);
 
          // JsModuleUiV8Qt Interface
-         virtual v8::Handle<v8::Value> create_v8_object (QObject *value);
-         virtual v8::Handle<v8::Value> create_v8_widget (QWidget *value);
-         virtual v8::Handle<v8::Value> create_v8_list_widget_item (QListWidgetItem *value);
-         virtual v8::Handle<v8::Value> create_v8_layout (QLayout *layout);
+         virtual v8::Handle<v8::Value> create_v8_qobject (QObject *value);
+         virtual v8::Handle<v8::Value> create_v8_qwidget (QWidget *value);
+         virtual v8::Handle<v8::Value> create_v8_qlistwidgetitem (QListWidgetItem *value);
 
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
@@ -72,6 +93,15 @@ namespace dmz {
             const Handle InstanceHandle,
             const String &InstanceName,
             v8::Handle<v8::Object> &instance);
+
+         template <class T> T *
+         v8_to_qobject (V8Value value) {
+
+            T *result (0);
+            QObject *object = _to_qobject (value);
+            if (object) { result = qobject_cast<T *>(object); }
+            return result;
+         }
 
       protected:
          struct ObsStruct {
@@ -90,7 +120,6 @@ namespace dmz {
          static V8Value _uiloader_load (const v8::Arguments &Args);
 
          // QObject bindings implemented in JsModuleUiV8QtBasicObject.cpp
-         static V8Value _object_dump (const v8::Arguments &Args);
          static V8Value _object_lookup (const v8::Arguments &Args);
          static V8Value _object_name (const v8::Arguments &Args);
          static V8Value _object_observe (const v8::Arguments &Args);
@@ -101,10 +130,10 @@ namespace dmz {
          static V8Value _widget_close (const v8::Arguments &Args);
          static V8Value _widget_enabled (const v8::Arguments &Args);
          static V8Value _widget_hide (const v8::Arguments &Args);
-         static V8Value _widget_show (const v8::Arguments &Args);
          static V8Value _widget_layout (const v8::Arguments &Args);
-         static V8Value _widget_parent (const v8::Arguments &Args);
-         static V8Value _widget_property (const v8::Arguments &Args);
+         static V8Value _widget_show (const v8::Arguments &Args);
+         static V8Value _widget_title (const v8::Arguments &Args);
+         static V8Value _widget_window (const v8::Arguments &Args);
 
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
          static V8Value _button_text (const v8::Arguments &Args);
@@ -255,19 +284,40 @@ namespace dmz {
          // QAction bindings implemented in JsModuleUiV8QtBasicAction.cpp
 //         static V8Value _action_text (const v8::Arguments &Args);
 
+         QWidget *_to_qwidget (V8Value value) { return v8_to_qobject<QWidget>(value); }
+
+//         QAbstractButton *_to_qabstractbutton (V8Value value) { return v8_to_qobject<QAbstractButton *>(value); }
+//         QComboBox *_to_qcombobox (V8Value value) { return v8_to_qobject<QComboBox>(value); }
+//         QSlider *_to_qslider (V8Value value)  { return v8_to_qobject<QSlider>(value); }
+//         QDial *_to_qdial (V8Value value) { return v8_to_qobject<QDial>(value); }
+//         QLineEdit *_to_qlineedit (V8Value value) { return v8_to_qobject<QLineEdit>(value); }
+//         QTextEdit *_to_qtextedit (V8Value value) { return v8_to_qobject<QTextEdit>(value); }
+//         QLabel *_to_qlabel (V8Value value) { return v8_to_qobject<QLabel>(value); }
+//         QProgressBar *_to_qprogressbar (V8Value value) { return v8_to_qobject<QProgressBar>(value); }
+//         QLCDNumber *_to_qlcdnumber (V8Value value) { return v8_to_qobject<QLCDNumber>(value); }
+//         QListWidget *_to_qlistwidget (V8Value value) { return v8_to_qobject<QListWidget>(value); }
+//         QStackedWidget *_to_qstackedwidget (V8Value value) { return v8_to_qobject<QStackedWidget>(value); }
+//         QTabWidget *_to_qtabwidget (V8Value value) { return v8_to_qobject<QTabWidget>(value); }
+//         QLayout *_to_qlayout (V8Value value) { return v8_to_qobject<QLayout>(value); }
+//         QBoxLayout *_to_qboxlayout (V8Value value) { return v8_to_qobject<QBoxLayout>(value); }
+//         QGridLayout *_to_qgridlayout (V8Value value) { return v8_to_qobject<QGridLayout>(value); }
+//         QFormLayout *_to_qformlayout (V8Value value) { return v8_to_qobject<QFormLayout>(value); }
+//         QMainWindow *_to_qmainwindow (V8Value value) { return v8_to_qobject<QMainWindow>(value); }
+//         QDockWidget *_to_qdockwidget (V8Value value) { return v8_to_qobject<QDockWidget>(value); }
+
+         QObject *_to_qobject (V8Value value);
+         QListWidgetItem *_to_qlistwidgetitem (V8Value value);
+
+         V8QtDialog *_to_v8_qt_dialog (V8Value value);
+         V8QtWidget *_to_v8_qt_widget (V8Value value);
+         V8QtObject *_to_v8_qt_object (V8Value value);
+
          void _get_file_dialog_params (
             V8Object params,
             QString &caption,
             QString &dir,
             QString &filter,
             Boolean &allowMultiple);
-
-         QListWidgetItem *_to_qt_list_widget_item (V8Value value);
-         QLayout *_to_qt_layout (V8Value value);
-         QWidget *_to_qt_widget (V8Value value);
-         QObject *_to_qt_object (V8Value value);
-         V8QtWidget *_to_js_qt_widget (V8Value value);
-         V8QtObject *_to_js_qt_object (V8Value value);
 
          void _init_object ();
          void _init_widget ();

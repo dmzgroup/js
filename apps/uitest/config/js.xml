@@ -33,9 +33,10 @@
    <instance name="lcd"/>
    <instance name="stacked"/>
    <instance name="tab"/>
-   <instance name="layout"/> 
-   <instance name="formlayout"/>-->
+   <instance name="formlayout"/>
    <instance name="gridlayout"/>
+   -->
+   <instance name="layout"/> 
 </javascript>
 <test>
    <name value="my_name"/>

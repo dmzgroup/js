@@ -5,34 +5,6 @@
 #include "dmzV8QtUtil.h"
 #include <QtCore/QObject>
 
-#include <QtCore/QDebug>
-
-
-dmz::V8Value
-dmz::JsModuleUiV8QtBasic::_object_dump (const v8::Arguments &Args) {
-
-   v8::HandleScope scope;
-   V8Value result = v8::Undefined ();
-
-   JsModuleUiV8QtBasic *self = _to_self (Args);
-   if (self) {
-
-      QObject *object = self->_to_qt_object (Args.This ());
-      if (object) {
-
-         qDebug () << "objectName: " << object->objectName ();
-         qDebug () << " className: " << object->metaObject ()->className ();
-
-         if (object->metaObject ()->superClass ()) {
-
-            qDebug () << "superClass: " << object->metaObject ()->superClass ()->className ();
-         }
-      }
-   }
-
-   return scope.Close (result);
-}
-
 
 dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_object_lookup (const v8::Arguments &Args) {
@@ -44,7 +16,7 @@ dmz::JsModuleUiV8QtBasic::_object_lookup (const v8::Arguments &Args) {
 
    if (self) {
 
-      QObject *object = self->_to_qt_object (Args.This ());
+      QObject *object = self->_to_qobject (Args.This ());
       const String ObjectName = v8_to_string (Args[0]);
 
       if (object && ObjectName) {
@@ -53,7 +25,7 @@ dmz::JsModuleUiV8QtBasic::_object_lookup (const v8::Arguments &Args) {
 
          if (child) {
 
-            result = self->create_v8_object (child);
+            result = self->create_v8_qobject (child);
          }
          else {
 
@@ -75,7 +47,7 @@ dmz::JsModuleUiV8QtBasic::_object_name (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QObject *object = self->_to_qt_object (Args.This ());
+      QObject *object = self->_to_qobject (Args.This ());
       if (object) {
 
          if (Args.Length ()) {
@@ -102,7 +74,7 @@ dmz::JsModuleUiV8QtBasic::_object_observe (const v8::Arguments &Args) {
 
    if (self && self->_state.core && v8_is_object (Args[0])) {
 
-      V8QtObject *jsObject = self->_to_js_qt_object (Args.This ());
+      V8QtObject *jsObject = self->_to_v8_qt_object (Args.This ());
       if (jsObject) {
 
          const UInt32 Argc (Args.Length());
@@ -117,14 +89,14 @@ dmz::JsModuleUiV8QtBasic::_object_observe (const v8::Arguments &Args) {
          if (WidgetIndex) {
 
             const String ObjectName = v8_to_string (Args[WidgetIndex]);
-            QObject *object = jsObject->get_qt_object ();
+            QObject *object = jsObject->get_qobject ();
             if (object) {
 
                QObject *child = object->findChild<QObject *>(ObjectName.get_buffer ());
                if (child) {
 
-                  V8Value newObj = self->create_v8_object (child);
-                  jsObject = self->_to_js_qt_object (newObj);
+                  V8Value newObj = self->create_v8_qobject (child);
+                  jsObject = self->_to_v8_qt_object (newObj);
                }
                else { self->_log.warn << "lookup failed to find: " << ObjectName << endl; }
             }
@@ -164,13 +136,13 @@ dmz::JsModuleUiV8QtBasic::_object_parent (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QObject *object = self->_to_qt_object (Args.This ());
+      QObject *object = self->_to_qobject (Args.This ());
       if (object) {
 
          QObject *parent = object->parent ();
          if (parent) {
 
-            result = self->create_v8_object (parent);
+            result = self->create_v8_qobject (parent);
          }
       }
    }
@@ -188,14 +160,14 @@ dmz::JsModuleUiV8QtBasic::_object_property (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QObject *object = self->_to_qt_object (Args.This ());
+      QObject *object = self->_to_qobject (Args.This ());
       if (object && (Args.Length () >= 1)) {
 
          const String Name = v8_to_string (Args[0]);
 
          if (Name && (Args.Length () >= 2)) {
 
-            QVariant inValue = to_qt_variant (Args[1]);
+            QVariant inValue = to_qvariant (Args[1]);
             if (inValue.isValid ()) { object->setProperty (Name.get_buffer (), inValue); }
          }
 
@@ -209,6 +181,15 @@ dmz::JsModuleUiV8QtBasic::_object_property (const v8::Arguments &Args) {
 }
 
 
+QObject  *
+dmz::JsModuleUiV8QtBasic::_to_qobject (V8Value value) {
+
+   QObject *result (0);
+   V8QtObject *object = _to_v8_qt_object (value);
+   if (object) { result = object->get_qobject (); }
+   return result;
+}
+
 
 void
 dmz::JsModuleUiV8QtBasic::_init_object () {
@@ -221,7 +202,6 @@ dmz::JsModuleUiV8QtBasic::_init_object () {
    instance->SetInternalFieldCount (1);
 
    V8ObjectTemplate proto = _objectTemp->PrototypeTemplate ();
-   proto->Set ("dump", v8::FunctionTemplate::New (_object_dump, _self));
    proto->Set ("lookup", v8::FunctionTemplate::New (_object_lookup, _self));
    proto->Set ("name", v8::FunctionTemplate::New (_object_name, _self));
    proto->Set ("observe", v8::FunctionTemplate::New (_object_observe, _self));

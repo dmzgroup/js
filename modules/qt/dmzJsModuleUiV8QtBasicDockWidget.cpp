@@ -27,14 +27,14 @@ dmz::JsModuleUiV8QtBasic::_create_dock_widget (const v8::Arguments &Args) {
       if (Args.Length () >= 2) {
 
          title = v8_to_string (Args[0]);
-         widget = self->_to_qt_widget (Args[1]);
+         widget = self->_to_qwidget (Args[1]);
       }
       else if (Args.Length ()){
 
          V8Value arg = Args[1];
 
          if (arg->IsString ()) { title = v8_to_string (arg); }
-         else { widget = self->_to_qt_widget (arg); }
+         else { widget = self->_to_qwidget (arg); }
       }
 
       if (title) {
@@ -45,7 +45,7 @@ dmz::JsModuleUiV8QtBasic::_create_dock_widget (const v8::Arguments &Args) {
 
       if (widget) { dock->setWidget (widget); }
 
-      result = self->create_v8_widget (dock);
+      result = self->create_v8_qwidget (dock);
    }
 
    return scope.Close (result);

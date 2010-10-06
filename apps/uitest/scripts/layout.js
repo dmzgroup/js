@@ -1,7 +1,7 @@
 var puts = require('sys').puts
   , timer = require('dmz/runtime/time')
-  , ui = require('dmz/components/ui')
-  , layout = require('dmz/components/ui/layout')
+  , uiLoader = require('dmz/ui/uiLoader')
+  , layout = require('dmz/ui/layout')
   , form
   , buttons = ["pushButton", "pushButton_2", "pushButton_3", "pushButton_4", "pushButton_5",
             "pushButton_6", "pushButton_7", "pushButton_8", "pushButton_9"]
@@ -15,7 +15,7 @@ var puts = require('sys').puts
 
 puts("Script:", self.name);
 
-form = ui.load("./scripts/LayoutForm.ui");
+form = uiLoader.load("./scripts/LayoutForm.ui");
 form.show();
 
 
@@ -76,10 +76,11 @@ buttons[4].observe(self, "clicked", function () {
    puts("enabled:", box.enabled());
 });
 
-buttons[5].observe(self, "clicked", function () {
+buttons[5].observe(self, "clicked", function (btn) {
 
    puts("Box Count:", box.count());
    puts("Vbox count:", vbox.count());
    puts("Vbox parent count:", vbox.parent().count());
-   vbox.parentWidget().layout().direction(layout.TopToBottom);
+   btn.window().layout().direction(layout.TopToBottom);
+   // vbox.parentWidget().layout().direction(layout.TopToBottom);
 });

@@ -13,7 +13,7 @@ dmz::JsModuleUiV8QtBasic::_create_action (const v8::Arguments &Args) {
 
    if (self) {
 
-      // QWidget *widget = self->_to_qt_widget (Args.This ());
+      // QWidget *widget = self->_to_qwidget (Args.This ());
       // String param = v8_to_string (Args[0]);
       //
       // if (widget && param) {

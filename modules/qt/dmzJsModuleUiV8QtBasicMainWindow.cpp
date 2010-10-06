@@ -22,7 +22,7 @@ dmz::JsModuleUiV8QtBasic::_main_window_central_widget (const v8::Arguments &Args
 
          if (Args.Length ()) {
 
-            QWidget *widget = self->_to_qt_widget (Args[0]);
+            QWidget *widget = self->_to_qwidget (Args[0]);
 
             if (widget) {
 
@@ -34,7 +34,7 @@ dmz::JsModuleUiV8QtBasic::_main_window_central_widget (const v8::Arguments &Args
          QWidget *centralWidget = mainWindow->centralWidget ();
          if (centralWidget) {
 
-            result = self->create_v8_widget (centralWidget);
+            result = self->create_v8_qwidget (centralWidget);
          }
       }
    }
@@ -78,12 +78,12 @@ dmz::JsModuleUiV8QtBasic::_main_window_create_dock_widget (const v8::Arguments &
       if (module) {
 
          String name = v8_to_string (Args[0]);
-         QWidget *widget = Args.Length () > 1 ? self->_to_qt_widget (Args[1]) : 0;
+         QWidget *widget = Args.Length () > 1 ? self->_to_qwidget (Args[1]) : 0;
 
          if (name) {
 
             QDockWidget *dock = module->create_dock_widget (name, widget);
-            if (dock) { result = self->create_v8_widget (dock); }
+            if (dock) { result = self->create_v8_qwidget (dock); }
          }
       }
    }
@@ -115,7 +115,7 @@ dmz::JsModuleUiV8QtBasic::_main_window_add_dock_widget (const v8::Arguments &Arg
          }
          else {
 
-            QWidget *widget = self->_to_qt_widget (arg);
+            QWidget *widget = self->_to_qwidget (arg);
             dock = qobject_cast<QDockWidget *>(widget);
          }
 
@@ -159,7 +159,7 @@ self->_log.warn << "_main_window_remove_dock_widget" << endl;
          }
          else {
 
-            QWidget *widget = self->_to_qt_widget (arg);
+            QWidget *widget = self->_to_qwidget (arg);
             dock = qobject_cast<QDockWidget *>(widget);
          }
 

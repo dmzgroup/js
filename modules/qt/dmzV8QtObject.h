@@ -28,12 +28,12 @@ namespace dmz {
 
          virtual ~V8QtObject ();
 
-         QObject *get_qt_object () const;
+         QObject *get_qobject () const;
 
          virtual Boolean bind (
             const String &Signal,
             const V8Object &Self,
-            const V8Function &Func) = 0;
+            const V8Function &Func);
 
          void release_callback (const Handle Observer);
 

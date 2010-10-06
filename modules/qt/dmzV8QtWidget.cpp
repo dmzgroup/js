@@ -22,7 +22,7 @@ dmz::V8QtWidget::~V8QtWidget () {
 
 
 QWidget *
-dmz::V8QtWidget::get_qt_widget () const {
+dmz::V8QtWidget::get_qwidget () const {
 
    return _widget;
 }
