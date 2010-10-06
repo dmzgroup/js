@@ -72,27 +72,6 @@ dmz::JsModuleUiV8QtBasic::_widget_hide (const v8::Arguments &Args) {
 
 
 dmz::V8Value
-dmz::JsModuleUiV8QtBasic::_widget_parent (const v8::Arguments &Args) {
-
-   v8::HandleScope scope;
-   V8Value result = v8::Undefined ();
-
-   JsModuleUiV8QtBasic *self = _to_self (Args);
-   if (self) {
-
-      QWidget *widget = self->_to_qt_widget (Args.This ());
-      if (widget) {
-
-         QWidget *parent = widget->parentWidget ();
-         result = self->create_v8_widget (parent);
-      }
-   }
-
-   return scope.Close (result);
-}
-
-
-dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_widget_show (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -103,6 +82,55 @@ dmz::JsModuleUiV8QtBasic::_widget_show (const v8::Arguments &Args) {
 
       QWidget *widget = self->_to_qt_widget (Args.This ());
       if (widget) { widget->show (); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_title (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qt_widget (Args.This ());
+      if (widget) {
+
+         if (Args.Length ()) {
+
+            widget->setWindowTitle (v8_to_qstring (Args[0]));
+         }
+
+         result = to_v8_value (widget->windowTitle ());
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_window (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qt_widget (Args.This ());
+      if (widget) {
+
+         QWidget *window = widget->window ();
+         if (window) {
+
+            result = self->create_v8_widget (window);
+         }
+      }
    }
 
    return scope.Close (result);
@@ -123,8 +151,9 @@ dmz::JsModuleUiV8QtBasic::_init_widget () {
    V8ObjectTemplate proto = _widgetTemp->PrototypeTemplate ();
    proto->Set ("close", v8::FunctionTemplate::New (_widget_close, _self));
    proto->Set ("enabled", v8::FunctionTemplate::New (_widget_enabled, _self));
-   proto->Set ("show", v8::FunctionTemplate::New (_widget_show, _self));
    proto->Set ("hide", v8::FunctionTemplate::New (_widget_hide, _self));
-   proto->Set ("parent", v8::FunctionTemplate::New (_widget_parent, _self));
+   proto->Set ("show", v8::FunctionTemplate::New (_widget_show, _self));
+   proto->Set ("title", v8::FunctionTemplate::New (_widget_title, _self));
+   proto->Set ("window", v8::FunctionTemplate::New (_widget_window, _self));
 }
 

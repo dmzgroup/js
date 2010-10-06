@@ -12,16 +12,10 @@ var puts = require('sys').puts
 
 puts('Script: ' + self.name);
 
-function dump (obj) {
-   puts('-d-u-m-p----------------------');
-   puts('objectName: ' + obj.objectName ());
-   puts('className: ' + obj.className ());
-   puts('------------------------------');
-}
 
 function add_script (script) {
    var form = QUiLoader.load('./scripts/' + script + '.ui');
-   form.objectName(script);
+   form.name(script);
    listWidget.addItem(script);
    stackedWidget.add(form);
 }
@@ -40,10 +34,10 @@ mainForm.observe(self, 'doneButton', 'clicked', function (button) {
       button.parent(),
       {
          type: QMessageBox.Information,
-         text: "Some Text",
-         informativeText: "This is some informative Text",
+         text: "Are you done?",
+         informativeText: "Hit Ok to quit!",
          standardButtons: [QMessageBox.Ok, QMessageBox.Cancel],
-         defaultButton: QMessageBox.Cancel
+         defaultButton: QMessageBox.Ok
       }
    );
 
@@ -63,37 +57,8 @@ mainForm.observe(self, 'doneButton', 'clicked', function (button) {
 // mainForm.observe(self, 'prevButton', 'clicked', function (btn) {
 // });
 
-mainForm.observe(self, 'nextButton', 'clicked', function (button) {
-   var mb = QMessageBox.create(
-      button.parent(),
-      {
-         type: QMessageBox.Information,
-         text: "Some Text",
-         informativeText: "This is some informative Text",
-         standardButtons: [QMessageBox.Ok, QMessageBox.Cancel, QMessageBox.Save],
-         defaultButton: QMessageBox.Cancel
-      }
-   );
-
-   mb.open(self, function (val) {
-      if (val === QMessageBox.Ok) {
-
-         puts("mb: OK pressed");
-      }
-      else if (val === QMessageBox.Save) {
-
-         puts("mb: Save pressed");
-      }
-      else if (val === QMessageBox.Cancel) {
-
-         puts("mb: Cancel pressed");
-      }
-   });
-});
-
-dump(mainForm);
-dump(listWidget);
-dump(stackedWidget);
+// mainForm.observe(self, 'nextButton', 'clicked', function (button) {
+// });
 
 add_script('Slider');
 add_script('Widgets');
@@ -158,43 +123,22 @@ var dockName = "My Tools";
 var toolsWidget = QUiLoader.load('./scripts/Tools.ui');
 if(toolsWidget) {
    
-   toolsWidget.observe(self, 'button1', 'clicked', function (btn) {
-      dump (btn);
-   });
+   // toolsWidget.observe(self, 'button1', 'clicked', function (btn) {
+   // });
 
-   toolsWidget.observe(self, 'button2', 'clicked', function (btn) {
-   });
+   // toolsWidget.observe(self, 'button2', 'clicked', function (btn) {
+   // });
 
-   toolsWidget.observe(self, 'button3', 'clicked', function (btn) {
-   });
+   // toolsWidget.observe(self, 'button3', 'clicked', function (btn) {
+   // });
    
    // var toolsDock = QDockWidget.create (dockName, toolsWidget);
    var toolsDock = mainWindow.createDock (dockName, toolsWidget);
    if (toolsDock) {
       
-      dump (toolsDock);
+      toolsDock.title ("Tools I Like");
       mainWindow.addDock (dockName, Qt.LeftDockWidgetArea);
    }
 }
    
-   // var dock = dockWidget.create ("Tools", QUiLoader);
-   // dock.floating (true);
-   // dock.featrues ()
-   // dock.allowedAreas(Qtui.LeftDockWidgetArea, ui.RightDockWidgetArea]);
-   // mainWindow.addDock (dock, )
-   // 
-   // dock.setObjectName ("my_dock");
-   // dock.addWidget(widget);
-
-// mainWindow.dockWidget (
-//    "Tools",
-//    QUiLoader.load("./scripts/Tools.ui"),
-//    {
-//       title: "My Dock Window",
-//       allowedArea: [],
-//       visiable: true,
-//       floating: true
-//    }
-// );
-
 puts('Done with: ' + self.name);

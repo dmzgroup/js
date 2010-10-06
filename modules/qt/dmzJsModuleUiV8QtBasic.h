@@ -89,10 +89,11 @@ namespace dmz {
          static V8Value _uiloader_load (const v8::Arguments &Args);
 
          // QObject bindings implemented in JsModuleUiV8QtBasicObject.cpp
-         static V8Value _object_class_name (const v8::Arguments &Args);
-         static V8Value _object_name (const v8::Arguments &Args);
+         static V8Value _object_dump (const v8::Arguments &Args);
          static V8Value _object_lookup (const v8::Arguments &Args);
+         static V8Value _object_name (const v8::Arguments &Args);
          static V8Value _object_observe (const v8::Arguments &Args);
+         static V8Value _object_parent (const v8::Arguments &Args);
          static V8Value _object_property (const v8::Arguments &Args);
 
          // QWidget bindings implemented in JsModuleUiV8QtBasicWidget.cpp
@@ -100,7 +101,8 @@ namespace dmz {
          static V8Value _widget_enabled (const v8::Arguments &Args);
          static V8Value _widget_hide (const v8::Arguments &Args);
          static V8Value _widget_show (const v8::Arguments &Args);
-         static V8Value _widget_parent (const v8::Arguments &Args);
+         static V8Value _widget_title (const v8::Arguments &Args);
+         static V8Value _widget_window (const v8::Arguments &Args);
 
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
          static V8Value _button_text (const v8::Arguments &Args);
