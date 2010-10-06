@@ -1,15 +1,31 @@
 #include "dmzV8QtWidget.h"
-// #include <QtGui/QtGui>
+#include <QtGui/QWidget>
 
 
 dmz::V8QtWidget::V8QtWidget (
       const V8Object &Self,
       QWidget *widget,
       JsModuleUiV8QtBasicState *state) :
-      V8QtObject (Self, widget, state) {;}
+      V8QtObject (Self, widget, state),
+      _widget (widget) {;}
 
 
-dmz::V8QtWidget::~V8QtWidget () {;}
+dmz::V8QtWidget::~V8QtWidget () {
+
+   if (_widget) {
+
+      if (!_widget->parentWidget ()) { delete _widget; }
+      _widget = 0;
+      _object = 0;
+   }
+}
+
+
+QWidget *
+dmz::V8QtWidget::get_qt_widget () const {
+
+   return _widget;
+}
 
 
 dmz::Boolean

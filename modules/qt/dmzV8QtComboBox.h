@@ -1,13 +1,13 @@
 #ifndef DMZ_V8_QT_COMBO_BOX_DOT_H
 #define DMZ_V8_QT_COMBO_BOX_DOT_H
 
-#include <dmzV8QtObject.h>
+#include <dmzV8QtWidget.h>
 
 class QComboBox;
 
 namespace dmz {
 
-   class V8QtComboBox : public V8QtObject {
+   class V8QtComboBox : public V8QtWidget {
 
       Q_OBJECT
 

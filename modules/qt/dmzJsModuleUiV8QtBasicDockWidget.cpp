@@ -1,8 +1,10 @@
 #include "dmzJsModuleUiV8QtBasic.h"
 #include <dmzJsModuleV8.h>
 #include <dmzJsV8UtilConvert.h>
+#include <dmzQtModuleMainWindow.h>
 #include "dmzV8QtObject.h"
 #include <QtGui/QDockWidget>
+#include <QtGui/QMainWindow>
 
 
 dmz::V8Value
@@ -14,7 +16,10 @@ dmz::JsModuleUiV8QtBasic::_create_dock_widget (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QDockWidget *dock = new QDockWidget ();
+      QtModuleMainWindow *module = self->_state.mainWindowModule;
+      QMainWindow *mainWindow = module ? module->get_qt_main_window () : 0;
+
+      QDockWidget *dock = new QDockWidget (mainWindow);
 
       String title;
       QWidget *widget;
@@ -32,13 +37,13 @@ dmz::JsModuleUiV8QtBasic::_create_dock_widget (const v8::Arguments &Args) {
          else { widget = self->_to_qt_widget (arg); }
       }
 
-      if (title) { dock->setWindowTitle (title.get_buffer ()); }
+      if (title) {
 
-      if (widget) {
-
-         dock->setObjectName (widget->objectName ());
-         dock->setWidget (widget);
+         dock->setObjectName (title.get_buffer ());
+         dock->setWindowTitle (title.get_buffer ());
       }
+
+      if (widget) { dock->setWidget (widget); }
 
       result = self->create_v8_widget (dock);
    }

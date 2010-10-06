@@ -1,13 +1,13 @@
 #ifndef DMZ_V8_QT_PROGRESS_BAR_DOT_H
 #define DMZ_V8_QT_PROGRESS_BAR_DOT_H
 
-#include <dmzV8QtObject.h>
+#include <dmzV8QtWidget.h>
 
 class QProgressBar;
 
 namespace dmz {
 
-   class V8QtProgressBar : public V8QtObject {
+   class V8QtProgressBar : public V8QtWidget {
 
       Q_OBJECT
 

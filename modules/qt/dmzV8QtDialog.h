@@ -1,12 +1,12 @@
 #ifndef DMZ_V8_QT_DIALOG_DOT_H
 #define DMZ_V8_QT_DIALOG_DOT_H
 
-#include <dmzV8QtObject.h>
+#include <dmzV8QtWidget.h>
 
 
 namespace dmz {
 
-   class V8QtDialog :  public V8QtObject {
+   class V8QtDialog :  public V8QtWidget {
 
       Q_OBJECT
 

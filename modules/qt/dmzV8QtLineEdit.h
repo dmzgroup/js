@@ -1,13 +1,13 @@
 #ifndef DMZ_V8_QT_LINE_EDIT_DOT_H
 #define DMZ_V8_QT_LINE_EDIT_DOT_H
 
-#include <dmzV8QtObject.h>
+#include <dmzV8QtWidget.h>
 
 class QLineEdit;
 
 namespace dmz {
 
-   class V8QtLineEdit : public V8QtObject {
+   class V8QtLineEdit : public V8QtWidget {
 
       Q_OBJECT
 

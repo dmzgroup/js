@@ -3,8 +3,6 @@
 #include "dmzV8QtStackedWidget.h"
 #include <QtGui/QStackedWidget>
 
-#include <QtCore/QDebug>
-
 
 namespace {
 
@@ -17,7 +15,7 @@ dmz::V8QtStackedWidget::V8QtStackedWidget (
       const V8Object &Self,
       QWidget *widget,
       JsModuleUiV8QtBasicState *state) :
-      V8QtObject (Self, widget, state) {;}
+      V8QtWidget (Self, widget, state) {;}
 
 
 dmz::V8QtStackedWidget::~V8QtStackedWidget () {;}

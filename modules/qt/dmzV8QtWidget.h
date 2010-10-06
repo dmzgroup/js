@@ -3,6 +3,8 @@
 
 #include <dmzV8QtObject.h>
 
+class QWidget;
+
 
 namespace dmz {
 
@@ -18,10 +20,15 @@ namespace dmz {
 
          virtual ~V8QtWidget ();
 
+         QWidget *get_qt_widget () const;
+
          virtual Boolean bind (
             const String &Signal,
             const V8Object &Self,
             const V8Function &Func);
+
+      protected:
+         QPointer<QWidget> _widget;
    };
 };
 

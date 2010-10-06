@@ -2,7 +2,6 @@
 #include <dmzJsModuleV8.h>
 #include "dmzV8QtTextEdit.h"
 #include <QtGui/QTextEdit>
-#include <QtCore/QDebug>
 
 
 namespace {
@@ -15,7 +14,7 @@ dmz::V8QtTextEdit::V8QtTextEdit (
       const V8Object &Self,
       QWidget *widget,
       JsModuleUiV8QtBasicState *state) :
-      V8QtObject (Self, widget, state) {;}
+      V8QtWidget (Self, widget, state) {;}
 
 
 dmz::V8QtTextEdit::~V8QtTextEdit () {;}

@@ -9,13 +9,10 @@
 #include <dmzTypesHashTableHandleTemplate.h>
 #include <dmzTypesStringContainer.h>
 #include <QtCore/QList>
-//#include <QtCore/QObject>
-//#include <QtCore/QPointer>
 #include <QtCore/QMap>
-#include <QtGui/QMessageBox>
 #include <v8.h>
 
-class QMainWindow;
+class QMessageBox;
 
 
 namespace dmz {
@@ -24,16 +21,21 @@ namespace dmz {
    class JsModuleV8;
    class QtModuleMainWindow;
    class V8QtObject;
+   class V8QtWidget;
 
 
    struct JsModuleUiV8QtBasicState {
 
       JsModuleV8 *core;
       JsModuleUiV8QtBasic *ui;
+      QtModuleMainWindow *mainWindowModule;
 
       v8::Handle<v8::Context> context;
 
-      JsModuleUiV8QtBasicState () : core (0), ui (0) {;}
+      JsModuleUiV8QtBasicState () :
+            core (0),
+            ui (0),
+            mainWindowModule (0) {;}
    };
 
 
@@ -56,6 +58,7 @@ namespace dmz {
             const Plugin *PluginPtr);
 
          // JsModuleUiV8Qt Interface
+         virtual v8::Handle<v8::Value> create_v8_object (QObject *value);
          virtual v8::Handle<v8::Value> create_v8_widget (QWidget *value);
          virtual v8::Handle<v8::Value> create_v8_list_widget_item (QListWidgetItem *value);
 
@@ -68,9 +71,6 @@ namespace dmz {
             const Handle InstanceHandle,
             const String &InstanceName,
             v8::Handle<v8::Object> &instance);
-
-         // Class Interface
-         QMainWindow *get_qt_main_window ();
 
       protected:
          struct ObsStruct {
@@ -88,17 +88,19 @@ namespace dmz {
          // QUiLoader bindings
          static V8Value _uiloader_load (const v8::Arguments &Args);
 
+         // QObject bindings implemented in JsModuleUiV8QtBasicObject.cpp
+         static V8Value _object_class_name (const v8::Arguments &Args);
+         static V8Value _object_name (const v8::Arguments &Args);
+         static V8Value _object_lookup (const v8::Arguments &Args);
+         static V8Value _object_observe (const v8::Arguments &Args);
+         static V8Value _object_property (const v8::Arguments &Args);
+
          // QWidget bindings implemented in JsModuleUiV8QtBasicWidget.cpp
-         static V8Value _widget_class_name (const v8::Arguments &Args);
-         static V8Value _widget_object_name (const v8::Arguments &Args);
          static V8Value _widget_close (const v8::Arguments &Args);
          static V8Value _widget_enabled (const v8::Arguments &Args);
          static V8Value _widget_hide (const v8::Arguments &Args);
-         static V8Value _widget_lookup (const v8::Arguments &Args);
-         static V8Value _widget_observe (const v8::Arguments &Args);
          static V8Value _widget_show (const v8::Arguments &Args);
          static V8Value _widget_parent (const v8::Arguments &Args);
-         static V8Value _widget_property (const v8::Arguments &Args);
 
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
          static V8Value _button_text (const v8::Arguments &Args);
@@ -203,12 +205,17 @@ namespace dmz {
          // QMainWindow bindings implemented in JsModuleUiV8QtBasicMainWindow.cpp
          static V8Value _main_window_central_widget (const v8::Arguments &Args);
          static V8Value _main_window_close (const v8::Arguments &Args);
-         static V8Value _main_window_dock_widget (const v8::Arguments &Args);
+         static V8Value _main_window_create_dock_widget (const v8::Arguments &Args);
+         static V8Value _main_window_add_dock_widget (const v8::Arguments &Args);
+         static V8Value _main_window_remove_dock_widget (const v8::Arguments &Args);
 
          // QDockWidget bindings implemented in JsModuleUiV8QtBasicDockWidget.cpp
          static V8Value _create_dock_widget (const v8::Arguments &Args);
 //         static V8Value _dock_window_widget (const v8::Arguments &Args);
 //         static V8Value _dock_window_toggle_view_action (const v8::Arguments &Args);
+
+         // QAction bindings implemented in JsModuleUiV8QtBasicAction.cpp
+//         static V8Value _action_text (const v8::Arguments &Args);
 
          void _get_file_dialog_params (
             V8Object params,
@@ -219,8 +226,11 @@ namespace dmz {
 
          QListWidgetItem *_to_qt_list_widget_item (V8Value value);
          QWidget *_to_qt_widget (V8Value value);
+         QObject *_to_qt_object (V8Value value);
+         V8QtWidget *_to_js_qt_widget (V8Value value);
          V8QtObject *_to_js_qt_object (V8Value value);
 
+         void _init_object ();
          void _init_widget ();
          void _init_button ();
          void _init_list_widget ();
@@ -241,6 +251,7 @@ namespace dmz {
          void _init_file_dialog ();
          void _init_main_window ();
          void _init_dock_widget ();
+         void _init_action ();
 
          String _find_ui_file (const String &Name);
          void _init (Config &local);
@@ -248,14 +259,13 @@ namespace dmz {
          Log _log;
 
          StringContainer _searchPaths;
-         QtModuleMainWindow *_mainWindowModule;
          String _mainWindowModuleName;
 
          JsModuleUiV8QtBasicState _state;
          V8ValuePersist _self;
 
          HashTableHandleTemplate<ObsStruct> _obsTable;
-         QMap<QWidget *, V8QtObject *>_widgetMap;
+         QMap<QObject *, V8QtObject *>_objectMap;
          QList<QWidget *>_dialogList;
 
          V8InterfaceHelper _qtApi;
@@ -264,6 +274,10 @@ namespace dmz {
          V8InterfaceHelper _dockWidgetApi;
          V8InterfaceHelper _messageBoxApi;
          V8InterfaceHelper _fileDialogApi;
+         V8InterfaceHelper _actionApi;
+
+         V8FunctionTemplatePersist _objectTemp;
+         V8FunctionPersist _objectCtor;
 
          V8FunctionTemplatePersist _widgetTemp;
          V8FunctionPersist _widgetCtor;
@@ -318,6 +332,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _dockWidgetTemp;
          V8FunctionPersist _dockWidgetCtor;
+
+         V8FunctionTemplatePersist _actionTemp;
+         V8FunctionPersist _actionCtor;
 
          V8StringPersist _typeStr;
          V8StringPersist _textStr;

@@ -2,6 +2,7 @@
 #include <dmzJsModuleV8.h>
 #include <dmzJsV8UtilConvert.h>
 #include "dmzV8QtObject.h"
+#include <QtGui/QMessageBox>
 
 
 dmz::V8Value

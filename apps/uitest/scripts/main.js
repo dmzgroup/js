@@ -36,7 +36,28 @@ listWidget.observe(self, 'currentRowChanged', function (row) {
 });
 
 mainForm.observe(self, 'doneButton', 'clicked', function (button) {
-   mainWindow.close();
+   var mb = QMessageBox.create(
+      button.parent(),
+      {
+         type: QMessageBox.Information,
+         text: "Some Text",
+         informativeText: "This is some informative Text",
+         standardButtons: [QMessageBox.Ok, QMessageBox.Cancel],
+         defaultButton: QMessageBox.Cancel
+      }
+   );
+
+   mb.open(self, function (val) {
+      if (val === QMessageBox.Ok) {
+
+         puts("mb: OK pressed");
+         mainWindow.close();
+      }
+      else if (val === QMessageBox.Cancel) {
+
+         puts("mb: Cancel pressed");
+      }
+   });
 });
 
 // mainForm.observe(self, 'prevButton', 'clicked', function (btn) {
@@ -133,44 +154,27 @@ stackedWidget.currentIndex(0);
 
 mainWindow.centralWidget (mainForm);
 
+var dockName = "My Tools";
 var toolsWidget = QUiLoader.load('./scripts/Tools.ui');
-
-var toolsDock = QDockWidget.create("My Tools", toolsWidget);
-if(toolsDock) {
+if(toolsWidget) {
    
    toolsWidget.observe(self, 'button1', 'clicked', function (btn) {
-      var mb = QMessageBox.create(
-         btn.parent(),
-         {
-            type: QMessageBox.Information,
-            text: "Some Text",
-            informativeText: "This is some informative Text",
-            standardButtons: [QMessageBox.Ok, QMessageBox.Cancel, QMessageBox.Save],
-            defaultButton: QMessageBox.Cancel
-         }
-      );
+      dump (btn);
+   });
 
-      mb.open(self, function (val) {
-         if (val === QMessageBox.Ok) {
+   toolsWidget.observe(self, 'button2', 'clicked', function (btn) {
+   });
 
-            puts("mb: OK pressed");
-         }
-         else if (val === QMessageBox.Save) {
-
-            puts("mb: Save pressed");
-         }
-         else if (val === QMessageBox.Cancel) {
-
-            puts("mb: Cancel pressed");
-         }
-      });
+   toolsWidget.observe(self, 'button3', 'clicked', function (btn) {
    });
    
-   // toolsDock.objectName("Tools");
-   // puts("got dock");
-   dump (toolsDock);
-   // toolsDock.show ();
-   mainWindow.dockWidget(toolsDock);
+   // var toolsDock = QDockWidget.create (dockName, toolsWidget);
+   var toolsDock = mainWindow.createDock (dockName, toolsWidget);
+   if (toolsDock) {
+      
+      dump (toolsDock);
+      mainWindow.addDock (dockName, Qt.LeftDockWidgetArea);
+   }
 }
    
    // var dock = dockWidget.create ("Tools", QUiLoader);

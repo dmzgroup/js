@@ -6,6 +6,7 @@ lmkV8.set_name ("dmzJsModuleUiV8QtBasic", lmkQt.get_flags ())
 lmk.set_type "plugin"
 
 lmk.add_files ({
+   "dmzV8QtAction.h",
    "dmzV8QtButton.h",
    "dmzV8QtComboBox.h",
    "dmzV8QtDialog.h",
@@ -24,6 +25,7 @@ lmk.add_files ({
 
 lmk.add_files {
    "dmzJsModuleUiV8QtBasic.cpp",
+   "dmzJsModuleUiV8QtBasicAction.cpp",
    "dmzJsModuleUiV8QtBasicButton.cpp",
    "dmzJsModuleUiV8QtBasicComboBox.cpp",
    "dmzJsModuleUiV8QtBasicDialog.cpp",
@@ -35,6 +37,7 @@ lmk.add_files {
    "dmzJsModuleUiV8QtBasicListWidget.cpp",
    "dmzJsModuleUiV8QtBasicMainWindow.cpp",
    "dmzJsModuleUiV8QtBasicMessageBox.cpp",
+   "dmzJsModuleUiV8QtBasicObject.cpp",
    "dmzJsModuleUiV8QtBasicProgressBar.cpp",
    "dmzJsModuleUiV8QtBasicSlider.cpp",
    "dmzJsModuleUiV8QtBasicSpinBox.cpp",
@@ -42,6 +45,7 @@ lmk.add_files {
    "dmzJsModuleUiV8QtBasicTabWidget.cpp",
    "dmzJsModuleUiV8QtBasicTextEdit.cpp",
    "dmzJsModuleUiV8QtBasicWidget.cpp",
+   "dmzV8QtAction.cpp",
    "dmzV8QtButton.cpp",
    "dmzV8QtComboBox.cpp",
    "dmzV8QtDialog.cpp",

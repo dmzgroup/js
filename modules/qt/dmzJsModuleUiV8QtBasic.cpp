@@ -99,8 +99,7 @@ dmz::JsModuleUiV8QtBasic::JsModuleUiV8QtBasic (const PluginInfo &Info, Config &l
       Plugin (Info),
       JsModuleUiV8Qt (Info),
       JsExtV8 (Info),
-      _log (Info),
-      _mainWindowModule (0) {
+      _log (Info) {
 
    _state.ui = this;
    _init (local);
@@ -141,22 +140,62 @@ dmz::JsModuleUiV8QtBasic::discover_plugin (
 
    if (Mode == PluginDiscoverAdd) {
 
-      if (!_mainWindowModule) {
+      if (!_state.mainWindowModule) {
 
-         _mainWindowModule = QtModuleMainWindow::cast (PluginPtr, _mainWindowModuleName);
+         _state.mainWindowModule = QtModuleMainWindow::cast (PluginPtr, _mainWindowModuleName);
       }
    }
    else if (Mode == PluginDiscoverRemove) {
 
-      if (_mainWindowModule && (_mainWindowModule == QtModuleMainWindow::cast (PluginPtr))) {
+      if (_state.mainWindowModule &&
+          (_state.mainWindowModule == QtModuleMainWindow::cast (PluginPtr))) {
 
-         _mainWindowModule = 0;
+         _state.mainWindowModule = 0;
       }
    }
 }
 
 
 // JsModuleUiV8Qt Interface
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::create_v8_object (QObject *value) {
+
+   v8::Context::Scope cscope (_state.context);
+   v8::HandleScope scope;
+
+   V8Value result = v8::Undefined ();
+
+   if (value) {
+
+      V8Object vobj;
+      V8QtObject *qobj = _objectMap[value];
+
+      if (!qobj) {
+
+         if (value->inherits ("QWidget")) {
+
+            QWidget  *widget = qobject_cast<QWidget *>(value);
+            if (widget) { result = create_v8_widget (widget); }
+         }
+         else if (value->inherits ("QAction")) {
+
+            if (!_actionCtor.IsEmpty ()) {
+
+               vobj = _actionCtor->NewInstance ();
+               qobj = new V8QtAction (vobj, value, &_state);
+            }
+         }
+
+         if (qobj) { _objectMap.insert (value, qobj); }
+      }
+
+      if (qobj && !(qobj->self.IsEmpty ())) { result = qobj->self; }
+   }
+
+   return scope.Close (result);
+}
+
+
 dmz::V8Value
 dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
 
@@ -168,7 +207,7 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
    if (value) {
 
       V8Object vobj;
-      V8QtObject *qobj = _widgetMap[value];
+      V8QtObject *qobj = _objectMap[value];
 
       if (!qobj) {
 
@@ -273,8 +312,6 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
          }
          else if (value->inherits ("QDockWidget")) {
 
-_log.warn << "Lets create a dock widget" << endl;
-
             if (!_dockWidgetCtor.IsEmpty ()) {
 
                vobj = _dockWidgetCtor->NewInstance ();
@@ -310,7 +347,7 @@ _log.warn << "Lets create a dock widget" << endl;
             }
          }
 
-         if (qobj) { _widgetMap.insert (value, qobj); }
+         if (qobj) { _objectMap.insert (value, qobj); }
       }
 
       if (qobj && !(qobj->self.IsEmpty ())) { result = qobj->self; }
@@ -349,6 +386,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
    v8::HandleScope scope;
 
    if (State == JsExtV8::Register) {
+
+      if (!_objectTemp.IsEmpty ()) {
+
+         _objectCtor = V8FunctionPersist::New (_objectTemp->GetFunction ());
+      }
 
       if (!_widgetTemp.IsEmpty ()) {
 
@@ -440,6 +482,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _dockWidgetCtor = V8FunctionPersist::New (_dockWidgetTemp->GetFunction ());
       }
 
+      if (!_actionTemp.IsEmpty ()) {
+
+         _actionCtor = V8FunctionPersist::New (_actionTemp->GetFunction ());
+      }
+
       if (_state.core) {
 
          _state.core->register_interface ("dmz/ui", _qtApi.get_new_instance ());
@@ -460,6 +507,10 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _state.core->register_interface (
             "dmz/ui/fileDialog",
             _fileDialogApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/action",
+            _actionApi.get_new_instance ());
       }
 
       _typeStr = V8StringPersist::New (v8::String::NewSymbol ("type"));
@@ -489,7 +540,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
       _dialogList.clear ();
 
-      QMapIterator<QWidget *, V8QtObject *> it (_widgetMap);
+      QMapIterator<QObject *, V8QtObject *> it (_objectMap);
       while (it.hasNext ()) {
 
          it.next ();
@@ -498,8 +549,9 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          delete obj; obj = 0;
       }
 
-      _widgetMap.clear ();
+      _objectMap.clear ();
 
+      _objectCtor.Dispose (); _objectCtor.Clear ();
       _widgetCtor.Dispose (); _widgetCtor.Clear ();
       _buttonCtor.Dispose (); _buttonCtor.Clear ();
       _listWidgetItemCtor.Dispose (); _listWidgetItemCtor.Clear ();
@@ -518,6 +570,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _tabCtor.Dispose (); _tabCtor.Clear ();
       _mainWindowCtor.Dispose (); _mainWindowCtor.Clear ();
       _dockWidgetCtor.Dispose (); _dockWidgetCtor.Clear ();
+      _actionCtor.Dispose (); _actionCtor.Clear ();
 
       _qtApi.clear ();
       _uiLoaderApi.clear ();
@@ -525,6 +578,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _dockWidgetApi.clear ();
       _messageBoxApi.clear ();
       _fileDialogApi.clear ();
+      _actionApi.clear ();
       _state.context.Clear ();
 
       _obsTable.empty ();
@@ -552,15 +606,6 @@ dmz::JsModuleUiV8QtBasic::release_js_instance_v8 (
 }
 
 
-QMainWindow *
-dmz::JsModuleUiV8QtBasic::get_qt_main_window () {
-
-   QMainWindow *mainWindow (0);
-   if (_mainWindowModule) { mainWindow = _mainWindowModule->get_qt_main_window (); }
-   return mainWindow;
-}
-
-
 QListWidgetItem *
 dmz::JsModuleUiV8QtBasic::_to_qt_list_widget_item (V8Value value) {
 
@@ -584,8 +629,37 @@ QWidget  *
 dmz::JsModuleUiV8QtBasic::_to_qt_widget (V8Value value) {
 
    QWidget *result (0);
+   V8QtWidget *widget = _to_js_qt_widget (value);
+   if (widget) { result = widget->get_qt_widget (); }
+   return result;
+}
+
+
+QObject  *
+dmz::JsModuleUiV8QtBasic::_to_qt_object (V8Value value) {
+
+   QObject *result (0);
    V8QtObject *object = _to_js_qt_object (value);
-   if (object) { result = object->get_qt_widget (); }
+   if (object) { result = object->get_qt_object (); }
+   return result;
+}
+
+
+dmz::V8QtWidget *
+dmz::JsModuleUiV8QtBasic::_to_js_qt_widget (V8Value value) {
+
+   v8::HandleScope scope;
+   V8QtWidget *result (0);
+
+   V8Object obj = v8_to_object (value);
+   if (!obj.IsEmpty ()) {
+
+      if (_objectTemp->HasInstance (obj)) {
+
+         result = (V8QtWidget *)v8::External::Unwrap (obj->GetInternalField (0));
+      }
+   }
+
    return result;
 }
 
@@ -599,7 +673,7 @@ dmz::JsModuleUiV8QtBasic::_to_js_qt_object (V8Value value) {
    V8Object obj = v8_to_object (value);
    if (!obj.IsEmpty ()) {
 
-      if (_widgetTemp->HasInstance (obj)) {
+      if (_objectTemp->HasInstance (obj)) {
 
          result = (V8QtObject *)v8::External::Unwrap (obj->GetInternalField (0));
       }
@@ -631,7 +705,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _searchPaths = config_to_path_string_container (local);
 
    _mainWindowModuleName = config_to_string (
-      "main-window.name",
+      "main-window-module.name",
       local,
       "dmzQtModuleMainWindowBasic");
 
@@ -713,6 +787,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    // UiLoader API
    _uiLoaderApi.add_function ("load", _uiloader_load, _self);
 
+   _init_object ();
    _init_widget ();
    _init_button ();
    _init_list_widget_item ();
@@ -733,6 +808,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_file_dialog ();
    _init_main_window ();
    _init_dock_widget ();
+   _init_action ();
 }
 
 

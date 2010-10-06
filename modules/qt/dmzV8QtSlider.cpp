@@ -2,7 +2,6 @@
 #include <dmzJsModuleV8.h>
 #include "dmzV8QtSlider.h"
 #include <QtGui/QSlider>
-#include <QtCore/QDebug>
 
 
 namespace {
@@ -17,7 +16,7 @@ dmz::V8QtSlider::V8QtSlider (
       const V8Object &Self,
       QWidget *widget,
       JsModuleUiV8QtBasicState *state) :
-      V8QtObject (Self, widget, state) {;}
+      V8QtWidget (Self, widget, state) {;}
 
 
 dmz::V8QtSlider::~V8QtSlider () {;}
