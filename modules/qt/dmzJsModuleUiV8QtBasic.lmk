@@ -43,6 +43,7 @@ lmk.add_files {
    "dmzJsModuleUiV8QtBasicSpinBox.cpp",
    "dmzJsModuleUiV8QtBasicStackedWidget.cpp",
    "dmzJsModuleUiV8QtBasicTabWidget.cpp",
+   "dmzJsModuleUiV8QtBasicLayout.cpp",
    "dmzJsModuleUiV8QtBasicTextEdit.cpp",
    "dmzJsModuleUiV8QtBasicWidget.cpp",
    "dmzV8QtAction.cpp",

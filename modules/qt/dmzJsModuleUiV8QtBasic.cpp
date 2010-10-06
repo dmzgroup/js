@@ -472,6 +472,36 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _tabCtor = V8FunctionPersist::New (_tabWidgetTemp->GetFunction ());
       }
 
+      if (!_layoutTemp.IsEmpty ()) {
+         
+         _layoutCtor = V8FunctionPersist::New (_layoutTemp->GetFunction ());
+      }
+
+      if (!_boxLayoutTemp.IsEmpty ()) {
+         
+         _boxLayoutCtor = V8FunctionPersist::New (_boxLayoutTemp->GetFunction ());
+      }
+
+      if (!_hBoxLayoutTemp.IsEmpty ()) {
+         
+         _hBoxLayoutCtor = V8FunctionPersist::New (_hBoxLayoutTemp->GetFunction ());
+      }
+
+      if (!_vBoxLayoutTemp.IsEmpty ()) {
+         
+         _vBoxLayoutCtor = V8FunctionPersist::New (_vBoxLayoutTemp->GetFunction ());
+      }
+
+      if (!_gridLayoutTemp.IsEmpty ()) {
+
+         _gridLayoutCtor = V8FunctionPersist::New (_gridLayoutTemp->GetFunction ());
+      }
+
+      if (!_formLayoutTemp.IsEmpty ()) {
+
+         _formLayoutCtor = V8FunctionPersist::New (_formLayoutTemp->GetFunction ());
+      }
+
       if (!_mainWindowTemp.IsEmpty ()) {
 
          _mainWindowCtor = V8FunctionPersist::New (_mainWindowTemp->GetFunction ());
@@ -503,6 +533,10 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _state.core->register_interface (
             "dmz/ui/messageBox",
             _messageBoxApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/layout",
+            _layoutApi.get_new_instance ());
 
          _state.core->register_interface (
             "dmz/ui/fileDialog",
@@ -568,6 +602,12 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _lcdNumberCtor.Dispose (); _lcdNumberCtor.Clear ();
       _stackedCtor.Dispose (); _stackedCtor.Clear ();
       _tabCtor.Dispose (); _tabCtor.Clear ();
+      _hBoxLayoutCtor.Dispose (); _hBoxLayoutCtor.Clear ();
+      _vBoxLayoutCtor.Dispose (); _vBoxLayoutCtor.Clear ();
+      _boxLayoutCtor.Dispose (); _boxLayoutCtor.Clear ();
+      _formLayoutCtor.Dispose (); _formLayoutCtor.Clear ();
+      _gridLayoutCtor.Dispose (); _gridLayoutCtor.Clear ();
+      _layoutCtor.Dispose (); _layoutCtor.Clear ();
       _mainWindowCtor.Dispose (); _mainWindowCtor.Clear ();
       _dockWidgetCtor.Dispose (); _dockWidgetCtor.Clear ();
       _actionCtor.Dispose (); _actionCtor.Clear ();
@@ -577,6 +617,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _mainWindowApi.clear ();
       _dockWidgetApi.clear ();
       _messageBoxApi.clear ();
+      _layoutApi.clear ();
       _fileDialogApi.clear ();
       _actionApi.clear ();
       _state.context.Clear ();
@@ -625,7 +666,7 @@ dmz::JsModuleUiV8QtBasic::_to_qt_list_widget_item (V8Value value) {
 }
 
 
-QWidget  *
+QWidget *
 dmz::JsModuleUiV8QtBasic::_to_qt_widget (V8Value value) {
 
    QWidget *result (0);
@@ -644,6 +685,23 @@ dmz::JsModuleUiV8QtBasic::_to_qt_object (V8Value value) {
    return result;
 }
 
+QLayout *
+dmz::JsModuleUiV8QtBasic::_to_qt_layout (V8Value value) {
+
+   v8::HandleScope scope;
+   QLayout *result (0);
+
+   V8Object obj = v8_to_object (value);
+   if (!obj.IsEmpty ()) {
+
+      if (_layoutTemp->HasInstance (obj)) {
+
+         result = (QLayout *)v8::External::Unwrap (obj->GetInternalField (0));
+      }
+   }
+
+   return result;
+}
 
 dmz::V8QtWidget *
 dmz::JsModuleUiV8QtBasic::_to_js_qt_widget (V8Value value) {
@@ -805,6 +863,14 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_lcdNumber ();
    _init_stacked_widget ();
    _init_tab_widget ();
+
+   _init_layout ();
+   _init_box_layout ();
+   _init_hbox_layout ();
+   _init_vbox_layout ();
+   _init_grid_layout ();
+   _init_form_layout ();
+
    _init_file_dialog ();
    _init_main_window ();
    _init_dock_widget ();
