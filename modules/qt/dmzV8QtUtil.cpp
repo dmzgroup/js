@@ -27,7 +27,7 @@ dmz::to_v8_value (const QVariant &Value) {
       }
       else if (Value.type () == QVariant::String) {
 
-         newValue = to_v8_value (Value);
+         newValue = to_v8_value (Value.toString ());
       }
    }
 
