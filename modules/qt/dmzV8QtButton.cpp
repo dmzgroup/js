@@ -14,7 +14,7 @@ dmz::V8QtButton::V8QtButton (
       const V8Object &Self,
       QWidget *widget,
       JsModuleUiV8QtBasicState *state) :
-      V8QtObject (Self, widget, state) {;}
+      V8QtWidget (Self, widget, state) {;}
 
 
 dmz::V8QtButton::~V8QtButton () {;}

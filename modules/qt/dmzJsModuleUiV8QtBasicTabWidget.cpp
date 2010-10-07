@@ -17,12 +17,12 @@ dmz::JsModuleUiV8QtBasic::_tab_widget_add (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
          QTabWidget *tw = qobject_cast<QTabWidget *>(widget);
-         QWidget *qw = self->_to_qt_widget (Args[0]);
+         QWidget *qw = self->_to_qwidget (Args[0]);
          String label = v8_to_string(Args[1]);
 
          if (tw && qw) {
@@ -54,7 +54,7 @@ dmz::JsModuleUiV8QtBasic::_tab_widget_remove (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -81,7 +81,7 @@ dmz::JsModuleUiV8QtBasic::_tab_widget_count (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -109,7 +109,7 @@ dmz::JsModuleUiV8QtBasic::_tab_widget_current_index (const v8::Arguments &Args) 
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -142,7 +142,7 @@ dmz::JsModuleUiV8QtBasic::_tab_widget_current_widget (const v8::Arguments &Args)
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -153,7 +153,7 @@ dmz::JsModuleUiV8QtBasic::_tab_widget_current_widget (const v8::Arguments &Args)
             QWidget *qw = 0;
             if (Args.Length () > 0) {
 
-               qw = self->_to_qt_widget (Args[0]);
+               qw = self->_to_qwidget (Args[0]);
                if (qw) {
 
                   tw->setCurrentWidget (qw);
@@ -164,7 +164,7 @@ dmz::JsModuleUiV8QtBasic::_tab_widget_current_widget (const v8::Arguments &Args)
                qw = tw->currentWidget ();
                if (qw) {
 
-                  result = self->create_v8_widget (qw);
+                  result = self->create_v8_qwidget (qw);
                }
             }
          }
@@ -185,7 +185,7 @@ dmz::JsModuleUiV8QtBasic::_tab_widget_at (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -197,7 +197,7 @@ dmz::JsModuleUiV8QtBasic::_tab_widget_at (const v8::Arguments &Args) {
 
             if (qw) {
 
-               result = self->create_v8_widget (qw);
+               result = self->create_v8_qwidget (qw);
             }
          }
       }
@@ -218,12 +218,12 @@ dmz::JsModuleUiV8QtBasic::_tab_widget_index_of (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
          QTabWidget *tw = qobject_cast<QTabWidget *>(widget);
-         QWidget *qw = self->_to_qt_widget (Args[0]);
+         QWidget *qw = self->_to_qwidget (Args[0]);
 
          if (tw && qw) {
 
@@ -246,7 +246,7 @@ dmz::JsModuleUiV8QtBasic::_tab_widget_tab_text (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 

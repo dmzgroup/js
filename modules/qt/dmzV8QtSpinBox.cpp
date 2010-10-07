@@ -3,8 +3,6 @@
 #include "dmzV8QtSpinBox.h"
 #include <QtGui/QSpinBox>
 
-#include <QtCore/QDebug>
-
 
 namespace {
 
@@ -16,7 +14,7 @@ dmz::V8QtSpinBox::V8QtSpinBox (
       const V8Object &Self,
       QWidget *widget,
       JsModuleUiV8QtBasicState *state) :
-      V8QtObject (Self, widget, state) {;}
+      V8QtWidget (Self, widget, state) {;}
 
 
 dmz::V8QtSpinBox::~V8QtSpinBox () {;}

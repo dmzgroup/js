@@ -1,13 +1,13 @@
 #ifndef DMZ_V8_QT_SLIDER_DOT_H
 #define DMZ_V8_QT_SLIDER_DOT_H
 
-#include <dmzV8QtObject.h>
+#include <dmzV8QtWidget.h>
 
 class QComboBox;
 
 namespace dmz {
 
-   class V8QtSlider : public V8QtObject {
+   class V8QtSlider : public V8QtWidget {
 
       Q_OBJECT
 

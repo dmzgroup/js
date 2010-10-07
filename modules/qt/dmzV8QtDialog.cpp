@@ -12,7 +12,7 @@ dmz::V8QtDialog::V8QtDialog (
       const V8Object &Self,
       QWidget *widget,
       JsModuleUiV8QtBasicState *state) :
-      V8QtObject (Self, widget, state) {;}
+      V8QtWidget (Self, widget, state) {;}
 
 
 dmz::V8QtDialog::~V8QtDialog () {;}

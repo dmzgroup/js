@@ -2,6 +2,7 @@
 #include <dmzJsModuleV8.h>
 #include <dmzJsV8UtilConvert.h>
 #include "dmzV8QtObject.h"
+#include <QtGui/QMessageBox>
 
 
 dmz::V8Value
@@ -18,7 +19,7 @@ dmz::JsModuleUiV8QtBasic::_create_message_box (const v8::Arguments &Args) {
 
       if (Args.Length () >= 2) {
 
-         parent = self->_to_qt_widget (Args[0]);
+         parent = self->_to_qwidget (Args[0]);
          params = v8_to_object (Args[1]);
       }
       else {
@@ -29,7 +30,7 @@ dmz::JsModuleUiV8QtBasic::_create_message_box (const v8::Arguments &Args) {
       if (!params.IsEmpty ()) {
 
          QMessageBox *dialog = self->_create_message_box (params, parent);
-         result = self->create_v8_widget (dialog);
+         result = self->create_v8_qwidget (dialog);
       }
    }
 

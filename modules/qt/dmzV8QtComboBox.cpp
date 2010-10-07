@@ -2,7 +2,6 @@
 #include <dmzJsModuleV8.h>
 #include "dmzV8QtComboBox.h"
 #include <QtGui/QComboBox>
-#include <QtCore/QDebug>
 
 
 namespace {
@@ -16,7 +15,7 @@ dmz::V8QtComboBox::V8QtComboBox (
       const V8Object &Self,
       QWidget *widget,
       JsModuleUiV8QtBasicState *state) :
-      V8QtObject (Self, widget, state) {;}
+      V8QtWidget (Self, widget, state) {;}
 
 
 dmz::V8QtComboBox::~V8QtComboBox () {;}

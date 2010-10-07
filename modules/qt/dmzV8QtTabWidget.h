@@ -1,11 +1,11 @@
 #ifndef DMZ_V8_QT_TAB_WIDGET_DOT_H
 #define DMZ_V8_QT_TAB_WIDGET_DOT_H
 
-#include <dmzV8QtObject.h>
+#include <dmzV8QtWidget.h>
 
 namespace dmz {
 
-   class V8QtTabWidget : public V8QtObject {
+   class V8QtTabWidget : public V8QtWidget {
 
       Q_OBJECT
 

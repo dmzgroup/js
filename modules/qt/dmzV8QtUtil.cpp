@@ -1,8 +1,6 @@
 #include <dmzJsV8UtilConvert.h>
 #include "dmzV8QtUtil.h"
 
-#include <QtCore/QDebug>
-
 
 dmz::V8Value
 dmz::to_v8_value (const QVariant &Value) {
@@ -29,7 +27,7 @@ dmz::to_v8_value (const QVariant &Value) {
       }
       else if (Value.type () == QVariant::String) {
 
-         newValue = v8::String::New (qPrintable (Value.toString ()));
+         newValue = to_v8_value (Value);
       }
    }
 
@@ -38,7 +36,7 @@ dmz::to_v8_value (const QVariant &Value) {
 
 
 QVariant
-dmz::to_qt_variant (V8Value value) {
+dmz::to_qvariant (V8Value value) {
 
    QVariant result;
 
@@ -48,8 +46,9 @@ dmz::to_qt_variant (V8Value value) {
       else if (value->IsInt32 ()) { result = v8_to_int32 (value); }
       else if (value->IsUint32 ()) { result = v8_to_uint32 (value); }
       else if (value->IsNumber ()) { result = v8_to_number (value); }
-      else if (value->IsString ()) { result = v8_to_string (value).get_buffer (); }
+      else if (value->IsString ()) { result = v8_to_qstring (value); }
    }
 
    return result;
 }
+

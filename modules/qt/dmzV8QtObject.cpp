@@ -9,10 +9,10 @@
 
 dmz::V8QtObject::V8QtObject (
       const V8Object &Self,
-      QWidget *widget,
+      QObject *object,
       JsModuleUiV8QtBasicState *state) :
       QObject (0),
-      _widget (widget),
+      _object (object),
       _state (state),
       _current (0) {
 
@@ -26,10 +26,10 @@ dmz::V8QtObject::V8QtObject (
 
 dmz::V8QtObject::~V8QtObject () {
 
-   if (_widget) {
+   if (_object) {
 
-      if (!_widget->parentWidget ()) { delete _widget; }
-      _widget = 0;
+      if (!_object->parent ()) { delete _object; }
+      _object = 0;
    }
 
    _cbTable.empty ();
@@ -38,10 +38,20 @@ dmz::V8QtObject::~V8QtObject () {
 }
 
 
-QWidget *
-dmz::V8QtObject::get_qt_widget () const {
+QObject *
+dmz::V8QtObject::get_qobject () const {
 
-   return _widget;
+   return _object;
+}
+
+
+dmz::Boolean
+dmz::V8QtObject::bind (
+      const String &Signal,
+      const V8Object &Self,
+      const V8Function &Func) {
+
+   return False;
 }
 
 
@@ -189,7 +199,7 @@ dmz::V8QtObject::_do_callback (const String &Signal, const QList<V8Value> &Value
                argv[ix] = ValueList.at (ix);
             }
 
-            argv[Argc - 2] = _state->ui->create_v8_widget (_widget);
+            argv[Argc - 2] = _state->ui->create_v8_qobject (_object);
             argv[Argc - 1] = cs->self;
 
             v8::TryCatch tc;

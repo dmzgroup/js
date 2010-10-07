@@ -1,23 +1,22 @@
-#ifndef DMZ_V8_QT_COMBO_BOX_DOT_H
-#define DMZ_V8_QT_COMBO_BOX_DOT_H
+#ifndef DMZ_V8_QT_DOCK_WIDGET_DOT_H
+#define DMZ_V8_QT_DOCK_WIDGET_DOT_H
 
 #include <dmzV8QtWidget.h>
 
-class QComboBox;
 
 namespace dmz {
 
-   class V8QtComboBox : public V8QtWidget {
+   class V8QtDockWidget :  public V8QtWidget {
 
       Q_OBJECT
 
       public:
-         V8QtComboBox (
+         V8QtDockWidget (
             const V8Object &Self,
             QWidget *widget,
             JsModuleUiV8QtBasicState *state);
 
-         virtual ~V8QtComboBox ();
+         virtual ~V8QtDockWidget ();
 
          virtual Boolean bind (
             const String &Signal,
@@ -25,9 +24,10 @@ namespace dmz {
             const V8Function &Func);
 
       public Q_SLOTS:
-         void on_currentIndexChanged (int value);
+         void on_topLevelChanged (bool topLevel);
+         void on_visibilityChanged (bool visible);
    };
 };
 
 
-#endif
+#endif // DMZ_V8_QT_DOCK_WIDGET_DOT_H

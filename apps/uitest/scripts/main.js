@@ -1,8 +1,10 @@
 var puts = require('sys').puts
-  , uiLoader = require('dmz/components/ui/uiLoader')
-  , mainWindow = require('dmz/components/ui/mainWindow')
-  , messageBox = require('dmz/components/ui/messageBox')
-  , mainForm = uiLoader.load('./scripts/main.ui')
+  , Qt = require('dmz/ui')
+  , QUiLoader = require('dmz/ui/uiLoader')
+  , QMessageBox = require('dmz/ui/messageBox')
+  , QDockWidget = require('dmz/ui/dockWidget')
+  , mainWindow = require('dmz/ui/mainWindow')
+  , mainForm = QUiLoader.load('./scripts/main.ui')
   , listWidget = mainForm.lookup('listWidget')
   , stackedWidget = mainForm.lookup('stackedWidget')
   , index = 0
@@ -10,16 +12,10 @@ var puts = require('sys').puts
 
 puts('Script: ' + self.name);
 
-function dump (obj) {
-   puts('-d-u-m-p----------------------');
-   puts('objectName: ' + obj.objectName ());
-   puts('className: ' + obj.className ());
-   puts('------------------------------');
-}
 
 function add_script (script) {
-   var form = uiLoader.load('./scripts/' + script + '.ui');
-   form.objectName(script);
+   var form = QUiLoader.load('./scripts/' + script + '.ui');
+   form.name(script);
    listWidget.addItem(script);
    stackedWidget.add(form);
 }
@@ -34,43 +30,35 @@ listWidget.observe(self, 'currentRowChanged', function (row) {
 });
 
 mainForm.observe(self, 'doneButton', 'clicked', function (button) {
-   mainWindow.close();
-});
-
-// mainForm.observe(self, 'prevButton', 'clicked', function (btn) {
-// });
-
-mainForm.observe(self, 'nextButton', 'clicked', function (button) {
-   var mb = messageBox.create(
+   var mb = QMessageBox.create(
       button.parent(),
       {
-         type: messageBox.Information,
-         text: "Some Text",
-         informativeText: "This is some informative Text",
-         standardButtons: [messageBox.Ok, messageBox.Cancel, messageBox.Save],
-         defaultButton: messageBox.Cancel
+         type: QMessageBox.Information,
+         text: "Are you done?",
+         informativeText: "Hit Ok to quit!",
+         standardButtons: [QMessageBox.Ok, QMessageBox.Cancel],
+         defaultButton: QMessageBox.Ok
       }
    );
 
    mb.open(self, function (val) {
-      if (val === messageBox.Ok) {
+      if (val === QMessageBox.Ok) {
 
          puts("mb: OK pressed");
+         mainWindow.close();
       }
-      else if (val === messageBox.Save) {
-
-         puts("mb: Save pressed");
-      }
-      else if (val === messageBox.Cancel) {
+      else if (val === QMessageBox.Cancel) {
 
          puts("mb: Cancel pressed");
       }
    });
 });
 
-dump(mainForm);
-dump(listWidget);
-dump(stackedWidget);
+// mainForm.observe(self, 'prevButton', 'clicked', function (btn) {
+// });
+
+// mainForm.observe(self, 'nextButton', 'clicked', function (button) {
+// });
 
 add_script('Slider');
 add_script('Widgets');
@@ -131,4 +119,26 @@ stackedWidget.currentIndex(0);
 
 mainWindow.centralWidget (mainForm);
 
+var dockName = "My Tools";
+var toolsWidget = QUiLoader.load('./scripts/Tools.ui');
+if(toolsWidget) {
+   
+   // toolsWidget.observe(self, 'button1', 'clicked', function (btn) {
+   // });
+
+   // toolsWidget.observe(self, 'button2', 'clicked', function (btn) {
+   // });
+
+   // toolsWidget.observe(self, 'button3', 'clicked', function (btn) {
+   // });
+   
+   // var toolsDock = QDockWidget.create (dockName, toolsWidget);
+   var toolsDock = mainWindow.createDock (dockName, toolsWidget);
+   if (toolsDock) {
+      
+      toolsDock.title ("Tools I Like");
+      mainWindow.addDock (dockName, Qt.LeftDockWidgetArea);
+   }
+}
+   
 puts('Done with: ' + self.name);

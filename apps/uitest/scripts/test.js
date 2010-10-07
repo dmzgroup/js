@@ -1,8 +1,8 @@
 var puts = require('sys').puts
   , timer = require('dmz/runtime/time')
-  , uiLoader = require('dmz/components/ui/uiLoader')
-  , messageBox = require('dmz/components/ui/messageBox')
-  , fileDialog = require('dmz/components/ui/fileDialog')
+  , uiLoader = require('dmz/ui/uiLoader')
+  , messageBox = require('dmz/ui/messageBox')
+  , fileDialog = require('dmz/ui/fileDialog')
   , form
   , button1
   , button2

@@ -13,7 +13,7 @@ dmz::JsModuleUiV8QtBasic::_lcd_number_value (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 

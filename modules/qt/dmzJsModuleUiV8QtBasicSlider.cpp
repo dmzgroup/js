@@ -14,7 +14,7 @@ dmz::JsModuleUiV8QtBasic::_slider_maximum (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -48,7 +48,7 @@ dmz::JsModuleUiV8QtBasic::_slider_minimum (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -82,7 +82,7 @@ dmz::JsModuleUiV8QtBasic::_slider_value (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -116,7 +116,7 @@ dmz::JsModuleUiV8QtBasic::_slider_is_down (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -143,7 +143,7 @@ dmz::JsModuleUiV8QtBasic::_dial_wrapping (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -177,7 +177,7 @@ dmz::JsModuleUiV8QtBasic::_dial_notches_visible (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 

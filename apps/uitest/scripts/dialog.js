@@ -1,5 +1,5 @@
 var puts = require('sys').puts
-  , uiLoader = require('dmz/components/ui/uiLoader')
+  , uiLoader = require('dmz/ui/uiLoader')
   , form
   ;
 

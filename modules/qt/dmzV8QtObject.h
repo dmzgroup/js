@@ -13,8 +13,6 @@
 #include <QtCore/QVariant>
 #include <v8.h>
 
-class QWidget;
-
 
 namespace dmz {
 
@@ -25,17 +23,17 @@ namespace dmz {
       public:
          V8QtObject (
             const V8Object &Self,
-            QWidget *widget,
+            QObject *object,
             JsModuleUiV8QtBasicState *state);
 
          virtual ~V8QtObject ();
 
-         QWidget *get_qt_widget () const;
+         QObject *get_qobject () const;
 
          virtual Boolean bind (
             const String &Signal,
             const V8Object &Self,
-            const V8Function &Func) = 0;
+            const V8Function &Func);
 
          void release_callback (const Handle Observer);
 
@@ -83,7 +81,7 @@ namespace dmz {
 
          V8Value _to_v8_value (const QVariant &Value);
 
-         QPointer<QWidget> _widget;
+         QPointer<QObject> _object;
          JsModuleUiV8QtBasicState *_state;
          HashTableStringTemplate<CallbackTable> _cbTable;
          HashTableHandleIterator _it;

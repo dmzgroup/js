@@ -1,6 +1,7 @@
 #include "dmzJsModuleUiV8QtBasic.h"
 #include <dmzJsV8UtilConvert.h>
 #include "dmzV8QtListWidget.h"
+#include "dmzV8QtUtil.h"
 #include <QtGui/QAbstractButton>
 #include <QtGui/QListWidgetItem>
 
@@ -31,19 +32,17 @@ dmz::JsModuleUiV8QtBasic::_list_widget_item_text (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QListWidgetItem *item = self->_to_qt_list_widget_item (Args.This ());
-
+      QListWidgetItem *item = self->_to_qlistwidgetitem (Args.This ());
       if (item) {
 
          if (Args.Length ()) {
 
-            item->setText (*(v8::String::AsciiValue (Args[0])));
+            item->setText (v8_to_qstring (Args[0]));
          }
 
-         result = v8::String::New (qPrintable (item->text ()));
+         result = to_v8_value (item->text ());
       }
    }
 
@@ -61,16 +60,13 @@ dmz::JsModuleUiV8QtBasic::_list_widget_add_item (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
-      String param = v8_to_string (Args[0]);
+      QListWidget *lw = self->v8_to_qobject<QListWidget> (Args.This ());
+      if (lw) {
 
-      if (widget) {
+         if (Args.Length ()) {
 
-         QListWidget *lw = qobject_cast<QListWidget *>(widget);
-
-         if (lw) {
-
-            lw->addItem (param.get_buffer ());
+            QString param = v8_to_qstring (Args[0]);
+            lw->addItem (param);
          }
       }
    }
@@ -88,17 +84,13 @@ dmz::JsModuleUiV8QtBasic::_list_widget_current_item (const v8::Arguments &Args) 
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
-      if (widget) {
+      QListWidget *lw = self->v8_to_qobject<QListWidget> (Args.This ());
+      if (lw) {
 
-         QListWidget *lw = qobject_cast<QListWidget *>(widget);
-         if (lw) {
+         QListWidgetItem *item = lw->currentItem ();
+         if (item) {
 
-            QListWidgetItem *item = lw->currentItem ();
-            if (item) {
-
-               result = self->create_v8_list_widget_item (item);
-            }
+            result = self->create_v8_qlistwidgetitem (item);
          }
       }
    }
@@ -108,7 +100,7 @@ dmz::JsModuleUiV8QtBasic::_list_widget_current_item (const v8::Arguments &Args) 
 
 
 dmz::V8Value
-dmz::JsModuleUiV8QtBasic::create_v8_list_widget_item (QListWidgetItem *value) {
+dmz::JsModuleUiV8QtBasic::create_v8_qlistwidgetitem (QListWidgetItem *value) {
 
    v8::Context::Scope cscope (_state.context);
    v8::HandleScope scope;
@@ -129,6 +121,35 @@ dmz::JsModuleUiV8QtBasic::create_v8_list_widget_item (QListWidgetItem *value) {
 
    return scope.Close (result);
 }
+
+
+QListWidgetItem *
+dmz::JsModuleUiV8QtBasic::_to_qlistwidgetitem (V8Value value) {
+
+   v8::HandleScope scope;
+   QListWidgetItem *result (0);
+
+   V8Object obj = v8_to_object (value);
+   if (!obj.IsEmpty ()) {
+
+      if (_listWidgetItemTemp->HasInstance (obj)) {
+
+         result = (QListWidgetItem *)v8::External::Unwrap (obj->GetInternalField (0));
+      }
+   }
+
+   return result;
+}
+
+
+//QListWidget *
+//dmz::JsModuleUiV8QtBasic::_to_qlistwidget (V8Value value) {
+
+//   QListWidget *result (0);
+//   QWidget *widget = _to_qwidget (value);
+//   if (widget) { result = qobject_cast<QListWidget *>(widget); }
+//   return result;
+//}
 
 
 void

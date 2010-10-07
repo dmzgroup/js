@@ -9,13 +9,31 @@
 #include <dmzTypesHashTableHandleTemplate.h>
 #include <dmzTypesStringContainer.h>
 #include <QtCore/QList>
-//#include <QtCore/QObject>
-//#include <QtCore/QPointer>
 #include <QtCore/QMap>
-#include <QtGui/QMessageBox>
+#include <QtCore/QObject>
+#include <QtGui/QWidget>
 #include <v8.h>
 
+class QAbstractButton;
+class QBoxLayout;
+class QComboBox;
+class QDial;
+class QDialog;
+class QDockWidget;
+class QFormLayout;
+class QGridLayout;
+class QLabel;
+class QLayout;
+class QLCDNumber;
+class QLineEdit;
+class QListWidget;
 class QMainWindow;
+class QMessageBox;
+class QProgressBar;
+class QSlider;
+class QStackedWidget;
+class QTabWidget;
+class QTextEdit;
 
 
 namespace dmz {
@@ -24,16 +42,22 @@ namespace dmz {
    class JsModuleV8;
    class QtModuleMainWindow;
    class V8QtObject;
+   class V8QtDialog;
+   class V8QtWidget;
 
 
    struct JsModuleUiV8QtBasicState {
 
       JsModuleV8 *core;
       JsModuleUiV8QtBasic *ui;
+      QtModuleMainWindow *mainWindowModule;
 
       v8::Handle<v8::Context> context;
 
-      JsModuleUiV8QtBasicState () : core (0), ui (0) {;}
+      JsModuleUiV8QtBasicState () :
+            core (0),
+            ui (0),
+            mainWindowModule (0) {;}
    };
 
 
@@ -56,8 +80,9 @@ namespace dmz {
             const Plugin *PluginPtr);
 
          // JsModuleUiV8Qt Interface
-         virtual v8::Handle<v8::Value> create_v8_widget (QWidget *value);
-         virtual v8::Handle<v8::Value> create_v8_list_widget_item (QListWidgetItem *value);
+         virtual v8::Handle<v8::Value> create_v8_qobject (QObject *value);
+         virtual v8::Handle<v8::Value> create_v8_qwidget (QWidget *value);
+         virtual v8::Handle<v8::Value> create_v8_qlistwidgetitem (QListWidgetItem *value);
 
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
@@ -69,8 +94,14 @@ namespace dmz {
             const String &InstanceName,
             v8::Handle<v8::Object> &instance);
 
-         // Class Interface
-         QMainWindow *get_qt_main_window ();
+         template <class T> T *
+         v8_to_qobject (V8Value value) {
+
+            T *result (0);
+            QObject *object = _to_qobject (value);
+            if (object) { result = qobject_cast<T *>(object); }
+            return result;
+         }
 
       protected:
          struct ObsStruct {
@@ -88,17 +119,21 @@ namespace dmz {
          // QUiLoader bindings
          static V8Value _uiloader_load (const v8::Arguments &Args);
 
+         // QObject bindings implemented in JsModuleUiV8QtBasicObject.cpp
+         static V8Value _object_lookup (const v8::Arguments &Args);
+         static V8Value _object_name (const v8::Arguments &Args);
+         static V8Value _object_observe (const v8::Arguments &Args);
+         static V8Value _object_parent (const v8::Arguments &Args);
+         static V8Value _object_property (const v8::Arguments &Args);
+
          // QWidget bindings implemented in JsModuleUiV8QtBasicWidget.cpp
-         static V8Value _widget_class_name (const v8::Arguments &Args);
-         static V8Value _widget_object_name (const v8::Arguments &Args);
          static V8Value _widget_close (const v8::Arguments &Args);
          static V8Value _widget_enabled (const v8::Arguments &Args);
          static V8Value _widget_hide (const v8::Arguments &Args);
-         static V8Value _widget_lookup (const v8::Arguments &Args);
-         static V8Value _widget_observe (const v8::Arguments &Args);
+         static V8Value _widget_layout (const v8::Arguments &Args);
          static V8Value _widget_show (const v8::Arguments &Args);
-         static V8Value _widget_parent (const v8::Arguments &Args);
-         static V8Value _widget_property (const v8::Arguments &Args);
+         static V8Value _widget_title (const v8::Arguments &Args);
+         static V8Value _widget_window (const v8::Arguments &Args);
 
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
          static V8Value _button_text (const v8::Arguments &Args);
@@ -195,6 +230,40 @@ namespace dmz {
          static V8Value _create_message_box (const v8::Arguments &Args);
          QMessageBox *_create_message_box (V8Object params, QWidget *parent);
 
+         // QLayout bindings implemented in JsModuleUiV8QtBasicLayout.cpp
+         static V8Value _layout_index_of (const v8::Arguments &Args);
+         static V8Value _layout_enabled (const v8::Arguments &Args);
+         static V8Value _layout_at (const v8::Arguments &Args);
+         static V8Value _layout_count (const v8::Arguments &Args);
+         static V8Value _layout_parent (const v8::Arguments &Args);
+         static V8Value _layout_parent_widget (const v8::Arguments &Args);
+
+         // QBoxLayout bindings implemented in JsModuleUiV8QtBasicLayout.cpp
+         static V8Value _box_layout_add_layout (const v8::Arguments &Args);
+         static V8Value _box_layout_add_stretch (const v8::Arguments &Args);
+         static V8Value _box_layout_add_widget (const v8::Arguments &Args);
+         static V8Value _box_layout_direction (const v8::Arguments &Args);
+         static V8Value _create_box_layout (const v8::Arguments &Args);
+         static V8Value _create_hbox_layout (const v8::Arguments &Args);
+         static V8Value _create_vbox_layout (const v8::Arguments &Args);
+
+         // QGridLayout bindings implemented in JsModuleUiV8QtBasicLayout.cpp
+         static V8Value _grid_layout_add_layout (const v8::Arguments &Args);
+         static V8Value _grid_layout_add_widget (const v8::Arguments &Args);
+         static V8Value _grid_layout_column_count (const v8::Arguments &Args);
+         static V8Value _grid_layout_row_count (const v8::Arguments &Args);
+         static V8Value _grid_layout_column_stretch (const v8::Arguments &Args);
+         static V8Value _grid_layout_row_stretch (const v8::Arguments &Args);
+         static V8Value _create_grid_layout (const v8::Arguments &Args);
+
+         // QFormLayout bindings implemented in JsModuleUiV8QtBasicLayout.cpp
+         static V8Value _form_layout_add_row (const v8::Arguments &Args);
+         static V8Value _form_layout_insert_row (const v8::Arguments &Args);
+         static V8Value _form_layout_row_count (const v8::Arguments &Args);
+         static V8Value _form_layout_vertical_spacing (const v8::Arguments &Args);
+         static V8Value _form_layout_spacing (const v8::Arguments &Args);
+         static V8Value _create_form_layout (const v8::Arguments &Args);
+
          // QFileDialog bindings implemented in JsModuleUiV8QtBasicFileDialog.cpp
          static V8Value _file_dialog_get_existing_directory (const v8::Arguments &Args);
          static V8Value _file_dialog_get_open_file_name (const v8::Arguments &Args);
@@ -203,6 +272,45 @@ namespace dmz {
          // QMainWindow bindings implemented in JsModuleUiV8QtBasicMainWindow.cpp
          static V8Value _main_window_central_widget (const v8::Arguments &Args);
          static V8Value _main_window_close (const v8::Arguments &Args);
+         static V8Value _main_window_create_dock_widget (const v8::Arguments &Args);
+         static V8Value _main_window_add_dock_widget (const v8::Arguments &Args);
+         static V8Value _main_window_remove_dock_widget (const v8::Arguments &Args);
+
+         // QDockWidget bindings implemented in JsModuleUiV8QtBasicDockWidget.cpp
+         static V8Value _create_dock_widget (const v8::Arguments &Args);
+//         static V8Value _dock_window_widget (const v8::Arguments &Args);
+//         static V8Value _dock_window_toggle_view_action (const v8::Arguments &Args);
+
+         // QAction bindings implemented in JsModuleUiV8QtBasicAction.cpp
+//         static V8Value _action_text (const v8::Arguments &Args);
+
+         QWidget *_to_qwidget (V8Value value) { return v8_to_qobject<QWidget>(value); }
+
+//         QAbstractButton *_to_qabstractbutton (V8Value value) { return v8_to_qobject<QAbstractButton *>(value); }
+//         QComboBox *_to_qcombobox (V8Value value) { return v8_to_qobject<QComboBox>(value); }
+//         QSlider *_to_qslider (V8Value value)  { return v8_to_qobject<QSlider>(value); }
+//         QDial *_to_qdial (V8Value value) { return v8_to_qobject<QDial>(value); }
+//         QLineEdit *_to_qlineedit (V8Value value) { return v8_to_qobject<QLineEdit>(value); }
+//         QTextEdit *_to_qtextedit (V8Value value) { return v8_to_qobject<QTextEdit>(value); }
+//         QLabel *_to_qlabel (V8Value value) { return v8_to_qobject<QLabel>(value); }
+//         QProgressBar *_to_qprogressbar (V8Value value) { return v8_to_qobject<QProgressBar>(value); }
+//         QLCDNumber *_to_qlcdnumber (V8Value value) { return v8_to_qobject<QLCDNumber>(value); }
+//         QListWidget *_to_qlistwidget (V8Value value) { return v8_to_qobject<QListWidget>(value); }
+//         QStackedWidget *_to_qstackedwidget (V8Value value) { return v8_to_qobject<QStackedWidget>(value); }
+//         QTabWidget *_to_qtabwidget (V8Value value) { return v8_to_qobject<QTabWidget>(value); }
+//         QLayout *_to_qlayout (V8Value value) { return v8_to_qobject<QLayout>(value); }
+//         QBoxLayout *_to_qboxlayout (V8Value value) { return v8_to_qobject<QBoxLayout>(value); }
+//         QGridLayout *_to_qgridlayout (V8Value value) { return v8_to_qobject<QGridLayout>(value); }
+//         QFormLayout *_to_qformlayout (V8Value value) { return v8_to_qobject<QFormLayout>(value); }
+//         QMainWindow *_to_qmainwindow (V8Value value) { return v8_to_qobject<QMainWindow>(value); }
+//         QDockWidget *_to_qdockwidget (V8Value value) { return v8_to_qobject<QDockWidget>(value); }
+
+         QObject *_to_qobject (V8Value value);
+         QListWidgetItem *_to_qlistwidgetitem (V8Value value);
+
+         V8QtDialog *_to_v8_qt_dialog (V8Value value);
+         V8QtWidget *_to_v8_qt_widget (V8Value value);
+         V8QtObject *_to_v8_qt_object (V8Value value);
 
          void _get_file_dialog_params (
             V8Object params,
@@ -211,10 +319,7 @@ namespace dmz {
             QString &filter,
             Boolean &allowMultiple);
 
-         QListWidgetItem *_to_qt_list_widget_item (V8Value value);
-         QWidget *_to_qt_widget (V8Value value);
-         V8QtObject *_to_js_qt_object (V8Value value);
-
+         void _init_object ();
          void _init_widget ();
          void _init_button ();
          void _init_list_widget ();
@@ -234,6 +339,15 @@ namespace dmz {
          void _init_tab_widget ();
          void _init_file_dialog ();
          void _init_main_window ();
+         void _init_dock_widget ();
+         void _init_action ();
+
+         void _init_layout ();
+         void _init_box_layout ();
+         void _init_hbox_layout ();
+         void _init_vbox_layout ();
+         void _init_grid_layout ();
+         void _init_form_layout ();
 
          String _find_ui_file (const String &Name);
          void _init (Config &local);
@@ -241,20 +355,26 @@ namespace dmz {
          Log _log;
 
          StringContainer _searchPaths;
-         QtModuleMainWindow *_mainWindowModule;
          String _mainWindowModuleName;
 
          JsModuleUiV8QtBasicState _state;
          V8ValuePersist _self;
 
          HashTableHandleTemplate<ObsStruct> _obsTable;
-         QMap<QWidget *, V8QtObject *>_widgetMap;
+         QMap<QObject *, V8QtObject *>_objectMap;
          QList<QWidget *>_dialogList;
 
+         V8InterfaceHelper _qtApi;
          V8InterfaceHelper _uiLoaderApi;
          V8InterfaceHelper _mainWindowApi;
+         V8InterfaceHelper _dockWidgetApi;
          V8InterfaceHelper _messageBoxApi;
+         V8InterfaceHelper _layoutApi;
          V8InterfaceHelper _fileDialogApi;
+         V8InterfaceHelper _actionApi;
+
+         V8FunctionTemplatePersist _objectTemp;
+         V8FunctionPersist _objectCtor;
 
          V8FunctionTemplatePersist _widgetTemp;
          V8FunctionPersist _widgetCtor;
@@ -304,8 +424,32 @@ namespace dmz {
          V8FunctionTemplatePersist _tabWidgetTemp;
          V8FunctionPersist _tabCtor;
 
+         V8FunctionTemplatePersist _layoutTemp;
+         V8FunctionPersist _layoutCtor;
+
+         V8FunctionTemplatePersist _boxLayoutTemp;
+         V8FunctionPersist _boxLayoutCtor;
+
+         V8FunctionTemplatePersist _hBoxLayoutTemp;
+         V8FunctionPersist _hBoxLayoutCtor;
+
+         V8FunctionTemplatePersist _vBoxLayoutTemp;
+         V8FunctionPersist _vBoxLayoutCtor;
+
+         V8FunctionTemplatePersist _gridLayoutTemp;
+         V8FunctionPersist _gridLayoutCtor;
+
+         V8FunctionTemplatePersist _formLayoutTemp;
+         V8FunctionPersist _formLayoutCtor;
+
          V8FunctionTemplatePersist _mainWindowTemp;
          V8FunctionPersist _mainWindowCtor;
+
+         V8FunctionTemplatePersist _dockWidgetTemp;
+         V8FunctionPersist _dockWidgetCtor;
+
+         V8FunctionTemplatePersist _actionTemp;
+         V8FunctionPersist _actionCtor;
 
          V8StringPersist _typeStr;
          V8StringPersist _textStr;

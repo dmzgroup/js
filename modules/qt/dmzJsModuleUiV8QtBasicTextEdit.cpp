@@ -13,7 +13,7 @@ dmz::JsModuleUiV8QtBasic::_textEdit_append (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -47,7 +47,7 @@ dmz::JsModuleUiV8QtBasic::_textEdit_text (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -81,7 +81,7 @@ dmz::JsModuleUiV8QtBasic::_textEdit_clear (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -108,7 +108,7 @@ dmz::JsModuleUiV8QtBasic::_textEdit_undo (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -135,7 +135,7 @@ dmz::JsModuleUiV8QtBasic::_textEdit_redo (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 

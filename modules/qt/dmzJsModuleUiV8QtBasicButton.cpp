@@ -1,6 +1,17 @@
 #include "dmzJsModuleUiV8QtBasic.h"
 #include <dmzJsV8UtilConvert.h>
+#include "dmzV8QtUtil.h"
 #include <QtGui/QAbstractButton>
+
+
+//QAbstractButton *
+//dmz::JsModuleUiV8QtBasic::_to_qabstractbutton (V8Value value) {
+
+//   QAbstractButton *result (0);
+//   QWidget *widget = _to_qwidget (value);
+//   if (widget) { result = qobject_cast<QAbstractButton *>(widget); }
+//   return result;
+//}
 
 
 dmz::V8Value
@@ -13,17 +24,11 @@ dmz::JsModuleUiV8QtBasic::_button_text (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
-      String param = v8_to_string (Args[0]);
+      QAbstractButton *button = self->v8_to_qobject<QAbstractButton> (Args.This ());;
+      if (button) {
 
-      if (widget && param) {
-
-         QAbstractButton *button = qobject_cast<QAbstractButton *>(widget);
-         
-         if (button) {
-
-            button->setText (param.get_buffer ());
-         }
+         QString param = v8_to_qstring (Args[0]);
+         button->setText (param);
       }
    }
 
@@ -38,19 +43,12 @@ dmz::JsModuleUiV8QtBasic::_button_is_checked (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QAbstractButton *button = self->v8_to_qobject<QAbstractButton> (Args.This ());;
+      if (button) {
 
-      if (widget) {
-
-         QAbstractButton *button = qobject_cast<QAbstractButton *>(widget);
-
-         if (button) {
-
-            result = v8::Boolean::New (button->isChecked ());
-         }
+         result = v8::Boolean::New (button->isChecked ());
       }
    }
 
@@ -68,18 +66,12 @@ dmz::JsModuleUiV8QtBasic::_button_set_checked (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QAbstractButton *button = self->v8_to_qobject<QAbstractButton> (Args.This ());;
+      if (button) {
 
-      if (widget) {
+         if (Args.Length ()) {
 
-         QAbstractButton *button = qobject_cast<QAbstractButton *>(widget);
-
-         if (button) {
-
-            if (Args.Length ()) {
-
-               button->setChecked (v8_to_boolean (Args[0]));
-            }
+            button->setChecked (v8_to_boolean (Args[0]));
          }
       }
    }
@@ -93,19 +85,12 @@ dmz::JsModuleUiV8QtBasic::_button_click (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QAbstractButton *button = self->v8_to_qobject<QAbstractButton> (Args.This ());;
+      if (button) {
 
-      if (widget) {
-
-         QAbstractButton *button = qobject_cast<QAbstractButton *>(widget);
-
-         if (button) {
-
-            button->click ();
-         }
+         button->click ();
       }
    }
 }

@@ -6,9 +6,11 @@ lmkV8.set_name ("dmzJsModuleUiV8QtBasic", lmkQt.get_flags ())
 lmk.set_type "plugin"
 
 lmk.add_files ({
+   "dmzV8QtAction.h",
    "dmzV8QtButton.h",
    "dmzV8QtComboBox.h",
    "dmzV8QtDialog.h",
+   "dmzV8QtDockWidget.h",
    "dmzV8QtLineEdit.h",
    "dmzV8QtListWidget.h",
    "dmzV8QtObject.h",
@@ -23,9 +25,11 @@ lmk.add_files ({
 
 lmk.add_files {
    "dmzJsModuleUiV8QtBasic.cpp",
+   "dmzJsModuleUiV8QtBasicAction.cpp",
    "dmzJsModuleUiV8QtBasicButton.cpp",
    "dmzJsModuleUiV8QtBasicComboBox.cpp",
    "dmzJsModuleUiV8QtBasicDialog.cpp",
+   "dmzJsModuleUiV8QtBasicDockWidget.cpp",
    "dmzJsModuleUiV8QtBasicFileDialog.cpp",
    "dmzJsModuleUiV8QtBasicLabel.cpp",
    "dmzJsModuleUiV8QtBasicLCDNumber.cpp",
@@ -33,16 +37,20 @@ lmk.add_files {
    "dmzJsModuleUiV8QtBasicListWidget.cpp",
    "dmzJsModuleUiV8QtBasicMainWindow.cpp",
    "dmzJsModuleUiV8QtBasicMessageBox.cpp",
+   "dmzJsModuleUiV8QtBasicObject.cpp",
    "dmzJsModuleUiV8QtBasicProgressBar.cpp",
    "dmzJsModuleUiV8QtBasicSlider.cpp",
    "dmzJsModuleUiV8QtBasicSpinBox.cpp",
    "dmzJsModuleUiV8QtBasicStackedWidget.cpp",
    "dmzJsModuleUiV8QtBasicTabWidget.cpp",
+   "dmzJsModuleUiV8QtBasicLayout.cpp",
    "dmzJsModuleUiV8QtBasicTextEdit.cpp",
    "dmzJsModuleUiV8QtBasicWidget.cpp",
+   "dmzV8QtAction.cpp",
    "dmzV8QtButton.cpp",
    "dmzV8QtComboBox.cpp",
    "dmzV8QtDialog.cpp",
+   "dmzV8QtDockWidget.cpp",
    "dmzV8QtLineEdit.cpp",
    "dmzV8QtListWidget.cpp",
    "dmzV8QtObject.cpp",
@@ -65,7 +73,6 @@ lmk.add_preqs {
    "dmzQtFramework",
    "dmzJsFramework",
 }
-
 
 lmkV8.add_libs ()
 lmkQt.add_libs {"QtCore", "QtGui"}

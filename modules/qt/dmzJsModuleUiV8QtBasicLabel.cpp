@@ -13,7 +13,7 @@ dmz::JsModuleUiV8QtBasic::_label_text (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -47,7 +47,7 @@ dmz::JsModuleUiV8QtBasic::_label_word_wrap (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 
@@ -81,7 +81,7 @@ dmz::JsModuleUiV8QtBasic::_label_clear (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qt_widget (Args.This ());
+      QWidget *widget = self->_to_qwidget (Args.This ());
 
       if (widget) {
 

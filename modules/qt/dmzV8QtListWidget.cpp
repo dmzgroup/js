@@ -3,8 +3,6 @@
 #include "dmzV8QtListWidget.h"
 #include <QtGui/QListWidget>
 
-#include <QtCore/QDebug>
-
 
 namespace {
 
@@ -19,7 +17,7 @@ dmz::V8QtListWidget::V8QtListWidget (
       const V8Object &Self,
       QWidget *widget,
       JsModuleUiV8QtBasicState *state) :
-      V8QtObject (Self, widget, state) {;}
+      V8QtWidget (Self, widget, state) {;}
 
 
 dmz::V8QtListWidget::~V8QtListWidget () {;}
@@ -94,8 +92,8 @@ dmz::V8QtListWidget::on_currentItemChanged (
       v8::HandleScope scope;
 
       QList<V8Value> args;
-      args.append (_state->ui->create_v8_list_widget_item (current));
-      args.append (_state->ui->create_v8_list_widget_item (previous));
+      args.append (_state->ui->create_v8_qlistwidgetitem (current));
+      args.append (_state->ui->create_v8_qlistwidgetitem (previous));
 
       _do_callback (LocalSignalCurrentItemChanged, args);
    }
@@ -125,7 +123,7 @@ dmz::V8QtListWidget::on_itemActivated (QListWidgetItem *item) {
       v8::HandleScope scope;
 
       QList<V8Value> args;
-      args.append (_state->ui->create_v8_list_widget_item (item));
+      args.append (_state->ui->create_v8_qlistwidgetitem (item));
 
       _do_callback (LocalSignalItemActivated, args);
    }

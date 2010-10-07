@@ -11,49 +11,11 @@
 #include <dmzTypesStringTokenizer.h>
 #include "dmzV8QtTypes.h"
 #include <QtCore/QFile>
-#include <QtGui/QDialog>
-#include <QtGui/QDoubleSpinBox>
-#include <QtGui/QSpinBox>
-#include <QtGui/QWidget>
+//#include <QtGui/QDialog>
+//#include <QtGui/QDoubleSpinBox>
+//#include <QtGui/QSpinBox>
+//#include <QtGui/QWidget>
 #include <QtUiTools/QUiLoader>
-
-//using namespace dmz;
-
-//namespace {
-
-//static void
-//local_v8_qt_callback_struct_delete (V8ValuePersist object, void *param) {
-
-//   if (param) {
-
-//      V8QtCallbackStruct *obj = (V8QtCallbackStruct *)param;
-//      delete obj;
-//      obj = 0;
-//   }
-
-//   object.Dispose ();
-//   object.Clear ();
-//}
-
-//};
-
-
-//dmz::V8QtCallbackStruct::V8QtCallbackStruct (
-//      QWidget *theWidget,
-//      JsModuleUiV8QtBasicState &TheState) :
-//      QObject (0),
-//      next (0),
-//      widget (theWidget),
-//      state (TheState) {;}
-
-
-//dmz::V8QtCallbackStruct::~V8QtCallbackStruct () {
-
-//   if (widget) { delete widget; widget = 0; }
-
-//   self.Dispose (); self.Clear ();
-//   callback.Dispose (); callback.Clear ();
-//}
 
 
 dmz::V8Value
@@ -77,7 +39,7 @@ dmz::JsModuleUiV8QtBasic::_uiloader_load (const v8::Arguments &Args) {
          QWidget *widget = loader.load (&file, 0);
          file.close ();
 
-         result = self->create_v8_widget (widget);
+         result = self->create_v8_qwidget (widget);
 
          if (!result.IsEmpty ()) {
 
@@ -99,8 +61,7 @@ dmz::JsModuleUiV8QtBasic::JsModuleUiV8QtBasic (const PluginInfo &Info, Config &l
       Plugin (Info),
       JsModuleUiV8Qt (Info),
       JsExtV8 (Info),
-      _log (Info),
-      _mainWindowModule (0) {
+      _log (Info) {
 
    _state.ui = this;
    _init (local);
@@ -141,16 +102,17 @@ dmz::JsModuleUiV8QtBasic::discover_plugin (
 
    if (Mode == PluginDiscoverAdd) {
 
-      if (!_mainWindowModule) {
+      if (!_state.mainWindowModule) {
 
-         _mainWindowModule = QtModuleMainWindow::cast (PluginPtr, _mainWindowModuleName);
+         _state.mainWindowModule = QtModuleMainWindow::cast (PluginPtr, _mainWindowModuleName);
       }
    }
    else if (Mode == PluginDiscoverRemove) {
 
-      if (_mainWindowModule && (_mainWindowModule == QtModuleMainWindow::cast (PluginPtr))) {
+      if (_state.mainWindowModule &&
+          (_state.mainWindowModule == QtModuleMainWindow::cast (PluginPtr))) {
 
-         _mainWindowModule = 0;
+         _state.mainWindowModule = 0;
       }
    }
 }
@@ -158,7 +120,7 @@ dmz::JsModuleUiV8QtBasic::discover_plugin (
 
 // JsModuleUiV8Qt Interface
 dmz::V8Value
-dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
+dmz::JsModuleUiV8QtBasic::create_v8_qobject (QObject *value) {
 
    v8::Context::Scope cscope (_state.context);
    v8::HandleScope scope;
@@ -168,7 +130,95 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
    if (value) {
 
       V8Object vobj;
-      V8QtObject *qobj = _widgetMap[value];
+      V8QtObject *qobj = _objectMap[value];
+
+      if (!qobj) {
+
+         if (value->isWidgetType ()) {
+
+            QWidget  *widget = qobject_cast<QWidget *>(value);
+            if (widget) { result = create_v8_qwidget (widget); }
+         }
+         else if (value->inherits ("QAction")) {
+
+            if (!_actionCtor.IsEmpty ()) {
+
+               vobj = _actionCtor->NewInstance ();
+               qobj = new V8QtAction (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QHBoxLayout")) {
+
+            if (!_hBoxLayoutCtor.IsEmpty ()) {
+
+               vobj = _hBoxLayoutCtor->NewInstance ();
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QVBoxLayout")) {
+
+            if (!_vBoxLayoutCtor.IsEmpty ()) {
+
+               vobj = _vBoxLayoutCtor->NewInstance ();
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QBoxLayout")) {
+
+            if (!_boxLayoutCtor.IsEmpty ()) {
+
+               vobj = _boxLayoutCtor->NewInstance ();
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QGridLayout")) {
+
+            if (!_gridLayoutCtor.IsEmpty ()) {
+
+               vobj = _gridLayoutCtor->NewInstance ();
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QFormLayout")) {
+
+            if (!_formLayoutCtor.IsEmpty ()) {
+
+               vobj = _formLayoutCtor->NewInstance ();
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QLayout")) {
+
+            if (!_layoutCtor.IsEmpty ()) {
+
+               vobj = _layoutCtor->NewInstance ();
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
+
+
+         if (qobj) { _objectMap.insert (value, qobj); }
+      }
+
+      if (qobj && !(qobj->self.IsEmpty ())) { result = qobj->self; }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
+
+   v8::Context::Scope cscope (_state.context);
+   v8::HandleScope scope;
+
+   V8Value result = v8::Undefined ();
+
+   if (value) {
+
+      V8Object vobj;
+      V8QtObject *qobj = _objectMap[value];
 
       if (!qobj) {
 
@@ -271,6 +321,14 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
                qobj = new V8QtListWidget (vobj, value, &_state);
             }
          }
+         else if (value->inherits ("QDockWidget")) {
+
+            if (!_dockWidgetCtor.IsEmpty ()) {
+
+               vobj = _dockWidgetCtor->NewInstance ();
+               qobj = new V8QtDockWidget (vobj, value, &_state);
+            }
+         }
          else if (value->inherits ("QLabel")) {
 
             if (!_labelCtor.IsEmpty ()) {
@@ -300,7 +358,7 @@ dmz::JsModuleUiV8QtBasic::create_v8_widget (QWidget *value) {
             }
          }
 
-         if (qobj) { _widgetMap.insert (value, qobj); }
+         if (qobj) { _objectMap.insert (value, qobj); }
       }
 
       if (qobj && !(qobj->self.IsEmpty ())) { result = qobj->self; }
@@ -339,6 +397,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
    v8::HandleScope scope;
 
    if (State == JsExtV8::Register) {
+
+      if (!_objectTemp.IsEmpty ()) {
+
+         _objectCtor = V8FunctionPersist::New (_objectTemp->GetFunction ());
+      }
 
       if (!_widgetTemp.IsEmpty ()) {
 
@@ -420,28 +483,79 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _tabCtor = V8FunctionPersist::New (_tabWidgetTemp->GetFunction ());
       }
 
+      if (!_layoutTemp.IsEmpty ()) {
+
+         _layoutCtor = V8FunctionPersist::New (_layoutTemp->GetFunction ());
+      }
+
+      if (!_boxLayoutTemp.IsEmpty ()) {
+
+         _boxLayoutCtor = V8FunctionPersist::New (_boxLayoutTemp->GetFunction ());
+      }
+
+      if (!_hBoxLayoutTemp.IsEmpty ()) {
+
+         _hBoxLayoutCtor = V8FunctionPersist::New (_hBoxLayoutTemp->GetFunction ());
+      }
+
+      if (!_vBoxLayoutTemp.IsEmpty ()) {
+
+         _vBoxLayoutCtor = V8FunctionPersist::New (_vBoxLayoutTemp->GetFunction ());
+      }
+
+      if (!_gridLayoutTemp.IsEmpty ()) {
+
+         _gridLayoutCtor = V8FunctionPersist::New (_gridLayoutTemp->GetFunction ());
+      }
+
+      if (!_formLayoutTemp.IsEmpty ()) {
+
+         _formLayoutCtor = V8FunctionPersist::New (_formLayoutTemp->GetFunction ());
+      }
+
       if (!_mainWindowTemp.IsEmpty ()) {
 
          _mainWindowCtor = V8FunctionPersist::New (_mainWindowTemp->GetFunction ());
       }
 
+      if (!_dockWidgetTemp.IsEmpty ()) {
+
+         _dockWidgetCtor = V8FunctionPersist::New (_dockWidgetTemp->GetFunction ());
+      }
+
+      if (!_actionTemp.IsEmpty ()) {
+
+         _actionCtor = V8FunctionPersist::New (_actionTemp->GetFunction ());
+      }
+
       if (_state.core) {
 
-         _state.core->register_interface (
-            "dmz/components/ui/uiLoader",
-            _uiLoaderApi.get_new_instance ());
+         _state.core->register_interface ("dmz/ui", _qtApi.get_new_instance ());
+         _state.core->register_interface ("dmz/ui/uiLoader", _uiLoaderApi.get_new_instance ());
 
          _state.core->register_interface (
-            "dmz/components/ui/mainWindow",
+            "dmz/ui/mainWindow",
             _mainWindowApi.get_new_instance ());
 
          _state.core->register_interface (
-            "dmz/components/ui/messageBox",
+            "dmz/ui/dockWidget",
+            _dockWidgetApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/messageBox",
             _messageBoxApi.get_new_instance ());
 
          _state.core->register_interface (
-            "dmz/components/ui/fileDialog",
+            "dmz/ui/layout",
+            _layoutApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/fileDialog",
             _fileDialogApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/action",
+            _actionApi.get_new_instance ());
       }
 
       _typeStr = V8StringPersist::New (v8::String::NewSymbol ("type"));
@@ -471,7 +585,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
       _dialogList.clear ();
 
-      QMapIterator<QWidget *, V8QtObject *> it (_widgetMap);
+      QMapIterator<QObject *, V8QtObject *> it (_objectMap);
       while (it.hasNext ()) {
 
          it.next ();
@@ -480,8 +594,9 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          delete obj; obj = 0;
       }
 
-      _widgetMap.clear ();
+      _objectMap.clear ();
 
+      _objectCtor.Dispose (); _objectCtor.Clear ();
       _widgetCtor.Dispose (); _widgetCtor.Clear ();
       _buttonCtor.Dispose (); _buttonCtor.Clear ();
       _listWidgetItemCtor.Dispose (); _listWidgetItemCtor.Clear ();
@@ -498,12 +613,24 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _lcdNumberCtor.Dispose (); _lcdNumberCtor.Clear ();
       _stackedCtor.Dispose (); _stackedCtor.Clear ();
       _tabCtor.Dispose (); _tabCtor.Clear ();
+      _hBoxLayoutCtor.Dispose (); _hBoxLayoutCtor.Clear ();
+      _vBoxLayoutCtor.Dispose (); _vBoxLayoutCtor.Clear ();
+      _boxLayoutCtor.Dispose (); _boxLayoutCtor.Clear ();
+      _formLayoutCtor.Dispose (); _formLayoutCtor.Clear ();
+      _gridLayoutCtor.Dispose (); _gridLayoutCtor.Clear ();
+      _layoutCtor.Dispose (); _layoutCtor.Clear ();
       _mainWindowCtor.Dispose (); _mainWindowCtor.Clear ();
+      _dockWidgetCtor.Dispose (); _dockWidgetCtor.Clear ();
+      _actionCtor.Dispose (); _actionCtor.Clear ();
 
+      _qtApi.clear ();
       _uiLoaderApi.clear ();
       _mainWindowApi.clear ();
+      _dockWidgetApi.clear ();
       _messageBoxApi.clear ();
+      _layoutApi.clear ();
       _fileDialogApi.clear ();
+      _actionApi.clear ();
       _state.context.Clear ();
 
       _obsTable.empty ();
@@ -531,46 +658,18 @@ dmz::JsModuleUiV8QtBasic::release_js_instance_v8 (
 }
 
 
-QMainWindow *
-dmz::JsModuleUiV8QtBasic::get_qt_main_window () {
+dmz::V8QtWidget *
+dmz::JsModuleUiV8QtBasic::_to_v8_qt_widget (V8Value value) {
 
-   QMainWindow *mainWindow (0);
-   if (_mainWindowModule) { mainWindow = _mainWindowModule->get_qt_main_window (); }
-   return mainWindow;
-}
-
-
-QListWidgetItem *
-dmz::JsModuleUiV8QtBasic::_to_qt_list_widget_item (V8Value value) {
-
-   v8::HandleScope scope;
-   QListWidgetItem *result (0);
-
-   V8Object obj = v8_to_object (value);
-   if (!obj.IsEmpty ()) {
-
-      if (_listWidgetItemTemp->HasInstance (obj)) {
-
-         result = (QListWidgetItem *)v8::External::Unwrap (obj->GetInternalField (0));
-      }
-   }
-
-   return result;
-}
-
-
-QWidget  *
-dmz::JsModuleUiV8QtBasic::_to_qt_widget (V8Value value) {
-
-   QWidget *result (0);
-   V8QtObject *object = _to_js_qt_object (value);
-   if (object) { result = object->get_qt_widget (); }
+   V8QtWidget *result (0);
+   V8QtObject *object = _to_v8_qt_object (value);
+   if (object) { result = qobject_cast<V8QtWidget *>(object); }
    return result;
 }
 
 
 dmz::V8QtObject *
-dmz::JsModuleUiV8QtBasic::_to_js_qt_object (V8Value value) {
+dmz::JsModuleUiV8QtBasic::_to_v8_qt_object (V8Value value) {
 
    v8::HandleScope scope;
    V8QtObject *result (0);
@@ -578,7 +677,7 @@ dmz::JsModuleUiV8QtBasic::_to_js_qt_object (V8Value value) {
    V8Object obj = v8_to_object (value);
    if (!obj.IsEmpty ()) {
 
-      if (_widgetTemp->HasInstance (obj)) {
+      if (_objectTemp->HasInstance (obj)) {
 
          result = (V8QtObject *)v8::External::Unwrap (obj->GetInternalField (0));
       }
@@ -610,7 +709,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _searchPaths = config_to_path_string_container (local);
 
    _mainWindowModuleName = config_to_string (
-      "module.mainWindow.name",
+      "main-window-module.name",
       local,
       "dmzQtModuleMainWindowBasic");
 
@@ -618,9 +717,81 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
 
    _self = V8ValuePersist::New (v8::External::Wrap (this));
 
-   // API
+   // Qt API
+   // enum Qt::AlignmentFlag
+   _qtApi.add_constant ("AlignLeft", (UInt32)Qt::AlignLeft);
+   _qtApi.add_constant ("AlignRight", (UInt32)Qt::AlignRight);
+   _qtApi.add_constant ("AlignHCenter", (UInt32)Qt::AlignHCenter);
+   _qtApi.add_constant ("AlignJustify", (UInt32)Qt::AlignJustify);
+   _qtApi.add_constant ("AlignTop", (UInt32)Qt::AlignTop);
+   _qtApi.add_constant ("AlignBottom", (UInt32)Qt::AlignBottom);
+   _qtApi.add_constant ("AlignVCenter", (UInt32)Qt::AlignVCenter);
+   _qtApi.add_constant ("AlignCenter", (UInt32)Qt::AlignCenter);
+
+   // enum Qt::CaseSensitivity
+   _qtApi.add_constant ("CaseInsensitive", (UInt32)Qt::CaseInsensitive);
+   _qtApi.add_constant ("CaseInsensitive", (UInt32)Qt::CaseInsensitive);
+
+   // enum Qt::CheckState
+   _qtApi.add_constant ("Unchecked", (UInt32)Qt::Unchecked);
+   _qtApi.add_constant ("PartiallyChecked", (UInt32)Qt::PartiallyChecked);
+   _qtApi.add_constant ("Checked", (UInt32)Qt::Checked);
+
+   // enum Qt::Corner
+   _qtApi.add_constant ("TopLeftCorner", (UInt32)Qt::TopLeftCorner);
+   _qtApi.add_constant ("TopRightCorner", (UInt32)Qt::TopRightCorner);
+   _qtApi.add_constant ("BottomLeftCorner", (UInt32)Qt::BottomLeftCorner);
+   _qtApi.add_constant ("BottomRightCorner", (UInt32)Qt::BottomRightCorner);
+
+   // enum Qt::DockWidgetArea
+   _qtApi.add_constant ("LeftDockWidgetArea", (UInt32)Qt::LeftDockWidgetArea);
+   _qtApi.add_constant ("RightDockWidgetArea", (UInt32)Qt::RightDockWidgetArea);
+   _qtApi.add_constant ("TopDockWidgetArea", (UInt32)Qt::TopDockWidgetArea);
+   _qtApi.add_constant ("LeftDockWidgetArea", (UInt32)Qt::LeftDockWidgetArea);
+   _qtApi.add_constant ("BottomDockWidgetArea", (UInt32)Qt::BottomDockWidgetArea);
+   _qtApi.add_constant ("AllDockWidgetAreas", (UInt32)Qt::AllDockWidgetAreas);
+   _qtApi.add_constant ("NoDockWidgetArea", (UInt32)Qt::NoDockWidgetArea);
+
+   // Qt's predefined QColor objects:
+   _qtApi.add_constant ("white", (UInt32)Qt::white);
+   _qtApi.add_constant ("black", (UInt32)Qt::black);
+   _qtApi.add_constant ("red", (UInt32)Qt::red);
+   _qtApi.add_constant ("darkRed", (UInt32)Qt::darkRed);
+   _qtApi.add_constant ("green", (UInt32)Qt::green);
+   _qtApi.add_constant ("darkGreen", (UInt32)Qt::darkGreen);
+   _qtApi.add_constant ("blue", (UInt32)Qt::blue);
+   _qtApi.add_constant ("darkBlue", (UInt32)Qt::darkBlue);
+   _qtApi.add_constant ("cyan", (UInt32)Qt::cyan);
+   _qtApi.add_constant ("darkCyan", (UInt32)Qt::darkCyan);
+   _qtApi.add_constant ("magenta", (UInt32)Qt::magenta);
+   _qtApi.add_constant ("darkMagenta", (UInt32)Qt::darkMagenta);
+   _qtApi.add_constant ("yellow", (UInt32)Qt::yellow);
+   _qtApi.add_constant ("darkYellow", (UInt32)Qt::darkYellow);
+   _qtApi.add_constant ("gray", (UInt32)Qt::gray);
+   _qtApi.add_constant ("darkGray", (UInt32)Qt::darkGray);
+   _qtApi.add_constant ("lightGray", (UInt32)Qt::lightGray);
+   _qtApi.add_constant ("transparent", (UInt32)Qt::transparent);
+
+   // enum Qt::Orientation
+   _qtApi.add_constant ("Horizontal", (UInt32)Qt::Horizontal);
+   _qtApi.add_constant ("Vertical", (UInt32)Qt::Vertical);
+
+   // enum Qt::SortOrder
+   _qtApi.add_constant ("AscendingOrder", (UInt32)Qt::AscendingOrder);
+   _qtApi.add_constant ("DescendingOrder", (UInt32)Qt::DescendingOrder);
+
+   // enum Qt::ToolBarArea
+   _qtApi.add_constant ("LeftToolBarArea", (UInt32)Qt::LeftToolBarArea);
+   _qtApi.add_constant ("RightToolBarArea", (UInt32)Qt::RightToolBarArea);
+   _qtApi.add_constant ("TopToolBarArea", (UInt32)Qt::TopToolBarArea);
+   _qtApi.add_constant ("BottomToolBarArea", (UInt32)Qt::BottomToolBarArea);
+   _qtApi.add_constant ("AllToolBarAreas", (UInt32)Qt::AllToolBarAreas);
+   _qtApi.add_constant ("NoToolBarArea", (UInt32)Qt::NoToolBarArea);
+
+   // UiLoader API
    _uiLoaderApi.add_function ("load", _uiloader_load, _self);
 
+   _init_object ();
    _init_widget ();
    _init_button ();
    _init_list_widget_item ();
@@ -638,8 +809,16 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_lcdNumber ();
    _init_stacked_widget ();
    _init_tab_widget ();
+   _init_layout ();
+   _init_box_layout ();
+   _init_hbox_layout ();
+   _init_vbox_layout ();
+   _init_grid_layout ();
+   _init_form_layout ();
    _init_file_dialog ();
    _init_main_window ();
+   _init_dock_widget ();
+   _init_action ();
 }
 
 
