@@ -140,7 +140,7 @@ dmz::JsModuleUiV8QtBasic::_widget_title (const v8::Arguments &Args) {
             widget->setWindowTitle (v8_to_qstring (Args[0]));
          }
 
-         result = to_v8_value (widget->windowTitle ());
+         result = qstring_to_v8 (widget->windowTitle ());
       }
    }
 
