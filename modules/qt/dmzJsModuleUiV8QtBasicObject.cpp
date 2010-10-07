@@ -56,7 +56,7 @@ dmz::JsModuleUiV8QtBasic::_object_name (const v8::Arguments &Args) {
             object->setObjectName (Value.get_buffer ());
          }
 
-         result = to_v8_value (object->objectName ());
+         result = qstring_to_v8 (object->objectName ());
       }
    }
 
@@ -167,12 +167,12 @@ dmz::JsModuleUiV8QtBasic::_object_property (const v8::Arguments &Args) {
 
          if (Name && (Args.Length () >= 2)) {
 
-            QVariant inValue = to_qvariant (Args[1]);
+            QVariant inValue = v8_to_qvariant (Args[1]);
             if (inValue.isValid ()) { object->setProperty (Name.get_buffer (), inValue); }
          }
 
          QVariant prop = object->property (Name.get_buffer ());
-         V8Value outValue = to_v8_value (prop);
+         V8Value outValue = qvariant_to_v8 (prop);
          if (!outValue.IsEmpty ()) { result = outValue; }
       }
    }
