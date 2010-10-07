@@ -1,0 +1,12 @@
+require 'lmkV8'
+
+lmk.set_name "dmzJsExtV8Archive"
+lmk.set_type "plugin"
+lmk.add_files {"dmzJsExtV8Archive.cpp",}
+lmk.add_libs {
+   "dmzArchiveUtil",
+   "dmzJsV8Util",
+   "dmzKernel",
+}
+lmk.add_preqs {"dmzJsFramework", "dmzArchiveFramework",}
+lmkV8.add_libs ()
