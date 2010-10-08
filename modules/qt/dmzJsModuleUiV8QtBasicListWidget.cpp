@@ -42,7 +42,7 @@ dmz::JsModuleUiV8QtBasic::_list_widget_item_text (const v8::Arguments &Args) {
             item->setText (v8_to_qstring (Args[0]));
          }
 
-         result = to_v8_value (item->text ());
+         result = qstring_to_v8 (item->text ());
       }
    }
 

@@ -123,7 +123,7 @@ dmz::JsModuleUiV8QtBasic::_progress_bar_text (const v8::Arguments &Args) {
 
          if (pbar) {
 
-            result = v8::Number::New (pbar->maximum ());
+            result = v8::String::New (qPrintable (pbar->text ()));
          }
       }
    }

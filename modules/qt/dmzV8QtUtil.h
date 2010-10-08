@@ -9,16 +9,16 @@
 
 namespace dmz {
 
-   V8Value to_v8_value (const QVariant &Value);
-   QVariant to_qvariant (V8Value value);
+   V8Value qvariant_to_v8 (const QVariant &Value);
+   V8Value qstring_to_v8 (const QString &Value);
 
-   V8Value to_v8_value (const QString &Value);
+   QVariant v8_to_qvariant (V8Value value);
    QString v8_to_qstring (V8Value value);
 };
 
 
 inline dmz::V8Value
-dmz::to_v8_value (const QString &Value) {
+dmz::qstring_to_v8 (const QString &Value) {
 
    return v8::String::New (qPrintable (Value));;
 }

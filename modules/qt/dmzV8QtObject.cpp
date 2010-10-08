@@ -167,7 +167,7 @@ dmz::V8QtObject::_do_callback (const String &Signal, const QVariant &Value) {
 
       QList<V8Value> args;
 
-      V8Value newValue = to_v8_value (Value);
+      V8Value newValue = qvariant_to_v8 (Value);
       if (!newValue.IsEmpty ()) { args.append (newValue); }
 
       _do_callback (Signal, args);

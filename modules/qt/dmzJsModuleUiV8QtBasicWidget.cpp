@@ -7,16 +7,6 @@
 #include <QtGui/QLayout>
 
 
-//QWidget *
-//dmz::JsModuleUiV8QtBasic::_to_qwidget (V8Value value) {
-
-//   QWidget *result (0);
-//   V8QtWidget *widget = _to_v8_qt_widget (value);
-//   if (widget) { result = widget->get_qwidget (); }
-//   return result;
-//}
-
-
 dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_widget_close (const v8::Arguments &Args) {
 
@@ -140,7 +130,7 @@ dmz::JsModuleUiV8QtBasic::_widget_title (const v8::Arguments &Args) {
             widget->setWindowTitle (v8_to_qstring (Args[0]));
          }
 
-         result = to_v8_value (widget->windowTitle ());
+         result = qstring_to_v8 (widget->windowTitle ());
       }
    }
 

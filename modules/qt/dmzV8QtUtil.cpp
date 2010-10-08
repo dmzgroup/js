@@ -3,7 +3,7 @@
 
 
 dmz::V8Value
-dmz::to_v8_value (const QVariant &Value) {
+dmz::qvariant_to_v8 (const QVariant &Value) {
 
    V8Value newValue;
 
@@ -27,7 +27,7 @@ dmz::to_v8_value (const QVariant &Value) {
       }
       else if (Value.type () == QVariant::String) {
 
-         newValue = to_v8_value (Value.toString ());
+         newValue = qstring_to_v8 (Value.toString ());
       }
    }
 
@@ -36,7 +36,7 @@ dmz::to_v8_value (const QVariant &Value) {
 
 
 QVariant
-dmz::to_qvariant (V8Value value) {
+dmz::v8_to_qvariant (V8Value value) {
 
    QVariant result;
 
