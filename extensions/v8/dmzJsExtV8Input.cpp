@@ -170,7 +170,7 @@ dmz::JsExtV8Input::update_channel_state (const Handle Channel, const Boolean Sta
 
       const int Argc (3);
       V8Value argv[Argc];
-      argv[0] = v8::Integer::New (Channel);
+      argv[0] = v8::Integer::NewFromUnsigned (Channel);
       argv[1] = v8::Boolean::New (State);
 
       HandleContainer called;

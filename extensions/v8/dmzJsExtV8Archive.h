@@ -4,6 +4,7 @@
 #include <dmzArchiveObserverUtil.h>
 #include <dmzJsExtV8.h>
 #include <dmzJsV8UtilHelpers.h>
+#include <dmzRuntimeDefinitions.h>
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
 #include <dmzTypesHashTableHandleTemplate.h>
@@ -82,10 +83,14 @@ namespace dmz {
          struct InstanceStruct {
 
             const Handle Instance;
+            const String Name;
             CallbackStruct *list;
 
-            InstanceStruct (const Handle TheInstance) :
+            InstanceStruct (
+                  const Handle TheInstance,
+                  const String &TheName) :
                   Instance (TheInstance),
+                  Name (TheName),
                   list (0) {;}
 
             ~InstanceStruct () { while (list) { delete list; }  }
@@ -145,15 +150,40 @@ namespace dmz {
 
          static JsExtV8Archive *_to_self (const v8::Arguments &Args);
 
+         static V8Value _archive_observe (
+            const v8::Arguments &Args,
+            JsExtV8Archive &self,
+            HashTableHandleTemplate<CallbackTable> &preTable,
+            HashTableHandleTemplate<CallbackTable> &table,
+            HashTableHandleTemplate<CallbackTable> &postTable);
+
          static V8Value _archive_release (const v8::Arguments &Args);
          static V8Value _archive_create (const v8::Arguments &Args);
          static V8Value _archive_create_observe (const v8::Arguments &Args);
          static V8Value _archive_process (const v8::Arguments &Args);
          static V8Value _archive_process_observe (const v8::Arguments &Args);
 
+         Handle _to_handle (V8Value value);
+
+         Boolean _register_callback (
+            const Handle Instance,
+            const String &Name,
+            const Handle Archive,
+            V8Object self,
+            V8Function func,
+            HashTableHandleTemplate<CallbackTable> &table);
+
+         void _do_pre_post_callback (
+            const Handle ArchiveHandle,
+            const Int32 Version,
+            CallbackTable &ct);
+
          void _init (Config &local);
 
          Log _log;
+         Definitions _defs;
+
+         Handle _defaultArchive;
 
          ArchiveModule *_archive;
          JsModuleV8 *_core;
@@ -166,6 +196,14 @@ namespace dmz {
          V8ValuePersist _self;
 
          HashTableHandleTemplate<InstanceStruct> _instanceTable;
+
+         HashTableHandleTemplate<CallbackTable> _preCreateTable;
+         HashTableHandleTemplate<CallbackTable> _createTable;
+         HashTableHandleTemplate<CallbackTable> _postCreateTable;
+
+         HashTableHandleTemplate<CallbackTable> _preProcessTable;
+         HashTableHandleTemplate<CallbackTable> _processTable;
+         HashTableHandleTemplate<CallbackTable> _postProcessTable;
 
       private:
          JsExtV8Archive ();
