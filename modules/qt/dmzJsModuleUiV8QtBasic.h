@@ -14,26 +14,7 @@
 #include <QtGui/QWidget>
 #include <v8.h>
 
-class QAbstractButton;
-class QBoxLayout;
-class QComboBox;
-class QDial;
-class QDialog;
-class QDockWidget;
-class QFormLayout;
-class QGridLayout;
-class QLabel;
-class QLayout;
-class QLCDNumber;
-class QLineEdit;
-class QListWidget;
-class QMainWindow;
 class QMessageBox;
-class QProgressBar;
-class QSlider;
-class QStackedWidget;
-class QTabWidget;
-class QTextEdit;
 
 
 namespace dmz {
@@ -120,6 +101,7 @@ namespace dmz {
          static V8Value _uiloader_load (const v8::Arguments &Args);
 
          // QObject bindings implemented in JsModuleUiV8QtBasicObject.cpp
+         static V8Value _object_class_name (const v8::Arguments &Args);
          static V8Value _object_lookup (const v8::Arguments &Args);
          static V8Value _object_name (const v8::Arguments &Args);
          static V8Value _object_observe (const v8::Arguments &Args);
@@ -275,6 +257,7 @@ namespace dmz {
          static V8Value _main_window_create_dock_widget (const v8::Arguments &Args);
          static V8Value _main_window_add_dock_widget (const v8::Arguments &Args);
          static V8Value _main_window_remove_dock_widget (const v8::Arguments &Args);
+         static V8Value _main_window_add_menu (const v8::Arguments &Args);
 
          // QDockWidget bindings implemented in JsModuleUiV8QtBasicDockWidget.cpp
          static V8Value _create_dock_widget (const v8::Arguments &Args);
@@ -282,29 +265,10 @@ namespace dmz {
 //         static V8Value _dock_window_toggle_view_action (const v8::Arguments &Args);
 
          // QAction bindings implemented in JsModuleUiV8QtBasicAction.cpp
-//         static V8Value _action_text (const v8::Arguments &Args);
+         static V8Value _action_enabled (const v8::Arguments &Args);
+         static V8Value _action_text (const v8::Arguments &Args);
 
          QWidget *_to_qwidget (V8Value value) { return v8_to_qobject<QWidget>(value); }
-
-//         QAbstractButton *_to_qabstractbutton (V8Value value) { return v8_to_qobject<QAbstractButton *>(value); }
-//         QComboBox *_to_qcombobox (V8Value value) { return v8_to_qobject<QComboBox>(value); }
-//         QSlider *_to_qslider (V8Value value)  { return v8_to_qobject<QSlider>(value); }
-//         QDial *_to_qdial (V8Value value) { return v8_to_qobject<QDial>(value); }
-//         QLineEdit *_to_qlineedit (V8Value value) { return v8_to_qobject<QLineEdit>(value); }
-//         QTextEdit *_to_qtextedit (V8Value value) { return v8_to_qobject<QTextEdit>(value); }
-//         QLabel *_to_qlabel (V8Value value) { return v8_to_qobject<QLabel>(value); }
-//         QProgressBar *_to_qprogressbar (V8Value value) { return v8_to_qobject<QProgressBar>(value); }
-//         QLCDNumber *_to_qlcdnumber (V8Value value) { return v8_to_qobject<QLCDNumber>(value); }
-//         QListWidget *_to_qlistwidget (V8Value value) { return v8_to_qobject<QListWidget>(value); }
-//         QStackedWidget *_to_qstackedwidget (V8Value value) { return v8_to_qobject<QStackedWidget>(value); }
-//         QTabWidget *_to_qtabwidget (V8Value value) { return v8_to_qobject<QTabWidget>(value); }
-//         QLayout *_to_qlayout (V8Value value) { return v8_to_qobject<QLayout>(value); }
-//         QBoxLayout *_to_qboxlayout (V8Value value) { return v8_to_qobject<QBoxLayout>(value); }
-//         QGridLayout *_to_qgridlayout (V8Value value) { return v8_to_qobject<QGridLayout>(value); }
-//         QFormLayout *_to_qformlayout (V8Value value) { return v8_to_qobject<QFormLayout>(value); }
-//         QMainWindow *_to_qmainwindow (V8Value value) { return v8_to_qobject<QMainWindow>(value); }
-//         QDockWidget *_to_qdockwidget (V8Value value) { return v8_to_qobject<QDockWidget>(value); }
-
          QObject *_to_qobject (V8Value value);
          QListWidgetItem *_to_qlistwidgetitem (V8Value value);
 
@@ -456,12 +420,13 @@ namespace dmz {
          V8StringPersist _infoTextStr;
          V8StringPersist _standardButtonsStr;
          V8StringPersist _defaultButtonStr;
-
          V8StringPersist _captionStr;
          V8StringPersist _dirStr;
          V8StringPersist _filterStr;
          V8StringPersist _optionsStr;
          V8StringPersist _allowMultipleStr;
+         V8StringPersist _statusTipStr;
+         V8StringPersist _toolTipStr;
 
       private:
          JsModuleUiV8QtBasic ();

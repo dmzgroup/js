@@ -3,6 +3,7 @@ var puts = require('sys').puts
   , QUiLoader = require('dmz/ui/uiLoader')
   , QMessageBox = require('dmz/ui/messageBox')
   , QDockWidget = require('dmz/ui/dockWidget')
+  , QAction = require('dmz/ui/action')
   , mainWindow = require('dmz/ui/mainWindow')
   , mainForm = QUiLoader.load('./scripts/main.ui')
   , listWidget = mainForm.lookup('listWidget')
@@ -140,5 +141,28 @@ if(toolsWidget) {
       mainWindow.addDock (dockName, Qt.LeftDockWidgetArea);
    }
 }
-   
+
+mainWindow.addMenu (self, "&File", "Hello", function () {
+   puts("World");
+});
+
+mainWindow.addMenu (self, "&File", "Show It", function (obj) {
+   toolsDock.show();
+});
+
+mainWindow.addMenu (self, "&File", "What", function (obj) {
+   toolsDock.hide();
+}).text("Hide It");
+
+var action = mainWindow.addMenu (self, "&Name", "My Name Is", function (obj) {
+   obj.enabled(false);
+});
+
+action.text ({statusTip:"What ever you do, do not select this menu"});
+
+mainWindow.addMenu (self, "&Name", "My Name Is", function (obj) {
+   action.enabled(true);
+});
+
+
 puts('Done with: ' + self.name);

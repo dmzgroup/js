@@ -7,6 +7,27 @@
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_object_class_name (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QObject *object = self->_to_qobject (Args.This ());
+      if (object) {
+
+         result = qstring_to_v8 (object->metaObject ()->className ());
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_object_lookup (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -202,6 +223,7 @@ dmz::JsModuleUiV8QtBasic::_init_object () {
    instance->SetInternalFieldCount (1);
 
    V8ObjectTemplate proto = _objectTemp->PrototypeTemplate ();
+   proto->Set ("className", v8::FunctionTemplate::New (_object_class_name, _self));
    proto->Set ("lookup", v8::FunctionTemplate::New (_object_lookup, _self));
    proto->Set ("name", v8::FunctionTemplate::New (_object_name, _self));
    proto->Set ("observe", v8::FunctionTemplate::New (_object_observe, _self));

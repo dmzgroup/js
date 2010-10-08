@@ -21,14 +21,17 @@ dmz::JsModuleUiV8QtBasic::_button_text (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
       QAbstractButton *button = self->v8_to_qobject<QAbstractButton> (Args.This ());;
       if (button) {
 
-         QString param = v8_to_qstring (Args[0]);
-         button->setText (param);
+         if (Args.Length ()) {
+
+            button->setText (v8_to_qstring (Args[0]));
+         }
+
+         result = qstring_to_v8 (button->text ());
       }
    }
 

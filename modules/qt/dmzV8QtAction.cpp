@@ -68,5 +68,6 @@ dmz::V8QtAction::on_toggled (bool checked) {
 void
 dmz::V8QtAction::on_triggered (bool checked) {
 
-   _do_callback (LocalSignalTriggered, checked);
+//   _do_callback (LocalSignalTriggered, checked);
+   _do_callback (LocalSignalTriggered);
 }

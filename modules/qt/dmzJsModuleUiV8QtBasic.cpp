@@ -293,6 +293,7 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
             if (!_dialCtor.IsEmpty ()) {
 
                vobj = _dialCtor->NewInstance ();
+
                // QDial has same signals as QSlider -ss
                qobj = new V8QtSlider (vobj, value, &_state);
             }
@@ -563,12 +564,13 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _infoTextStr = V8StringPersist::New (v8::String::NewSymbol ("informativeText"));
       _standardButtonsStr = V8StringPersist::New (v8::String::NewSymbol ("standardButtons"));
       _defaultButtonStr = V8StringPersist::New (v8::String::NewSymbol ("defaultButton"));
-
       _captionStr = V8StringPersist::New (v8::String::NewSymbol ("caption"));
       _dirStr = V8StringPersist::New (v8::String::NewSymbol ("dir"));
       _filterStr = V8StringPersist::New (v8::String::NewSymbol ("filter"));
       _optionsStr = V8StringPersist::New (v8::String::NewSymbol ("options"));
       _allowMultipleStr = V8StringPersist::New (v8::String::NewSymbol ("allowMultiple"));
+      _statusTipStr = V8StringPersist::New (v8::String::NewSymbol ("statusTip"));
+      _toolTipStr = V8StringPersist::New (v8::String::NewSymbol ("toolTip"));
    }
    else if (State == JsExtV8::Init) {
 
@@ -622,6 +624,19 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _mainWindowCtor.Dispose (); _mainWindowCtor.Clear ();
       _dockWidgetCtor.Dispose (); _dockWidgetCtor.Clear ();
       _actionCtor.Dispose (); _actionCtor.Clear ();
+
+      _typeStr.Dispose (); _typeStr.Clear ();
+      _textStr.Dispose (); _textStr.Clear ();
+      _infoTextStr.Dispose (); _infoTextStr.Clear ();
+      _standardButtonsStr.Dispose (); _standardButtonsStr.Clear ();
+      _defaultButtonStr.Dispose (); _defaultButtonStr.Clear ();
+      _captionStr.Dispose (); _captionStr.Clear ();
+      _dirStr.Dispose (); _dirStr.Clear ();
+      _filterStr.Dispose (); _filterStr.Clear ();
+      _optionsStr.Dispose (); _optionsStr.Clear ();
+      _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
+      _statusTipStr.Dispose (); _statusTipStr.Clear ();
+      _toolTipStr.Dispose (); _toolTipStr.Clear ();
 
       _qtApi.clear ();
       _uiLoaderApi.clear ();
