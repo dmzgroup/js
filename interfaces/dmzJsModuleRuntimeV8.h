@@ -13,6 +13,7 @@ namespace dmz {
    class Config;
    class Data;
    class EventType;
+   class Log;
    class ObjectType;
 
    class JsModuleRuntimeV8 {
@@ -35,6 +36,7 @@ namespace dmz {
             v8::Handle<v8::Value> value,
             EventType &out) = 0;
          virtual v8::Handle<v8::Value> create_v8_log (const String &Name) = 0;
+         virtual Log *to_dmz_log (v8::Handle<v8::Value> value) = 0;
          virtual v8::Handle<v8::Value> create_v8_message (const String &Name) = 0;
          virtual v8::Handle<v8::Value> create_v8_object_type (
             const ObjectType *Value) = 0;

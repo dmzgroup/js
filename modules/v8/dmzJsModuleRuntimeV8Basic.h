@@ -51,6 +51,7 @@ namespace dmz {
          virtual v8::Handle<v8::Value> create_v8_event_type (const EventType *Value);
          virtual Boolean to_dmz_event_type (v8::Handle<v8::Value> value, EventType &out);
          virtual v8::Handle<v8::Value> create_v8_log (const String &Name);
+         virtual Log *to_dmz_log (v8::Handle<v8::Value> value);
          virtual v8::Handle<v8::Value> create_v8_message (const String &Name);
          virtual v8::Handle<v8::Value> create_v8_object_type (const ObjectType *Value);
          virtual Boolean to_dmz_object_type (

@@ -419,7 +419,7 @@ dmz::JsExtV8Archive::_archive_create (const v8::Arguments &Args) {
 
    if (self && self->_archive && self->_runtime) {
 
-      Config archive = self->_archive->create_archive (v8_to_handle (Args[0]));
+      Config archive = self->_archive->create_archive (self->_to_handle (Args[0]));
 
       if (archive) { result = self->_runtime->create_v8_config (&archive); }
    }
@@ -466,7 +466,7 @@ dmz::JsExtV8Archive::_archive_process (const v8::Arguments &Args) {
 
       if (self->_runtime->to_dmz_config (Args[1], archive)) {
 
-         self->_archive->process_archive (v8_to_handle (Args[0]), archive);
+         self->_archive->process_archive (self->_to_handle (Args[0]), archive);
       }
    }
 
@@ -500,7 +500,7 @@ dmz::JsExtV8Archive::_archive_process_observe (const v8::Arguments &Args) {
 dmz::Handle
 dmz::JsExtV8Archive::_to_handle (V8Value value) {
 
-   Handle result (0);
+   Handle result (_defaultArchive);
 
    if (value.IsEmpty () == false) {
 

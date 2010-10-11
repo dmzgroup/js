@@ -153,6 +153,28 @@ dmz::JsModuleRuntimeV8Basic::create_v8_log (const String &Name) {
 }
 
 
+dmz::Log *
+dmz::JsModuleRuntimeV8Basic::to_dmz_log (v8::Handle<v8::Value> value) {
+
+   Log *result (0);
+
+   v8::Context::Scope cscope (_v8Context);
+   v8::HandleScope scope;
+
+   V8Object obj = v8_to_object (value);
+
+   if (obj.IsEmpty () == false) {
+
+      if (_logFuncTemplate->HasInstance (obj)) {
+
+         result = (Log *)v8::External::Unwrap (obj->GetInternalField (0));
+      }
+   }
+
+   return result;
+}
+
+
 void
 dmz::JsModuleRuntimeV8Basic::_init_log () {
 
