@@ -328,6 +328,7 @@ namespace dmz {
 
          HashTableHandleTemplate<ObsStruct> _obsTable;
          QMap<QObject *, V8QtObject *>_objectMap;
+         QMap<QString, QAction *>_menuActionMap;
          QList<QWidget *>_dialogList;
 
          V8InterfaceHelper _qtApi;

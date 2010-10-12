@@ -155,7 +155,7 @@ if(toolsWidget) {
 }
 
 mainWindow.addMenu (self, "&File", "Hello", "Ctrl+n", function () {
-   puts("World");
+   puts("Friends");
 });
 
 mainWindow.addSeparator("&File");
@@ -172,7 +172,7 @@ mainWindow.addMenu (self, "&File", "What", "Ctrl+h", function (obj) {
 
 mainWindow.addSeparator("&File");
 
-var action = mainWindow.addMenu (self, "&Name", "My Name Is", "Meta+y", function (obj) {
+var action = mainWindow.addMenu (self, "&Name", "My Name Is1", "Meta+y", function (obj) {
    obj.enabled(false);
 });
 
@@ -180,7 +180,7 @@ mainWindow.addSeparator("&Name");
 
 action.text ({statusTip:"What ever you do, do not select this menu"});
 
-mainWindow.addMenu (self, "&Name", "My Name Is", function (obj) {
+mainWindow.addMenu (self, "&Name", "My Name Is2", function (obj) {
    action.enabled(true);
 });
 

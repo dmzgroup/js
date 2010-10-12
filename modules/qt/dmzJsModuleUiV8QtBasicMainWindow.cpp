@@ -230,14 +230,27 @@ dmz::JsModuleUiV8QtBasic::_main_window_add_menu (const v8::Arguments &Args) {
          const UInt32 FuncIndex (Argc - 1);
          const UInt32 ShortcutIndex (Argc > 4 ? (Argc - 2) : 0);
 
+         const String Menu = v8_to_string (Args[1]);
+
          V8Object src = v8_to_object (Args[0]);
          V8Function func = v8_to_function (Args[FuncIndex]);
 
          if (!src.IsEmpty () && !func.IsEmpty ()) {
 
-            QAction *action = new QAction (module->get_qt_main_window ());
-
+            QAction *action = 0;
             const QString Text = v8_to_qstring (Args[2]);
+            const QString Key = Menu.get_buffer () + Text;
+
+            if (Key.length () && self->_menuActionMap.contains (Key)) {
+
+               action = self->_menuActionMap[Key];
+            }
+
+            if (!action) {
+
+               action = new QAction (module->get_qt_main_window ());
+            }
+
             if (!Text.isEmpty ()) { action->setText (Text); }
 
             const QString Shortcut = v8_to_qstring (Args[ShortcutIndex]);
@@ -255,8 +268,10 @@ dmz::JsModuleUiV8QtBasic::_main_window_add_menu (const v8::Arguments &Args) {
                }
             }
 
+            V8QtObject *jsObject = 0;
+
             result = self->create_v8_qobject (action);
-            V8QtObject *jsObject = self->_to_v8_qt_object (result);
+            jsObject = self->_to_v8_qt_object (result);
 
             const Handle Obs =
                   self->_state.core ? self->_state.core->get_instance_handle (src) : 0;
@@ -274,9 +289,12 @@ dmz::JsModuleUiV8QtBasic::_main_window_add_menu (const v8::Arguments &Args) {
 
                   if (os) { os->list.append (jsObject); }
 
-                  const String Menu = v8_to_string (Args[1]);
+                  if (!self->_menuActionMap.contains (Key)) {
 
-                  module->add_menu_action (Menu, action);
+                     module->add_menu_action (Menu, action);
+                     self->_menuActionMap[Key] = action;
+                  }
+
                }
             }
          }
