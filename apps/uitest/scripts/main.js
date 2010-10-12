@@ -142,21 +142,29 @@ if(toolsWidget) {
    }
 }
 
-mainWindow.addMenu (self, "&File", "Hello", function () {
+mainWindow.addMenu (self, "&File", "Hello", "Ctrl+n", function () {
    puts("World");
 });
 
-mainWindow.addMenu (self, "&File", "Show It", function (obj) {
+mainWindow.addSeparator("&File");
+
+mainWindow.addMenu (self, "&File", "Show It", "", function (obj) {
    toolsDock.show();
 });
 
-mainWindow.addMenu (self, "&File", "What", function (obj) {
+mainWindow.addSeparator("&File");
+
+mainWindow.addMenu (self, "&File", "What", "Ctrl+h", function (obj) {
    toolsDock.hide();
 }).text("Hide It");
 
-var action = mainWindow.addMenu (self, "&Name", "My Name Is", function (obj) {
+mainWindow.addSeparator("&File");
+
+var action = mainWindow.addMenu (self, "&Name", "My Name Is", "Meta+y", function (obj) {
    obj.enabled(false);
 });
+
+mainWindow.addSeparator("&Name");
 
 action.text ({statusTip:"What ever you do, do not select this menu"});
 
