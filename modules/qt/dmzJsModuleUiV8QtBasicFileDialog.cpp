@@ -104,6 +104,45 @@ dmz::JsModuleUiV8QtBasic::_file_dialog_get_open_file_name (const v8::Arguments &
    return scope.Close (result);
 }
 
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_file_dialog_get_save_file_name (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = 0;
+      V8Object params;
+
+      if (Args.Length () >= 2) {
+
+         parent = self->_to_qwidget (Args[0]);
+         params = v8_to_object (Args[1]);
+      }
+      else {
+
+         params = v8_to_object (Args[0]);
+      }
+
+      if (!params.IsEmpty ()) {
+
+         QString caption, dir, filter;
+         Boolean allowMultiple (False);
+
+         self->_get_file_dialog_params (params, caption, dir, filter, allowMultiple);
+
+         QString fileName = QFileDialog::getSaveFileName (parent, caption, dir, filter);
+
+         result = v8::String::New (qPrintable (fileName));
+      }
+   }
+
+   return scope.Close (result);
+}
+
 //         static V8Value _file_dialog_get_save_file_name (const v8::Arguments &Args);
 
 
@@ -147,5 +186,5 @@ dmz::JsModuleUiV8QtBasic::_init_file_dialog () {
 
    _fileDialogApi.add_function ("getExistingDirectory", _file_dialog_get_existing_directory, _self);
    _fileDialogApi.add_function ("getOpenFileName", _file_dialog_get_open_file_name, _self);
-//   _fileDialogApi.add_function ("getSaveFileName", _file_dialog_get_save_file_name, _self);
+   _fileDialogApi.add_function ("getSaveFileName", _file_dialog_get_save_file_name, _self);
 }

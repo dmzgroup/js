@@ -36,6 +36,7 @@
    <instance name="layout"/> 
    <instance name="formlayout"/>
    <instance name="gridlayout"/> -->
+   <instance name="fileDialog"/>
 </javascript>
 <test>
    <name value="my_name"/>
