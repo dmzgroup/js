@@ -107,6 +107,7 @@ namespace dmz {
          static V8Value _object_observe (const v8::Arguments &Args);
          static V8Value _object_parent (const v8::Arguments &Args);
          static V8Value _object_property (const v8::Arguments &Args);
+         static V8Value _object_callback (const v8::Arguments &Args);
 
          // QWidget bindings implemented in JsModuleUiV8QtBasicWidget.cpp
          static V8Value _widget_close (const v8::Arguments &Args);
@@ -269,6 +270,7 @@ namespace dmz {
          // QAction bindings implemented in JsModuleUiV8QtBasicAction.cpp
          static V8Value _action_enabled (const v8::Arguments &Args);
          static V8Value _action_text (const v8::Arguments &Args);
+         static V8Value _action_trigger (const v8::Arguments &Args);
 
          QWidget *_to_qwidget (V8Value value) { return v8_to_qobject<QWidget>(value); }
          QObject *_to_qobject (V8Value value);

@@ -211,3 +211,22 @@ dmz::V8QtObject::_do_callback (const String &Signal, const QList<V8Value> &Value
       }
    }
 }
+
+
+dmz::V8Value
+dmz::V8QtObject::find_callback (const V8Object &Self, const String &Signal) {
+
+   V8Value result = v8::Undefined ();
+
+   if (_state && _state->core) {
+
+      CallbackTable *ct = _cbTable.lookup (Signal);
+      const Handle ObsHandle = _state->core->get_instance_handle (Self);
+
+      if (Signal && ct && ObsHandle) {
+
+         CallbackStruct *cs = ct->table.lookup (ObsHandle);
+         if (cs) { result = cs->func; }
+      }
+   }
+}

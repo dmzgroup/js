@@ -202,6 +202,28 @@ dmz::JsModuleUiV8QtBasic::_object_property (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_object_callback (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+//      QObject *object = self->_to_qobject (Args.This ());
+      V8QtObject *jsObject = self->_to_v8_qt_object (Args.This ());
+      if (jsObject && (Args.Length () >= 2)) {
+
+         V8Object src = v8_to_object (Args[0]);
+         String signal = v8_to_string (Args[1]);
+         result = jsObject->find_callback (src, signal);
+      }
+   }
+   return scope.Close (result);
+}
+
+
 QObject  *
 dmz::JsModuleUiV8QtBasic::_to_qobject (V8Value value) {
 
@@ -229,5 +251,6 @@ dmz::JsModuleUiV8QtBasic::_init_object () {
    proto->Set ("observe", v8::FunctionTemplate::New (_object_observe, _self));
    proto->Set ("parent", v8::FunctionTemplate::New (_object_parent, _self));
    proto->Set ("property", v8::FunctionTemplate::New (_object_property, _self));
+   proto->Set ("callback", v8::FunctionTemplate::New (_object_callback, _self));
 }
 

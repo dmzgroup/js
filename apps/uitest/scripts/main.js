@@ -174,6 +174,7 @@ mainWindow.addSeparator("&File");
 
 var action = mainWindow.addMenu (self, "&Name", "My Name Is1", "Meta+y", function (obj) {
    obj.enabled(false);
+   puts("action:", action.callback(self, "triggered"));
 });
 
 mainWindow.addSeparator("&Name");
@@ -184,5 +185,6 @@ mainWindow.addMenu (self, "&Name", "My Name Is2", function (obj) {
    action.enabled(true);
 });
 
+action.trigger();
 
 puts('Done with: ' + self.name);
