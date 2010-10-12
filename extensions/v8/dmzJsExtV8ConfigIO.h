@@ -85,7 +85,6 @@ namespace dmz {
          JsExtV8ConfigIO ();
          JsExtV8ConfigIO (const JsExtV8ConfigIO &);
          JsExtV8ConfigIO &operator= (const JsExtV8ConfigIO &);
-
    };
 };
 
