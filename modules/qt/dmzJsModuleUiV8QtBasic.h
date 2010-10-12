@@ -258,6 +258,7 @@ namespace dmz {
          static V8Value _main_window_add_dock_widget (const v8::Arguments &Args);
          static V8Value _main_window_remove_dock_widget (const v8::Arguments &Args);
          static V8Value _main_window_add_menu (const v8::Arguments &Args);
+         static V8Value _main_window_add_separator (const v8::Arguments &Args);
 
          // QDockWidget bindings implemented in JsModuleUiV8QtBasicDockWidget.cpp
          static V8Value _create_dock_widget (const v8::Arguments &Args);

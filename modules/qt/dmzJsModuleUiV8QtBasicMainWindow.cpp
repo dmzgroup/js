@@ -185,9 +185,14 @@ dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_main_window_add_menu (const v8::Arguments &Args) {
 
 #if 0
-   mainWindow.addMenu (self, "File", "Open", function () {...});
-   mainWindow.addMenu (self, "File", "New", "new.png", function () {...});
-   mainWindow.addMenu (self, "File", {text:"New", icon:"new.png"}, function () {...});
+   mainWindow.addMenu (self, "File", "Open", "shortcut", function () {...});
+   mainWindow.addMenu (self, "File", "New", "new.png", "shortcut", function () {...});
+   mainWindow.addMenu (
+      self,
+      "File",
+      {text:"New", icon:"new.png", shortcut: "Ctrl+X"},
+      function () {...});
+
 #endif
 
    v8::HandleScope scope;
@@ -200,8 +205,9 @@ dmz::JsModuleUiV8QtBasic::_main_window_add_menu (const v8::Arguments &Args) {
       if (module) {
 
          const UInt32 Argc (Args.Length());
-         const UInt32 ImageIndex (Argc > 4 ? 4 : 0);
+         const UInt32 ImageIndex (Argc > 5 ? 3 : 0);
          const UInt32 FuncIndex (Argc - 1);
+         const UInt32 ShortcutIndex (Argc > 4 ? (Argc - 2) : 0);
 
          V8Object src = v8_to_object (Args[0]);
          V8Function func = v8_to_function (Args[FuncIndex]);
@@ -212,6 +218,9 @@ dmz::JsModuleUiV8QtBasic::_main_window_add_menu (const v8::Arguments &Args) {
 
             const QString Text = v8_to_qstring (Args[2]);
             if (!Text.isEmpty ()) { action->setText (Text); }
+
+            const QString Shortcut = v8_to_qstring (Args[ShortcutIndex]);
+            if (!Shortcut.isEmpty ()) { action->setShortcut (Shortcut); }
 
             if (ImageIndex) {
 
@@ -257,6 +266,27 @@ dmz::JsModuleUiV8QtBasic::_main_window_add_menu (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_main_window_add_separator (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QtModuleMainWindow *module (self->_state.mainWindowModule);
+      if (module && Args.Length ()) {
+
+         const String Menu = v8_to_string (Args[0]);
+         module->add_menu_separator (Menu);
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_main_window () {
 
@@ -275,6 +305,7 @@ dmz::JsModuleUiV8QtBasic::_init_main_window () {
     _mainWindowApi.add_function ("removeDock", _main_window_remove_dock_widget, _self);
 
     _mainWindowApi.add_function ("addMenu", _main_window_add_menu, _self);
+    _mainWindowApi.add_function ("addSeparator", _main_window_add_separator, _self);
 //    _mainWindowApi.add_function ("lookupMenu", _main_window_lookup_menu, _self);
 //    _mainWindowApi.add_function ("addMenuAction", _main_window_add_menu_action, _self);
 //    _mainWindowApi.add_function ("removeMenuAction", _main_window_remove_menu_action, _self);
