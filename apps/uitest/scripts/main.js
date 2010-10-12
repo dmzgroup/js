@@ -3,6 +3,7 @@ var puts = require('sys').puts
   , QUiLoader = require('dmz/ui/uiLoader')
   , QMessageBox = require('dmz/ui/messageBox')
   , QDockWidget = require('dmz/ui/dockWidget')
+  , file = require("dmz/ui/fileDialog")
   , QAction = require('dmz/ui/action')
   , mainWindow = require('dmz/ui/mainWindow')
   , mainForm = QUiLoader.load('./scripts/main.ui')
@@ -139,6 +140,17 @@ if(toolsWidget) {
       
       toolsDock.title ("Tools I Like");
       mainWindow.addDock (dockName, Qt.LeftDockWidgetArea);
+      toolsWidget.observe(self, "button1", "clicked", function () {
+
+         var str = file.getSaveFileName(
+            mainWindow.mainWidget(),
+            { caption: "Save File Dialog"
+            , dir: "/Users/Ben/cm"
+            , filter: "Scripts (*.js)"
+            });
+
+         puts("saveFileName:", str, "mainWidget:" , mainWindow.mainWidget());
+      });
    }
 }
 

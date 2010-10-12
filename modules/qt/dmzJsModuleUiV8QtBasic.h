@@ -252,6 +252,7 @@ namespace dmz {
          static V8Value _file_dialog_get_save_file_name (const v8::Arguments &Args);
 
          // QMainWindow bindings implemented in JsModuleUiV8QtBasicMainWindow.cpp
+         static V8Value _main_window_main_widget (const v8::Arguments &Args);
          static V8Value _main_window_central_widget (const v8::Arguments &Args);
          static V8Value _main_window_close (const v8::Arguments &Args);
          static V8Value _main_window_create_dock_widget (const v8::Arguments &Args);
