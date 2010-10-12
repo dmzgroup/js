@@ -13,6 +13,8 @@
 
 namespace dmz {
 
+   class StringContainer;
+
    class JsModuleTypesV8 {
 
       public:
@@ -47,6 +49,12 @@ namespace dmz {
          virtual Boolean to_dmz_mask (
             const v8::Handle<v8::Value> &Value,
             Mask &out) = 0;
+
+         virtual v8::Handle<v8::Array> to_v8_array (const StringContainer &Value) = 0;
+
+         virtual void to_dmz_string_container (
+            const v8::Handle<v8::Value> &Value,
+            StringContainer &out) = 0;
 
       protected:
          JsModuleTypesV8 (const PluginInfo &Info);

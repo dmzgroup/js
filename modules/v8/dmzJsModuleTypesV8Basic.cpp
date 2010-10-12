@@ -396,6 +396,58 @@ dmz::JsModuleTypesV8Basic::to_dmz_mask (
 }
 
 
+v8::Handle<v8::Array>
+dmz::JsModuleTypesV8Basic::to_v8_array (const StringContainer &Value) {
+
+   v8::HandleScope scope;
+
+   V8Array result = v8::Array::New (Value.get_count ());
+
+   int count (0);
+
+   StringContainerIterator it;
+   String value;
+
+   while (Value.get_next (it, value)) {
+
+      if (value.get_buffer () != 0) {
+
+         result->Set (v8::Integer::New (count), v8::String::New (value.get_buffer ()));
+      }
+
+      count++;
+   }
+
+   return scope.Close (result);
+}
+
+
+
+void
+dmz::JsModuleTypesV8Basic::to_dmz_string_container (
+      const v8::Handle<v8::Value> &Value,
+      StringContainer &out) {
+
+   v8::HandleScope scope;
+
+   if (Value.IsEmpty () == false) {
+
+      if (Value->IsArray ()) {
+
+         V8Array array = v8_to_array (Value);
+
+         const int Length = array->Length ();
+
+         for (int ix = 0; ix < Length; ix++) {
+
+            out.add (v8_to_string (array->Get (v8::Integer::New (ix))));
+         }
+      }
+      else if (Value->IsString ()) { out.add (v8_to_string (Value)); }
+   }
+}
+
+
 // JsExtV8 Interface
 void
 dmz::JsModuleTypesV8Basic::update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module) {

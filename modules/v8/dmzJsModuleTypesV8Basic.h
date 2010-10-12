@@ -51,6 +51,12 @@ namespace dmz {
             const v8::Handle<v8::Value> &Value,
             Mask &out);
 
+         virtual v8::Handle<v8::Array> to_v8_array (const StringContainer &Value);
+
+         virtual void to_dmz_string_container (
+            const v8::Handle<v8::Value> &Value,
+            StringContainer &out);
+
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
          virtual void update_js_context_v8 (v8::Handle<v8::Context> context);

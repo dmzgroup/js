@@ -3,6 +3,7 @@
 #include <dmzFoundationConsts.h>
 #include <dmzJsModuleV8.h>
 #include <dmzJsModuleRuntimeV8.h>
+#include <dmzJsModuleTypesV8.h>
 #include <dmzJsV8UtilConvert.h>
 #include <dmzRuntimeConfig.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
@@ -15,6 +16,19 @@ const char LocalXML[] = "XML";
 const char LocalJSON[] = "JSON";
 const char LocalRaw[] = "NoFormatting";
 const char LocalStrip[] = "StripGlobal";
+const char LocalFile[] = "file";
+const char LocalFiles[] = "files";
+const char LocalArchive[] = "archive";
+const char LocalData[] = "data";
+const char LocalType[] = "type";
+const char LocalMode[] = "mode";
+const char LocalLog[] = "log";
+
+static bool
+local_is_valid (dmz::V8Value &value) {
+
+   return ((value.IsEmpty () == false) && (!value->IsUndefined ()));
+}
 
 };
 
@@ -23,7 +37,8 @@ dmz::JsExtV8ConfigIO::JsExtV8ConfigIO (const PluginInfo &Info, Config &local) :
       JsExtV8 (Info),
       _log (Info),
       _core (0),
-      _runtime (0) {
+      _runtime (0),
+      _types (0) {
 
    _init (local);
 }
@@ -63,10 +78,12 @@ dmz::JsExtV8ConfigIO::discover_plugin (
    if (Mode == PluginDiscoverAdd) {
 
       if (!_runtime) { _runtime = JsModuleRuntimeV8::cast (PluginPtr); }
+      if (!_types) { _types = JsModuleTypesV8::cast (PluginPtr); }
    }
    else if (Mode == PluginDiscoverRemove) {
 
       if (_runtime && (_runtime == JsModuleRuntimeV8::cast (PluginPtr))) { _runtime = 0; }
+      if (_types && (_types == JsModuleTypesV8::cast (PluginPtr))) { _types = 0; }
    }
 }
 
@@ -100,6 +117,14 @@ dmz::JsExtV8ConfigIO::update_js_ext_v8_state (const StateEnum State) {
             "dmz/runtime/configIO",
             _ioApi.get_new_instance ());
       }
+
+      _fileStr = V8StringPersist::New (v8::String::NewSymbol (LocalFile));
+      _fileListStr = V8StringPersist::New (v8::String::NewSymbol (LocalFiles));
+      _archiveStr = V8StringPersist::New (v8::String::NewSymbol (LocalArchive));
+      _dataStr = V8StringPersist::New (v8::String::NewSymbol (LocalData));
+      _typeStr = V8StringPersist::New (v8::String::NewSymbol (LocalType));
+      _modeStr = V8StringPersist::New (v8::String::NewSymbol (LocalMode));
+      _logStr = V8StringPersist::New (v8::String::NewSymbol (LocalLog));
    }
    else if (State == JsExtV8::Init) {
 
@@ -108,6 +133,14 @@ dmz::JsExtV8ConfigIO::update_js_ext_v8_state (const StateEnum State) {
 
    }
    else if (State == JsExtV8::Shutdown) {
+
+      _fileStr.Dispose (); _fileStr.Clear ();
+      _fileListStr.Dispose (); _fileListStr.Clear ();
+      _archiveStr.Dispose (); _archiveStr.Clear ();
+      _dataStr.Dispose (); _dataStr.Clear ();
+      _typeStr.Dispose (); _typeStr.Clear ();
+      _modeStr.Dispose (); _modeStr.Clear ();
+      _logStr.Dispose (); _logStr.Clear ();
 
       _ioApi.clear ();
       _v8Context.Clear ();
@@ -134,38 +167,13 @@ dmz::JsExtV8ConfigIO::_io_read (const v8::Arguments &Args) {
 
    if (self && self->_runtime) {
 
-      const int Length = Args.Length ();
-
-      String file = Length > 1 ? v8_to_string (Args[0]) : String (""); 
-      StringContainer list;
-      Log *log = self->_runtime->to_dmz_log (Args[2]); 
-
-      V8Value value = Length > 1 ?  Args[1] : Args[0];
-
-      if (value.IsEmpty () == false) {
-
-         if (value->IsArray ()) {
-
-            V8Array array = v8_to_array (value);
-
-            if (array.IsEmpty () == false) {
-
-               const int Size = array->Length ();
-
-               for (int ix = 0; ix < Size; ix++) {
-
-                  list.add (v8_to_string (array->Get (v8::Integer::New (ix))));
-               }
-            }
-         }
-         else if (value->IsString ()) { list.add (v8_to_string (value)); }
-      }
-
-      UInt32 type = FileTypeAutoDetect;
+      ArgStruct args = self->_to_args (Args[0]);
 
       Config data ("global");
 
-      if (read_config_files (file, list, data, type, log)) {
+      if (args.data) { data = args.data; }
+
+      if (read_config_files (args.archive, args.files, data, args.type, args.log)) {
 
          result = self->_runtime->create_v8_config (&data);
       }
@@ -184,54 +192,119 @@ dmz::JsExtV8ConfigIO::_io_write (const v8::Arguments &Args) {
 
    JsExtV8ConfigIO *self = _to_self (Args);
 
-   if (self && self->_runtime) {
+   if (self) {
 
-      Config data;
-      self->_runtime->to_dmz_config (Args[0], data);
-      const String File = v8_to_string (Args[1]); 
-      const String Name = v8_to_string (Args[2]); 
-      V8Array opts = v8_to_array (Args[3]); 
-      Log *log = self->_runtime->to_dmz_log (Args[4]);
+      ArgStruct args = self->_to_args (Args[0]);
 
-      UInt32 type = FileTypeAutoDetect;
-      UInt32 mode = 0;
-
-      if (opts.IsEmpty () == false) {
-
-         Boolean prettyPrint = True;
-
-         const int Length = opts->Length ();
-
-         for (int ix = 0; ix < Length; ix++) {
-
-            V8Value value = opts->Get (v8::Integer::New (ix));
-
-            if ((value.IsEmpty () == false) && value->IsString ()) {
-
-               const String Str = v8_to_string (value);
-
-               if (Str == LocalAuto) { type = FileTypeAutoDetect; }
-               else if (Str == LocalXML) { type = FileTypeXML; }
-               else if (Str == LocalJSON) { type = FileTypeJSON; }
-               else if (Str == LocalRaw) { prettyPrint = False; }
-               else if (Str == LocalStrip) { mode |= ConfigStripGlobal; }
-            }
-         }
-
-         if (prettyPrint) { mode |= ConfigPrettyPrint; }
-      }
-      else { mode = ConfigPrettyPrint; }
+      String file;
+      args.files.get_first (file);
 
       if (write_config_file (
-            (Name ? File : String ("")),
-            (Name ? Name : File),
-            data,
-            mode,
-            type,
-            log)) { result = v8::Boolean::New (true); }
+               args.archive,
+               file,
+               args.data,
+               args.mode,
+               args.type,
+               args.log)) { result = v8::Boolean::New (true); }
    }
 
    return scope.Close (result);
+}
+
+
+dmz::JsExtV8ConfigIO::ArgStruct
+dmz::JsExtV8ConfigIO::_to_args (V8Value value) {
+
+   v8::HandleScope scope;
+
+   ArgStruct result;
+
+   if ((value.IsEmpty () == false) && value->IsObject ()) {
+
+      V8Object obj = value->ToObject ();
+
+      if (obj.IsEmpty () == false) {
+
+         Boolean prettyPrint = True;
+
+         V8Value file = obj->Get (_fileStr);
+
+         if (local_is_valid (file) && _types) {
+
+            _types->to_dmz_string_container (file, result.files);
+         }
+
+         V8Value fileList = obj->Get (_fileListStr);
+
+         if (local_is_valid (fileList) && _types) {
+
+            _types->to_dmz_string_container (fileList, result.files);
+         }
+
+         V8Value archive = obj->Get (_archiveStr);
+
+         if (local_is_valid (archive)) {
+
+            result.archive = v8_to_string (archive);
+         }
+
+         V8Value data = obj->Get (_dataStr);
+
+         if (local_is_valid (data) && _runtime) {
+
+            _runtime->to_dmz_config (data, result.data);
+         }
+
+         V8Value type = obj->Get (_typeStr);
+
+         if (local_is_valid (type)) {
+
+            const String TypeStr = v8_to_string (type);
+
+            if (TypeStr == LocalAuto) { result.type = FileTypeAutoDetect; }
+            else if (TypeStr == LocalXML) { result.type = FileTypeXML; }
+            else if (TypeStr == LocalJSON) { result.type = FileTypeJSON; }
+            else {
+
+               _log.error << "Unknown file type: " << TypeStr
+                  << " defaulting to auto-detect." << endl;
+
+               result.type = FileTypeAutoDetect;
+            }
+         }
+         else { result.type = FileTypeAutoDetect; }
+
+         V8Value mode = obj->Get (_modeStr);
+
+         if (local_is_valid (mode) && _types) {
+
+            StringContainer modeList;
+
+            _types->to_dmz_string_container (mode, modeList);
+
+            StringContainerIterator it;
+            String value;
+
+            while (modeList.get_next (it, value)) {
+
+               if (value == LocalRaw) { prettyPrint = False; }
+               else if (value == LocalStrip) { result.mode |= ConfigStripGlobal; }
+               else { _log.warn << "Unknown mode flag: " << value << endl; }
+            }
+         }
+
+         if (prettyPrint) { result.mode |= ConfigPrettyPrint; }
+
+         V8Value log = obj->Get (_logStr);
+
+         if (local_is_valid (log) && _runtime) {
+
+            result.log = _runtime->to_dmz_log (log);
+         }
+      }
+   }
+
+   return result;
 }
 
 

@@ -3,13 +3,16 @@
 
 #include <dmzJsExtV8.h>
 #include <dmzJsV8UtilHelpers.h>
+#include <dmzRuntimeConfig.h>
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
+#include <dmzTypesStringContainer.h>
 
 namespace dmz {
 
    class JsModuleV8;
    class JsModuleRuntimeV8;
+   class JsModuleTypesV8;
 
    class JsExtV8ConfigIO :
          public Plugin,
@@ -40,22 +43,43 @@ namespace dmz {
 
       protected:
          // JsExtV8ConfigIO Interface
+         struct ArgStruct {
+
+            String archive;
+            StringContainer files;
+            Config data;
+            UInt32 mode;
+            UInt32 type;
+            Log *log;
+
+            ArgStruct () : mode (0), type (0), log (0) {;}
+         };
+
          static JsExtV8ConfigIO *_to_self (const v8::Arguments &Args);
          static V8Value _io_read (const v8::Arguments &Args);
          static V8Value _io_write (const v8::Arguments &Args);
 
+         ArgStruct _to_args (V8Value value);
          void _init (Config &local);
 
          Log _log;
 
          JsModuleV8 *_core;
          JsModuleRuntimeV8 *_runtime;
+         JsModuleTypesV8 *_types;
 
          V8InterfaceHelper _ioApi;
 
          v8::Handle<v8::Context> _v8Context;
 
          V8ValuePersist _self;
+         V8StringPersist _fileStr;
+         V8StringPersist _fileListStr;
+         V8StringPersist _archiveStr;
+         V8StringPersist _dataStr;
+         V8StringPersist _typeStr;
+         V8StringPersist _modeStr;
+         V8StringPersist _logStr;
 
       private:
          JsExtV8ConfigIO ();
