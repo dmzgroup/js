@@ -36,6 +36,7 @@ namespace dmz {
             const V8Function &Func);
 
          void release_callback (const Handle Observer);
+         V8Value find_callback (const V8Object &Self, const String &Signal);
 
          void set_delete_object (const Boolean Value);
 
@@ -82,6 +83,7 @@ namespace dmz {
          void _do_callback (const String &Signal, const QList<V8Value> &ValueList);
 
          V8Value _to_v8_value (const QVariant &Value);
+
 
          QPointer<QObject> _object;
          JsModuleUiV8QtBasicState *_state;

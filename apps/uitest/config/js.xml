@@ -4,10 +4,10 @@
    <plugin name="dmzJsModuleV8Basic" scope="javascript"/>
    <plugin name="dmzJsModuleTypesV8Basic" scope="javascript"/>
    <plugin name="dmzJsModuleRuntimeV8Basic" scope="javascript"/>
-   <plugin name="dmzJsModuleUiV8QtBasic" scope="javascript"/>
    <plugin name="dmzJsPluginV8ConsoleQt" scope="javascript"/>
-   <!-- <plugin name="dmzJsExtV8Input" scope="javascript"/> -->
-   <!-- <plugin name="dmzJsExtV8Event" scope="javascript"/> -->
+   <plugin name="dmzJsExtV8Input" scope="javascript"/>
+   <plugin name="dmzJsExtV8Event" scope="javascript"/>
+   <plugin name="dmzJsModuleUiV8QtBasic" scope="javascript"/>
    <!-- <plugin name="dmzJsExtV8EventCommon" scope="javascript"/> -->
    <!-- <plugin name="dmzJsExtV8Object" scope="javascript"/> -->
    <!-- <plugin name="dmzJsExtV8Portal" scope="javascript"/> -->

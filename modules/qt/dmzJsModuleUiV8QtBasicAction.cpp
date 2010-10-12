@@ -111,6 +111,27 @@ dmz::JsModuleUiV8QtBasic::_action_text (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_action_trigger (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+
+   if (self) {
+
+      QAction *action = self->v8_to_qobject<QAction> (Args.This ());;
+      if (action) {
+
+         action->trigger ();
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_action () {
 
@@ -125,4 +146,5 @@ dmz::JsModuleUiV8QtBasic::_init_action () {
    V8ObjectTemplate proto = _actionTemp->PrototypeTemplate ();
    proto->Set ("enabled", v8::FunctionTemplate::New (_action_enabled, _self));
    proto->Set ("text", v8::FunctionTemplate::New (_action_text, _self));
+   proto->Set ("trigger", v8::FunctionTemplate::New (_action_trigger, _self));
 }
