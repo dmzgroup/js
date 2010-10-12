@@ -30,6 +30,11 @@ dmz::JsModuleUiV8QtBasic::_main_window_main_widget (const v8::Arguments &Args) {
       if (mainWindow) {
 
          result = self->create_v8_qwidget (mainWindow);
+
+         V8QtObject *vobj = self->_to_v8_qt_object (result);
+
+         if (vobj) { vobj->set_delete_object (False); }
+         else { self->_log.error << "No V8QtObject found!" << endl; }
       }
    }
 

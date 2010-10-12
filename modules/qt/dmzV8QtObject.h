@@ -37,6 +37,8 @@ namespace dmz {
 
          void release_callback (const Handle Observer);
 
+         void set_delete_object (const Boolean Value);
+
          V8ObjectPersist self;
 
       protected:
@@ -86,6 +88,7 @@ namespace dmz {
          HashTableStringTemplate<CallbackTable> _cbTable;
          HashTableHandleIterator _it;
          CallbackTable *_current;
+         Boolean _deleteObject;
    };
 };
 

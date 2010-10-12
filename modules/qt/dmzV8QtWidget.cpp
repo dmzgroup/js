@@ -14,7 +14,7 @@ dmz::V8QtWidget::~V8QtWidget () {
 
    if (_widget) {
 
-      if (!_widget->parentWidget ()) { delete _widget; }
+      if (!_widget->parentWidget () && _deleteObject) { delete _widget; }
       _widget = 0;
       _object = 0;
    }

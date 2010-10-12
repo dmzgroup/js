@@ -6,7 +6,6 @@
 
 #include <QtCore/QDebug>
 
-
 dmz::V8QtObject::V8QtObject (
       const V8Object &Self,
       QObject *object,
@@ -14,7 +13,8 @@ dmz::V8QtObject::V8QtObject (
       QObject (0),
       _object (object),
       _state (state),
-      _current (0) {
+      _current (0),
+      _deleteObject (True) {
 
    if (!Self.IsEmpty ()) {
 
@@ -28,7 +28,7 @@ dmz::V8QtObject::~V8QtObject () {
 
    if (_object) {
 
-      if (!_object->parent ()) { delete _object; }
+      if (!_object->parent () && _deleteObject) { delete _object; }
       _object = 0;
    }
 
@@ -76,6 +76,10 @@ dmz::V8QtObject::release_callback (const Handle Observer) {
       }
    }
 }
+
+
+void
+dmz::V8QtObject::set_delete_object (const Boolean Value) { _deleteObject = Value; }
 
 
 void
