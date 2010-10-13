@@ -179,6 +179,7 @@ namespace dmz {
          static V8Value _get_system_time (const v8::Arguments &Args);
 
          // Undo bindings implemented in dmzJsModuleRuntimeV8BasicUndo.cpp
+         static V8Value _undo_reset (const v8::Arguments &Args);
          static V8Value _undo_is_nested_handle (const v8::Arguments &Args);
          static V8Value _undo_is_in_undo (const v8::Arguments &Args);
          static V8Value _undo_is_recording (const v8::Arguments &Args);

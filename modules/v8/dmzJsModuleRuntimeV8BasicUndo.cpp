@@ -101,6 +101,21 @@ dmz::JsModuleRuntimeV8Basic::update_current_undo_names (
 
 // Undo bindings
 dmz::V8Value
+dmz::JsModuleRuntimeV8Basic::_undo_reset (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self) { self->_undo.reset (); }
+
+   return scope.Close (result);
+}
+
+
+
+dmz::V8Value
 dmz::JsModuleRuntimeV8Basic::_undo_is_nested_handle (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -408,6 +423,7 @@ dmz::JsModuleRuntimeV8Basic::_init_undo () {
    _undoApi.add_constant ("Stop", UInt32 (UndoRecordingStateStop));
 	_undoApi.add_constant ("Explicit", UInt32 (UndoRecordingTypeExplicit));
    _undoApi.add_constant ("Auto", UInt32 (UndoRecordingTypeAuto));
+   _undoApi.add_function ("reset", _undo_reset, _self);
    _undoApi.add_function ("isNestedHandle", _undo_is_nested_handle, _self);
    _undoApi.add_function ("isInUndo", _undo_is_in_undo, _self);
    _undoApi.add_function ("isRecording", _undo_is_recording, _self);

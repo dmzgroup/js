@@ -31,7 +31,7 @@ dmz::JsModuleUiV8QtBasic::_create_dock_widget (const v8::Arguments &Args) {
       }
       else if (Args.Length ()){
 
-         V8Value arg = Args[1];
+         V8Value arg = Args[0];
 
          if (arg->IsString ()) { title = v8_to_string (arg); }
          else { widget = self->_to_qwidget (arg); }
