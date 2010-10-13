@@ -18,10 +18,10 @@
    <path value="./scripts"/>
    <path value="../../scripts"/>
    <instance name="main"/>
+   <instance name="combobox"/>
 <!--   <instance name="test"/>
    <instance name="spin"/>
    <instance name="spin"/>
-   <instance name="combobox"/>
    <instance name="slider"/>
    <instance name="line"/>
    <instance name="textedit"/>
@@ -35,8 +35,8 @@
    <instance name="tab"/>
    <instance name="layout"/> 
    <instance name="formlayout"/>
-   <instance name="gridlayout"/> -->
-   <instance name="fileDialog"/>
+   <instance name="gridlayout"/>
+   <instance name="fileDialog"/> -->
 </javascript>
 <test>
    <name value="my_name"/>

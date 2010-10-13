@@ -46,6 +46,10 @@ dmz::JsModuleUiV8QtBasic::_combobox_current_index (const v8::Arguments &Args) {
       QComboBox *cb = self->v8_to_qobject<QComboBox> (Args.This ());;
       if (cb) {
 
+         if (Args.Length ()) {
+
+            cb->setCurrentIndex (v8_to_int32 (Args[0]));
+         }
          result = v8::Number::New (cb->currentIndex ());
       }
    }
@@ -66,6 +70,10 @@ dmz::JsModuleUiV8QtBasic::_combobox_current_text (const v8::Arguments &Args) {
       QComboBox *cb = self->v8_to_qobject<QComboBox> (Args.This ());;
       if (cb) {
 
+         if (Args.Length ()) {
+
+            cb->setCurrentIndex (cb->findText (v8_to_qstring (Args[0])));
+         }
          result = qstring_to_v8 (cb->currentText ());
       }
    }

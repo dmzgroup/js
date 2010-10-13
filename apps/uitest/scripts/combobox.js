@@ -34,4 +34,5 @@ for (count = 0; count < cb.count(); count += 1) {
    puts(count, cb.itemText(count));
 }
 
+cb.currentIndex (3);
 puts("Done.");
