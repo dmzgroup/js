@@ -70,10 +70,7 @@ dmz::JsModuleUiV8QtBasic::_dock_widget_floating (const v8::Arguments &Args) {
 
             dw->setFloating (v8_to_boolean (Args[0]));
          }
-         else {
 
-            dw->setFloating (!dw->isFloating ());
-         }
          result = v8::Boolean::New (dw->isFloating ());
       }
    }
