@@ -15,6 +15,8 @@ dmz::JsModuleUiV8QtBasic::_stacked_widget_add (const v8::Arguments &Args) {
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
 
+   self->_log.warn << "_stacked_widget_add" << endl;
+
    if (self) {
 
       QWidget *widget = self->_to_qwidget (Args.This ());
@@ -26,6 +28,7 @@ dmz::JsModuleUiV8QtBasic::_stacked_widget_add (const v8::Arguments &Args) {
 
          if (sw && qw) {
 
+            self->_log.warn << "_stacked_widget_add sw&qw" << endl;
             if (Args.Length () > 1) {
 
                result = v8::Number::New (sw->insertWidget (v8_to_int32 (Args[1]), qw));

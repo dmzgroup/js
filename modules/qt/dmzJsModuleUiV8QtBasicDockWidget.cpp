@@ -52,6 +52,36 @@ dmz::JsModuleUiV8QtBasic::_create_dock_widget (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_dock_widget_floating (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+
+   if (self) {
+
+      QDockWidget *dw = self->v8_to_qobject<QDockWidget> (Args.This());
+
+      if (dw) {
+
+         if (Args.Length () > 0) {
+
+            dw->setFloating (v8_to_boolean (Args[0]));
+         }
+         else {
+
+            dw->setFloating (!dw->isFloating ());
+         }
+         result = v8::Boolean::New (dw->isFloating ());
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_dock_widget () {
 
@@ -86,4 +116,5 @@ dmz::JsModuleUiV8QtBasic::_init_dock_widget () {
 
    V8ObjectTemplate proto = _dockWidgetTemp->PrototypeTemplate ();
 //   proto->Set ("widget", v8::FunctionTemplate::New (_dock_widget_widget, _self));
+   proto->Set ("floating", v8::FunctionTemplate::New (_dock_widget_floating, _self));
 }
