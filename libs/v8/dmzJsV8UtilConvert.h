@@ -88,6 +88,9 @@ DMZ_JS_V8_UTIL_LINK_SYMBOL V8Array
 v8_to_array (HandleContainer &container);
 
 Boolean
+v8_is_valid (V8Value value);
+
+Boolean
 v8_is_object (V8Value value);
 
 Boolean
@@ -257,6 +260,14 @@ dmz::v8_to_array (V8Value value) {
    }
 
    return result;
+}
+
+
+inline dmz::Boolean
+dmz::v8_is_valid (V8Value value) {
+
+   return (value.IsEmpty () == false) && (value->IsUndefined () == false) &&
+      (value->IsNull () == false);
 }
 
 
