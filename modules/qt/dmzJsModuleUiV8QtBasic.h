@@ -266,6 +266,7 @@ namespace dmz {
          static V8Value _create_dock_widget (const v8::Arguments &Args);
 //         static V8Value _dock_window_widget (const v8::Arguments &Args);
 //         static V8Value _dock_window_toggle_view_action (const v8::Arguments &Args);
+         static V8Value _dock_widget_floating (const v8::Arguments &Args);
 
          // QAction bindings implemented in JsModuleUiV8QtBasicAction.cpp
          static V8Value _action_enabled (const v8::Arguments &Args);
