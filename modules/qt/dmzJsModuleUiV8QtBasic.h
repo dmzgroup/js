@@ -166,6 +166,7 @@ namespace dmz {
          static V8Value _textEdit_redo (const v8::Arguments &Args);
          static V8Value _textEdit_undo (const v8::Arguments &Args);
          static V8Value _textEdit_text (const v8::Arguments &Args);
+         static V8Value _textEdit_allow_undo (const v8::Arguments &Args);
 
          // QLabel bindings implemented in JsModuleUiV8QtLabel.cpp
          static V8Value _label_text (const v8::Arguments &Args);
