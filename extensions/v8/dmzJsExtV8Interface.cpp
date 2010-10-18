@@ -100,6 +100,22 @@ dmz::JsExtV8Interface::update_js_ext_v8_state (const StateEnum State) {
    }
    else if (State == JsExtV8::Stop) {
 
+      HashTableHandleIterator it;
+      SelfStruct *ss (0);
+
+      while (_selfTable.get_next (it, ss)) {
+
+         SubscribeStruct *current (ss->subscribeList);
+
+         while (current) {
+
+            _subscribe_interface (False, current->is, *current);
+            current = current->next;
+         }
+      }
+
+      _selfTable.empty ();
+      _interfaceTable.empty ();
    }
    else if (State == JsExtV8::Shutdown) {
 
@@ -115,7 +131,42 @@ void
 dmz::JsExtV8Interface::release_js_instance_v8 (
       const Handle InstanceHandle,
       const String &InstanceName,
-      v8::Handle<v8::Object> &instance) {;}
+      v8::Handle<v8::Object> &instance) {
+
+   SelfStruct *ss (_selfTable.lookup (InstanceHandle));
+
+   if (ss) {
+
+      SubscribeStruct *current (ss->subscribeList);
+
+      while (current) {
+
+         _subscribe_interface (False, current->is, *current);
+         current = current->next;
+      }     
+
+      delete_list (ss->subscribeList);
+
+      InstanceStruct *instance (ss->instanceList);
+
+      while (instance) {
+
+         HashTableHandleIterator it;
+         current = 0;
+
+         while (instance->is.subscribeTable.get_next (it, current)) {
+
+            _do_callback (False, *instance, *current);
+         }
+
+         instance = instance->next;
+      }
+
+      ss = _selfTable.remove (InstanceHandle);
+
+      if (ss) { delete ss; ss = 0; }
+   }
+}
 
 
 // JsExtV8Interface Interface
@@ -135,20 +186,22 @@ dmz::JsExtV8Interface::_interface_publish (const v8::Arguments &Args) {
       V8Object obj = v8_to_object (Args[0]);
       const String ObjName = self->_core->get_instance_name (obj);
       const Handle ObjHandle = self->_core->get_instance_handle (obj);
-      V8Object instance = v8_to_object (Args[1]);
+      V8Object exportInterface = v8_to_object (Args[1]);
       const String Name = Length > 2 ? v8_to_string (Args[2]) : ObjName;
       const String Scope = Length > 3 ? v8_to_string (Args[3]) : ObjName;
 
-      if (ObjHandle && v8_is_valid (obj) && v8_is_valid (instance)) {
+      if (ObjHandle && v8_is_valid (obj) && v8_is_valid (exportInterface)) {
 
          SelfStruct *ss = self->_lookup_self_struct (ObjHandle);
-         InterfaceStruct *is = self->_lookup_interface (Name);
+         InterfaceStruct *interface = self->_lookup_interface (Name);
 
-         if (ss && is) {
+         if (ss && interface) {
 
-            InstanceStruct *instance = new InstanceStruct (Name, Scope, *is);
+            InstanceStruct *instance = new InstanceStruct (Name, Scope, *interface);
 
-            if (instance && self->_register_instance (*is, *instance)) {
+            if (instance && self->_register_instance (*interface, *instance)) {
+
+               instance->interface = V8ObjectPersist::New (exportInterface);
 
                instance->next = ss->instanceList;
                ss->instanceList = instance;
@@ -171,8 +224,78 @@ dmz::JsExtV8Interface::_interface_remove (const v8::Arguments &Args) {
 
    JsExtV8Interface *self = _to_self (Args);
 
-   if (self) {
+   if (self && self->_core) {
 
+      V8Value obj = Args[0];
+
+      const Handle Object = self->_core->get_instance_handle (obj);
+
+      if (Object) {
+
+         SelfStruct *ss = self->_selfTable.lookup (Object);
+
+         if (ss) {
+
+            V8Value value = Args[1];
+
+            if (v8_is_valid (value)) {
+
+               if (value->IsFunction ()) {
+
+                  V8Function func = v8_to_function (value);
+
+                  SubscribeStruct *current (ss->subscribeList);
+
+                  while (current) {
+
+                     if (current->func == func) {
+
+                        ss->remove (current); current = 0;
+                        result = v8::Boolean::New (true);
+                     }
+                     else { current = current->next; }
+                  }
+               }
+               else if (value->IsObject ()) {
+
+                  V8Object instance = v8_to_object (value);
+
+                  InstanceStruct *prev (0);
+                  InstanceStruct *current (ss->instanceList);
+
+                  while (current) {
+
+                     if (current->interface == instance) {
+
+                        HashTableHandleIterator it;
+                        SubscribeStruct *sub (0);
+
+                        while (current->is.subscribeTable.get_next (it, sub)) {
+
+                           self->_do_callback (False, *current, *sub);
+                        }
+
+                        if (prev) { prev->next = current->next; }
+                        else { ss->instanceList = current->next; }
+
+                        delete current; current = 0;
+
+                        result = v8::Boolean::New (true);
+                     }
+                     else { prev = current; current = current->next; }
+                  }
+               }
+            }
+            else if (v8_is_valid (obj) && obj->IsObject ()) {
+
+               const String Name;
+               V8Object handle = v8_to_object (obj);
+               self->release_js_instance_v8 (Object, Name, handle);
+
+               result = v8::Boolean::New (true);
+            }
+         }
+      }
    }
 
    return scope.Close (result);
@@ -214,24 +337,24 @@ dmz::JsExtV8Interface::_interface_subscribe (const v8::Arguments &Args) {
 
             if (ss) {
 
-               InterfaceStruct *is = self->_lookup_interface (Name);
+               InterfaceStruct *interface = self->_lookup_interface (Name);
 
-               if (is) {
+               if (interface) {
 
-                  SubscribeStruct *ds = new SubscribeStruct (Object, Scope, *is);
+                  SubscribeStruct *sub = new SubscribeStruct (Object, Scope, *interface);
 
-                  if (ds) {
+                  if (sub) {
 
-                     ds->self = V8ObjectPersist::New (obj);
-                     ds->func = V8FunctionPersist::New (func);
+                     sub->self = V8ObjectPersist::New (obj);
+                     sub->func = V8FunctionPersist::New (func);
 
-                     if (self->_register_subscribe (*is, *ds)) {
+                     if (self->_register_subscribe (*interface, *sub)) {
 
-                        ds->next = ss->subscribeList;
-                        ss->subscribeList = ds;
+                        sub->next = ss->subscribeList;
+                        ss->subscribeList = sub;
                         result = func;
                      }
-                     else { delete ds; ds = 0; }
+                     else { delete sub; sub = 0; }
                   }
                }
             }
@@ -246,63 +369,36 @@ dmz::JsExtV8Interface::_interface_subscribe (const v8::Arguments &Args) {
 void
 dmz::JsExtV8Interface::_subscribe_interface (
       const Boolean Activate,
-      InterfaceStruct &is,
-      SubscribeStruct &ds) {
+      InterfaceStruct &interface,
+      SubscribeStruct &sub) {
 
-   if (v8_is_valid (ds.func) && (is.table.get_size () > 0) &&
-         (_v8Context.IsEmpty () == false)) {
+   HashTableStringIterator it;
+   InstanceStruct *instance (0);
 
-      v8::Context::Scope cscope (_v8Context);
-      v8::HandleScope scope;
+   while (interface.interfaceTable.get_next (it, instance)) {
 
-      const int Argc (5);
-      V8Value argv[Argc];
-      argv[0] = Activate ? _activateStr : _deactivateStr;
-      argv[3] = v8::String::New (is.Name ? is.Name.get_buffer () : "");
-
-      HashTableStringIterator it;
-      InstanceStruct *instance (0);
-
-      const Handle Object = ds.Object;
-      V8Object self = v8::Local<v8::Object>::New (ds.self);
-      V8Function func = v8::Local<v8::Function>::New (ds.func);
-      argv[4] = self;
-
-      while (is.table.get_next (it, instance)) {
-
-         if (!ds.Scope || (ds.Scope == instance->Scope)) {
-
-            argv[1] = instance->interface;
-            argv[2] = v8::String::New (instance->Scope.get_buffer ());
-
-            v8::TryCatch tc;
-            func->Call (self, Argc, argv);
-
-            if (tc.HasCaught ()) {
-
-               if (_core) { _core->handle_v8_exception (Object, tc); }
-               SelfStruct *ss = _selfTable.lookup (Object);
-
-               if (ss) { ss->remove (&ds); }
-            }
-         }
-      }
+      _do_callback (Activate, *instance, sub);
    }
 }
 
 
 dmz::Boolean
-dmz::JsExtV8Interface::_register_instance (InterfaceStruct &is, InstanceStruct &ds) {
+dmz::JsExtV8Interface::_register_instance (
+      InterfaceStruct &interface,
+      InstanceStruct &instance) {
 
    Boolean result (False);
 
-   if (is.table.store (ds.Scope, &ds)) {
+   if (interface.interfaceTable.store (instance.Scope, &instance)) {
+
+      result = True;
 
       HashTableHandleIterator it;
-      SubscribeStruct *ss (0);
+      SubscribeStruct *sub (0);
 
-      while (is.subscribeTable.get_next (it, ss)) {
+      while (interface.subscribeTable.get_next (it, sub)) {
 
+         _do_callback (True, instance, *sub);
       }
    }
 
@@ -311,19 +407,71 @@ dmz::JsExtV8Interface::_register_instance (InterfaceStruct &is, InstanceStruct &
 
 
 dmz::Boolean
-dmz::JsExtV8Interface::_register_subscribe (InterfaceStruct &is, SubscribeStruct &ds) {
+dmz::JsExtV8Interface::_register_subscribe (
+      InterfaceStruct &interface,
+      SubscribeStruct &sub) {
 
    Boolean result (False);
 
-   if (is.subscribeTable.store (ds.Object, &ds)) {
+   if (interface.subscribeTable.store (sub.Object, &sub)) {
 
-      _subscribe_interface (True, is ,ds);
+      _subscribe_interface (True, interface, sub);
 
       result = True;
    }
 
    return result;
 }
+
+
+dmz::Boolean
+dmz::JsExtV8Interface::_do_callback (
+      const Boolean Activate,
+      InstanceStruct &instance,
+      SubscribeStruct &sub) {
+
+   Boolean result (False);
+
+   if ((!sub.Scope || (sub.Scope == instance.Scope)) &&
+         (_v8Context.IsEmpty () == false)) {
+
+      v8::Context::Scope cscope (_v8Context);
+      v8::HandleScope scope;
+
+      if (v8_is_valid (sub.self) && v8_is_valid (sub.func)) {
+
+         const int Argc (5);
+         V8Value argv[Argc];
+         argv[0] = Activate ? _activateStr : _deactivateStr;
+         argv[1] = instance.interface;
+         argv[2] = v8::String::New (instance.Scope.get_buffer ());
+         argv[3] = v8::String::New (instance.Name ? instance.Name.get_buffer () : "");
+
+         const Handle Object = sub.Object;
+         V8Object self = v8::Local<v8::Object>::New (sub.self);
+         V8Function func = v8::Local<v8::Function>::New (sub.func);
+
+         argv[4] = self;
+
+         v8::TryCatch tc;
+
+         func->Call (self, Argc, argv);
+
+         if (tc.HasCaught ()) {
+
+            if (_core) { _core->handle_v8_exception (Object, tc); }
+
+            SelfStruct *ss = _selfTable.lookup (Object);
+
+            if (ss) { ss->remove (&sub); }
+         }
+         else { result = True; }
+      }
+   }
+
+   return result;
+}
+
 
 
 dmz::JsExtV8Interface::InterfaceStruct *

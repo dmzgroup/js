@@ -62,7 +62,7 @@ namespace dmz {
 
             ~InstanceStruct () {
 
-               is.table.remove (Scope);
+               is.interfaceTable.remove (Scope);
                self.Dispose (); self.Clear ();
                interface.Dispose (); interface.Clear ();
             }
@@ -98,7 +98,7 @@ namespace dmz {
 
             const String Name;
             HashTableHandleTemplate<SubscribeStruct> subscribeTable;
-            HashTableStringTemplate<InstanceStruct> table;
+            HashTableStringTemplate<InstanceStruct> interfaceTable;
 
             InterfaceStruct (const String &TheName) : Name (TheName) {;}
          };
@@ -143,11 +143,20 @@ namespace dmz {
 
          void _subscribe_interface (
             const Boolean Activate,
-            InterfaceStruct &is,
-            SubscribeStruct &ds);
+            InterfaceStruct &interface,
+            SubscribeStruct &sub);
 
-         Boolean _register_instance (InterfaceStruct &is, InstanceStruct &ds);
-         Boolean _register_subscribe (InterfaceStruct &is, SubscribeStruct &ds);
+         Boolean _register_instance (
+            InterfaceStruct &interface,
+            InstanceStruct &instance);
+
+         Boolean _register_subscribe (InterfaceStruct &interface, SubscribeStruct &sub);
+
+         Boolean _do_callback (
+            const Boolean Activate,
+            InstanceStruct &instance,
+            SubscribeStruct &sub);
+
          InterfaceStruct *_lookup_interface (const String &Name);
          SelfStruct *_lookup_self_struct (const Handle Object);
          void _init (Config &local);
