@@ -152,6 +152,37 @@ dmz::JsModuleUiV8QtBasic::_textEdit_redo (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_textEdit_allow_undo (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+
+   if (self) {
+
+      QWidget *widget = self->_to_qwidget (Args.This ());
+
+      if (widget) {
+
+         QTextEdit *text = qobject_cast<QTextEdit *>(widget);
+
+         if (text) {
+
+            if (Args.Length ()) {
+
+               text->setUndoRedoEnabled (v8_to_boolean (Args[0]));
+            }
+            result = v8::Boolean::New (text->isUndoRedoEnabled ());
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_textEdit () {
 
@@ -169,4 +200,5 @@ dmz::JsModuleUiV8QtBasic::_init_textEdit () {
    proto->Set ("clear", v8::FunctionTemplate::New (_textEdit_clear, _self));
    proto->Set ("undo", v8::FunctionTemplate::New (_textEdit_undo, _self));
    proto->Set ("redo", v8::FunctionTemplate::New (_textEdit_redo, _self));
+   proto->Set ("allowUndo", v8::FunctionTemplate::New (_textEdit_allow_undo, _self));
 }
