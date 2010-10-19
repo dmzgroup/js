@@ -116,6 +116,7 @@ namespace dmz {
          static V8Value _widget_layout (const v8::Arguments &Args);
          static V8Value _widget_show (const v8::Arguments &Args);
          static V8Value _widget_title (const v8::Arguments &Args);
+         static V8Value _widget_visible (const v8::Arguments &Args);
          static V8Value _widget_window (const v8::Arguments &Args);
 
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
@@ -258,7 +259,6 @@ namespace dmz {
          static V8Value _main_window_central_widget (const v8::Arguments &Args);
          static V8Value _main_window_close (const v8::Arguments &Args);
          static V8Value _main_window_create_dock_widget (const v8::Arguments &Args);
-         static V8Value _main_window_add_dock_widget (const v8::Arguments &Args);
          static V8Value _main_window_remove_dock_widget (const v8::Arguments &Args);
          static V8Value _main_window_add_menu (const v8::Arguments &Args);
          static V8Value _main_window_add_separator (const v8::Arguments &Args);
@@ -340,9 +340,11 @@ namespace dmz {
          V8ValuePersist _self;
 
          HashTableHandleTemplate<ObsStruct> _obsTable;
-         QMap<QObject *, V8QtObject *>_objectMap;
-         QMap<QString, QAction *>_menuActionMap;
-         QList<QWidget *>_dialogList;
+         QMap<QObject *, V8QtObject *> _objectMap;
+         QMap<QString, QAction *> _menuActionMap;
+         QList<QWidget *> _dialogList;
+         QList<String> _dockList;
+         QByteArray _mainWindowState;
 
          V8InterfaceHelper _qtApi;
          V8InterfaceHelper _uiLoaderApi;
@@ -435,18 +437,23 @@ namespace dmz {
          V8FunctionTemplatePersist _frameTemp;
          V8FunctionPersist _frameCtor;
 
-         V8StringPersist _typeStr;
-         V8StringPersist _textStr;
-         V8StringPersist _infoTextStr;
-         V8StringPersist _standardButtonsStr;
-         V8StringPersist _defaultButtonStr;
-         V8StringPersist _captionStr;
-         V8StringPersist _dirStr;
-         V8StringPersist _filterStr;
-         V8StringPersist _optionsStr;
          V8StringPersist _allowMultipleStr;
+         V8StringPersist _allowedAreasStr;
+         V8StringPersist _areaStr;
+         V8StringPersist _captionStr;
+         V8StringPersist _defaultButtonStr;
+         V8StringPersist _dirStr;
+         V8StringPersist _featuresStr;
+         V8StringPersist _filterStr;
+         V8StringPersist _floatingStr;
+         V8StringPersist _infoTextStr;
+         V8StringPersist _optionsStr;
+         V8StringPersist _standardButtonsStr;
          V8StringPersist _statusTipStr;
+         V8StringPersist _textStr;
          V8StringPersist _toolTipStr;
+         V8StringPersist _typeStr;
+         V8StringPersist _visibleStr;
 
       private:
          JsModuleUiV8QtBasic ();

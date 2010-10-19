@@ -112,54 +112,98 @@ dmz::JsModuleUiV8QtBasic::_main_window_create_dock_widget (const v8::Arguments &
       if (module) {
 
          String name = v8_to_string (Args[0]);
-         QWidget *widget = Args.Length () > 1 ? self->_to_qwidget (Args[1]) : 0;
+         V8Object params;
+
+         Qt::DockWidgetArea area (Qt::LeftDockWidgetArea);
+         if (Args.Length () > 1) {
+
+            if (v8_is_object (Args[1])) { params = v8_to_object (Args[1]); }
+            else { area = (Qt::DockWidgetArea)v8_to_uint32 (Args[1]); }
+         }
+
+         QWidget *widget = Args.Length () > 2 ? self->_to_qwidget (Args[2]) : 0;
 
          if (name) {
 
-            QDockWidget *dock = module->create_dock_widget (name, widget);
-            if (dock) { result = self->create_v8_qwidget (dock); }
-         }
-      }
-   }
+            // we need the area out of the params for the create call
+            if (!params.IsEmpty ()) {
 
-   return scope.Close (result);
-}
+               if (params->Has (self->_areaStr)) {
 
+                  area = (Qt::DockWidgetArea)v8_to_uint32 (params->Get (self->_areaStr));
+               }
+            }
 
+            QDockWidget *dock = module->create_dock_widget (name, area, widget);
+            if (dock) {
 
-dmz::V8Value
-dmz::JsModuleUiV8QtBasic::_main_window_add_dock_widget (const v8::Arguments &Args) {
+               // setup dock based on passed in params
 
-   v8::HandleScope scope;
-   V8Value result = v8::Undefined ();
+               if (!params.IsEmpty ()) {
 
-   JsModuleUiV8QtBasic *self = _to_self (Args);
-   if (self) {
+                  if (params->Has (self->_floatingStr)) {
 
-      QtModuleMainWindow *module (self->_state.mainWindowModule);
-      if (module) {
+                     dock->setFloating (v8_to_boolean (params->Get (self->_floatingStr)));
+                  }
 
-         QDockWidget *dock (0);
+                  if (params->Has (self->_visibleStr)) {
 
-         V8Value arg = Args[0];
-         if (arg->IsString ()) {
+                     dock->setVisible (v8_to_boolean (params->Get (self->_visibleStr)));
+                  }
 
-            String name = v8_to_string (arg);
-            dock = module->lookup_dock_widget (name);
-         }
-         else {
+                  if (params->Has (self->_allowedAreasStr)) {
 
-            QWidget *widget = self->_to_qwidget (arg);
-            dock = qobject_cast<QDockWidget *>(widget);
-         }
+                     V8Array array = v8_to_array (params->Get (self->_allowedAreasStr));
+                     if (!array.IsEmpty ()) {
 
-         if (dock) {
+                        Qt::DockWidgetAreas areas;
+                        const uint32_t Length = array->Length ();
+                        for (uint32_t ix = 0; ix < Length; ix++) {
 
-            Qt::DockWidgetArea area = Qt::RightDockWidgetArea;
-            if (Args.Length () > 1) { area = (Qt::DockWidgetArea)v8_to_uint32 (Args[1]); }
+                           const UInt32 Value =
+                              v8_to_uint32 (array->Get (v8::Integer::NewFromUnsigned (ix)));
 
-            Boolean res = module->add_dock_widget (dock, area);
-            result = v8::Boolean::New (res);
+                           areas |= (Qt::DockWidgetArea)Value;
+                        }
+
+                        dock->setAllowedAreas (areas);
+                     }
+                  }
+
+                  if (params->Has (self->_featuresStr)) {
+
+                     V8Array array = v8_to_array (params->Get (self->_featuresStr));
+                     if (!array.IsEmpty ()) {
+
+                        QDockWidget::DockWidgetFeatures features;
+                        const uint32_t Length = array->Length ();
+                        for (uint32_t ix = 0; ix < Length; ix++) {
+
+                           const UInt32 Value =
+                              v8_to_uint32 (array->Get (v8::Integer::NewFromUnsigned (ix)));
+
+                           features |= (QDockWidget::DockWidgetFeature)Value;
+                        }
+
+                        dock->setFeatures (features);
+                     }
+                  }
+               }
+
+               // _mainWindowState was saved on the last JsExtV8::Shutdown
+               // restoring state now will make sure dock window shows in the right place
+               // NOTE: this might have some side effects depending on when the dock is created
+               // if the dock is created from some kind of user interaction then the
+               // state of the main window could be out of sync
+               QMainWindow *mainWindow = module->get_qt_main_window ();
+               if (!self->_mainWindowState.isEmpty () && mainWindow) {
+
+                  mainWindow->restoreState (self->_mainWindowState);
+               }
+
+               self->_dockList.append (name);
+               result = self->create_v8_qwidget (dock);
+            }
          }
       }
    }
@@ -180,24 +224,11 @@ dmz::JsModuleUiV8QtBasic::_main_window_remove_dock_widget (const v8::Arguments &
       QtModuleMainWindow *module (self->_state.mainWindowModule);
       if (module) {
 
-         QDockWidget *dock (0);
+         String name = v8_to_string (Args[0]);
+         if (name) {
 
-         V8Value arg = Args[0];
-         if (arg->IsString ()) {
-
-            String name = v8_to_string (arg);
-            self->_log.warn << "lookup dock: " << name << endl;
-            dock = module->lookup_dock_widget (name);
-         }
-         else {
-
-            QWidget *widget = self->_to_qwidget (arg);
-            dock = qobject_cast<QDockWidget *>(widget);
-         }
-
-         if (dock) {
-
-            Boolean res = module->remove_dock_widget (dock);
+            self->_dockList.removeAll (name);
+            Boolean res = module->remove_dock_widget (name);
             result = v8::Boolean::New (res);
          }
       }
@@ -346,7 +377,7 @@ dmz::JsModuleUiV8QtBasic::_init_main_window () {
    _mainWindowApi.add_function ("centralWidget", _main_window_central_widget, _self);
    _mainWindowApi.add_function ("close", _main_window_close, _self);
    _mainWindowApi.add_function ("createDock", _main_window_create_dock_widget, _self);
-   _mainWindowApi.add_function ("addDock", _main_window_add_dock_widget, _self);
+//   _mainWindowApi.add_function ("addDock", _main_window_add_dock_widget, _self);
    _mainWindowApi.add_function ("removeDock", _main_window_remove_dock_widget, _self);
 
    _mainWindowApi.add_function ("addMenu", _main_window_add_menu, _self);

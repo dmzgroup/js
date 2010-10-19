@@ -59,11 +59,9 @@ dmz::JsModuleUiV8QtBasic::_dock_widget_floating (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
       QDockWidget *dw = self->v8_to_qobject<QDockWidget> (Args.This());
-
       if (dw) {
 
          if (Args.Length () > 0) {
@@ -112,6 +110,5 @@ dmz::JsModuleUiV8QtBasic::_init_dock_widget () {
    instance->SetInternalFieldCount (1);
 
    V8ObjectTemplate proto = _dockWidgetTemp->PrototypeTemplate ();
-//   proto->Set ("widget", v8::FunctionTemplate::New (_dock_widget_widget, _self));
    proto->Set ("floating", v8::FunctionTemplate::New (_dock_widget_floating, _self));
 }
