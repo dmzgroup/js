@@ -258,7 +258,6 @@ namespace dmz {
          static V8Value _main_window_central_widget (const v8::Arguments &Args);
          static V8Value _main_window_close (const v8::Arguments &Args);
          static V8Value _main_window_create_dock_widget (const v8::Arguments &Args);
-         static V8Value _main_window_add_dock_widget (const v8::Arguments &Args);
          static V8Value _main_window_remove_dock_widget (const v8::Arguments &Args);
          static V8Value _main_window_add_menu (const v8::Arguments &Args);
          static V8Value _main_window_add_separator (const v8::Arguments &Args);
@@ -331,9 +330,10 @@ namespace dmz {
          V8ValuePersist _self;
 
          HashTableHandleTemplate<ObsStruct> _obsTable;
-         QMap<QObject *, V8QtObject *>_objectMap;
-         QMap<QString, QAction *>_menuActionMap;
-         QList<QWidget *>_dialogList;
+         QMap<QObject *, V8QtObject *> _objectMap;
+         QMap<QString, QAction *> _menuActionMap;
+         QList<QWidget *> _dialogList;
+         QList<String> _dockList;
 
          V8InterfaceHelper _qtApi;
          V8InterfaceHelper _uiLoaderApi;

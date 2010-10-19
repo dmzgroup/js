@@ -211,7 +211,6 @@ dmz::JsModuleUiV8QtBasic::_object_callback (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-//      QObject *object = self->_to_qobject (Args.This ());
       V8QtObject *jsObject = self->_to_v8_qt_object (Args.This ());
       if (jsObject && (Args.Length () >= 2)) {
 
@@ -220,6 +219,7 @@ dmz::JsModuleUiV8QtBasic::_object_callback (const v8::Arguments &Args) {
          result = jsObject->find_callback (src, signal);
       }
    }
+
    return scope.Close (result);
 }
 

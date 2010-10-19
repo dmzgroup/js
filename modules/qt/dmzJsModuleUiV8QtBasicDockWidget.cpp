@@ -59,11 +59,9 @@ dmz::JsModuleUiV8QtBasic::_dock_widget_floating (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
       QDockWidget *dw = self->v8_to_qobject<QDockWidget> (Args.This());
-
       if (dw) {
 
          if (Args.Length () > 0) {

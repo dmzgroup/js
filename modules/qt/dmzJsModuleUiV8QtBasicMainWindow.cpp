@@ -60,7 +60,7 @@ dmz::JsModuleUiV8QtBasic::_main_window_central_widget (const v8::Arguments &Args
             QWidget *widget = self->_to_qwidget (Args[0]);
             if (widget) {
 
-               widget->setParent (mainWindow);
+//               widget->setParent (mainWindow);
                mainWindow->setCentralWidget (widget);
             }
          }
@@ -112,12 +112,20 @@ dmz::JsModuleUiV8QtBasic::_main_window_create_dock_widget (const v8::Arguments &
       if (module) {
 
          String name = v8_to_string (Args[0]);
-         QWidget *widget = Args.Length () > 1 ? self->_to_qwidget (Args[1]) : 0;
+
+         Qt::DockWidgetArea area (Qt::LeftDockWidgetArea);
+         if (Args.Length () > 1) { area = (Qt::DockWidgetArea)v8_to_uint32 (Args[1]); }
+
+         QWidget *widget = Args.Length () > 2 ? self->_to_qwidget (Args[2]) : 0;
 
          if (name) {
 
-            QDockWidget *dock = module->create_dock_widget (name, widget);
-            if (dock) { result = self->create_v8_qwidget (dock); }
+            QDockWidget *dock = module->create_dock_widget (name, area, widget);
+            if (dock) {
+
+               self->_dockList.append (name);
+               result = self->create_v8_qwidget (dock);
+            }
          }
       }
    }
@@ -127,45 +135,45 @@ dmz::JsModuleUiV8QtBasic::_main_window_create_dock_widget (const v8::Arguments &
 
 
 
-dmz::V8Value
-dmz::JsModuleUiV8QtBasic::_main_window_add_dock_widget (const v8::Arguments &Args) {
+//dmz::V8Value
+//dmz::JsModuleUiV8QtBasic::_main_window_add_dock_widget (const v8::Arguments &Args) {
 
-   v8::HandleScope scope;
-   V8Value result = v8::Undefined ();
+//   v8::HandleScope scope;
+//   V8Value result = v8::Undefined ();
 
-   JsModuleUiV8QtBasic *self = _to_self (Args);
-   if (self) {
+//   JsModuleUiV8QtBasic *self = _to_self (Args);
+//   if (self) {
 
-      QtModuleMainWindow *module (self->_state.mainWindowModule);
-      if (module) {
+//      QtModuleMainWindow *module (self->_state.mainWindowModule);
+//      if (module) {
 
-         QDockWidget *dock (0);
+//         QDockWidget *dock (0);
 
-         V8Value arg = Args[0];
-         if (arg->IsString ()) {
+//         V8Value arg = Args[0];
+//         if (arg->IsString ()) {
 
-            String name = v8_to_string (arg);
-            dock = module->lookup_dock_widget (name);
-         }
-         else {
+//            String name = v8_to_string (arg);
+//            dock = module->lookup_dock_widget (name);
+//         }
+//         else {
 
-            QWidget *widget = self->_to_qwidget (arg);
-            dock = qobject_cast<QDockWidget *>(widget);
-         }
+//            QWidget *widget = self->_to_qwidget (arg);
+//            dock = qobject_cast<QDockWidget *>(widget);
+//         }
 
-         if (dock) {
+//         if (dock) {
 
-            Qt::DockWidgetArea area = Qt::RightDockWidgetArea;
-            if (Args.Length () > 1) { area = (Qt::DockWidgetArea)v8_to_uint32 (Args[1]); }
+//            Qt::DockWidgetArea area = Qt::RightDockWidgetArea;
+//            if (Args.Length () > 1) { area = (Qt::DockWidgetArea)v8_to_uint32 (Args[1]); }
 
-            Boolean res = module->add_dock_widget (dock, area);
-            result = v8::Boolean::New (res);
-         }
-      }
-   }
+//            Boolean res = module->add_dock_widget (dock, area);
+//            result = v8::Boolean::New (res);
+//         }
+//      }
+//   }
 
-   return scope.Close (result);
-}
+//   return scope.Close (result);
+//}
 
 
 dmz::V8Value
@@ -180,24 +188,11 @@ dmz::JsModuleUiV8QtBasic::_main_window_remove_dock_widget (const v8::Arguments &
       QtModuleMainWindow *module (self->_state.mainWindowModule);
       if (module) {
 
-         QDockWidget *dock (0);
+         String name = v8_to_string (Args[0]);
+         if (name) {
 
-         V8Value arg = Args[0];
-         if (arg->IsString ()) {
-
-            String name = v8_to_string (arg);
-            self->_log.warn << "lookup dock: " << name << endl;
-            dock = module->lookup_dock_widget (name);
-         }
-         else {
-
-            QWidget *widget = self->_to_qwidget (arg);
-            dock = qobject_cast<QDockWidget *>(widget);
-         }
-
-         if (dock) {
-
-            Boolean res = module->remove_dock_widget (dock);
+            self->_dockList.removeAll (name);
+            Boolean res = module->remove_dock_widget (name);
             result = v8::Boolean::New (res);
          }
       }
@@ -346,7 +341,7 @@ dmz::JsModuleUiV8QtBasic::_init_main_window () {
    _mainWindowApi.add_function ("centralWidget", _main_window_central_widget, _self);
    _mainWindowApi.add_function ("close", _main_window_close, _self);
    _mainWindowApi.add_function ("createDock", _main_window_create_dock_widget, _self);
-   _mainWindowApi.add_function ("addDock", _main_window_add_dock_widget, _self);
+//   _mainWindowApi.add_function ("addDock", _main_window_add_dock_widget, _self);
    _mainWindowApi.add_function ("removeDock", _main_window_remove_dock_widget, _self);
 
    _mainWindowApi.add_function ("addMenu", _main_window_add_menu, _self);

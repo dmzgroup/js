@@ -1,5 +1,5 @@
 var puts = require('sys').puts
-  , Qt = require('dmz/ui')
+  , Qt = require('dmz/ui/consts')
   , QUiLoader = require('dmz/ui/uiLoader')
   , QMessageBox = require('dmz/ui/messageBox')
   , QDockWidget = require('dmz/ui/dockWidget')
@@ -135,17 +135,18 @@ if(toolsWidget) {
    // });
    
    // var toolsDock = QDockWidget.create (dockName, toolsWidget);
-   var toolsDock = mainWindow.createDock (dockName, toolsWidget);
+
+   var toolsDock = mainWindow.createDock (dockName, Qt.BottomDockWidgetArea, toolsWidget);
    if (toolsDock) {
       
       toolsDock.title ("Tools I Like");
-      mainWindow.addDock (dockName, Qt.LeftDockWidgetArea);
+      
       toolsWidget.observe(self, "button1", "clicked", function () {
 
          var str = file.getSaveFileName(
             mainWindow.mainWidget(),
             { caption: "Save File Dialog"
-            , dir: "/Users/Ben/cm"
+            , dir: "/Users"
             , filter: "Scripts (*.js)"
             });
 
@@ -174,7 +175,7 @@ mainWindow.addSeparator("&File");
 
 var action = mainWindow.addMenu (self, "&Name", "My Name Is1", "Meta+y", function (obj) {
    obj.enabled(false);
-   puts("action:", action.callback(self, "triggered"));
+   // puts("action:", action.callback(self, "triggered"));
 });
 
 mainWindow.addSeparator("&Name");

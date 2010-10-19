@@ -12,6 +12,7 @@
 #include "dmzV8QtTypes.h"
 #include <QtCore/QFile>
 //#include <QtGui/QDialog>
+#include <QtGui/QDockWidget>
 //#include <QtGui/QDoubleSpinBox>
 //#include <QtGui/QSpinBox>
 //#include <QtGui/QWidget>
@@ -531,7 +532,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
       if (_state.core) {
 
-         _state.core->register_interface ("dmz/ui", _qtApi.get_new_instance ());
+         _state.core->register_interface ("dmz/ui/consts", _qtApi.get_new_instance ());
          _state.core->register_interface ("dmz/ui/uiLoader", _uiLoaderApi.get_new_instance ());
 
          _state.core->register_interface (
@@ -597,6 +598,16 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       }
 
       _objectMap.clear ();
+
+      if (_state.mainWindowModule) {
+
+         foreach (String dock, _dockList) {
+
+            _state.mainWindowModule->remove_dock_widget (dock);
+         }
+      }
+
+      _dockList.clear ();
 
       _objectCtor.Dispose (); _objectCtor.Clear ();
       _widgetCtor.Dispose (); _widgetCtor.Clear ();

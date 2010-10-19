@@ -18,8 +18,8 @@
    <path value="./scripts"/>
    <path value="../../scripts"/>
    <instance name="main"/>
-   <instance name="combobox"/>
 <!--   <instance name="test"/>
+   <instance name="combobox"/>
    <instance name="spin"/>
    <instance name="spin"/>
    <instance name="slider"/>
