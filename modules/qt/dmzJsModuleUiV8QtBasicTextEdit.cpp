@@ -189,7 +189,7 @@ dmz::JsModuleUiV8QtBasic::_init_textEdit () {
    v8::HandleScope scope;
 
    _textEditTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
-   _textEditTemp->Inherit (_widgetTemp);
+   _textEditTemp->Inherit (_frameTemp);
 
    V8ObjectTemplate instance = _textEditTemp->InstanceTemplate ();
    instance->SetInternalFieldCount (1);

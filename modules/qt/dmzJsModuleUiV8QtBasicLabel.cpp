@@ -104,7 +104,7 @@ dmz::JsModuleUiV8QtBasic::_init_label () {
    v8::HandleScope scope;
 
    _labelTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
-   _labelTemp->Inherit (_widgetTemp);
+   _labelTemp->Inherit (_frameTemp);
 
    V8ObjectTemplate instance = _labelTemp->InstanceTemplate ();
    instance->SetInternalFieldCount (1);

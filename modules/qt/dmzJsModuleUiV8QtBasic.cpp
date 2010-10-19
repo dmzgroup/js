@@ -350,6 +350,14 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
                qobj = new V8QtWidget (vobj, value, &_state);
             }
          }
+         else if (value->inherits ("QFrame")) {
+
+            if (!_frameCtor.IsEmpty ()) {
+
+               vobj = _frameCtor->NewInstance ();
+               qobj = new V8QtWidget (vobj, value, &_state);
+            }
+         }
          else if (value->inherits ("QWidget")) {
 
             if (!_widgetCtor.IsEmpty ()) {
@@ -407,6 +415,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       if (!_widgetTemp.IsEmpty ()) {
 
          _widgetCtor = V8FunctionPersist::New (_widgetTemp->GetFunction ());
+      }
+
+      if (!_frameTemp.IsEmpty ()) {
+
+         _frameCtor = V8FunctionPersist::New (_frameTemp->GetFunction ());
       }
 
       if (!_buttonTemp.IsEmpty ()) {
@@ -534,6 +547,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _state.core->register_interface ("dmz/ui", _qtApi.get_new_instance ());
          _state.core->register_interface ("dmz/ui/uiLoader", _uiLoaderApi.get_new_instance ());
 
+         _state.core->register_interface ("dmz/ui/frame", _frameApi.get_new_instance ());
          _state.core->register_interface (
             "dmz/ui/mainWindow",
             _mainWindowApi.get_new_instance ());
@@ -600,6 +614,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
       _objectCtor.Dispose (); _objectCtor.Clear ();
       _widgetCtor.Dispose (); _widgetCtor.Clear ();
+      _frameCtor.Dispose (); _frameCtor.Clear ();
       _buttonCtor.Dispose (); _buttonCtor.Clear ();
       _listWidgetItemCtor.Dispose (); _listWidgetItemCtor.Clear ();
       _listWidgetCtor.Dispose (); _listWidgetCtor.Clear ();
@@ -640,6 +655,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
       _qtApi.clear ();
       _uiLoaderApi.clear ();
+      _frameApi.clear ();
       _mainWindowApi.clear ();
       _dockWidgetApi.clear ();
       _messageBoxApi.clear ();
@@ -808,6 +824,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
 
    _init_object ();
    _init_widget ();
+   _init_frame ();
    _init_button ();
    _init_list_widget_item ();
    _init_list_widget ();

@@ -243,7 +243,7 @@ dmz::JsModuleUiV8QtBasic::_init_stacked_widget () {
    v8::HandleScope scope;
 
    _stackedWidgetTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
-   _stackedWidgetTemp->Inherit (_widgetTemp);
+   _stackedWidgetTemp->Inherit (_frameTemp);
 
    V8ObjectTemplate instance = _stackedWidgetTemp->InstanceTemplate ();
    instance->SetInternalFieldCount (1);

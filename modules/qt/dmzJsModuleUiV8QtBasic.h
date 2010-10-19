@@ -269,6 +269,14 @@ namespace dmz {
 //         static V8Value _dock_window_toggle_view_action (const v8::Arguments &Args);
          static V8Value _dock_widget_floating (const v8::Arguments &Args);
 
+         // QFrame bindings implemented in JsModuleUiV8QtBasicFrame.cpp
+         static V8Value _frame_create (const v8::Arguments &Args);
+         static V8Value _frame_shadow (const v8::Arguments &Args);
+         static V8Value _frame_shape (const v8::Arguments &Args);
+         static V8Value _frame_width (const v8::Arguments &Args);
+         static V8Value _frame_line_width (const v8::Arguments &Args);
+         static V8Value _frame_mid_line_width (const v8::Arguments &Args);
+
          // QAction bindings implemented in JsModuleUiV8QtBasicAction.cpp
          static V8Value _action_enabled (const v8::Arguments &Args);
          static V8Value _action_text (const v8::Arguments &Args);
@@ -291,6 +299,7 @@ namespace dmz {
 
          void _init_object ();
          void _init_widget ();
+         void _init_frame ();
          void _init_button ();
          void _init_list_widget ();
          void _init_list_widget_item ();
@@ -343,6 +352,7 @@ namespace dmz {
          V8InterfaceHelper _layoutApi;
          V8InterfaceHelper _fileDialogApi;
          V8InterfaceHelper _actionApi;
+         V8InterfaceHelper _frameApi;
 
          V8FunctionTemplatePersist _objectTemp;
          V8FunctionPersist _objectCtor;
@@ -421,6 +431,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _actionTemp;
          V8FunctionPersist _actionCtor;
+
+         V8FunctionTemplatePersist _frameTemp;
+         V8FunctionPersist _frameCtor;
 
          V8StringPersist _typeStr;
          V8StringPersist _textStr;

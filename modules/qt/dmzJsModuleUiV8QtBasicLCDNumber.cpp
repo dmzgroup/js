@@ -43,7 +43,7 @@ dmz::JsModuleUiV8QtBasic::_init_lcdNumber () {
    v8::HandleScope scope;
 
    _lcdNumberTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
-   _lcdNumberTemp->Inherit (_widgetTemp);
+   _lcdNumberTemp->Inherit (_frameTemp);
 
    V8ObjectTemplate instance = _lcdNumberTemp->InstanceTemplate ();
    instance->SetInternalFieldCount (1);
