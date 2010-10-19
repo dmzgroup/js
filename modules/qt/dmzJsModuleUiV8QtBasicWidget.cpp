@@ -139,6 +139,31 @@ dmz::JsModuleUiV8QtBasic::_widget_title (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_visible (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qwidget (Args.This ());
+      if (widget) {
+
+         if (Args.Length ()) {
+
+            widget->setVisible (v8_to_boolean (Args[0]));
+         }
+
+         result = v8::Boolean::New (widget->isVisible ());
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_widget_window (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -180,6 +205,7 @@ dmz::JsModuleUiV8QtBasic::_init_widget () {
    proto->Set ("layout", v8::FunctionTemplate::New (_widget_layout, _self));
    proto->Set ("show", v8::FunctionTemplate::New (_widget_show, _self));
    proto->Set ("title", v8::FunctionTemplate::New (_widget_title, _self));
+   proto->Set ("visible", v8::FunctionTemplate::New (_widget_visible, _self));
    proto->Set ("window", v8::FunctionTemplate::New (_widget_window, _self));
 }
 

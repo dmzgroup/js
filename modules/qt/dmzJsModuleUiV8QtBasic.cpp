@@ -11,11 +11,8 @@
 #include <dmzTypesStringTokenizer.h>
 #include "dmzV8QtTypes.h"
 #include <QtCore/QFile>
-//#include <QtGui/QDialog>
 #include <QtGui/QDockWidget>
-//#include <QtGui/QDoubleSpinBox>
-//#include <QtGui/QSpinBox>
-//#include <QtGui/QWidget>
+#include <QtGui/QMainWindow>
 #include <QtUiTools/QUiLoader>
 
 
@@ -560,21 +557,31 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
             _actionApi.get_new_instance ());
       }
 
-      _typeStr = V8StringPersist::New (v8::String::NewSymbol ("type"));
-      _textStr = V8StringPersist::New (v8::String::NewSymbol ("text"));
-      _infoTextStr = V8StringPersist::New (v8::String::NewSymbol ("informativeText"));
-      _standardButtonsStr = V8StringPersist::New (v8::String::NewSymbol ("standardButtons"));
-      _defaultButtonStr = V8StringPersist::New (v8::String::NewSymbol ("defaultButton"));
-      _captionStr = V8StringPersist::New (v8::String::NewSymbol ("caption"));
-      _dirStr = V8StringPersist::New (v8::String::NewSymbol ("dir"));
-      _filterStr = V8StringPersist::New (v8::String::NewSymbol ("filter"));
-      _optionsStr = V8StringPersist::New (v8::String::NewSymbol ("options"));
       _allowMultipleStr = V8StringPersist::New (v8::String::NewSymbol ("allowMultiple"));
+      _allowedAreasStr = V8StringPersist::New (v8::String::NewSymbol ("allowedAreas"));
+      _areaStr = V8StringPersist::New (v8::String::NewSymbol ("area"));
+      _captionStr = V8StringPersist::New (v8::String::NewSymbol ("caption"));
+      _defaultButtonStr = V8StringPersist::New (v8::String::NewSymbol ("defaultButton"));
+      _dirStr = V8StringPersist::New (v8::String::NewSymbol ("dir"));
+      _featuresStr = V8StringPersist::New (v8::String::NewSymbol ("features"));
+      _filterStr = V8StringPersist::New (v8::String::NewSymbol ("filter"));
+      _floatingStr = V8StringPersist::New (v8::String::NewSymbol ("floating"));
+      _infoTextStr = V8StringPersist::New (v8::String::NewSymbol ("informativeText"));
+      _optionsStr = V8StringPersist::New (v8::String::NewSymbol ("options"));
+      _standardButtonsStr = V8StringPersist::New (v8::String::NewSymbol ("standardButtons"));
       _statusTipStr = V8StringPersist::New (v8::String::NewSymbol ("statusTip"));
+      _textStr = V8StringPersist::New (v8::String::NewSymbol ("text"));
       _toolTipStr = V8StringPersist::New (v8::String::NewSymbol ("toolTip"));
+      _typeStr = V8StringPersist::New (v8::String::NewSymbol ("type"));
+      _visibleStr = V8StringPersist::New (v8::String::NewSymbol ("visible"));
    }
    else if (State == JsExtV8::Init) {
 
+      if (!_mainWindowState.isEmpty () && _state.mainWindowModule) {
+
+         QMainWindow *mainWindow = _state.mainWindowModule->get_qt_main_window ();
+         if (mainWindow) { mainWindow->restoreState (_mainWindowState); }
+      }
    }
    else if (State == JsExtV8::Stop) {
 
@@ -600,6 +607,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _objectMap.clear ();
 
       if (_state.mainWindowModule) {
+
+         _mainWindowState.clear ();
+
+         QMainWindow *mainWindow = _state.mainWindowModule->get_qt_main_window ();
+         if (mainWindow) { _mainWindowState = mainWindow->saveState (); }
 
          foreach (String dock, _dockList) {
 
@@ -636,18 +648,22 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _dockWidgetCtor.Dispose (); _dockWidgetCtor.Clear ();
       _actionCtor.Dispose (); _actionCtor.Clear ();
 
-      _typeStr.Dispose (); _typeStr.Clear ();
-      _textStr.Dispose (); _textStr.Clear ();
-      _infoTextStr.Dispose (); _infoTextStr.Clear ();
-      _standardButtonsStr.Dispose (); _standardButtonsStr.Clear ();
-      _defaultButtonStr.Dispose (); _defaultButtonStr.Clear ();
+      _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
+      _allowedAreasStr.Dispose (); _allowedAreasStr.Clear ();
+      _areaStr.Dispose (); _areaStr.Clear ();
       _captionStr.Dispose (); _captionStr.Clear ();
+      _defaultButtonStr.Dispose (); _defaultButtonStr.Clear ();
       _dirStr.Dispose (); _dirStr.Clear ();
       _filterStr.Dispose (); _filterStr.Clear ();
+      _floatingStr.Dispose (); _floatingStr.Clear ();
+      _infoTextStr.Dispose (); _infoTextStr.Clear ();
       _optionsStr.Dispose (); _optionsStr.Clear ();
-      _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
+      _standardButtonsStr.Dispose (); _standardButtonsStr.Clear ();
       _statusTipStr.Dispose (); _statusTipStr.Clear ();
+      _textStr.Dispose (); _textStr.Clear ();
       _toolTipStr.Dispose (); _toolTipStr.Clear ();
+      _typeStr.Dispose (); _typeStr.Clear ();
+      _visibleStr.Dispose (); _visibleStr.Clear ();
 
       _qtApi.clear ();
       _uiLoaderApi.clear ();
