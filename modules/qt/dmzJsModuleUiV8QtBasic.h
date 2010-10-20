@@ -270,7 +270,7 @@ namespace dmz {
          static V8Value _dock_widget_floating (const v8::Arguments &Args);
 
          // QFrame bindings implemented in JsModuleUiV8QtBasicFrame.cpp
-         static V8Value _frame_create (const v8::Arguments &Args);
+//         static V8Value _frame_create (const v8::Arguments &Args);
          static V8Value _frame_shadow (const v8::Arguments &Args);
          static V8Value _frame_shape (const v8::Arguments &Args);
          static V8Value _frame_width (const v8::Arguments &Args);

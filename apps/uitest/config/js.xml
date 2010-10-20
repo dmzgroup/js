@@ -18,6 +18,7 @@
    <path value="./scripts"/>
    <path value="../../scripts"/>
    <instance name="main"/>
+   <instance name="lcd"/>
 <!--   <instance name="test"/>
    <instance name="combobox"/>
    <instance name="spin"/>
@@ -30,7 +31,6 @@
    <instance name="label"/>
    <instance name="pbar"/>
    <instance name="dialog"/>
-   <instance name="lcd"/>
    <instance name="stacked"/>
    <instance name="tab"/>
    <instance name="layout"/> 
