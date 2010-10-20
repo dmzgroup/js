@@ -1,5 +1,6 @@
 #include "dmzJsModuleUiV8QtBasic.h"
 #include <dmzJsV8UtilConvert.h>
+#include "dmzV8QtUtil.h"
 #include <QtGui/QTextEdit>
 
 
@@ -10,26 +11,17 @@ dmz::JsModuleUiV8QtBasic::_textEdit_append (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QTextEdit *text = self->v8_to_qobject<QTextEdit>(Args.This ());
+      if (text) {
 
-      if (widget) {
+         if (Args.Length ()) {
 
-         QTextEdit *text = qobject_cast<QTextEdit *>(widget);
-
-         if (text) {
-
-            if (Args.Length ()) {
-
-               text->append (v8_to_string (Args[0]).get_buffer ());
-            }
-            else {
-
-               result = v8::String::New (qPrintable(text->toPlainText ()));
-            }
+            text->append (v8_to_string (Args[0]).get_buffer ());
          }
+
+         result = qstring_to_v8 (text->toPlainText ());
       }
    }
 
@@ -44,26 +36,17 @@ dmz::JsModuleUiV8QtBasic::_textEdit_text (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QTextEdit *text = self->v8_to_qobject<QTextEdit>(Args.This ());
+      if (text) {
 
-      if (widget) {
+         if (Args.Length ()) {
 
-         QTextEdit *text = qobject_cast<QTextEdit *>(widget);
-
-         if (text) {
-
-            if (Args.Length ()) {
-
-               text->setText (v8_to_string (Args[0]).get_buffer ());
-            }
-            else {
-
-               result = v8::String::New (qPrintable(text->toPlainText ()));
-            }
+            text->setText (v8_to_string (Args[0]).get_buffer ());
          }
+
+         result = qstring_to_v8 (text->toPlainText ());
       }
    }
 
@@ -78,19 +61,12 @@ dmz::JsModuleUiV8QtBasic::_textEdit_clear (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QTextEdit *text = self->v8_to_qobject<QTextEdit>(Args.This ());
+      if (text) {
 
-      if (widget) {
-
-         QTextEdit *text = qobject_cast<QTextEdit *>(widget);
-
-         if (text) {
-
-            text->clear ();
-         }
+         text->clear ();
       }
    }
 
@@ -105,19 +81,12 @@ dmz::JsModuleUiV8QtBasic::_textEdit_undo (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QTextEdit *text = self->v8_to_qobject<QTextEdit>(Args.This ());
+      if (text) {
 
-      if (widget) {
-
-         QTextEdit *text = qobject_cast<QTextEdit *>(widget);
-
-         if (text) {
-
-            text->undo ();
-         }
+         text->undo ();
       }
    }
 
@@ -132,19 +101,12 @@ dmz::JsModuleUiV8QtBasic::_textEdit_redo (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QTextEdit *text = self->v8_to_qobject<QTextEdit>(Args.This ());
+      if (text) {
 
-      if (widget) {
-
-         QTextEdit *text = qobject_cast<QTextEdit *>(widget);
-
-         if (text) {
-
-            text->redo ();
-         }
+         text->redo ();
       }
    }
 
@@ -159,23 +121,17 @@ dmz::JsModuleUiV8QtBasic::_textEdit_allow_undo (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QTextEdit *text = self->v8_to_qobject<QTextEdit>(Args.This ());
+      if (text) {
 
-      if (widget) {
+         if (Args.Length ()) {
 
-         QTextEdit *text = qobject_cast<QTextEdit *>(widget);
-
-         if (text) {
-
-            if (Args.Length ()) {
-
-               text->setUndoRedoEnabled (v8_to_boolean (Args[0]));
-            }
-            result = v8::Boolean::New (text->isUndoRedoEnabled ());
+            text->setUndoRedoEnabled (v8_to_boolean (Args[0]));
          }
+
+         result = v8::Boolean::New (text->isUndoRedoEnabled ());
       }
    }
 

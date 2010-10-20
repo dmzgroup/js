@@ -143,8 +143,6 @@ dmz::JsModuleUiV8QtBasic::_file_dialog_get_save_file_name (const v8::Arguments &
    return scope.Close (result);
 }
 
-//         static V8Value _file_dialog_get_save_file_name (const v8::Arguments &Args);
-
 
 void
 dmz::JsModuleUiV8QtBasic::_get_file_dialog_params (

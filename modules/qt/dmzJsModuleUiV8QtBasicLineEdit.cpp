@@ -10,25 +10,18 @@ dmz::JsModuleUiV8QtBasic::_lineEdit_text (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QLineEdit *line = self->v8_to_qobject<QLineEdit>(Args.This ());
+      if (line) {
 
-      if (widget) {
+         if (Args.Length ()) {
 
-         QLineEdit *line = qobject_cast<QLineEdit *>(widget);
+            line->setText (v8_to_string (Args[0]).get_buffer ());
+         }
+         else {
 
-         if (line) {
-
-            if (Args.Length ()) {
-
-               line->setText (v8_to_string (Args[0]).get_buffer ());
-            }
-            else {
-
-               result = v8::String::New (qPrintable(line->text ()));
-            }
+            result = v8::String::New (qPrintable(line->text ()));
          }
       }
    }
@@ -71,19 +64,12 @@ dmz::JsModuleUiV8QtBasic::_lineEdit_undo (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QLineEdit *line = self->v8_to_qobject<QLineEdit>(Args.This ());
+      if (line) {
 
-      if (widget) {
-
-         QLineEdit *line = qobject_cast<QLineEdit *>(widget);
-
-         if (line) {
-
-            line->undo ();
-         }
+         line->undo ();
       }
    }
 
@@ -101,16 +87,10 @@ dmz::JsModuleUiV8QtBasic::_lineEdit_redo (const v8::Arguments &Args) {
 
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QLineEdit *line = self->v8_to_qobject<QLineEdit>(Args.This ());
+      if (line) {
 
-      if (widget) {
-
-         QLineEdit *line = qobject_cast<QLineEdit *>(widget);
-
-         if (line) {
-
-            line->redo ();
-         }
+         line->redo ();
       }
    }
 

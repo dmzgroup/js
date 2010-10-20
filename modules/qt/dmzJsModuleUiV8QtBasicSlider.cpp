@@ -11,25 +11,18 @@ dmz::JsModuleUiV8QtBasic::_slider_maximum (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QAbstractSlider *slider = self->v8_to_qobject<QAbstractSlider>(Args.This ());
+      if (slider) {
 
-      if (widget) {
+         if (Args.Length ()) {
 
-         QAbstractSlider *slider = qobject_cast<QAbstractSlider *>(widget);
+            slider->setMaximum (v8_to_number(Args[0]));
+         }
+         else {
 
-         if (slider) {
-
-            if (Args.Length ()) {
-
-               slider->setMaximum (v8_to_number(Args[0]));
-            }
-            else {
-
-               result = v8::Number::New (slider->maximum ());
-            }
+            result = v8::Number::New (slider->maximum ());
          }
       }
    }
@@ -45,25 +38,18 @@ dmz::JsModuleUiV8QtBasic::_slider_minimum (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QAbstractSlider *slider = self->v8_to_qobject<QAbstractSlider>(Args.This ());
+      if (slider) {
 
-      if (widget) {
+         if (Args.Length ()) {
 
-         QAbstractSlider *slider = qobject_cast<QAbstractSlider *>(widget);
+            slider->setMinimum (v8_to_number(Args[0]));
+         }
+         else {
 
-         if (slider) {
-
-            if (Args.Length ()) {
-
-               slider->setMinimum (v8_to_number(Args[0]));
-            }
-            else {
-
-               result = v8::Number::New (slider->minimum ());
-            }
+            result = v8::Number::New (slider->minimum ());
          }
       }
    }
@@ -79,25 +65,18 @@ dmz::JsModuleUiV8QtBasic::_slider_value (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QAbstractSlider *slider = self->v8_to_qobject<QAbstractSlider>(Args.This ());
+      if (slider) {
 
-      if (widget) {
+         if (Args.Length ()) {
 
-         QAbstractSlider *slider = qobject_cast<QAbstractSlider *>(widget);
+            slider->setSliderPosition (v8_to_number(Args[0]));
+         }
+         else {
 
-         if (slider) {
-
-            if (Args.Length ()) {
-
-               slider->setSliderPosition (v8_to_number(Args[0]));
-            }
-            else {
-
-               result = v8::Number::New (slider->value ());
-            }
+            result = v8::Number::New (slider->value ());
          }
       }
    }
@@ -113,19 +92,12 @@ dmz::JsModuleUiV8QtBasic::_slider_is_down (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QAbstractSlider *slider = self->v8_to_qobject<QAbstractSlider>(Args.This ());
+      if (slider) {
 
-      if (widget) {
-
-         QAbstractSlider *slider = qobject_cast<QAbstractSlider *>(widget);
-
-         if (slider) {
-
-            result = v8::Boolean::New (slider->isSliderDown ());
-         }
+         result = v8::Boolean::New (slider->isSliderDown ());
       }
    }
 
@@ -140,26 +112,17 @@ dmz::JsModuleUiV8QtBasic::_dial_wrapping (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QDial *dial = self->v8_to_qobject<QDial>(Args.This ());
+      if (dial) {
 
-      if (widget) {
+         if (Args.Length ()) {
 
-         QDial *dial = qobject_cast<QDial *>(widget);
-
-         if (dial) {
-
-            if (Args.Length ()) {
-
-               dial->setWrapping (v8_to_boolean (Args[0]));
-            }
-            else {
-
-               result = v8::Boolean::New (dial->wrapping ());
-            }
+            dial->setWrapping (v8_to_boolean (Args[0]));
          }
+
+         result = v8::Boolean::New (dial->wrapping ());
       }
    }
 
@@ -174,26 +137,17 @@ dmz::JsModuleUiV8QtBasic::_dial_notches_visible (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QDial *dial = self->v8_to_qobject<QDial>(Args.This ());
+      if (dial) {
 
-      if (widget) {
+         if (Args.Length ()) {
 
-         QDial *dial = qobject_cast<QDial *>(widget);
-
-         if (dial) {
-
-            if (Args.Length ()) {
-
-               dial->setNotchesVisible (v8_to_boolean (Args[0]));
-            }
-            else {
-
-               result = v8::Boolean::New (dial->notchesVisible ());
-            }
+            dial->setNotchesVisible (v8_to_boolean (Args[0]));
          }
+
+         result = v8::Boolean::New (dial->notchesVisible ());
       }
    }
 

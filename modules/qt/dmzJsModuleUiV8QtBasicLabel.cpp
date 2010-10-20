@@ -10,25 +10,18 @@ dmz::JsModuleUiV8QtBasic::_label_text (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QLabel *label = self->v8_to_qobject<QLabel>(Args.This ());
+      if (label) {
 
-      if (widget) {
+         if (Args.Length ()) {
 
-         QLabel *label = qobject_cast<QLabel *>(widget);
+            label->setText (v8_to_string (Args[0]).get_buffer ());
+         }
+         else {
 
-         if (label) {
-
-            if (Args.Length ()) {
-
-               label->setText (v8_to_string (Args[0]).get_buffer ());
-            }
-            else {
-
-               result = v8::String::New (qPrintable(label->text ()));
-            }
+            result = v8::String::New (qPrintable(label->text ()));
          }
       }
    }
@@ -44,25 +37,18 @@ dmz::JsModuleUiV8QtBasic::_label_word_wrap (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QLabel *label = self->v8_to_qobject<QLabel>(Args.This ());
+      if (label) {
 
-      if (widget) {
+         if (Args.Length ()) {
 
-         QLabel *label = qobject_cast<QLabel *>(widget);
+            label->setWordWrap (v8_to_boolean (Args[0]));
+         }
+         else {
 
-         if (label) {
-
-            if (Args.Length ()) {
-
-               label->setWordWrap (v8_to_boolean (Args[0]));
-            }
-            else {
-
-               result = v8::Boolean::New (label->wordWrap ());
-            }
+            result = v8::Boolean::New (label->wordWrap ());
          }
       }
    }
@@ -78,19 +64,12 @@ dmz::JsModuleUiV8QtBasic::_label_clear (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QLabel *label = self->v8_to_qobject<QLabel>(Args.This ());
+      if (label) {
 
-      if (widget) {
-
-         QLabel *label = qobject_cast<QLabel *>(widget);
-
-         if (label) {
-
-            label->clear ();
-         }
+         label->clear ();
       }
    }
 
