@@ -228,6 +228,14 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
                qobj = new V8QtTabWidget (vobj, value, &_state);
             }
          }
+         else if (value->inherits ("QGroupBox")) {
+
+            if (!_groupBoxCtor.IsEmpty ()) {
+
+               vobj = _groupBoxCtor->NewInstance ();
+               qobj = new V8QtGroupBox (vobj, value, &_state);
+            }
+         }
          else if (value->inherits ("QStackedWidget")) {
 
             if (!_stackedCtor.IsEmpty ()) {
@@ -415,6 +423,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _widgetCtor = V8FunctionPersist::New (_widgetTemp->GetFunction ());
       }
 
+      if (!_groupBoxTemp.IsEmpty ()) {
+
+         _groupBoxCtor = V8FunctionPersist::New (_groupBoxTemp->GetFunction ());
+      }
+
       if (!_frameTemp.IsEmpty ()) {
 
          _frameCtor = V8FunctionPersist::New (_frameTemp->GetFunction ());
@@ -546,6 +559,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _state.core->register_interface ("dmz/ui/uiLoader", _uiLoaderApi.get_new_instance ());
 
          _state.core->register_interface ("dmz/ui/frame", _frameApi.get_new_instance ());
+         _state.core->register_interface ("dmz/ui/groupBox", _groupBoxApi.get_new_instance ());
          _state.core->register_interface (
             "dmz/ui/mainWindow",
             _mainWindowApi.get_new_instance ());
@@ -638,6 +652,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _objectCtor.Dispose (); _objectCtor.Clear ();
       _widgetCtor.Dispose (); _widgetCtor.Clear ();
       _frameCtor.Dispose (); _frameCtor.Clear ();
+      _groupBoxCtor.Dispose (); _groupBoxCtor.Clear ();
       _buttonCtor.Dispose (); _buttonCtor.Clear ();
       _listWidgetItemCtor.Dispose (); _listWidgetItemCtor.Clear ();
       _listWidgetCtor.Dispose (); _listWidgetCtor.Clear ();
@@ -688,6 +703,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _messageBoxApi.clear ();
       _layoutApi.clear ();
       _fileDialogApi.clear ();
+      _groupBoxApi.clear ();
       _actionApi.clear ();
       _state.context.Clear ();
 
@@ -851,6 +867,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
 
    _init_object ();
    _init_widget ();
+   _init_group_box ();
    _init_frame ();
    _init_button ();
    _init_list_widget_item ();

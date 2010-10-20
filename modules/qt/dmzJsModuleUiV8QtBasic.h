@@ -277,6 +277,14 @@ namespace dmz {
          static V8Value _frame_line_width (const v8::Arguments &Args);
          static V8Value _frame_mid_line_width (const v8::Arguments &Args);
 
+         // QGroupBox implemented in JsModuleUiV8QtBasicGroupBox.cpp
+         static V8Value _create_group_box (const v8::Arguments &Args);
+         static V8Value _group_box_flat (const v8::Arguments &Args);
+         static V8Value _group_box_title (const v8::Arguments &Args);
+         static V8Value _group_box_alignment (const v8::Arguments &Args);
+         static V8Value _group_box_checkable (const v8::Arguments &Args);
+
+
          // QAction bindings implemented in JsModuleUiV8QtBasicAction.cpp
          static V8Value _action_enabled (const v8::Arguments &Args);
          static V8Value _action_text (const v8::Arguments &Args);
@@ -319,6 +327,7 @@ namespace dmz {
          void _init_file_dialog ();
          void _init_main_window ();
          void _init_dock_widget ();
+         void _init_group_box ();
          void _init_action ();
 
          void _init_layout ();
@@ -355,6 +364,7 @@ namespace dmz {
          V8InterfaceHelper _fileDialogApi;
          V8InterfaceHelper _actionApi;
          V8InterfaceHelper _frameApi;
+         V8InterfaceHelper _groupBoxApi;
 
          V8FunctionTemplatePersist _objectTemp;
          V8FunctionPersist _objectCtor;
@@ -436,6 +446,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _frameTemp;
          V8FunctionPersist _frameCtor;
+
+         V8FunctionTemplatePersist _groupBoxTemp;
+         V8FunctionPersist _groupBoxCtor;
 
          V8StringPersist _allowMultipleStr;
          V8StringPersist _allowedAreasStr;
