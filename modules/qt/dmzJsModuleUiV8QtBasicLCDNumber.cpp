@@ -10,25 +10,18 @@ dmz::JsModuleUiV8QtBasic::_lcd_number_value (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QLCDNumber *lcd = self->v8_to_qobject<QLCDNumber>(Args.This ());
+      if (lcd) {
 
-      if (widget) {
+         if (Args.Length ()) {
 
-         QLCDNumber *lcd = qobject_cast<QLCDNumber *>(widget);
+            lcd->display (v8_to_number (Args[0]));
+         }
+         else {
 
-         if (lcd) {
-
-            if (Args.Length ()) {
-
-               lcd->display (v8_to_number (Args[0]));
-            }
-            else {
-
-               result = v8::Number::New (lcd->value ());
-            }
+            result = v8::Number::New (lcd->value ());
          }
       }
    }

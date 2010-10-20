@@ -10,25 +10,18 @@ dmz::JsModuleUiV8QtBasic::_progress_bar_maximum (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QProgressBar *pbar = self->v8_to_qobject<QProgressBar>(Args.This ());
+      if (pbar) {
 
-      if (widget) {
+         if (Args.Length ()) {
 
-         QProgressBar *pbar = qobject_cast<QProgressBar *>(widget);
+            pbar->setMaximum (v8_to_number (Args[0]));
+         }
+         else {
 
-         if (pbar) {
-
-            if (Args.Length ()) {
-
-               pbar->setMaximum (v8_to_number (Args[0]));
-            }
-            else {
-
-               result = v8::Number::New (pbar->maximum ());
-            }
+            result = v8::Number::New (pbar->maximum ());
          }
       }
    }
@@ -44,25 +37,18 @@ dmz::JsModuleUiV8QtBasic::_progress_bar_minimum (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QProgressBar *pbar = self->v8_to_qobject<QProgressBar>(Args.This ());
+      if (pbar) {
 
-      if (widget) {
+         if (Args.Length ()) {
 
-         QProgressBar *pbar = qobject_cast<QProgressBar *>(widget);
+            pbar->setMinimum (v8_to_number (Args[0]));
+         }
+         else {
 
-         if (pbar) {
-
-            if (Args.Length ()) {
-
-               pbar->setMinimum (v8_to_number (Args[0]));
-            }
-            else {
-
-               result = v8::Number::New (pbar->minimum ());
-            }
+            result = v8::Number::New (pbar->minimum ());
          }
       }
    }
@@ -78,25 +64,18 @@ dmz::JsModuleUiV8QtBasic::_progress_bar_value (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QProgressBar *pbar = self->v8_to_qobject<QProgressBar>(Args.This ());
+      if (pbar) {
 
-      if (widget) {
+         if (Args.Length ()) {
 
-         QProgressBar *pbar = qobject_cast<QProgressBar *>(widget);
+            pbar->setValue (v8_to_number (Args[0]));
+         }
+         else {
 
-         if (pbar) {
-
-            if (Args.Length ()) {
-
-               pbar->setValue (v8_to_number (Args[0]));
-            }
-            else {
-
-               result = v8::Number::New (pbar->value ());
-            }
+            result = v8::Number::New (pbar->value ());
          }
       }
    }
@@ -112,19 +91,12 @@ dmz::JsModuleUiV8QtBasic::_progress_bar_text (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QProgressBar *pbar = self->v8_to_qobject<QProgressBar>(Args.This ());
+      if (pbar) {
 
-      if (widget) {
-
-         QProgressBar *pbar = qobject_cast<QProgressBar *>(widget);
-
-         if (pbar) {
-
-            result = v8::String::New (qPrintable (pbar->text ()));
-         }
+         result = v8::String::New (qPrintable (pbar->text ()));
       }
    }
 
@@ -139,19 +111,12 @@ dmz::JsModuleUiV8QtBasic::_progress_bar_reset (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QProgressBar *pbar = self->v8_to_qobject<QProgressBar>(Args.This ());
+      if (pbar) {
 
-      if (widget) {
-
-         QProgressBar *pbar = qobject_cast<QProgressBar *>(widget);
-
-         if (pbar) {
-
-            pbar->reset ();
-         }
+         pbar->reset ();
       }
    }
 

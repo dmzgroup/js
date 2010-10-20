@@ -14,29 +14,20 @@ dmz::JsModuleUiV8QtBasic::_stacked_widget_add (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
-   self->_log.warn << "_stacked_widget_add" << endl;
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QStackedWidget *sw = self->v8_to_qobject<QStackedWidget>(Args.This ());
+      QWidget *qw = self->_to_qwidget (Args[0]);
 
-      if (widget) {
+      if (sw && qw) {
 
-         QStackedWidget *sw = qobject_cast<QStackedWidget *>(widget);
-         QWidget *qw = self->_to_qwidget (Args[0]);
+         if (Args.Length () > 1) {
 
-         if (sw && qw) {
+            result = v8::Number::New (sw->insertWidget (v8_to_int32 (Args[1]), qw));
+         }
+         else {
 
-            self->_log.warn << "_stacked_widget_add sw&qw" << endl;
-            if (Args.Length () > 1) {
-
-               result = v8::Number::New (sw->insertWidget (v8_to_int32 (Args[1]), qw));
-            }
-            else {
-
-               result = v8::Number::New (sw->addWidget (qw));
-            }
+            result = v8::Number::New (sw->addWidget (qw));
          }
       }
    }
@@ -52,20 +43,14 @@ dmz::JsModuleUiV8QtBasic::_stacked_widget_remove (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QStackedWidget *sw = self->v8_to_qobject<QStackedWidget>(Args.This ());
+      QWidget *qw = self->_to_qwidget (Args[0]);
 
-      if (widget) {
+      if (sw && qw) {
 
-         QStackedWidget *sw = qobject_cast<QStackedWidget *>(widget);
-         QWidget *qw = self->_to_qwidget (Args[0]);
-
-         if (sw && qw) {
-
-            sw->removeWidget (qw);
-         }
+         sw->removeWidget (qw);
       }
    }
 
@@ -80,20 +65,12 @@ dmz::JsModuleUiV8QtBasic::_stacked_widget_count (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QStackedWidget *sw = self->v8_to_qobject<QStackedWidget>(Args.This ());
+      if (sw) {
 
-      if (widget) {
-
-         QStackedWidget *sw = qobject_cast<QStackedWidget *>(widget);
-
-         if (sw) {
-
-            result = v8::Number::New (sw->count ());
-         }
-
+         result = v8::Number::New (sw->count ());
       }
    }
 
@@ -108,26 +85,17 @@ dmz::JsModuleUiV8QtBasic::_stacked_widget_current_index (const v8::Arguments &Ar
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QStackedWidget *sw = self->v8_to_qobject<QStackedWidget>(Args.This ());
+      if (sw) {
 
-      if (widget) {
+         if (Args.Length () > 0) {
 
-         QStackedWidget *sw = qobject_cast<QStackedWidget *>(widget);
-
-         if (sw) {
-
-            if (Args.Length () > 0) {
-
-               sw->setCurrentIndex (v8_to_int32 (Args[0]));
-            }
-            else {
-
-               result = v8::Number::New (sw->currentIndex ());
-            }
+            sw->setCurrentIndex (v8_to_int32 (Args[0]));
          }
+
+         result = v8::Number::New (sw->currentIndex ());
       }
    }
 
@@ -145,29 +113,21 @@ dmz::JsModuleUiV8QtBasic::_stacked_widget_current_widget (const v8::Arguments &A
 
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QStackedWidget *sw = self->v8_to_qobject<QStackedWidget>(Args.This ());
+      if (sw) {
 
-      if (widget) {
+         QWidget *qw;
 
-         QStackedWidget *sw = qobject_cast<QStackedWidget *>(widget);
+         if (Args.Length () > 0) {
 
-         if (sw) {
+            qw = self->_to_qwidget (Args[0]);
+            sw->setCurrentWidget (qw);
+         }
 
-            QWidget *qw;
+         qw = sw->currentWidget ();
+         if (qw) {
 
-            if (Args.Length () > 0) {
-
-               qw = self->_to_qwidget (Args[0]);
-               sw->setCurrentWidget (qw);
-            }
-            else {
-
-               qw = sw->currentWidget ();
-               if (qw) {
-
-                  result = self->create_v8_qwidget (qw);
-               }
-            }
+            result = self->create_v8_qwidget (qw);
          }
       }
    }
@@ -183,23 +143,15 @@ dmz::JsModuleUiV8QtBasic::_stacked_widget_at (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QStackedWidget *sw = self->v8_to_qobject<QStackedWidget>(Args.This ());
+      if (sw) {
 
-      if (widget) {
+         QWidget *qw = sw->widget(v8_to_int32 (Args[0]));
+         if (qw) {
 
-         QStackedWidget *sw = qobject_cast<QStackedWidget *>(widget);
-
-         if (sw) {
-
-            QWidget *qw = sw->widget(v8_to_int32 (Args[0]));
-
-            if (qw) {
-
-               result = self->create_v8_qwidget (qw);
-            }
+            result = self->create_v8_qwidget (qw);
          }
       }
    }
@@ -216,20 +168,14 @@ dmz::JsModuleUiV8QtBasic::_stacked_widget_index_of (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args.This ());
+      QStackedWidget *sw = self->v8_to_qobject<QStackedWidget>(Args.This ());
+      QWidget *qw = self->_to_qwidget (Args[0]);
 
-      if (widget) {
+      if (sw && qw) {
 
-         QStackedWidget *sw = qobject_cast<QStackedWidget *>(widget);
-         QWidget *qw = self->_to_qwidget (Args[0]);
-
-         if (sw && qw) {
-
-            result = v8::Number::New (sw->indexOf (qw));
-         }
+         result = v8::Number::New (sw->indexOf (qw));
       }
    }
 

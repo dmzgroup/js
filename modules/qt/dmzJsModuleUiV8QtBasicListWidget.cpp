@@ -7,23 +7,6 @@
 
 using namespace dmz;
 
-namespace {
-
-
-//void
-//local_list_widget_delete (v8::Persistent<v8::Value> object, void *param) {
-
-//   if (param) {
-
-//      V8QtListWidget *ptr = (V8QtListWidget *)param;
-//      delete ptr; ptr = 0;
-//   }
-
-//   object.Dispose (); object.Clear ();
-//}
-
-};
-
 
 dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_list_widget_item_text (const v8::Arguments &Args) {
@@ -140,16 +123,6 @@ dmz::JsModuleUiV8QtBasic::_to_qlistwidgetitem (V8Value value) {
 
    return result;
 }
-
-
-//QListWidget *
-//dmz::JsModuleUiV8QtBasic::_to_qlistwidget (V8Value value) {
-
-//   QListWidget *result (0);
-//   QWidget *widget = _to_qwidget (value);
-//   if (widget) { result = qobject_cast<QListWidget *>(widget); }
-//   return result;
-//}
 
 
 void

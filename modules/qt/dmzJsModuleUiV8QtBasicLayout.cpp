@@ -6,111 +6,6 @@
 #include <QtGui/QWidget>
 
 
-//QLayout *
-//dmz::JsModuleUiV8QtBasic::_to_qlayout (V8Value value) {
-
-//   QLayout *result (0);
-//   QObject *object = _to_qobject (value);
-//   if (object) { result = qobject_cast<QLayout *>(object); }
-//   return result;
-//}
-
-
-//QBoxLayout *
-//dmz::JsModuleUiV8QtBasic::_to_qboxlayout (V8Value value) {
-
-//   QBoxLayout *result (0);
-//   QObject *object = _to_qobject (value);
-//   if (object) { result = qobject_cast<QBoxLayout *>(object); }
-//   return result;
-//}
-
-
-//QGridLayout *
-//dmz::JsModuleUiV8QtBasic::_to_qgridlayout (V8Value value) {
-
-//   QGridLayout *result (0);
-//   QObject *object = _to_qobject (value);
-//   if (object) { result = qobject_cast<QGridLayout *>(object); }
-//   return result;
-//}
-
-
-//QFormLayout *
-//dmz::JsModuleUiV8QtBasic::_to_qformlayout (V8Value value) {
-
-//   QFormLayout *result (0);
-//   QObject *object = _to_qobject (value);
-//   if (object) { result = qobject_cast<QFormLayout *>(object); }
-//   return result;
-//}
-
-//dmz::V8Value
-//dmz::JsModuleUiV8QtBasic::create_v8_layout (QLayout *value) {
-
-//   v8::Context::Scope cscope (_state.context);
-//   v8::HandleScope scope;
-
-//   V8Value result = v8::Undefined ();
-
-//   if (value) {
-
-//      V8Object obj;
-
-//      if (value->inherits ("QHBoxLayout")) {
-
-//         if (!_hBoxLayoutCtor.IsEmpty ()) {
-
-//            obj = _hBoxLayoutCtor->NewInstance ();
-//         }
-//      }
-//      else if (value->inherits ("QVBoxLayout")) {
-
-//         if (!_vBoxLayoutCtor.IsEmpty ()) {
-
-//            obj = _vBoxLayoutCtor->NewInstance ();
-//         }
-//      }
-//      else if (value->inherits ("QBoxLayout")) {
-
-//         if (!_boxLayoutCtor.IsEmpty ()) {
-
-//            obj = _boxLayoutCtor->NewInstance ();
-//         }
-//      }
-//      else if (value->inherits ("QGridLayout")) {
-
-//         if (!_gridLayoutCtor.IsEmpty ()) {
-
-//            obj = _gridLayoutCtor->NewInstance ();
-//         }
-//      }
-//      else if (value->inherits ("QFormLayout")) {
-
-//         if (!_formLayoutCtor.IsEmpty ()) {
-
-//            obj = _formLayoutCtor->NewInstance ();
-//         }
-//      }
-//      else if (value->inherits ("QLayout")) {
-
-//         if (!_layoutCtor.IsEmpty ()) {
-
-//            obj = _layoutCtor->NewInstance ();
-//         }
-//      }
-
-//      if (!obj.IsEmpty ()) {
-
-//         obj->SetInternalField (0, v8::External::Wrap ((void *)value));
-//         result = obj;
-//      }
-//   }
-
-//   return scope.Close (result);
-//}
-
-
 dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_layout_index_of (const v8::Arguments &Args) {
 
@@ -208,57 +103,6 @@ dmz::JsModuleUiV8QtBasic::_layout_count (const v8::Arguments &Args) {
 }
 
 
-//dmz::V8Value
-//dmz::JsModuleUiV8QtBasic::_layout_parent (const v8::Arguments &Args) {
-
-//   v8::HandleScope scope;
-//   V8Value result = v8::Undefined ();
-
-//   JsModuleUiV8QtBasic *self = _to_self (Args);
-//   if (self) {
-
-//      QLayout *layout = self->_to_qt_layout (Args.This ());
-//      if (layout) {
-
-//         QObject *obj = layout->parent ();
-//         QWidget *parent_widget = qobject_cast<QWidget *>(obj);
-//         QLayout *parent_layout = qobject_cast<QLayout *>(obj);
-
-//         if (parent_widget) { result = self->create_v8_qwidget (parent_widget); }
-//         else if (parent_layout) { result = self->create_v8_layout (parent_layout); }
-//      }
-//   }
-
-//   return scope.Close (result);
-//}
-
-
-//dmz::V8Value
-//dmz::JsModuleUiV8QtBasic::_layout_parent_widget (const v8::Arguments &Args) {
-
-//   v8::HandleScope scope;
-//   V8Value result = v8::Undefined ();
-
-//   JsModuleUiV8QtBasic *self = _to_self (Args);
-
-//   if (self) {
-
-//      QLayout *layout = self->_to_qt_layout (Args.This ());
-
-//      if (layout) {
-
-//         QWidget *widget = layout->parentWidget ();
-//         if (widget) {
-
-//            result = self->create_v8_qwidget (widget);
-//         }
-//      }
-//   }
-
-//   return scope.Close (result);
-//}
-
-
 void
 dmz::JsModuleUiV8QtBasic::_init_layout () {
 
@@ -275,8 +119,6 @@ dmz::JsModuleUiV8QtBasic::_init_layout () {
    proto->Set ("enabled", v8::FunctionTemplate::New (_layout_enabled, _self));
    proto->Set ("at", v8::FunctionTemplate::New (_layout_at, _self));
    proto->Set ("count", v8::FunctionTemplate::New (_layout_count, _self));
-//   proto->Set ("parent", v8::FunctionTemplate::New (_layout_parent, _self));
-//   proto->Set ("parentWidget", v8::FunctionTemplate::New (_layout_parent_widget, _self));
 }
 
 
@@ -845,11 +687,13 @@ dmz::JsModuleUiV8QtBasic::_form_layout_row_count (const v8::Arguments &Args) {
    if (self) {
 
       QWidget *widget = self->_to_qwidget (Args[0]);
+      if (widget) {
 
-      QFormLayout *layout = new QFormLayout (widget);
-      if (layout) {
+         QFormLayout *layout = new QFormLayout (widget);
+         if (layout) {
 
-         result = v8::Number::New (layout->rowCount ());
+            result = v8::Number::New (layout->rowCount ());
+         }
       }
    }
 
