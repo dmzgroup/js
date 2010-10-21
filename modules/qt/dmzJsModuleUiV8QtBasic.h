@@ -284,6 +284,10 @@ namespace dmz {
          static V8Value _group_box_alignment (const v8::Arguments &Args);
          static V8Value _group_box_checkable (const v8::Arguments &Args);
 
+         // QDateTimeEdit implemented in JsModulkeUiV8QtBasicDateTimeEdit.cpp
+         static V8Value _dt_maximum (const v8::Arguments &Args);
+         static V8Value _dt_minimum (const v8::Arguments &Args);
+         static V8Value _dt_datetime (const v8::Arguments &Args);
 
          // QAction bindings implemented in JsModuleUiV8QtBasicAction.cpp
          static V8Value _action_enabled (const v8::Arguments &Args);
@@ -328,6 +332,7 @@ namespace dmz {
          void _init_main_window ();
          void _init_dock_widget ();
          void _init_group_box ();
+         void _init_dt ();
          void _init_action ();
 
          void _init_layout ();
@@ -450,6 +455,9 @@ namespace dmz {
          V8FunctionTemplatePersist _groupBoxTemp;
          V8FunctionPersist _groupBoxCtor;
 
+         V8FunctionTemplatePersist _dteTemp;
+         V8FunctionPersist _dteCtor;
+
          V8StringPersist _allowMultipleStr;
          V8StringPersist _allowedAreasStr;
          V8StringPersist _areaStr;
@@ -467,6 +475,8 @@ namespace dmz {
          V8StringPersist _toolTipStr;
          V8StringPersist _typeStr;
          V8StringPersist _visibleStr;
+
+//         V8StringPersist
 
       private:
          JsModuleUiV8QtBasic ();

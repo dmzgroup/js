@@ -228,6 +228,14 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
                qobj = new V8QtTabWidget (vobj, value, &_state);
             }
          }
+         else if (value->inherits ("QDateTimeEdit")) {
+
+            if (!_dteCtor.IsEmpty()) {
+
+               vobj = _dteCtor->NewInstance ();
+               qobj = new V8QtDateTimeEdit (vobj, value, &_state);
+            }
+         }
          else if (value->inherits ("QGroupBox")) {
 
             if (!_groupBoxCtor.IsEmpty ()) {
@@ -548,6 +556,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _dockWidgetCtor = V8FunctionPersist::New (_dockWidgetTemp->GetFunction ());
       }
 
+      if (!_dteTemp.IsEmpty ()) {
+
+         _dteCtor = V8FunctionPersist::New (_dteTemp->GetFunction ());
+      }
+
       if (!_actionTemp.IsEmpty ()) {
 
          _actionCtor = V8FunctionPersist::New (_actionTemp->GetFunction ());
@@ -676,6 +689,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _layoutCtor.Dispose (); _layoutCtor.Clear ();
       _mainWindowCtor.Dispose (); _mainWindowCtor.Clear ();
       _dockWidgetCtor.Dispose (); _dockWidgetCtor.Clear ();
+      _dteCtor.Dispose (); _dteCtor.Clear ();
       _actionCtor.Dispose (); _actionCtor.Clear ();
 
       _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
@@ -894,6 +908,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_file_dialog ();
    _init_main_window ();
    _init_dock_widget ();
+   _init_dt ();
    _init_action ();
 }
 

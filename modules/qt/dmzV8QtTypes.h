@@ -4,6 +4,7 @@
 #include <dmzV8QtAction.h>
 #include <dmzV8QtButton.h>
 #include <dmzV8QtComboBox.h>
+#include <dmzV8QtDateTimeEdit.h>
 #include <dmzV8QtDialog.h>
 #include <dmzV8QtDockWidget.h>
 #include <dmzV8QtGroupBox.h>
