@@ -2,6 +2,7 @@ var puts = require('sys').puts
   , Qt = require('dmz/ui/consts')
   , QUiLoader = require('dmz/ui/uiLoader')
   , QMessageBox = require('dmz/ui/messageBox')
+  , QInputDialog = require('dmz/ui/inputDialog')
   , QDockWidget = require('dmz/ui/dockWidget')
   , file = require("dmz/ui/fileDialog")
   , QAction = require('dmz/ui/action')
@@ -18,7 +19,8 @@ puts('Script: ' + self.name);
 function add_script (script) {
    var form = QUiLoader.load('./scripts/' + script + '.ui');
    form.name(script);
-   listWidget.addItem(script);
+   var data = { name: script };
+   listWidget.addItem(script, data);
    stackedWidget.add(form);
 }
 
@@ -31,16 +33,22 @@ listWidget.observe(self, 'currentRowChanged', function (row) {
    if (label) { label.text(index);}
 });
 
+// listWidget.observe(self, 'currentItemChanged', function (item) {
+//    var data = item.data();
+//    puts(data.name);
+// });
+
 mainForm.observe(self, 'doneButton', 'clicked', function (button) {
+   
    var mb = QMessageBox.create(
-      button.parent(),
       {
          type: QMessageBox.Information,
          text: "Are you done?",
          informativeText: "Hit Ok to quit!",
          standardButtons: [QMessageBox.Ok, QMessageBox.Cancel],
          defaultButton: QMessageBox.Ok
-      }
+      },
+      button.parent()
    );
 
    mb.open(self, function (val) {
@@ -134,8 +142,6 @@ if(toolsWidget) {
    // toolsWidget.observe(self, 'button3', 'clicked', function (btn) {
    // });
    
-   // var toolsDock = QDockWidget.create (dockName, toolsWidget);
-
    var toolsDock = mainWindow.createDock (dockName, Qt.BottomDockWidgetArea, toolsWidget);
    if (toolsDock) {
       
@@ -151,6 +157,28 @@ if(toolsWidget) {
             });
 
          puts("saveFileName:", str, "mainWidget:" , mainWindow.mainWidget());
+      });
+      
+      toolsWidget.observe(self, 'button2', 'clicked', function () {
+         
+         var input = QInputDialog.create (
+            { title: "This is the title"
+            , label: "MY LABEL"
+            , value: 11.5
+            , decimal: 2
+            , min: 9
+            , max: 20
+            },
+            mainWindow.mainWidget());
+         
+         input.open (self, function (val) {
+            puts (val);
+         });
+      });
+      
+      toolsWidget.observe(self, 'button3', 'clicked', function () {
+
+         listWidget.clear ();
       });
    }
 }

@@ -5,6 +5,7 @@
 #include <QtGui/QAbstractButton>
 #include <QtGui/QListWidgetItem>
 
+
 using namespace dmz;
 
 
@@ -34,13 +35,48 @@ dmz::JsModuleUiV8QtBasic::_list_widget_item_text (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_list_widget_item_data (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QListWidgetItem *item = self->_to_qlistwidgetitem (Args.This ());
+      if (item) {
+
+         if (Args.Length ()) {
+
+            V8ValueRef *ref = new V8ValueRef (Args[0], self->_valueDeleteList);
+            V8Variant value (ref);
+            ref->unref (); ref = 0;
+            QVariant variant;
+            variant.setValue (value);
+
+            item->setData (Qt::UserRole, variant);
+         }
+
+         V8Variant variant = item->data (Qt::UserRole).value<V8Variant>();
+         if (variant.valueRef) {
+
+            result = variant.valueRef->value;
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_list_widget_add_item (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
       QListWidget *lw = self->v8_to_qobject<QListWidget> (Args.This ());
@@ -49,7 +85,18 @@ dmz::JsModuleUiV8QtBasic::_list_widget_add_item (const v8::Arguments &Args) {
          if (Args.Length ()) {
 
             QString param = v8_to_qstring (Args[0]);
-            lw->addItem (param);
+            QListWidgetItem *item = new QListWidgetItem (param, lw);
+
+            if (Args.Length () >= 2) {
+
+               V8ValueRef *ref = new V8ValueRef (Args[1], self->_valueDeleteList);
+               V8Variant value (ref);
+               ref->unref (); ref = 0;
+               QVariant variant;
+               variant.setValue (value);
+
+               item->setData (Qt::UserRole, variant);
+            }
          }
       }
    }
@@ -80,6 +127,27 @@ dmz::JsModuleUiV8QtBasic::_list_widget_current_item (const v8::Arguments &Args) 
 
    return scope.Close (result);
 }
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_list_widget_clear (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QListWidget *lw = self->v8_to_qobject<QListWidget> (Args.This ());
+      if (lw) {
+
+         lw->clear ();
+      }
+   }
+
+   return scope.Close (result);
+}
+
 
 
 dmz::V8Value
@@ -137,6 +205,7 @@ dmz::JsModuleUiV8QtBasic::_init_list_widget_item () {
 
    V8ObjectTemplate proto = _listWidgetItemTemp->PrototypeTemplate ();
    proto->Set ("text", v8::FunctionTemplate::New (_list_widget_item_text, _self));
+   proto->Set ("data", v8::FunctionTemplate::New (_list_widget_item_data, _self));
 }
 
 
@@ -154,6 +223,7 @@ dmz::JsModuleUiV8QtBasic::_init_list_widget () {
    V8ObjectTemplate proto = _listWidgetTemp->PrototypeTemplate ();
    proto->Set ("addItem", v8::FunctionTemplate::New (_list_widget_add_item, _self));
    proto->Set ("currentItem", v8::FunctionTemplate::New (_list_widget_current_item, _self));
+   proto->Set ("clear", v8::FunctionTemplate::New (_list_widget_clear, _self));
    // proto->Set ("item", v8::FunctionTemplate::New (_list_widget_item, _self));
    // proto->Set ("takeItem", v8::FunctionTemplate::New (_list_widget_take_item, _self));
 }

@@ -6,6 +6,7 @@
 #include <dmzJsV8UtilHelpers.h>
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
+#include <dmzRuntimeTimeSlice.h>
 #include <dmzTypesHashTableHandleTemplate.h>
 #include <dmzTypesStringContainer.h>
 #include <QtCore/QList>
@@ -14,6 +15,7 @@
 #include <QtGui/QWidget>
 #include <v8.h>
 
+class QInputDialog;
 class QMessageBox;
 
 
@@ -25,6 +27,7 @@ namespace dmz {
    class V8QtObject;
    class V8QtDialog;
    class V8QtWidget;
+   class V8ValueRef;
 
 
    struct JsModuleUiV8QtBasicState {
@@ -44,6 +47,7 @@ namespace dmz {
 
    class JsModuleUiV8QtBasic :
          public Plugin,
+         public TimeSlice,
          public JsModuleUiV8Qt,
          public JsExtV8 {
 
@@ -59,6 +63,9 @@ namespace dmz {
          virtual void discover_plugin (
             const PluginDiscoverEnum Mode,
             const Plugin *PluginPtr);
+
+         // TimeSlice Interface
+         virtual void update_time_slice (const Float64 DeltaTime);
 
          // JsModuleUiV8Qt Interface
          virtual v8::Handle<v8::Value> create_v8_qobject (QObject *value);
@@ -186,10 +193,12 @@ namespace dmz {
 
          // QListWidgetItem bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _list_widget_item_text (const v8::Arguments &Args);
+         static V8Value _list_widget_item_data (const v8::Arguments &Args);
 
          // QListWidget bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _list_widget_add_item (const v8::Arguments &Args);
          static V8Value _list_widget_current_item (const v8::Arguments &Args);
+         static V8Value _list_widget_clear (const v8::Arguments &Args);
          // static V8Value _list_widget_item (const v8::Arguments &Args);
 
          // QStackedWidget bindings implemented in JsModuleUiV8QtBasicStackedWidget.cpp
@@ -274,6 +283,10 @@ namespace dmz {
          static V8Value _action_text (const v8::Arguments &Args);
          static V8Value _action_trigger (const v8::Arguments &Args);
 
+         // QInputDialog bindings implemented in JsModuleUiV8QtBasicInputDialog.cpp
+         static V8Value _create_input_dialog (const v8::Arguments &Args);
+         QInputDialog *_create_input_dialog (V8Object params, QWidget *parent);
+
          QWidget *_to_qwidget (V8Value value) { return v8_to_qobject<QWidget>(value); }
          QObject *_to_qobject (V8Value value);
          QListWidgetItem *_to_qlistwidgetitem (V8Value value);
@@ -311,6 +324,7 @@ namespace dmz {
          void _init_main_window ();
          void _init_dock_widget ();
          void _init_action ();
+         void _init_input_dialog ();
 
          void _init_layout ();
          void _init_box_layout ();
@@ -336,6 +350,7 @@ namespace dmz {
          QList<QWidget *> _dialogList;
          QList<String> _dockList;
          QByteArray _mainWindowState;
+         QList<V8ValueRef *>_valueDeleteList;
 
          V8InterfaceHelper _qtApi;
          V8InterfaceHelper _uiLoaderApi;
@@ -345,6 +360,7 @@ namespace dmz {
          V8InterfaceHelper _layoutApi;
          V8InterfaceHelper _fileDialogApi;
          V8InterfaceHelper _actionApi;
+         V8InterfaceHelper _inputDialogApi;
 
          V8FunctionTemplatePersist _objectTemp;
          V8FunctionPersist _objectCtor;
@@ -430,6 +446,7 @@ namespace dmz {
          V8StringPersist _captionStr;
          V8StringPersist _defaultButtonStr;
          V8StringPersist _dirStr;
+         V8StringPersist _editableStr;
          V8StringPersist _featuresStr;
          V8StringPersist _filterStr;
          V8StringPersist _floatingStr;
@@ -441,6 +458,16 @@ namespace dmz {
          V8StringPersist _toolTipStr;
          V8StringPersist _typeStr;
          V8StringPersist _visibleStr;
+         V8StringPersist _currentStr;
+         V8StringPersist _decimalStr;
+         V8StringPersist _itemsStr;
+         V8StringPersist _labelStr;
+         V8StringPersist _maxStr;
+         V8StringPersist _minStr;
+         V8StringPersist _modeStr;
+         V8StringPersist _stepStr;
+         V8StringPersist _titleStr;
+         V8StringPersist _valueStr;
 
       private:
          JsModuleUiV8QtBasic ();

@@ -10,6 +10,7 @@
 #include <dmzSystemFile.h>
 #include <dmzTypesStringTokenizer.h>
 #include "dmzV8QtTypes.h"
+#include "dmzV8QtUtil.h"
 #include <QtCore/QFile>
 #include <QtGui/QDockWidget>
 #include <QtGui/QMainWindow>
@@ -57,6 +58,7 @@ dmz::JsModuleUiV8QtBasic::_uiloader_load (const v8::Arguments &Args) {
 
 dmz::JsModuleUiV8QtBasic::JsModuleUiV8QtBasic (const PluginInfo &Info, Config &local) :
       Plugin (Info),
+      TimeSlice (Info),
       JsModuleUiV8Qt (Info),
       JsExtV8 (Info),
       _log (Info) {
@@ -111,6 +113,24 @@ dmz::JsModuleUiV8QtBasic::discover_plugin (
           (_state.mainWindowModule == QtModuleMainWindow::cast (PluginPtr))) {
 
          _state.mainWindowModule = 0;
+      }
+   }
+}
+
+
+// TimeSlice Interface
+void
+dmz::JsModuleUiV8QtBasic::update_time_slice (const Float64 DeltaTime) {
+
+   if (!_valueDeleteList.isEmpty ()) {
+
+      v8::Context::Scope cscope (_state.context);
+      v8::HandleScope scope;
+
+      while (!_valueDeleteList.isEmpty ()) {
+
+         V8ValueRef *value = _valueDeleteList.takeFirst ();
+         delete value; value = 0;
       }
    }
 }
@@ -555,6 +575,10 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _state.core->register_interface (
             "dmz/ui/action",
             _actionApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/inputDialog",
+            _inputDialogApi.get_new_instance ());
       }
 
       _allowMultipleStr = V8StringPersist::New (v8::String::NewSymbol ("allowMultiple"));
@@ -574,6 +598,16 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _toolTipStr = V8StringPersist::New (v8::String::NewSymbol ("toolTip"));
       _typeStr = V8StringPersist::New (v8::String::NewSymbol ("type"));
       _visibleStr = V8StringPersist::New (v8::String::NewSymbol ("visible"));
+      _currentStr = V8StringPersist::New (v8::String::NewSymbol ("current"));
+      _decimalStr = V8StringPersist::New (v8::String::NewSymbol ("decimal"));
+      _itemsStr = V8StringPersist::New (v8::String::NewSymbol ("items"));
+      _labelStr = V8StringPersist::New (v8::String::NewSymbol ("label"));
+      _maxStr = V8StringPersist::New (v8::String::NewSymbol ("max"));
+      _minStr = V8StringPersist::New (v8::String::NewSymbol ("min"));
+      _modeStr = V8StringPersist::New (v8::String::NewSymbol ("mode"));
+      _stepStr = V8StringPersist::New (v8::String::NewSymbol ("step"));
+      _titleStr = V8StringPersist::New (v8::String::NewSymbol ("title"));
+      _valueStr = V8StringPersist::New (v8::String::NewSymbol ("value"));
    }
    else if (State == JsExtV8::Init) {
 
@@ -621,6 +655,12 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
       _dockList.clear ();
 
+      while (!_valueDeleteList.isEmpty ()) {
+
+         V8ValueRef *value = _valueDeleteList.takeFirst ();
+         delete value; value = 0;
+      }
+
       _objectCtor.Dispose (); _objectCtor.Clear ();
       _widgetCtor.Dispose (); _widgetCtor.Clear ();
       _buttonCtor.Dispose (); _buttonCtor.Clear ();
@@ -664,6 +704,16 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _toolTipStr.Dispose (); _toolTipStr.Clear ();
       _typeStr.Dispose (); _typeStr.Clear ();
       _visibleStr.Dispose (); _visibleStr.Clear ();
+      _currentStr.Dispose (); _currentStr.Clear ();
+      _decimalStr.Dispose (); _decimalStr.Clear ();
+      _itemsStr.Dispose (); _itemsStr.Clear ();
+      _labelStr.Dispose (); _labelStr.Clear ();
+      _maxStr.Dispose (); _maxStr.Clear ();
+      _minStr.Dispose (); _minStr.Clear ();
+      _modeStr.Dispose (); _modeStr.Clear ();
+      _stepStr.Dispose (); _stepStr.Clear ();
+      _titleStr.Dispose (); _titleStr.Clear ();
+      _valueStr.Dispose (); _valueStr.Clear ();
 
       _qtApi.clear ();
       _uiLoaderApi.clear ();
@@ -673,6 +723,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _layoutApi.clear ();
       _fileDialogApi.clear ();
       _actionApi.clear ();
+      _inputDialogApi.clear ();
       _state.context.Clear ();
 
       _obsTable.empty ();
@@ -861,6 +912,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_main_window ();
    _init_dock_widget ();
    _init_action ();
+   _init_input_dialog ();
 }
 
 

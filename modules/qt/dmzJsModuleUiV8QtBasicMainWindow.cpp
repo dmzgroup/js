@@ -377,7 +377,6 @@ dmz::JsModuleUiV8QtBasic::_init_main_window () {
    _mainWindowApi.add_function ("centralWidget", _main_window_central_widget, _self);
    _mainWindowApi.add_function ("close", _main_window_close, _self);
    _mainWindowApi.add_function ("createDock", _main_window_create_dock_widget, _self);
-//   _mainWindowApi.add_function ("addDock", _main_window_add_dock_widget, _self);
    _mainWindowApi.add_function ("removeDock", _main_window_remove_dock_widget, _self);
 
    _mainWindowApi.add_function ("addMenu", _main_window_add_menu, _self);
