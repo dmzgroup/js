@@ -183,7 +183,7 @@ if(toolsWidget) {
    }
 }
 
-mainWindow.addMenu (self, "&File", "Hello", "Ctrl+n", function () {
+mainWindow.addMenu (self, "&File", "Hello", { shortcut: "new" }, function () {
    puts("Friends");
 });
 

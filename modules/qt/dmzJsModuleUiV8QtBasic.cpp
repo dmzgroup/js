@@ -214,7 +214,6 @@ dmz::JsModuleUiV8QtBasic::create_v8_qobject (QObject *value) {
             }
          }
 
-
          if (qobj) { _objectMap.insert (value, qobj); }
       }
 
@@ -622,23 +621,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
    }
    else if (State == JsExtV8::Shutdown) {
 
-      foreach (QWidget *dialog, _dialogList) {
-
-         dialog->close ();
-      }
-
+      foreach (QWidget *dialog, _dialogList) { dialog->close (); }
       _dialogList.clear ();
-
-      QMapIterator<QObject *, V8QtObject *> it (_objectMap);
-      while (it.hasNext ()) {
-
-         it.next ();
-
-         V8QtObject *obj = it.value ();
-         delete obj; obj = 0;
-      }
-
-      _objectMap.clear ();
 
       if (_state.mainWindowModule) {
 
@@ -654,6 +638,20 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       }
 
       _dockList.clear ();
+
+      if (_objectMap.count ()) {
+
+         QMapIterator<QObject *, V8QtObject *> it (_objectMap);
+         while (it.hasNext ()) {
+
+            it.next ();
+
+            V8QtObject *obj = it.value ();
+            delete obj; obj = 0;
+         }
+
+         _objectMap.clear ();
+      }
 
       while (!_valueDeleteList.isEmpty ()) {
 
@@ -714,6 +712,19 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _stepStr.Dispose (); _stepStr.Clear ();
       _titleStr.Dispose (); _titleStr.Clear ();
       _valueStr.Dispose (); _valueStr.Clear ();
+
+      if (_symbolMap.count ()) {
+
+         QMapIterator<QString, V8StringPersist> it (_symbolMap);
+         while (it.hasNext ()) {
+
+            it.next ();
+            V8StringPersist symbol = it.value ();
+            symbol.Dispose (); symbol.Clear ();
+         }
+
+         _symbolMap.clear ();
+      }
 
       _qtApi.clear ();
       _uiLoaderApi.clear ();
@@ -781,6 +792,20 @@ dmz::JsModuleUiV8QtBasic::_to_v8_qt_object (V8Value value) {
 
 
 // JsModuleUiV8QtBasic Interface
+
+dmz::V8String
+dmz::JsModuleUiV8QtBasic::_symbol (const QString &Symbol) {
+
+   v8::HandleScope scope;
+
+   if (!_symbolMap.contains (Symbol)) {
+
+      _symbolMap.insert (Symbol, V8StringPersist::New (v8::String::New (qPrintable (Symbol))));
+   }
+
+   return _symbolMap.value (Symbol);
+}
+
 
 dmz::String
 dmz::JsModuleUiV8QtBasic::_find_ui_file (const String &Name) {

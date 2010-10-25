@@ -108,13 +108,13 @@ namespace dmz {
          static V8Value _uiloader_load (const v8::Arguments &Args);
 
          // QObject bindings implemented in JsModuleUiV8QtBasicObject.cpp
-         static V8Value _object_class_name (const v8::Arguments &Args);
          static V8Value _object_lookup (const v8::Arguments &Args);
          static V8Value _object_name (const v8::Arguments &Args);
          static V8Value _object_observe (const v8::Arguments &Args);
          static V8Value _object_parent (const v8::Arguments &Args);
          static V8Value _object_property (const v8::Arguments &Args);
          static V8Value _object_callback (const v8::Arguments &Args);
+         static V8Value _object_to_string (const v8::Arguments &Args);
 
          // QWidget bindings implemented in JsModuleUiV8QtBasicWidget.cpp
          static V8Value _widget_close (const v8::Arguments &Args);
@@ -264,13 +264,13 @@ namespace dmz {
          static V8Value _file_dialog_get_save_file_name (const v8::Arguments &Args);
 
          // QMainWindow bindings implemented in JsModuleUiV8QtBasicMainWindow.cpp
-         static V8Value _main_window_main_widget (const v8::Arguments &Args);
          static V8Value _main_window_central_widget (const v8::Arguments &Args);
          static V8Value _main_window_close (const v8::Arguments &Args);
          static V8Value _main_window_create_dock_widget (const v8::Arguments &Args);
          static V8Value _main_window_remove_dock_widget (const v8::Arguments &Args);
          static V8Value _main_window_add_menu (const v8::Arguments &Args);
          static V8Value _main_window_add_separator (const v8::Arguments &Args);
+         static V8Value _main_window_window (const v8::Arguments &Args);
 
          // QDockWidget bindings implemented in JsModuleUiV8QtBasicDockWidget.cpp
          static V8Value _create_dock_widget (const v8::Arguments &Args);
@@ -280,6 +280,7 @@ namespace dmz {
 
          // QAction bindings implemented in JsModuleUiV8QtBasicAction.cpp
          static V8Value _action_enabled (const v8::Arguments &Args);
+         static V8Value _action_shortcut (const v8::Arguments &Args);
          static V8Value _action_text (const v8::Arguments &Args);
          static V8Value _action_trigger (const v8::Arguments &Args);
 
@@ -294,6 +295,8 @@ namespace dmz {
          V8QtDialog *_to_v8_qt_dialog (V8Value value);
          V8QtWidget *_to_v8_qt_widget (V8Value value);
          V8QtObject *_to_v8_qt_object (V8Value value);
+
+         V8String _symbol (const QString &Symbol);
 
          void _get_file_dialog_params (
             V8Object params,
@@ -468,6 +471,8 @@ namespace dmz {
          V8StringPersist _stepStr;
          V8StringPersist _titleStr;
          V8StringPersist _valueStr;
+
+         QMap<QString, V8StringPersist> _symbolMap;
 
       private:
          JsModuleUiV8QtBasic ();

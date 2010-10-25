@@ -17,32 +17,6 @@ namespace {
 
 
 dmz::V8Value
-dmz::JsModuleUiV8QtBasic::_main_window_main_widget (const v8::Arguments &Args) {
-
-   v8::HandleScope scope;
-   V8Value result = v8::Undefined ();
-
-   JsModuleUiV8QtBasic *self = _to_self (Args);
-   if (self) {
-
-      QtModuleMainWindow *module (self->_state.mainWindowModule);
-      QMainWindow *mainWindow = module ? module->get_qt_main_window () : 0;
-      if (mainWindow) {
-
-         result = self->create_v8_qwidget (mainWindow);
-
-         V8QtObject *vobj = self->_to_v8_qt_object (result);
-
-         if (vobj) { vobj->set_delete_object (False); }
-         else { self->_log.error << "No V8QtObject found!" << endl; }
-      }
-   }
-
-   return scope.Close (result);
-}
-
-
-dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_main_window_central_widget (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -261,53 +235,63 @@ dmz::JsModuleUiV8QtBasic::_main_window_add_menu (const v8::Arguments &Args) {
       QtModuleMainWindow *module (self->_state.mainWindowModule);
       if (module) {
 
-         const UInt32 Argc (Args.Length());
-         const UInt32 ImageIndex (Argc > 5 ? 3 : 0);
-         const UInt32 FuncIndex (Argc - 1);
-         const UInt32 ShortcutIndex (Argc > 4 ? (Argc - 2) : 0);
-
-         const String Menu = v8_to_string (Args[1]);
-
          V8Object src = v8_to_object (Args[0]);
-         V8Function func = v8_to_function (Args[FuncIndex]);
+         const QString Menu = v8_to_qstring (Args[1]);
+         const QString Text = v8_to_qstring (Args[2]);
+         QKeySequence shortcut;
+
+         V8Object params;
+         if (Args.Length () > 4) {
+
+            params = v8_to_object (Args[3]);
+
+            if (v8_is_object (Args[3])) { params = v8_to_object (Args[3]); }
+            else { shortcut = v8_to_qkeysequence (Args[3]); }
+         }
+
+         V8Function func = v8_to_function (Args[Args.Length () - 1]);
 
          if (!src.IsEmpty () && !func.IsEmpty ()) {
 
             QAction *action = 0;
-            const QString Text = v8_to_qstring (Args[2]);
-            const QString Key = Menu.get_buffer () + Text;
+            const QString Key = Menu + Text;
 
-            if (Key.length () && self->_menuActionMap.contains (Key)) {
+            if (self->_menuActionMap.contains (Key)) {
 
                action = self->_menuActionMap[Key];
             }
 
-            if (!action) {
+            if (!action) { action = new QAction (Text, module->get_qt_main_window ()); }
 
-               action = new QAction (module->get_qt_main_window ());
-            }
+            if (!params.IsEmpty ()) {
 
-            if (!Text.isEmpty ()) { action->setText (Text); }
+               V8String iconStr = self->_symbol ("icon");
 
-            const QString Shortcut = v8_to_qstring (Args[ShortcutIndex]);
-            if (!Shortcut.isEmpty ()) { action->setShortcut (Shortcut); }
+               if (params->Has (iconStr)) {
 
-            if (ImageIndex) {
+                  const QString File = v8_to_qstring (params->Get (iconStr));
+                  QFileInfo fi (File);
 
-               const QString File = v8_to_qstring (Args[ImageIndex]);
-               QFileInfo fi (File);
+                  if (fi.exists ()) {
 
-               if (fi.exists ()) {
+                     QIcon icon (fi.filePath ());
+                     action->setIcon (icon);
+                  }
+               }
 
-                  QIcon icon (fi.filePath ());
-                  action->setIcon (icon);
+               V8String shortcutStr = self->_symbol ("shortcut");
+
+               if (params->Has (shortcutStr)) {
+
+                  shortcut = v8_to_qkeysequence (params->Get (shortcutStr));
                }
             }
 
-            V8QtObject *jsObject = 0;
+            if (!shortcut.isEmpty ()) { action->setShortcut (shortcut); }
 
             result = self->create_v8_qobject (action);
-            jsObject = self->_to_v8_qt_object (result);
+
+            V8QtObject *jsObject = self->_to_v8_qt_object (result);
 
             const Handle Obs =
                   self->_state.core ? self->_state.core->get_instance_handle (src) : 0;
@@ -327,10 +311,9 @@ dmz::JsModuleUiV8QtBasic::_main_window_add_menu (const v8::Arguments &Args) {
 
                   if (!self->_menuActionMap.contains (Key)) {
 
-                     module->add_menu_action (Menu, action);
+                     module->add_menu_action (qPrintable (Menu), action);
                      self->_menuActionMap[Key] = action;
                   }
-
                }
             }
          }
@@ -362,6 +345,31 @@ dmz::JsModuleUiV8QtBasic::_main_window_add_separator (const v8::Arguments &Args)
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_main_window_window (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QtModuleMainWindow *module (self->_state.mainWindowModule);
+      QMainWindow *mainWindow = module ? module->get_qt_main_window () : 0;
+      if (mainWindow) {
+
+         result = self->create_v8_qwidget (mainWindow->window ());
+
+         V8QtObject *vobj = self->_to_v8_qt_object (result);
+         if (vobj) { vobj->set_delete_object (False); }
+         else { self->_log.error << "No V8QtObject found for QMainWindow!" << endl; }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_main_window () {
 
@@ -373,7 +381,6 @@ dmz::JsModuleUiV8QtBasic::_init_main_window () {
    _mainWindowApi.add_constant ("ForceTabbedDocks", (UInt32)QMainWindow::ForceTabbedDocks);
    _mainWindowApi.add_constant ("VerticalTabs", (UInt32)QMainWindow::VerticalTabs);
 
-   _mainWindowApi.add_function ("mainWidget", _main_window_main_widget, _self);
    _mainWindowApi.add_function ("centralWidget", _main_window_central_widget, _self);
    _mainWindowApi.add_function ("close", _main_window_close, _self);
    _mainWindowApi.add_function ("createDock", _main_window_create_dock_widget, _self);
@@ -384,4 +391,6 @@ dmz::JsModuleUiV8QtBasic::_init_main_window () {
 //    _mainWindowApi.add_function ("lookupMenu", _main_window_lookup_menu, _self);
 //    _mainWindowApi.add_function ("addMenuAction", _main_window_add_menu_action, _self);
 //    _mainWindowApi.add_function ("removeMenuAction", _main_window_remove_menu_action, _self);
+
+    _mainWindowApi.add_function ("window", _main_window_window, _self);
 }
