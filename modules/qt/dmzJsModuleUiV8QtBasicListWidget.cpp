@@ -106,6 +106,38 @@ dmz::JsModuleUiV8QtBasic::_list_widget_add_item (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_list_widget_take_item (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+
+   if (self) {
+
+      QListWidget *lw = self->v8_to_qobject<QListWidget> (Args.This ());
+
+      if (lw) {
+
+         if (Args.Length () > 0) {
+
+            QListWidgetItem *item = self->_to_qlistwidgetitem (Args[0]);
+
+            if (item) {
+
+               item = lw->takeItem(lw->row(item));
+
+               if (item) { result = Args[0]; }
+            }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_list_widget_current_item (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -225,6 +257,6 @@ dmz::JsModuleUiV8QtBasic::_init_list_widget () {
    proto->Set ("currentItem", v8::FunctionTemplate::New (_list_widget_current_item, _self));
    proto->Set ("clear", v8::FunctionTemplate::New (_list_widget_clear, _self));
    // proto->Set ("item", v8::FunctionTemplate::New (_list_widget_item, _self));
-   // proto->Set ("takeItem", v8::FunctionTemplate::New (_list_widget_take_item, _self));
+   proto->Set ("takeItem", v8::FunctionTemplate::New (_list_widget_take_item, _self));
 }
 
