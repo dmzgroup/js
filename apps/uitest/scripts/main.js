@@ -17,9 +17,10 @@ puts('Script: ' + self.name);
 
 
 function add_script (script) {
-   var form = QUiLoader.load('./scripts/' + script + '.ui');
+   var uiFile = './scripts/' + script + '.ui';
+   var form = QUiLoader.load(uiFile);
    form.name(script);
-   var data = { name: script };
+   var data = { name: script, file: uiFile };
    listWidget.addItem(script, data);
    stackedWidget.add(form);
 }
@@ -33,10 +34,11 @@ listWidget.observe(self, 'currentRowChanged', function (row) {
    if (label) { label.text(index);}
 });
 
-// listWidget.observe(self, 'currentItemChanged', function (item) {
-//    var data = item.data();
-//    puts(data.name);
-// });
+listWidget.observe(self, 'currentItemChanged', function (item) {
+   var data = item.data();
+   puts('name:', data.name);
+   puts('file:', data.file);
+});
 
 mainForm.observe(self, 'doneButton', 'clicked', function (button) {
    
