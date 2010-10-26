@@ -609,6 +609,20 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _valueStr = V8StringPersist::New (v8::String::NewSymbol ("value"));
       _shortcutStr = V8StringPersist::New (v8::String::NewSymbol ("shortcut"));
       _iconStr = V8StringPersist::New (v8::String::NewSymbol ("icon"));
+
+      // create v8 wrapper for the main window and set delete object to false -ss
+      if (_state.mainWindowModule) {
+
+         QMainWindow *mainWindow = _state.mainWindowModule->get_qt_main_window ();
+         if (mainWindow) {
+
+            V8Value value = create_v8_qwidget (mainWindow);
+
+            V8QtObject *vobj = _to_v8_qt_object (value);
+            if (vobj) { vobj->set_delete_object (False); }
+            else { _log.error << "No V8QtObject found for QMainWindow!" << endl; }
+         }
+      }
    }
    else if (State == JsExtV8::Init) {
 
