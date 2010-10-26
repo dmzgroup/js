@@ -7,27 +7,6 @@
 
 
 dmz::V8Value
-dmz::JsModuleUiV8QtBasic::_object_class_name (const v8::Arguments &Args) {
-
-   v8::HandleScope scope;
-   V8Value result = v8::Undefined ();
-
-   JsModuleUiV8QtBasic *self = _to_self (Args);
-   if (self) {
-
-      QObject *object = self->_to_qobject (Args.This ());
-      if (object) {
-
-         result = qstring_to_v8 (object->metaObject ()->className ());
-      }
-   }
-
-   return scope.Close (result);
-}
-
-
-
-dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_object_lookup (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -203,6 +182,40 @@ dmz::JsModuleUiV8QtBasic::_object_property (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_object_to_string (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      V8QtObject *object = self->_to_v8_qt_object (Args.This ());
+      if (object) {
+
+         QObject *qobject = object->get_qobject ();
+         if (qobject) {
+
+            QString out ("[");
+
+            QString name = qobject->objectName ();
+            if (!name.isEmpty ()) { out += name + ", "; }
+
+            out += qobject->metaObject ()->className ();
+            out += ", ";
+            out += object->metaObject ()->className ();
+            out += "]";
+
+            result = qstring_to_v8 (out);
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_object_callback (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -245,12 +258,12 @@ dmz::JsModuleUiV8QtBasic::_init_object () {
    instance->SetInternalFieldCount (1);
 
    V8ObjectTemplate proto = _objectTemp->PrototypeTemplate ();
-   proto->Set ("className", v8::FunctionTemplate::New (_object_class_name, _self));
    proto->Set ("lookup", v8::FunctionTemplate::New (_object_lookup, _self));
    proto->Set ("name", v8::FunctionTemplate::New (_object_name, _self));
    proto->Set ("observe", v8::FunctionTemplate::New (_object_observe, _self));
    proto->Set ("parent", v8::FunctionTemplate::New (_object_parent, _self));
    proto->Set ("property", v8::FunctionTemplate::New (_object_property, _self));
    proto->Set ("callback", v8::FunctionTemplate::New (_object_callback, _self));
+   proto->Set ("toString", v8::FunctionTemplate::New (_object_to_string, _self));
 }
 
