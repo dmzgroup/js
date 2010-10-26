@@ -152,13 +152,13 @@ if(toolsWidget) {
       toolsWidget.observe(self, "button1", "clicked", function () {
 
          var str = file.getSaveFileName(
-            mainWindow.mainWidget(),
             { caption: "Save File Dialog"
             , dir: "/Users"
             , filter: "Scripts (*.js)"
-            });
+            }
+            , mainWindow.window());
 
-         puts("saveFileName:", str, "mainWidget:" , mainWindow.mainWidget());
+         puts("saveFileName:", str);
       });
       
       toolsWidget.observe(self, 'button2', 'clicked', function () {
@@ -170,8 +170,8 @@ if(toolsWidget) {
             , decimal: 2
             , min: 9
             , max: 20
-            },
-            mainWindow.mainWidget());
+            }
+            , mainWindow.window());
          
          input.open (self, function (val) {
             puts (val);

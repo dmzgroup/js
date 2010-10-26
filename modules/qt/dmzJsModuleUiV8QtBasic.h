@@ -296,7 +296,8 @@ namespace dmz {
          V8QtWidget *_to_v8_qt_widget (V8Value value);
          V8QtObject *_to_v8_qt_object (V8Value value);
 
-         V8String _symbol (const QString &Symbol);
+         QVariant _qvariant_wrap_v8 (V8Value value);
+         V8Value _qvariant_unwrap_v8 (const QVariant &Value);
 
          void _get_file_dialog_params (
             V8Object params,
@@ -471,8 +472,8 @@ namespace dmz {
          V8StringPersist _stepStr;
          V8StringPersist _titleStr;
          V8StringPersist _valueStr;
-
-         QMap<QString, V8StringPersist> _symbolMap;
+         V8StringPersist _shortcutStr;
+         V8StringPersist _iconStr;
 
       private:
          JsModuleUiV8QtBasic ();

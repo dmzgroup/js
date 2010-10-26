@@ -265,11 +265,9 @@ dmz::JsModuleUiV8QtBasic::_main_window_add_menu (const v8::Arguments &Args) {
 
             if (!params.IsEmpty ()) {
 
-               V8String iconStr = self->_symbol ("icon");
+               if (params->Has (self->_iconStr)) {
 
-               if (params->Has (iconStr)) {
-
-                  const QString File = v8_to_qstring (params->Get (iconStr));
+                  const QString File = v8_to_qstring (params->Get (self->_iconStr));
                   QFileInfo fi (File);
 
                   if (fi.exists ()) {
@@ -279,11 +277,9 @@ dmz::JsModuleUiV8QtBasic::_main_window_add_menu (const v8::Arguments &Args) {
                   }
                }
 
-               V8String shortcutStr = self->_symbol ("shortcut");
+               if (params->Has (self->_shortcutStr)) {
 
-               if (params->Has (shortcutStr)) {
-
-                  shortcut = v8_to_qkeysequence (params->Get (shortcutStr));
+                  shortcut = v8_to_qkeysequence (params->Get (self->_shortcutStr));
                }
             }
 
