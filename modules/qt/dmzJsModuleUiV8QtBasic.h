@@ -197,6 +197,7 @@ namespace dmz {
 
          // QListWidget bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _list_widget_add_item (const v8::Arguments &Args);
+         static V8Value _list_widget_take_item (const v8::Arguments &Args);
          static V8Value _list_widget_current_item (const v8::Arguments &Args);
          static V8Value _list_widget_clear (const v8::Arguments &Args);
          // static V8Value _list_widget_item (const v8::Arguments &Args);
