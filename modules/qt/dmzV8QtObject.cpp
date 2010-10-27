@@ -28,8 +28,11 @@ dmz::V8QtObject::~V8QtObject () {
 
    if (_object) {
 
-      if (!_object->parent () && _deleteObject) { delete _object; }
-      _object = 0;
+      if (!_object->parent ()) {
+
+         if (_deleteObject) { delete _object; }
+         _object = 0;
+      }
    }
 
    _cbTable.empty ();

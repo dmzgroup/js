@@ -15,16 +15,11 @@ dmz::JsModuleUiV8QtBasic::_create_message_box (const v8::Arguments &Args) {
    if (self) {
 
       QWidget *parent = 0;
-      V8Object params;
+      V8Object params = v8_to_object (Args[0]);
 
       if (Args.Length () >= 2) {
 
-         parent = self->_to_qwidget (Args[0]);
-         params = v8_to_object (Args[1]);
-      }
-      else {
-
-         params = v8_to_object (Args[0]);
+         parent = self->_to_qwidget (Args[1]);
       }
 
       if (!params.IsEmpty ()) {

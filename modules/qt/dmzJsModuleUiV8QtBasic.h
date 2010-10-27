@@ -6,6 +6,7 @@
 #include <dmzJsV8UtilHelpers.h>
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
+#include <dmzRuntimeTimeSlice.h>
 #include <dmzTypesHashTableHandleTemplate.h>
 #include <dmzTypesStringContainer.h>
 #include <QtCore/QList>
@@ -14,6 +15,7 @@
 #include <QtGui/QWidget>
 #include <v8.h>
 
+class QInputDialog;
 class QMessageBox;
 
 
@@ -25,6 +27,7 @@ namespace dmz {
    class V8QtObject;
    class V8QtDialog;
    class V8QtWidget;
+   class V8ValueRef;
 
 
    struct JsModuleUiV8QtBasicState {
@@ -44,6 +47,7 @@ namespace dmz {
 
    class JsModuleUiV8QtBasic :
          public Plugin,
+         public TimeSlice,
          public JsModuleUiV8Qt,
          public JsExtV8 {
 
@@ -59,6 +63,9 @@ namespace dmz {
          virtual void discover_plugin (
             const PluginDiscoverEnum Mode,
             const Plugin *PluginPtr);
+
+         // TimeSlice Interface
+         virtual void update_time_slice (const Float64 DeltaTime);
 
          // JsModuleUiV8Qt Interface
          virtual v8::Handle<v8::Value> create_v8_qobject (QObject *value);
@@ -101,13 +108,13 @@ namespace dmz {
          static V8Value _uiloader_load (const v8::Arguments &Args);
 
          // QObject bindings implemented in JsModuleUiV8QtBasicObject.cpp
-         static V8Value _object_class_name (const v8::Arguments &Args);
          static V8Value _object_lookup (const v8::Arguments &Args);
          static V8Value _object_name (const v8::Arguments &Args);
          static V8Value _object_observe (const v8::Arguments &Args);
          static V8Value _object_parent (const v8::Arguments &Args);
          static V8Value _object_property (const v8::Arguments &Args);
          static V8Value _object_callback (const v8::Arguments &Args);
+         static V8Value _object_to_string (const v8::Arguments &Args);
 
          // QWidget bindings implemented in JsModuleUiV8QtBasicWidget.cpp
          static V8Value _widget_close (const v8::Arguments &Args);
@@ -186,10 +193,13 @@ namespace dmz {
 
          // QListWidgetItem bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _list_widget_item_text (const v8::Arguments &Args);
+         static V8Value _list_widget_item_data (const v8::Arguments &Args);
 
          // QListWidget bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _list_widget_add_item (const v8::Arguments &Args);
+         static V8Value _list_widget_take_item (const v8::Arguments &Args);
          static V8Value _list_widget_current_item (const v8::Arguments &Args);
+         static V8Value _list_widget_clear (const v8::Arguments &Args);
          // static V8Value _list_widget_item (const v8::Arguments &Args);
 
          // QStackedWidget bindings implemented in JsModuleUiV8QtBasicStackedWidget.cpp
@@ -255,13 +265,13 @@ namespace dmz {
          static V8Value _file_dialog_get_save_file_name (const v8::Arguments &Args);
 
          // QMainWindow bindings implemented in JsModuleUiV8QtBasicMainWindow.cpp
-         static V8Value _main_window_main_widget (const v8::Arguments &Args);
          static V8Value _main_window_central_widget (const v8::Arguments &Args);
          static V8Value _main_window_close (const v8::Arguments &Args);
          static V8Value _main_window_create_dock_widget (const v8::Arguments &Args);
          static V8Value _main_window_remove_dock_widget (const v8::Arguments &Args);
          static V8Value _main_window_add_menu (const v8::Arguments &Args);
          static V8Value _main_window_add_separator (const v8::Arguments &Args);
+         static V8Value _main_window_window (const v8::Arguments &Args);
 
          // QDockWidget bindings implemented in JsModuleUiV8QtBasicDockWidget.cpp
          static V8Value _create_dock_widget (const v8::Arguments &Args);
@@ -291,8 +301,13 @@ namespace dmz {
 
          // QAction bindings implemented in JsModuleUiV8QtBasicAction.cpp
          static V8Value _action_enabled (const v8::Arguments &Args);
+         static V8Value _action_shortcut (const v8::Arguments &Args);
          static V8Value _action_text (const v8::Arguments &Args);
          static V8Value _action_trigger (const v8::Arguments &Args);
+
+         // QInputDialog bindings implemented in JsModuleUiV8QtBasicInputDialog.cpp
+         static V8Value _create_input_dialog (const v8::Arguments &Args);
+         QInputDialog *_create_input_dialog (V8Object params, QWidget *parent);
 
          QWidget *_to_qwidget (V8Value value) { return v8_to_qobject<QWidget>(value); }
          QObject *_to_qobject (V8Value value);
@@ -301,6 +316,9 @@ namespace dmz {
          V8QtDialog *_to_v8_qt_dialog (V8Value value);
          V8QtWidget *_to_v8_qt_widget (V8Value value);
          V8QtObject *_to_v8_qt_object (V8Value value);
+
+         QVariant _qvariant_wrap_v8 (V8Value value);
+         V8Value _qvariant_unwrap_v8 (const QVariant &Value);
 
          void _get_file_dialog_params (
             V8Object params,
@@ -334,6 +352,7 @@ namespace dmz {
          void _init_group_box ();
          void _init_dt ();
          void _init_action ();
+         void _init_input_dialog ();
 
          void _init_layout ();
          void _init_box_layout ();
@@ -359,6 +378,7 @@ namespace dmz {
          QList<QWidget *> _dialogList;
          QList<String> _dockList;
          QByteArray _mainWindowState;
+         QList<V8ValueRef *>_valueDeleteList;
 
          V8InterfaceHelper _qtApi;
          V8InterfaceHelper _uiLoaderApi;
@@ -370,6 +390,7 @@ namespace dmz {
          V8InterfaceHelper _actionApi;
          V8InterfaceHelper _frameApi;
          V8InterfaceHelper _groupBoxApi;
+         V8InterfaceHelper _inputDialogApi;
 
          V8FunctionTemplatePersist _objectTemp;
          V8FunctionPersist _objectCtor;
@@ -464,6 +485,7 @@ namespace dmz {
          V8StringPersist _captionStr;
          V8StringPersist _defaultButtonStr;
          V8StringPersist _dirStr;
+         V8StringPersist _editableStr;
          V8StringPersist _featuresStr;
          V8StringPersist _filterStr;
          V8StringPersist _floatingStr;
@@ -475,8 +497,18 @@ namespace dmz {
          V8StringPersist _toolTipStr;
          V8StringPersist _typeStr;
          V8StringPersist _visibleStr;
-
-//         V8StringPersist
+         V8StringPersist _currentStr;
+         V8StringPersist _decimalStr;
+         V8StringPersist _itemsStr;
+         V8StringPersist _labelStr;
+         V8StringPersist _maxStr;
+         V8StringPersist _minStr;
+         V8StringPersist _modeStr;
+         V8StringPersist _stepStr;
+         V8StringPersist _titleStr;
+         V8StringPersist _valueStr;
+         V8StringPersist _shortcutStr;
+         V8StringPersist _iconStr;
 
       private:
          JsModuleUiV8QtBasic ();

@@ -2,6 +2,7 @@ var puts = require('sys').puts
   , Qt = require('dmz/ui/consts')
   , QUiLoader = require('dmz/ui/uiLoader')
   , QMessageBox = require('dmz/ui/messageBox')
+  , QInputDialog = require('dmz/ui/inputDialog')
   , QDockWidget = require('dmz/ui/dockWidget')
   , file = require("dmz/ui/fileDialog")
   , QAction = require('dmz/ui/action')
@@ -16,9 +17,11 @@ puts('Script: ' + self.name);
 
 
 function add_script (script) {
-   var form = QUiLoader.load('./scripts/' + script + '.ui');
+   var uiFile = './scripts/' + script + '.ui';
+   var form = QUiLoader.load(uiFile);
    form.name(script);
-   listWidget.addItem(script);
+   var data = { name: script, file: uiFile };
+   listWidget.addItem(script, data);
    stackedWidget.add(form);
 }
 
@@ -31,16 +34,23 @@ listWidget.observe(self, 'currentRowChanged', function (row) {
    if (label) { label.text(index);}
 });
 
+listWidget.observe(self, 'currentItemChanged', function (item) {
+   var data = item.data();
+   puts('name:', data.name);
+   puts('file:', data.file);
+});
+
 mainForm.observe(self, 'doneButton', 'clicked', function (button) {
+   
    var mb = QMessageBox.create(
-      button.parent(),
       {
          type: QMessageBox.Information,
          text: "Are you done?",
          informativeText: "Hit Ok to quit!",
          standardButtons: [QMessageBox.Ok, QMessageBox.Cancel],
          defaultButton: QMessageBox.Ok
-      }
+      },
+      button.parent()
    );
 
    mb.open(self, function (val) {
@@ -134,8 +144,6 @@ if(toolsWidget) {
    // toolsWidget.observe(self, 'button3', 'clicked', function (btn) {
    // });
    
-   // var toolsDock = QDockWidget.create (dockName, toolsWidget);
-
    var toolsDock = mainWindow.createDock (dockName, Qt.BottomDockWidgetArea, toolsWidget);
    if (toolsDock) {
       
@@ -144,18 +152,40 @@ if(toolsWidget) {
       toolsWidget.observe(self, "button1", "clicked", function () {
 
          var str = file.getSaveFileName(
-            mainWindow.mainWidget(),
             { caption: "Save File Dialog"
             , dir: "/Users"
             , filter: "Scripts (*.js)"
-            });
+            }
+            , mainWindow.window());
 
-         puts("saveFileName:", str, "mainWidget:" , mainWindow.mainWidget());
+         puts("saveFileName:", str);
+      });
+      
+      toolsWidget.observe(self, 'button2', 'clicked', function () {
+         
+         var input = QInputDialog.create (
+            { title: "This is the title"
+            , label: "MY LABEL"
+            , value: 11.5
+            , decimal: 2
+            , min: 9
+            , max: 20
+            }
+            , mainWindow.window());
+         
+         input.open (self, function (val) {
+            puts (val);
+         });
+      });
+      
+      toolsWidget.observe(self, 'button3', 'clicked', function () {
+
+         listWidget.clear ();
       });
    }
 }
 
-mainWindow.addMenu (self, "&File", "Hello", "Ctrl+n", function () {
+mainWindow.addMenu (self, "&File", "Hello", { shortcut: "new" }, function () {
    puts("Friends");
 });
 

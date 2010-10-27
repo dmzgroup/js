@@ -36,6 +36,7 @@ lmk.add_files {
    "dmzJsModuleUiV8QtBasicFileDialog.cpp",
    "dmzJsModuleUiV8QtBasicFrame.cpp",
    "dmzJsModuleUiV8QtBasicGroupBox.cpp",
+   "dmzJsModuleUiV8QtBasicInputDialog.cpp",
    "dmzJsModuleUiV8QtBasicLabel.cpp",
    "dmzJsModuleUiV8QtBasicLCDNumber.cpp",
    "dmzJsModuleUiV8QtBasicLineEdit.cpp",
