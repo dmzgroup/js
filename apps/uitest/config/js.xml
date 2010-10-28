@@ -17,9 +17,10 @@
 <javascript>
    <path value="./scripts"/>
    <path value="../../scripts"/>
-   <instance name="dte"/>
+   <instance name="tree"/>
 <!--   <instance name="groupbox"/>
    <instance name="main"/>
+   <instance name="dte"/>
    <instance name="test"/>
    <instance name="lcd"/>
    <instance name="combobox"/>

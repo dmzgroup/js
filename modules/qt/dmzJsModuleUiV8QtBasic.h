@@ -71,6 +71,7 @@ namespace dmz {
          virtual v8::Handle<v8::Value> create_v8_qobject (QObject *value);
          virtual v8::Handle<v8::Value> create_v8_qwidget (QWidget *value);
          virtual v8::Handle<v8::Value> create_v8_qlistwidgetitem (QListWidgetItem *value);
+         virtual v8::Handle<v8::Value> create_v8_qtreewidgetitem (QTreeWidgetItem *value);
 
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
@@ -305,6 +306,42 @@ namespace dmz {
          static V8Value _action_text (const v8::Arguments &Args);
          static V8Value _action_trigger (const v8::Arguments &Args);
 
+         // QTreeWidget bindings implemented in JsModuleUiV8QtBasicTreeWidget.cpp
+         static V8Value _tree_clear (const v8::Arguments &Args);
+         static V8Value _tree_header_labels (const v8::Arguments &Args);
+         static V8Value _tree_col_width (const v8::Arguments &Args);
+         static V8Value _tree_col_hidden (const v8::Arguments &Args);
+         static V8Value _tree_word_wrap (const v8::Arguments &Args);
+         static V8Value _tree_add (const v8::Arguments &Args);
+         static V8Value _tree_col_count (const v8::Arguments &Args);
+         static V8Value _tree_curr_col (const v8::Arguments &Args);
+         static V8Value _tree_curr_item (const v8::Arguments &Args);
+         static V8Value _tree_find_items (const v8::Arguments &Args);
+         static V8Value _tree_item_above (const v8::Arguments &Args);
+         static V8Value _tree_item_below (const v8::Arguments &Args);
+         static V8Value _tree_item_widget (const v8::Arguments &Args);
+         static V8Value _tree_rem_item_widget (const v8::Arguments &Args);
+         static V8Value _tree_selected_items (const v8::Arguments &Args);
+         static V8Value _tree_sort_col (const v8::Arguments &Args);
+         static V8Value _tree_take_item_at (const v8::Arguments &Args);
+         static V8Value _tree_item_at (const v8::Arguments &Args);
+         static V8Value _tree_item_count (const v8::Arguments &Args);
+
+
+         // QTreeWidgetItem bindings implemented in JsModuleUiV8QWtBasicTreeWidget.cpp
+         static V8Value _tree_item_add (const v8::Arguments &Args);
+         static V8Value _tree_item_child (const v8::Arguments &Args);
+         static V8Value _tree_item_child_count (const v8::Arguments &Args);
+         static V8Value _tree_item_col_count (const v8::Arguments &Args);
+         static V8Value _tree_item_data (const v8::Arguments &Args);
+         static V8Value _tree_item_parent (const v8::Arguments &Args);
+         static V8Value _tree_item_hidden (const v8::Arguments &Args);
+         static V8Value _tree_item_text (const v8::Arguments &Args);
+         static V8Value _tree_item_sort_children (const v8::Arguments &Args);
+         static V8Value _tree_item_take_child (const v8::Arguments &Args);
+         static V8Value _tree_item_take_children (const v8::Arguments &Args);
+         static V8Value _tree_item_tree_widget (const v8::Arguments &Args);
+
          // QInputDialog bindings implemented in JsModuleUiV8QtBasicInputDialog.cpp
          static V8Value _create_input_dialog (const v8::Arguments &Args);
          QInputDialog *_create_input_dialog (V8Object params, QWidget *parent);
@@ -312,6 +349,7 @@ namespace dmz {
          QWidget *_to_qwidget (V8Value value) { return v8_to_qobject<QWidget>(value); }
          QObject *_to_qobject (V8Value value);
          QListWidgetItem *_to_qlistwidgetitem (V8Value value);
+         QTreeWidgetItem *_to_qtreewidgetitem (V8Value value);
 
          V8QtDialog *_to_v8_qt_dialog (V8Value value);
          V8QtWidget *_to_v8_qt_widget (V8Value value);
@@ -333,6 +371,8 @@ namespace dmz {
          void _init_button ();
          void _init_list_widget ();
          void _init_list_widget_item ();
+         void _init_tree_widget ();
+         void _init_tree_widget_item ();
          void _init_spinbox ();
          void _init_combobox ();
          void _init_slider ();
@@ -478,6 +518,12 @@ namespace dmz {
 
          V8FunctionTemplatePersist _dteTemp;
          V8FunctionPersist _dteCtor;
+
+         V8FunctionTemplatePersist _treeWidgetTemp;
+         V8FunctionPersist _treeWidgetCtor;
+
+         V8FunctionTemplatePersist _treeWidgetItemTemp;
+         V8FunctionPersist _treeWidgetItemCtor;
 
          V8StringPersist _allowMultipleStr;
          V8StringPersist _allowedAreasStr;

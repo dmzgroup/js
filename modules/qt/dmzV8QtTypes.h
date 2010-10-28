@@ -17,6 +17,7 @@
 #include <dmzV8QtStackedWidget.h>
 #include <dmzV8QtTabWidget.h>
 #include <dmzV8QtTextEdit.h>
+#include <dmzV8QtTreeWidget.h>
 #include <dmzV8QtWidget.h>
 
 #endif // DMZ_V8_QT_TYPES_DOT_H

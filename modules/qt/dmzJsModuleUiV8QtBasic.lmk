@@ -22,6 +22,7 @@ lmk.add_files ({
    "dmzV8QtStackedWidget.h",
    "dmzV8QtTabWidget.h",
    "dmzV8QtTextEdit.h",
+   "dmzV8QtTreeWidget.h",
    "dmzV8QtWidget.h",
 },{src="moc"})
 
@@ -49,6 +50,7 @@ lmk.add_files {
    "dmzJsModuleUiV8QtBasicSpinBox.cpp",
    "dmzJsModuleUiV8QtBasicStackedWidget.cpp",
    "dmzJsModuleUiV8QtBasicTabWidget.cpp",
+   "dmzJsModuleUiV8QtBasicTreeWidget.cpp",
    "dmzJsModuleUiV8QtBasicLayout.cpp",
    "dmzJsModuleUiV8QtBasicTextEdit.cpp",
    "dmzJsModuleUiV8QtBasicWidget.cpp",
@@ -68,6 +70,7 @@ lmk.add_files {
    "dmzV8QtStackedWidget.cpp",
    "dmzV8QtTabWidget.cpp",
    "dmzV8QtTextEdit.cpp",
+   "dmzV8QtTreeWidget.cpp",
    "dmzV8QtUtil.cpp",
    "dmzV8QtWidget.cpp",
 }

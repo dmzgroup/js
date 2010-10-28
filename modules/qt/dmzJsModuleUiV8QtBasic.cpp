@@ -239,7 +239,15 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
 
       if (!qobj) {
 
-         if (value->inherits ("QTabWidget")) {
+         if (value->inherits ("QTreeWidget")) {
+
+            if (!_treeWidgetCtor.IsEmpty ()) {
+
+               vobj = _treeWidgetCtor->NewInstance ();
+               qobj = new V8QtTreeWidget (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QTabWidget")) {
 
             if (!_tabCtor.IsEmpty ()) {
 
@@ -443,6 +451,16 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       if (!_objectTemp.IsEmpty ()) {
 
          _objectCtor = V8FunctionPersist::New (_objectTemp->GetFunction ());
+      }
+
+      if (!_treeWidgetTemp.IsEmpty ()) {
+
+         _treeWidgetCtor = V8FunctionPersist::New (_treeWidgetTemp->GetFunction ());
+      }
+
+      if (!_treeWidgetItemTemp.IsEmpty ()) {
+
+         _treeWidgetItemCtor = V8FunctionPersist::New (_treeWidgetItemTemp->GetFunction ());
       }
 
       if (!_widgetTemp.IsEmpty ()) {
@@ -731,6 +749,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _dockWidgetCtor.Dispose (); _dockWidgetCtor.Clear ();
       _dteCtor.Dispose (); _dteCtor.Clear ();
       _actionCtor.Dispose (); _actionCtor.Clear ();
+      _treeWidgetCtor.Dispose (); _treeWidgetCtor.Clear ();
+      _treeWidgetItemCtor.Dispose (); _treeWidgetItemCtor.Clear ();
 
       _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
       _allowedAreasStr.Dispose (); _allowedAreasStr.Clear ();
@@ -958,6 +978,18 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _qtApi.add_constant ("AllToolBarAreas", (UInt32)Qt::AllToolBarAreas);
    _qtApi.add_constant ("NoToolBarArea", (UInt32)Qt::NoToolBarArea);
 
+   // enum Qt::MatchFlag
+   _qtApi.add_constant ("MatchExactly", (UInt32)Qt::MatchExactly);
+   _qtApi.add_constant ("MatchFixedString", (UInt32)Qt::MatchFixedString);
+   _qtApi.add_constant ("MatchContains", (UInt32)Qt::MatchContains);
+   _qtApi.add_constant ("MatchStartsWith", (UInt32)Qt::MatchStartsWith);
+   _qtApi.add_constant ("MatchEndsWith", (UInt32)Qt::MatchEndsWith);
+   _qtApi.add_constant ("MatchCaseSensitive", (UInt32)Qt::MatchCaseSensitive);
+   _qtApi.add_constant ("MatchRegExp", (UInt32)Qt::MatchRegExp);
+   _qtApi.add_constant ("MatchWildcard", (UInt32)Qt::MatchWildcard);
+   _qtApi.add_constant ("MatchWrap", (UInt32)Qt::MatchWrap);
+   _qtApi.add_constant ("MatchRecursive", (UInt32)Qt::MatchRecursive);
+
    // UiLoader API
    _uiLoaderApi.add_function ("load", _uiloader_load, _self);
 
@@ -966,6 +998,8 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_group_box ();
    _init_frame ();
    _init_button ();
+   _init_tree_widget_item ();
+   _init_tree_widget ();
    _init_list_widget_item ();
    _init_list_widget ();
    _init_spinbox ();

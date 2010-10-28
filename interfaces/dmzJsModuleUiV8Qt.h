@@ -9,6 +9,7 @@
 #include <v8.h>
 
 class QListWidgetItem;
+class QTreeWidgetItem;
 class QObject;
 class QWidget;
 
@@ -29,6 +30,7 @@ namespace dmz {
          virtual v8::Handle<v8::Value> create_v8_qobject (QObject *value) = 0;
          virtual v8::Handle<v8::Value> create_v8_qwidget (QWidget *value) = 0;
          virtual v8::Handle<v8::Value> create_v8_qlistwidgetitem (QListWidgetItem *value) = 0;
+         virtual v8::Handle<v8::Value> create_v8_qtreewidgetitem (QTreeWidgetItem *value) = 0;
 
       protected:
          JsModuleUiV8Qt (const PluginInfo &Info);
