@@ -1,7 +1,7 @@
 require "lmkV8"
-lmkV8.set_name "dmzJsExtV8Interface"
+lmkV8.set_name "dmzJsExtV8Module"
 lmk.set_type "plugin"
-lmk.add_files {"dmzJsExtV8Interface.cpp",}
+lmk.add_files {"dmzJsExtV8Module.cpp",}
 lmk.add_libs {
    "dmzJsV8Util",
    "dmzKernel",
