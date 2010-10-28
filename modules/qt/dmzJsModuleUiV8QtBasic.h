@@ -27,7 +27,7 @@ namespace dmz {
    class V8QtObject;
    class V8QtDialog;
    class V8QtWidget;
-   class V8ValueRef;
+   struct V8ValueRef;
 
 
    struct JsModuleUiV8QtBasicState {
