@@ -16,10 +16,10 @@ text = form.lookup("textEdit");
 form.observe(self, "saveButton", "clicked", function () {
 
    var str = file.getSaveFileName(
-      mainWindow.mainWidget(),
       { caption: "Save File Dialog"
       , dir: "/Users/Ben/cm"
       , filter: "Scripts (*.js)"
-      });
+      }
+      , mainWindow.window());
    puts("saveFileName:", str);
 });

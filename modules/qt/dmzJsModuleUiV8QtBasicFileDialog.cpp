@@ -1,6 +1,7 @@
 #include "dmzJsModuleUiV8QtBasic.h"
 #include <dmzJsModuleV8.h>
 #include <dmzJsV8UtilConvert.h>
+#include "dmzV8QtUtil.h"
 #include <QtGui/QFileDialog>
 
 
@@ -14,16 +15,11 @@ dmz::JsModuleUiV8QtBasic::_file_dialog_get_existing_directory (const v8::Argumen
    if (self) {
 
       QWidget *parent = 0;
-      V8Object params;
+      V8Object params = v8_to_object (Args[0]);
 
       if (Args.Length () >= 2) {
 
-         parent = self->_to_qwidget (Args[0]);
-         params = v8_to_object (Args[1]);
-      }
-      else {
-
-         params = v8_to_object (Args[0]);
+         parent = self->_to_qwidget (Args[1]);
       }
 
       if (!params.IsEmpty ()) {
@@ -36,7 +32,7 @@ dmz::JsModuleUiV8QtBasic::_file_dialog_get_existing_directory (const v8::Argumen
          QString dirName = QFileDialog::getExistingDirectory (parent, caption, dir);
          if (!dirName.isEmpty ()) {
 
-            result = v8::String::New (qPrintable(dirName));
+            result = qstring_to_v8 (dirName);
          }
       }
    }
@@ -55,16 +51,11 @@ dmz::JsModuleUiV8QtBasic::_file_dialog_get_open_file_name (const v8::Arguments &
    if (self) {
 
       QWidget *parent = 0;
-      V8Object params;
+      V8Object params = v8_to_object (Args[0]);
 
       if (Args.Length () >= 2) {
 
-         parent = self->_to_qwidget (Args[0]);
-         params = v8_to_object (Args[1]);
-      }
-      else {
-
-         params = v8_to_object (Args[0]);
+         parent = self->_to_qwidget (Args[1]);
       }
 
       if (!params.IsEmpty ()) {
@@ -78,7 +69,9 @@ dmz::JsModuleUiV8QtBasic::_file_dialog_get_open_file_name (const v8::Arguments &
 
          if (allowMultiple) {
 
-            QStringList fileNames = QFileDialog::getOpenFileNames (parent, caption, dir, filter);
+            QStringList fileNames =
+               QFileDialog::getOpenFileNames (parent, caption, dir, filter);
+
             fileList = fileNames;
          }
          else {
@@ -87,17 +80,7 @@ dmz::JsModuleUiV8QtBasic::_file_dialog_get_open_file_name (const v8::Arguments &
             if (!fileName.isEmpty ()) { fileList.append (fileName); }
          }
 
-         V8Array array = v8::Array::New (fileList.count ());
-         Int32 count = 0;
-
-         QStringList::Iterator it = fileList.begin ();
-         while (it != fileList.end ()) {
-
-            array->Set (v8::Integer::New (count++), v8::String::New (qPrintable(*it)));
-             ++it;
-         }
-
-         result = array;
+         result = qstringlist_to_v8 (fileList);
       }
    }
 
@@ -115,16 +98,11 @@ dmz::JsModuleUiV8QtBasic::_file_dialog_get_save_file_name (const v8::Arguments &
    if (self) {
 
       QWidget *parent = 0;
-      V8Object params;
+      V8Object params = v8_to_object (Args[0]);
 
       if (Args.Length () >= 2) {
 
-         parent = self->_to_qwidget (Args[0]);
-         params = v8_to_object (Args[1]);
-      }
-      else {
-
-         params = v8_to_object (Args[0]);
+         parent = self->_to_qwidget (Args[1]);
       }
 
       if (!params.IsEmpty ()) {
@@ -136,7 +114,7 @@ dmz::JsModuleUiV8QtBasic::_file_dialog_get_save_file_name (const v8::Arguments &
 
          QString fileName = QFileDialog::getSaveFileName (parent, caption, dir, filter);
 
-         result = v8::String::New (qPrintable (fileName));
+         result = qstring_to_v8 (fileName);
       }
    }
 
@@ -156,17 +134,17 @@ dmz::JsModuleUiV8QtBasic::_get_file_dialog_params (
 
       if (params->Has (_captionStr)) {
 
-         caption = v8_to_string (params->Get (_captionStr)).get_buffer ();
+         caption = v8_to_qstring (params->Get (_captionStr));
       }
 
       if (params->Has (_dirStr)) {
 
-         dir = v8_to_string (params->Get (_dirStr)).get_buffer ();
+         dir = v8_to_qstring (params->Get (_dirStr));
       }
 
       if (params->Has (_filterStr)) {
 
-         filter = v8_to_string (params->Get (_filterStr)).get_buffer ();
+         filter = v8_to_qstring (params->Get (_filterStr));
       }
 
       if (params->Has (_allowMultipleStr)) {
@@ -182,7 +160,10 @@ dmz::JsModuleUiV8QtBasic::_init_file_dialog () {
 
    v8::HandleScope scope;
 
-   _fileDialogApi.add_function ("getExistingDirectory", _file_dialog_get_existing_directory, _self);
+   _fileDialogApi.add_function (
+      "getExistingDirectory",
+      _file_dialog_get_existing_directory, _self);
+
    _fileDialogApi.add_function ("getOpenFileName", _file_dialog_get_open_file_name, _self);
    _fileDialogApi.add_function ("getSaveFileName", _file_dialog_get_save_file_name, _self);
 }

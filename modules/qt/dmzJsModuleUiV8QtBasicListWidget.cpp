@@ -48,20 +48,11 @@ dmz::JsModuleUiV8QtBasic::_list_widget_item_data (const v8::Arguments &Args) {
 
          if (Args.Length ()) {
 
-            V8ValueRef *ref = new V8ValueRef (Args[0], self->_valueDeleteList);
-            V8Variant value (ref);
-            ref->unref (); ref = 0;
-            QVariant variant;
-            variant.setValue (value);
-
+            QVariant variant = self->_qvariant_wrap_v8 (Args[0]);
             item->setData (Qt::UserRole, variant);
          }
 
-         V8Variant variant = item->data (Qt::UserRole).value<V8Variant>();
-         if (variant.valueRef) {
-
-            result = variant.valueRef->value;
-         }
+         result = self->_qvariant_unwrap_v8 (item->data (Qt::UserRole));
       }
    }
 
@@ -89,14 +80,11 @@ dmz::JsModuleUiV8QtBasic::_list_widget_add_item (const v8::Arguments &Args) {
 
             if (Args.Length () >= 2) {
 
-               V8ValueRef *ref = new V8ValueRef (Args[1], self->_valueDeleteList);
-               V8Variant value (ref);
-               ref->unref (); ref = 0;
-               QVariant variant;
-               variant.setValue (value);
-
+               QVariant variant = self->_qvariant_wrap_v8 (Args[1]);
                item->setData (Qt::UserRole, variant);
             }
+
+            result = self->create_v8_qlistwidgetitem (item);
          }
       }
    }
