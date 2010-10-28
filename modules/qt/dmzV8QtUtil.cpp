@@ -38,6 +38,7 @@ dmz::qvariant_to_v8 (const QVariant &Value) {
 dmz::V8Value
 dmz::qstringlist_to_v8 (const QStringList &Value) {
 
+   v8::HandleScope scope;
    V8Value result = v8::Undefined ();
 
    if (Value.count ()) {
@@ -52,6 +53,8 @@ dmz::qstringlist_to_v8 (const QStringList &Value) {
 
       result = array;
    }
+
+   return scope.Close (result);
 }
 
 

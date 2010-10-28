@@ -78,6 +78,8 @@ dmz::JsModuleUiV8QtBasic::_button_set_checked (const v8::Arguments &Args) {
          }
       }
    }
+
+   return scope.Close (result);
 }
 
 
@@ -96,6 +98,8 @@ dmz::JsModuleUiV8QtBasic::_button_click (const v8::Arguments &Args) {
          button->click ();
       }
    }
+
+   return scope.Close (result);
 }
 
 
