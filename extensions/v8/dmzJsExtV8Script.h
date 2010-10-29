@@ -86,6 +86,7 @@ namespace dmz {
          static V8Value _script_error (const v8::Arguments &Args);
          static V8Value _script_load (const v8::Arguments &Args);
          static V8Value _script_reload (const v8::Arguments &Args);
+         static V8Value _script_compile (const v8::Arguments &Args);
          static V8Value _script_instance (const v8::Arguments &Args);
          static V8Value _script_destroy (const v8::Arguments &Args);
          void _init (Config &local);

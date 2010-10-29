@@ -37,6 +37,27 @@ class DMZ_JS_V8_UTIL_LINK_SYMBOL V8FileString :
       V8FileString &operator= (const V8FileString &);
 };
 
+class DMZ_JS_V8_UTIL_LINK_SYMBOL V8EmbeddedBuffer :
+      public v8::String::ExternalAsciiStringResource {
+
+   public:
+      V8EmbeddedBuffer (char *buffer, const size_t Length);
+      virtual ~V8EmbeddedBuffer ();
+
+      // ExternalAsciiStringResource Interface.
+      virtual const char *data () const;
+      virtual size_t length () const;
+
+   protected:
+      struct State;
+      State &_state;
+
+   private:
+      V8EmbeddedBuffer ();
+      V8EmbeddedBuffer (const V8EmbeddedBuffer &);
+      V8EmbeddedBuffer &operator= (const V8EmbeddedBuffer &);
+};
+
 class DMZ_JS_V8_UTIL_LINK_SYMBOL V8EmbeddedString :
       public v8::String::ExternalAsciiStringResource {
 

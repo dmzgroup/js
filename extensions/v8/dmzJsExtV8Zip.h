@@ -40,6 +40,7 @@ namespace dmz {
       protected:
          // JsExtV8Zip Interface
          static JsExtV8Zip *_to_self (const v8::Arguments &Args);
+         static V8Value _zip_read (const v8::Arguments &Args);
          static V8Value _zip_write (const v8::Arguments &Args);
          void _init (Config &local);
 
