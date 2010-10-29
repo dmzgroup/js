@@ -1,8 +1,13 @@
+#include <dmzFoundationConsts.h>
+#include <dmzFoundationReaderWriterFile.h>
 #include <dmzFoundationReaderWriterZip.h>
+#include <dmzFoundationStreamZip.h>
+#include <dmzFoundationXMLUtil.h>
 #include "dmzJsExtV8Zip.h"
 #include <dmzJsModuleV8.h>
 #include <dmzJsModuleRuntimeV8.h>
 #include <dmzJsV8UtilConvert.h>
+#include <dmzJsV8UtilStrings.h>
 #include <dmzRuntimeConfig.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
@@ -138,6 +143,62 @@ struct ListStruct {
 
 // JsExtV8Zip Interface
 dmz::V8Value
+dmz::JsExtV8Zip::_zip_read (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+
+   V8Value result = v8::Undefined ();
+
+   JsExtV8Zip *self = _to_self (Args);
+
+   if (self && (Args.Length () >= 2) && Args[0]->IsString ()) {
+
+      const String FileName = v8_to_string (Args[0]);
+      const String Name = v8_to_string (Args[1]);
+
+      ReaderZip in;
+
+      if (in.open_zip_file (FileName)) {
+
+         if (in.open_file (Name)) {
+
+            const Int32 Size = (Int32)in.get_file_size ();
+
+            if (Size > 0) {
+
+               char *buffer = new char[Size];
+
+               if (buffer && (in.read_file (buffer, Size) == Size)) {
+
+                  V8EmbeddedBuffer *estr = new V8EmbeddedBuffer (buffer, Size);
+
+                  if (estr) { result = v8::String::NewExternal (estr); }
+                  else { delete []buffer; buffer = 0; }
+               }
+               else if (buffer) { delete []buffer; buffer = 0; }
+            }
+            else {
+
+               result = v8::String::New ("");
+
+               self->_log.warn << "File: " << Name << " in archive: "
+                  << FileName << " is empty." << endl;
+            }
+         }
+         else {
+
+            self->_log.error << "Failed to open file: " << Name << " in archive: "
+               << FileName << endl;
+         }
+      }
+      else { self->_log.error << "Failed to open archive: " << FileName << endl; }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsExtV8Zip::_zip_write (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -177,7 +238,12 @@ dmz::JsExtV8Zip::_zip_write (const v8::Arguments &Args) {
 
                   if (item->IsString ()) {
 
-                     name = file = v8_to_string (item);
+                     file = v8_to_string (item);
+
+                     String path, root, ext;
+                     split_path_file_ext (name, path, root, ext);
+        
+                     name = root + ext;
                   }
                   else if (item->IsObject ()) {
 
@@ -235,13 +301,70 @@ dmz::JsExtV8Zip::_zip_write (const v8::Arguments &Args) {
 
                files = new ListStruct (Name, Name);
             }
+            else { error = True; }
          }
          else if (value->IsObject ()) {
 
+            error = True;
          }
-      }
 
-      delete_list (files);
+         StreamZip stream;
+
+         if (!error && files && stream.open_zip_file (OutFileName)) {
+
+            current = files;
+
+            while (current) {
+
+               if (stream.open_file (current->Name)) {
+
+                  if (current->data) {
+
+                     format_config_to_xml (
+                        current->data,
+                        stream,
+                        ConfigPrettyPrint,
+                        &(self->_log));
+                  }
+                  else if (current->File) {
+
+                     ReaderFile in;
+
+                     if (in.open_file (current->File)) {
+
+                        const Int32 Size = (Int32)in.get_file_size ();
+
+                        if (Size > 0) {
+
+                           char *buffer = new char[Size];
+
+                           if (buffer) {
+
+                              if (in.read_file (buffer, Size) == Size) {
+
+                                 if (stream.write_file (buffer, Size) == False) {
+
+                                    error = True;
+                                 }
+                              }
+
+                              delete []buffer;
+                           }
+                        }
+                     }
+                  }
+
+                  stream.close_file ();
+               }
+
+               current = current->next;
+            }
+
+            if (!error) { result = v8::Boolean::New (true); }
+         }
+
+         delete_list (files);
+      }
    }
 
    return scope.Close (result);
@@ -256,6 +379,7 @@ dmz::JsExtV8Zip::_init (Config &local) {
    _self = V8ValuePersist::New (v8::External::Wrap (this));
 
    // Bind API
+   _zipApi.add_function ("read", _zip_read, _self);
    _zipApi.add_function ("write", _zip_write, _self);
 }
 
