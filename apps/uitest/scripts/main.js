@@ -35,10 +35,12 @@ listWidget.observe(self, 'currentRowChanged', function (row) {
 });
 
 listWidget.observe(self, 'currentItemChanged', function (item) {
-   var data = item.data();
-   puts('name:', data.name);
-   puts('file:', data.file);
-   puts('item:', item.text(), 'row:',listWidget.row(item));
+   if (item) {
+      var data = item.data();
+      puts('name:', data.name);
+      puts('file:', data.file);
+      puts('item:', item.text(), 'row:',listWidget.row(item));
+   }
 });
 
 mainForm.observe(self, 'doneButton', 'clicked', function (button) {
