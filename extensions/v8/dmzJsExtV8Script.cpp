@@ -351,16 +351,19 @@ dmz::JsExtV8Script::_script_compile (const v8::Arguments &Args) {
 
       V8Value value = Args[0];
 
-      if (value->IsString ()) { fileName = v8_to_string (value); }
-      else {
+      if (value->IsString ()) {
 
-         scriptHandle = v8_to_handle (Args[0]);
+         fileName = v8_to_string (value);
 
-         if (scriptHandle) {
+         String path, root, ext;
 
-            String fileName = self->_js->lookup_script_file_name (scriptHandle);
-         }
+         split_path_file_ext (fileName, path, root, ext);
+
+         scriptHandle = self->_js->lookup_script (name);
       }
+      else { scriptHandle = v8_to_handle (Args[0]); }
+
+      if (scriptHandle) { fileName = self->_js->lookup_script_file_name (scriptHandle); }
 
       String out;
       const char *Buffer (0);
@@ -396,7 +399,7 @@ dmz::JsExtV8Script::_script_compile (const v8::Arguments &Args) {
 
             if (self->_js->recompile_script (scriptHandle, Buffer, size)) {
 
-               result = value;
+               result = v8::Integer::NewFromUnsigned (scriptHandle);
             }
          }
          else if (fileName) {
@@ -407,14 +410,13 @@ dmz::JsExtV8Script::_script_compile (const v8::Arguments &Args) {
 
             if (!name) { name = fileName; }
 
-            const Handle ScriptHandle =
-               self->_js->compile_script (name, fileName, Buffer, size);
+            scriptHandle = self->_js->compile_script (name, fileName, Buffer, size);
 
-            if (ScriptHandle) {
+            if (scriptHandle) {
 
-               result = v8::Integer::NewFromUnsigned (ScriptHandle);
+               result = v8::Integer::NewFromUnsigned (scriptHandle);
 
-               self->_scripts.add (ScriptHandle);
+               self->_scripts.add (scriptHandle);
             }
          }
       }

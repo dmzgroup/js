@@ -3,6 +3,7 @@
 
 #include <dmzJsExtV8.h>
 #include <dmzJsV8UtilHelpers.h>
+#include <dmzRuntimeConfig.h>
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
 
@@ -39,9 +40,29 @@ namespace dmz {
 
       protected:
          // JsExtV8Zip Interface
+         struct ListStruct {
+
+            const String Name;
+            const String File;
+            V8StringPersist data;
+            Config config;
+            ListStruct *next;
+
+            ListStruct (const String &TheName, const String &TheFile) :
+                  Name (TheName),
+                  File (TheFile),
+                  next (0) {;}
+
+            ~ListStruct () {
+
+               if (data.IsEmpty () == false) { data.Dispose (); data.Clear (); }
+            }
+         };
+
          static JsExtV8Zip *_to_self (const v8::Arguments &Args);
          static V8Value _zip_read (const v8::Arguments &Args);
          static V8Value _zip_write (const v8::Arguments &Args);
+         ListStruct *_create_list_struct (V8Value value);
          void _init (Config &local);
 
          Log _log;
@@ -55,6 +76,7 @@ namespace dmz {
 
          V8StringPersist _nameStr;
          V8StringPersist _fileStr;
+         V8StringPersist _dataStr;
          V8StringPersist _configStr;
 
          V8ValuePersist _self;
