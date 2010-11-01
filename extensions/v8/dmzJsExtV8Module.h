@@ -11,13 +11,13 @@
 
 namespace dmz {
 
-   class JsExtV8Interface :
+   class JsExtV8Module :
          public Plugin,
          public JsExtV8 {
 
       public:
-         JsExtV8Interface (const PluginInfo &Info, Config &local);
-         ~JsExtV8Interface ();
+         JsExtV8Module (const PluginInfo &Info, Config &local);
+         ~JsExtV8Module ();
 
          // Plugin Interface
          virtual void update_plugin_state (
@@ -39,22 +39,22 @@ namespace dmz {
             v8::Handle<v8::Object> &instance);
 
       protected:
-         // JsExtV8Interface Interface
-         struct InterfaceStruct;
+         // JsExtV8Module Interface
+         struct ModuleStruct;
 
          struct InstanceStruct {
 
             const String Name;
             const String Scope;
             InstanceStruct *next;
-            InterfaceStruct &is;
+            ModuleStruct &is;
             V8ObjectPersist self;
-            V8ObjectPersist interface;
+            V8ObjectPersist module;
 
             InstanceStruct (
                   const String &TheName,
                   const String &TheScope,
-                  InterfaceStruct &theIs) :
+                  ModuleStruct &theIs) :
                   Name (TheName),
                   Scope (TheScope),
                   next (0),
@@ -62,9 +62,9 @@ namespace dmz {
 
             ~InstanceStruct () {
 
-               is.interfaceTable.remove (Scope);
+               is.moduleTable.remove (Scope);
                self.Dispose (); self.Clear ();
-               interface.Dispose (); interface.Clear ();
+               module.Dispose (); module.Clear ();
             }
          };
 
@@ -73,14 +73,14 @@ namespace dmz {
             const Handle Object;
             const String Scope;
             SubscribeStruct *next;
-            InterfaceStruct &is;
+            ModuleStruct &is;
             V8ObjectPersist self;
             V8FunctionPersist func;
 
             SubscribeStruct (
                   const Handle TheObject,
                   const String &TheScope,
-                  InterfaceStruct &theIs):
+                  ModuleStruct &theIs):
                   Object (TheObject),
                   Scope (TheScope),
                   next (0),
@@ -94,13 +94,13 @@ namespace dmz {
             }
          };
 
-         struct InterfaceStruct {
+         struct ModuleStruct {
 
             const String Name;
             HashTableHandleTemplate<SubscribeStruct> subscribeTable;
-            HashTableStringTemplate<InstanceStruct> interfaceTable;
+            HashTableStringTemplate<InstanceStruct> moduleTable;
 
-            InterfaceStruct (const String &TheName) : Name (TheName) {;}
+            ModuleStruct (const String &TheName) : Name (TheName) {;}
          };
 
          struct SelfStruct {
@@ -136,28 +136,28 @@ namespace dmz {
             }
          };
 
-         static JsExtV8Interface *_to_self (const v8::Arguments &Args);
-         static V8Value _interface_publish (const v8::Arguments &Args);
-         static V8Value _interface_remove (const v8::Arguments &Args);
-         static V8Value _interface_subscribe (const v8::Arguments &Args);
+         static JsExtV8Module *_to_self (const v8::Arguments &Args);
+         static V8Value _module_publish (const v8::Arguments &Args);
+         static V8Value _module_remove (const v8::Arguments &Args);
+         static V8Value _module_subscribe (const v8::Arguments &Args);
 
-         void _subscribe_interface (
+         void _subscribe_module (
             const Boolean Activate,
-            InterfaceStruct &interface,
+            ModuleStruct &module,
             SubscribeStruct &sub);
 
          Boolean _register_instance (
-            InterfaceStruct &interface,
+            ModuleStruct &module,
             InstanceStruct &instance);
 
-         Boolean _register_subscribe (InterfaceStruct &interface, SubscribeStruct &sub);
+         Boolean _register_subscribe (ModuleStruct &module, SubscribeStruct &sub);
 
          Boolean _do_callback (
             const Boolean Activate,
             InstanceStruct &instance,
             SubscribeStruct &sub);
 
-         InterfaceStruct *_lookup_interface (const String &Name);
+         ModuleStruct *_lookup_module (const String &Name);
          SelfStruct *_lookup_self_struct (const Handle Object);
          void _init (Config &local);
 
@@ -165,7 +165,7 @@ namespace dmz {
 
          JsModuleV8 *_core;
 
-         V8InterfaceHelper _interfaceApi;
+         V8InterfaceHelper _moduleApi;
 
          v8::Handle<v8::Context> _v8Context;
 
@@ -174,22 +174,22 @@ namespace dmz {
          V8StringPersist _activateStr;
          V8StringPersist _deactivateStr;
 
-         HashTableStringTemplate<InterfaceStruct> _interfaceTable;
+         HashTableStringTemplate<ModuleStruct> _moduleTable;
          HashTableHandleTemplate<SelfStruct> _selfTable;
 
       private:
-         JsExtV8Interface ();
-         JsExtV8Interface (const JsExtV8Interface &);
-         JsExtV8Interface &operator= (const JsExtV8Interface &);
+         JsExtV8Module ();
+         JsExtV8Module (const JsExtV8Module &);
+         JsExtV8Module &operator= (const JsExtV8Module &);
 
    };
 };
 
 
-inline dmz::JsExtV8Interface *
-dmz::JsExtV8Interface::_to_self (const v8::Arguments &Args) {
+inline dmz::JsExtV8Module *
+dmz::JsExtV8Module::_to_self (const v8::Arguments &Args) {
 
-   return (dmz::JsExtV8Interface *)v8::External::Unwrap (Args.Data ());
+   return (dmz::JsExtV8Module *)v8::External::Unwrap (Args.Data ());
 }
 
 #endif // DMZ_JS_EXT_V8_FILE_DOT_H

@@ -1,4 +1,4 @@
-#include "dmzJsExtV8Interface.h"
+#include "dmzJsExtV8Module.h"
 #include <dmzJsModuleV8.h>
 #include <dmzJsV8UtilConvert.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
@@ -12,7 +12,7 @@ const char LocalDeactivate[] = "Deactivate";
 
 };
 
-dmz::JsExtV8Interface::JsExtV8Interface (const PluginInfo &Info, Config &local) :
+dmz::JsExtV8Module::JsExtV8Module (const PluginInfo &Info, Config &local) :
       Plugin (Info),
       JsExtV8 (Info),
       _log (Info),
@@ -22,14 +22,14 @@ dmz::JsExtV8Interface::JsExtV8Interface (const PluginInfo &Info, Config &local) 
 }
 
 
-dmz::JsExtV8Interface::~JsExtV8Interface () {
+dmz::JsExtV8Module::~JsExtV8Module () {
 
 }
 
 
 // Plugin Interface
 void
-dmz::JsExtV8Interface::update_plugin_state (
+dmz::JsExtV8Module::update_plugin_state (
       const PluginStateEnum State,
       const UInt32 Level) {
 
@@ -49,7 +49,7 @@ dmz::JsExtV8Interface::update_plugin_state (
 
 
 void
-dmz::JsExtV8Interface::discover_plugin (
+dmz::JsExtV8Module::discover_plugin (
       const PluginDiscoverEnum Mode,
       const Plugin *PluginPtr) {
 
@@ -64,7 +64,7 @@ dmz::JsExtV8Interface::discover_plugin (
 
 // JsExtV8 Interface
 void
-dmz::JsExtV8Interface::update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module) {
+dmz::JsExtV8Module::update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module) {
 
    if (Mode == JsExtV8::Store) { if (!_core) { _core = &module; } }
    else if (Mode == JsExtV8::Remove) { if (&module == _core) { _core = 0; } }
@@ -72,14 +72,14 @@ dmz::JsExtV8Interface::update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &mod
 
 
 void
-dmz::JsExtV8Interface::update_js_context_v8 (v8::Handle<v8::Context> context) {
+dmz::JsExtV8Module::update_js_context_v8 (v8::Handle<v8::Context> context) {
 
    _v8Context = context;
 }
 
 
 void
-dmz::JsExtV8Interface::update_js_ext_v8_state (const StateEnum State) {
+dmz::JsExtV8Module::update_js_ext_v8_state (const StateEnum State) {
 
    v8::HandleScope scope;
 
@@ -88,8 +88,8 @@ dmz::JsExtV8Interface::update_js_ext_v8_state (const StateEnum State) {
       if (_core) {
 
          _core->register_interface (
-            "dmz/runtime/interface",
-            _interfaceApi.get_new_instance ());
+            "dmz/runtime/module",
+            _moduleApi.get_new_instance ());
       }
 
       _activateStr = V8StringPersist::New (v8::String::NewSymbol (LocalActivate));
@@ -109,26 +109,26 @@ dmz::JsExtV8Interface::update_js_ext_v8_state (const StateEnum State) {
 
          while (current) {
 
-            _subscribe_interface (False, current->is, *current);
+            _subscribe_module (False, current->is, *current);
             current = current->next;
          }
       }
 
       _selfTable.empty ();
-      _interfaceTable.empty ();
+      _moduleTable.empty ();
    }
    else if (State == JsExtV8::Shutdown) {
 
       _activateStr.Dispose (); _activateStr.Clear ();
       _deactivateStr.Dispose (); _deactivateStr.Clear ();
-      _interfaceApi.clear ();
+      _moduleApi.clear ();
       _v8Context.Clear ();
    }
 }
 
 
 void
-dmz::JsExtV8Interface::release_js_instance_v8 (
+dmz::JsExtV8Module::release_js_instance_v8 (
       const Handle InstanceHandle,
       const String &InstanceName,
       v8::Handle<v8::Object> &instance) {
@@ -141,7 +141,7 @@ dmz::JsExtV8Interface::release_js_instance_v8 (
 
       while (current) {
 
-         _subscribe_interface (False, current->is, *current);
+         _subscribe_module (False, current->is, *current);
          current = current->next;
       }     
 
@@ -169,15 +169,15 @@ dmz::JsExtV8Interface::release_js_instance_v8 (
 }
 
 
-// JsExtV8Interface Interface
+// JsExtV8Module Interface
 dmz::V8Value
-dmz::JsExtV8Interface::_interface_publish (const v8::Arguments &Args) {
+dmz::JsExtV8Module::_module_publish (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
 
    V8Value result = v8::Undefined ();
 
-   JsExtV8Interface *self = _to_self (Args);
+   JsExtV8Module *self = _to_self (Args);
 
    if (self && self->_core) {
 
@@ -186,22 +186,22 @@ dmz::JsExtV8Interface::_interface_publish (const v8::Arguments &Args) {
       V8Object obj = v8_to_object (Args[0]);
       const String ObjName = self->_core->get_instance_name (obj);
       const Handle ObjHandle = self->_core->get_instance_handle (obj);
-      V8Object exportInterface = v8_to_object (Args[1]);
+      V8Object exportModule = v8_to_object (Args[1]);
       const String Name = Length > 2 ? v8_to_string (Args[2]) : ObjName;
       const String Scope = Length > 3 ? v8_to_string (Args[3]) : ObjName;
 
-      if (ObjHandle && v8_is_valid (obj) && v8_is_valid (exportInterface)) {
+      if (ObjHandle && v8_is_valid (obj) && v8_is_valid (exportModule)) {
 
          SelfStruct *ss = self->_lookup_self_struct (ObjHandle);
-         InterfaceStruct *interface = self->_lookup_interface (Name);
+         ModuleStruct *module = self->_lookup_module (Name);
 
-         if (ss && interface) {
+         if (ss && module) {
 
-            InstanceStruct *instance = new InstanceStruct (Name, Scope, *interface);
+            InstanceStruct *instance = new InstanceStruct (Name, Scope, *module);
 
-            if (instance && self->_register_instance (*interface, *instance)) {
+            if (instance && self->_register_instance (*module, *instance)) {
 
-               instance->interface = V8ObjectPersist::New (exportInterface);
+               instance->module = V8ObjectPersist::New (exportModule);
 
                instance->next = ss->instanceList;
                ss->instanceList = instance;
@@ -216,13 +216,13 @@ dmz::JsExtV8Interface::_interface_publish (const v8::Arguments &Args) {
 
 
 dmz::V8Value
-dmz::JsExtV8Interface::_interface_remove (const v8::Arguments &Args) {
+dmz::JsExtV8Module::_module_remove (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
 
    V8Value result = v8::Undefined ();
 
-   JsExtV8Interface *self = _to_self (Args);
+   JsExtV8Module *self = _to_self (Args);
 
    if (self && self->_core) {
 
@@ -265,7 +265,7 @@ dmz::JsExtV8Interface::_interface_remove (const v8::Arguments &Args) {
 
                   while (current) {
 
-                     if (current->interface == instance) {
+                     if (current->module == instance) {
 
                         HashTableHandleIterator it;
                         SubscribeStruct *sub (0);
@@ -303,13 +303,13 @@ dmz::JsExtV8Interface::_interface_remove (const v8::Arguments &Args) {
 
 
 dmz::V8Value
-dmz::JsExtV8Interface::_interface_subscribe (const v8::Arguments &Args) {
+dmz::JsExtV8Module::_module_subscribe (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
 
    V8Value result = v8::Undefined ();
 
-   JsExtV8Interface *self = _to_self (Args);
+   JsExtV8Module *self = _to_self (Args);
 
    if (self && self->_core) {
 
@@ -337,18 +337,18 @@ dmz::JsExtV8Interface::_interface_subscribe (const v8::Arguments &Args) {
 
             if (ss) {
 
-               InterfaceStruct *interface = self->_lookup_interface (Name);
+               ModuleStruct *module = self->_lookup_module (Name);
 
-               if (interface) {
+               if (module) {
 
-                  SubscribeStruct *sub = new SubscribeStruct (Object, Scope, *interface);
+                  SubscribeStruct *sub = new SubscribeStruct (Object, Scope, *module);
 
                   if (sub) {
 
                      sub->self = V8ObjectPersist::New (obj);
                      sub->func = V8FunctionPersist::New (func);
 
-                     if (self->_register_subscribe (*interface, *sub)) {
+                     if (self->_register_subscribe (*module, *sub)) {
 
                         sub->next = ss->subscribeList;
                         ss->subscribeList = sub;
@@ -367,15 +367,15 @@ dmz::JsExtV8Interface::_interface_subscribe (const v8::Arguments &Args) {
 
 
 void
-dmz::JsExtV8Interface::_subscribe_interface (
+dmz::JsExtV8Module::_subscribe_module (
       const Boolean Activate,
-      InterfaceStruct &interface,
+      ModuleStruct &module,
       SubscribeStruct &sub) {
 
    HashTableStringIterator it;
    InstanceStruct *instance (0);
 
-   while (interface.interfaceTable.get_next (it, instance)) {
+   while (module.moduleTable.get_next (it, instance)) {
 
       _do_callback (Activate, *instance, sub);
    }
@@ -383,20 +383,20 @@ dmz::JsExtV8Interface::_subscribe_interface (
 
 
 dmz::Boolean
-dmz::JsExtV8Interface::_register_instance (
-      InterfaceStruct &interface,
+dmz::JsExtV8Module::_register_instance (
+      ModuleStruct &module,
       InstanceStruct &instance) {
 
    Boolean result (False);
 
-   if (interface.interfaceTable.store (instance.Scope, &instance)) {
+   if (module.moduleTable.store (instance.Scope, &instance)) {
 
       result = True;
 
       HashTableHandleIterator it;
       SubscribeStruct *sub (0);
 
-      while (interface.subscribeTable.get_next (it, sub)) {
+      while (module.subscribeTable.get_next (it, sub)) {
 
          _do_callback (True, instance, *sub);
       }
@@ -407,15 +407,15 @@ dmz::JsExtV8Interface::_register_instance (
 
 
 dmz::Boolean
-dmz::JsExtV8Interface::_register_subscribe (
-      InterfaceStruct &interface,
+dmz::JsExtV8Module::_register_subscribe (
+      ModuleStruct &module,
       SubscribeStruct &sub) {
 
    Boolean result (False);
 
-   if (interface.subscribeTable.store (sub.Object, &sub)) {
+   if (module.subscribeTable.store (sub.Object, &sub)) {
 
-      _subscribe_interface (True, interface, sub);
+      _subscribe_module (True, module, sub);
 
       result = True;
    }
@@ -425,7 +425,7 @@ dmz::JsExtV8Interface::_register_subscribe (
 
 
 dmz::Boolean
-dmz::JsExtV8Interface::_do_callback (
+dmz::JsExtV8Module::_do_callback (
       const Boolean Activate,
       InstanceStruct &instance,
       SubscribeStruct &sub) {
@@ -443,7 +443,7 @@ dmz::JsExtV8Interface::_do_callback (
          const int Argc (5);
          V8Value argv[Argc];
          argv[0] = Activate ? _activateStr : _deactivateStr;
-         argv[1] = instance.interface;
+         argv[1] = instance.module;
          argv[2] = v8::String::New (instance.Scope.get_buffer ());
          argv[3] = v8::String::New (instance.Name ? instance.Name.get_buffer () : "");
 
@@ -474,24 +474,24 @@ dmz::JsExtV8Interface::_do_callback (
 
 
 
-dmz::JsExtV8Interface::InterfaceStruct *
-dmz::JsExtV8Interface::_lookup_interface (const String &Name) {
+dmz::JsExtV8Module::ModuleStruct *
+dmz::JsExtV8Module::_lookup_module (const String &Name) {
 
-   InterfaceStruct *result (_interfaceTable.lookup (Name));
+   ModuleStruct *result (_moduleTable.lookup (Name));
 
    if (!result) {
 
-      result = new InterfaceStruct (Name);
+      result = new ModuleStruct (Name);
 
-      if (result && !_interfaceTable.store (Name, result)) { delete result; result = 0; }
+      if (result && !_moduleTable.store (Name, result)) { delete result; result = 0; }
    }
 
    return result;
 }
 
 
-dmz::JsExtV8Interface::SelfStruct *
-dmz::JsExtV8Interface::_lookup_self_struct (const Handle Object) {
+dmz::JsExtV8Module::SelfStruct *
+dmz::JsExtV8Module::_lookup_self_struct (const Handle Object) {
 
    SelfStruct *result (_selfTable.lookup (Object));
 
@@ -507,18 +507,18 @@ dmz::JsExtV8Interface::_lookup_self_struct (const Handle Object) {
 
 
 void
-dmz::JsExtV8Interface::_init (Config &local) {
+dmz::JsExtV8Module::_init (Config &local) {
 
    v8::HandleScope scope;
 
    _self = V8ValuePersist::New (v8::External::Wrap (this));
 
    // Bind API
-   _interfaceApi.add_constant ("Activate", LocalActivate);
-   _interfaceApi.add_constant ("Deactivate", LocalDeactivate);
-   _interfaceApi.add_function ("publish", _interface_publish, _self);
-   _interfaceApi.add_function ("remove", _interface_remove, _self);
-   _interfaceApi.add_function ("subscribe", _interface_subscribe, _self);
+   _moduleApi.add_constant ("Activate", LocalActivate);
+   _moduleApi.add_constant ("Deactivate", LocalDeactivate);
+   _moduleApi.add_function ("publish", _module_publish, _self);
+   _moduleApi.add_function ("remove", _module_remove, _self);
+   _moduleApi.add_function ("subscribe", _module_subscribe, _self);
 
 }
 
@@ -526,12 +526,12 @@ dmz::JsExtV8Interface::_init (Config &local) {
 extern "C" {
 
 DMZ_PLUGIN_FACTORY_LINK_SYMBOL dmz::Plugin *
-create_dmzJsExtV8Interface (
+create_dmzJsExtV8Module (
       const dmz::PluginInfo &Info,
       dmz::Config &local,
       dmz::Config &global) {
 
-   return new dmz::JsExtV8Interface (Info, local);
+   return new dmz::JsExtV8Module (Info, local);
 }
 
 };

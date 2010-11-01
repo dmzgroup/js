@@ -337,6 +337,94 @@ dmz::JsExtV8Script::_script_reload (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsExtV8Script::_script_compile (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsExtV8Script *self = _to_self (Args);
+
+   if (self && self->_js) {
+
+      Handle scriptHandle (0);
+      String name, fileName;
+
+      V8Value value = Args[0];
+
+      if (value->IsString ()) { fileName = v8_to_string (value); }
+      else {
+
+         scriptHandle = v8_to_handle (Args[0]);
+
+         if (scriptHandle) {
+
+            String fileName = self->_js->lookup_script_file_name (scriptHandle);
+         }
+      }
+
+      String out;
+      const char *Buffer (0);
+      Int32 size (0);
+
+      V8String str = Args[1]->ToString ();
+
+      if (v8_is_valid (str)) {
+
+         if (str->IsExternalAscii ()) {
+
+            v8::String::ExternalAsciiStringResource *rc =
+               str->GetExternalAsciiStringResource ();
+
+            if (rc) {
+
+               Buffer = rc->data ();
+               size = rc->length ();
+            }
+         }
+         else {
+
+            out = v8_to_string (str);
+
+            Buffer = out.get_buffer ();
+            size = out.get_length ();
+         }
+      }
+
+      if (Buffer && size) {
+
+         if (scriptHandle) {
+
+            if (self->_js->recompile_script (scriptHandle, Buffer, size)) {
+
+               result = value;
+            }
+         }
+         else if (fileName) {
+
+            String path, name, ext;
+
+            split_path_file_ext (fileName, path, name, ext);
+
+            if (!name) { name = fileName; }
+
+            const Handle ScriptHandle =
+               self->_js->compile_script (name, fileName, Buffer, size);
+
+            if (ScriptHandle) {
+
+               result = v8::Integer::NewFromUnsigned (ScriptHandle);
+
+               self->_scripts.add (ScriptHandle);
+            }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsExtV8Script::_script_instance (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -397,6 +485,7 @@ dmz::JsExtV8Script::_script_destroy (const v8::Arguments &Args) {
    return scope.Close (result);
 }
 
+
 void
 dmz::JsExtV8Script::_init (Config &local) {
 
@@ -408,6 +497,7 @@ dmz::JsExtV8Script::_init (Config &local) {
    _scriptApi.add_function ("error", _script_error, _self);
    _scriptApi.add_function ("load", _script_load, _self);
    _scriptApi.add_function ("reload", _script_reload, _self);
+   _scriptApi.add_function ("compile", _script_compile, _self);
    _scriptApi.add_function ("instance", _script_instance, _self);
    _scriptApi.add_function ("destroy", _script_destroy, _self);
 }

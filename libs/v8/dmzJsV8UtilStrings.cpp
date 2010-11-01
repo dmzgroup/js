@@ -92,6 +92,34 @@ size_t
 dmz::V8FileString::length () const { return _state.length; }
 
 
+struct dmz::V8EmbeddedBuffer::State {
+
+   char *buffer;
+   const size_t Length;
+
+   State (char *theBuffer, const size_t TheLength) :
+         buffer (theBuffer),
+         Length (TheLength) {;}
+
+   ~State () { if (buffer) { delete []buffer; buffer = 0; } }
+};
+
+
+dmz::V8EmbeddedBuffer::V8EmbeddedBuffer (char *buffer, const size_t Length) :
+      _state (*(new State (buffer, Length))) {;}
+
+
+dmz::V8EmbeddedBuffer::~V8EmbeddedBuffer () { delete &_state; }
+
+
+const char *
+dmz::V8EmbeddedBuffer::data () const { return _state.buffer; } 
+
+
+size_t
+dmz::V8EmbeddedBuffer::length () const { return _state.Length; }
+
+
 struct dmz::V8EmbeddedString::State {
 
    const char *Buffer;
@@ -129,6 +157,7 @@ dmz::V8EmbeddedString::data () const { return _state.Buffer; }
 
 size_t
 dmz::V8EmbeddedString::length () const { return _state.Length; }
+
 
 struct dmz::V8ExternalString::State {
 
