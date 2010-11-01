@@ -50,6 +50,7 @@ dmz::JsModuleUiV8QtBasic::_combobox_current_index (const v8::Arguments &Args) {
 
             cb->setCurrentIndex (v8_to_int32 (Args[0]));
          }
+
          result = v8::Number::New (cb->currentIndex ());
       }
    }

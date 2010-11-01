@@ -100,22 +100,21 @@ dmz::JsModuleUiV8QtBasic::_list_widget_take_item (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
       QListWidget *lw = self->v8_to_qobject<QListWidget> (Args.This ());
-
       if (lw) {
 
-         if (Args.Length () > 0) {
+         if (Args.Length ()) {
 
             QListWidgetItem *item = self->_to_qlistwidgetitem (Args[0]);
-
             if (item) {
 
-               item = lw->takeItem(lw->row(item));
+               item = lw->takeItem (lw->row (item));
+               if (item) {
 
-               if (item) { result = Args[0]; }
+                  result = self->create_v8_qlistwidgetitem (item);
+               }
             }
          }
       }
@@ -168,6 +167,79 @@ dmz::JsModuleUiV8QtBasic::_list_widget_clear (const v8::Arguments &Args) {
    return scope.Close (result);
 }
 
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_list_widget_count (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QListWidget *lw = self->v8_to_qobject<QListWidget> (Args.This ());
+      if (lw) {
+
+         result = v8::Number::New (lw->count ());
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_list_widget_item (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QListWidget *lw = self->v8_to_qobject<QListWidget> (Args.This ());
+      if (lw) {
+
+         if (Args.Length ()) {
+
+            QListWidgetItem *item = lw->item (v8_to_int32 (Args[0]));
+            if (item) {
+
+               result = self->create_v8_qlistwidgetitem (item);
+            }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_list_widget_row (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QListWidget *lw = self->v8_to_qobject<QListWidget> (Args.This ());
+      if (lw) {
+
+         if (Args.Length ()) {
+
+            QListWidgetItem *item = self->_to_qlistwidgetitem (Args[0]);
+            if (item) {
+
+               result = v8::Number::New (lw->row (item));
+            }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
 
 
 dmz::V8Value
@@ -244,7 +316,9 @@ dmz::JsModuleUiV8QtBasic::_init_list_widget () {
    proto->Set ("addItem", v8::FunctionTemplate::New (_list_widget_add_item, _self));
    proto->Set ("currentItem", v8::FunctionTemplate::New (_list_widget_current_item, _self));
    proto->Set ("clear", v8::FunctionTemplate::New (_list_widget_clear, _self));
-   // proto->Set ("item", v8::FunctionTemplate::New (_list_widget_item, _self));
+   proto->Set ("count", v8::FunctionTemplate::New (_list_widget_count, _self));
+   proto->Set ("item", v8::FunctionTemplate::New (_list_widget_item, _self));
+   proto->Set ("row", v8::FunctionTemplate::New (_list_widget_row, _self));
    proto->Set ("takeItem", v8::FunctionTemplate::New (_list_widget_take_item, _self));
 }
 
