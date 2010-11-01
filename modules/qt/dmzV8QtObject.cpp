@@ -199,7 +199,7 @@ dmz::V8QtObject::_do_callback (const String &Signal, const QList<V8Value> &Value
 
             const int Argc (ValueList.size () + 2);
 
-            V8Value argv[Argc];
+            V8Value *argv = new V8Value[Argc];
 
             for (int ix = 0; ix < (Argc - 2); ix++) {
 
@@ -212,6 +212,8 @@ dmz::V8QtObject::_do_callback (const String &Signal, const QList<V8Value> &Value
             v8::TryCatch tc;
             cs->func->Call (cs->self, Argc, argv);
             if (tc.HasCaught ()) { _handle_exception (Observer, tc); }
+
+            delete []argv; argv = 0;
          }
 
          cs = _get_next_callback ();
@@ -223,6 +225,7 @@ dmz::V8QtObject::_do_callback (const String &Signal, const QList<V8Value> &Value
 dmz::V8Value
 dmz::V8QtObject::find_callback (const V8Object &Self, const String &Signal) {
 
+   v8::HandleScope scope;
    V8Value result = v8::Undefined ();
 
    if (_state && _state->core) {
@@ -236,4 +239,6 @@ dmz::V8QtObject::find_callback (const V8Object &Self, const String &Signal) {
          if (cs) { result = cs->func; }
       }
    }
+
+   return scope.Close (result);
 }
