@@ -1,4 +1,5 @@
 #include <dmzFoundationConsts.h>
+#include <dmzFoundationConfigFileIO.h>
 #include <dmzFoundationReaderWriterFile.h>
 #include <dmzFoundationReaderWriterZip.h>
 #include <dmzFoundationStreamZip.h>
@@ -13,6 +14,7 @@
 #include <dmzRuntimePluginInfo.h>
 #include <dmzSystemFile.h>
 #include <dmzTypesDeleteListTemplate.h>
+
 
 dmz::JsExtV8Zip::JsExtV8Zip (const PluginInfo &Info, Config &local) :
       Plugin (Info),
@@ -127,6 +129,35 @@ dmz::JsExtV8Zip::release_js_instance_v8 (
       v8::Handle<v8::Object> &instance) {;}
 
 // JsExtV8Zip Interface
+dmz::V8Value
+dmz::JsExtV8Zip::_zip_manifest (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+
+   V8Value result = v8::Undefined ();
+
+   JsExtV8Zip *self = _to_self (Args);
+
+   if (self && self->_runtime) {
+
+      Config manifest ("manifest");
+
+      const int Length = Args.Length ();
+
+      for (int ix = 0; ix < Length; ix++) {
+
+         Config config ("config");
+         config.store_attribute ("file", v8_to_string (Args[ix]));
+         manifest.add_config (config);
+      }
+
+      result = self->_runtime->create_v8_config (&manifest);
+   }
+
+   return scope.Close (result);
+}
+
+
 dmz::V8Value
 dmz::JsExtV8Zip::_zip_read (const v8::Arguments &Args) {
 
@@ -415,6 +446,8 @@ dmz::JsExtV8Zip::_init (Config &local) {
    _self = V8ValuePersist::New (v8::External::Wrap (this));
 
    // Bind API
+   _zipApi.add_constant ("ManifestFileName", ArchiveManifestFileName);
+   _zipApi.add_function ("manifest", _zip_manifest, _self);
    _zipApi.add_function ("read", _zip_read, _self);
    _zipApi.add_function ("write", _zip_write, _self);
 }

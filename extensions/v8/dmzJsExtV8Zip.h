@@ -60,6 +60,7 @@ namespace dmz {
          };
 
          static JsExtV8Zip *_to_self (const v8::Arguments &Args);
+         static V8Value _zip_manifest (const v8::Arguments &Args);
          static V8Value _zip_read (const v8::Arguments &Args);
          static V8Value _zip_write (const v8::Arguments &Args);
          ListStruct *_create_list_struct (V8Value value);
