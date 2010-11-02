@@ -938,7 +938,7 @@ dmz::JsModuleUiV8QtBasic::_init_tree_widget () {
    proto->Set ("itemWidget", v8::FunctionTemplate::New (_tree_item_widget, _self));
    proto->Set ("removeItemWidget", v8::FunctionTemplate::New (_tree_rem_item_widget, _self));
    proto->Set ("selectedItems", v8::FunctionTemplate::New (_tree_selected_items, _self));
-   proto->Set ("sortOnColumn", v8::FunctionTemplate::New (_tree_sort_col, _self));
+   proto->Set ("sortColumn", v8::FunctionTemplate::New (_tree_sort_col, _self));
    proto->Set ("takeItemAt", v8::FunctionTemplate::New (_tree_take_item_at, _self));
    proto->Set ("itemAt", v8::FunctionTemplate::New (_tree_item_at, _self));
    proto->Set ("itemCount", v8::FunctionTemplate::New (_tree_item_count, _self));

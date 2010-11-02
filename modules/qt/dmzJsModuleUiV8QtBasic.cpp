@@ -247,6 +247,14 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
                qobj = new V8QtTreeWidget (vobj, value, &_state);
             }
          }
+         else if (value->inherits ("QTableWidget")) {
+
+            if (!_tableWidgetCtor.IsEmpty ()) {
+
+               vobj = _tableWidgetCtor->NewInstance ();
+               qobj = new V8QtTableWidget (vobj, value, &_state);
+            }
+         }
          else if (value->inherits ("QTabWidget")) {
 
             if (!_tabCtor.IsEmpty ()) {
@@ -461,6 +469,21 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       if (!_treeWidgetItemTemp.IsEmpty ()) {
 
          _treeWidgetItemCtor = V8FunctionPersist::New (_treeWidgetItemTemp->GetFunction ());
+      }
+
+      if (!_tableWidgetTemp.IsEmpty ()) {
+
+         _tableWidgetCtor = V8FunctionPersist::New (_tableWidgetTemp->GetFunction ());
+      }
+
+      if (!_tableWidgetItemTemp.IsEmpty ()) {
+
+         _tableWidgetItemCtor = V8FunctionPersist::New (_tableWidgetItemTemp->GetFunction ());
+      }
+
+      if (!_tableSelectionTemp.IsEmpty ()) {
+
+         _tableSelectionCtor = V8FunctionPersist::New (_tableSelectionTemp->GetFunction ());
       }
 
       if (!_widgetTemp.IsEmpty ()) {
@@ -751,6 +774,9 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _actionCtor.Dispose (); _actionCtor.Clear ();
       _treeWidgetCtor.Dispose (); _treeWidgetCtor.Clear ();
       _treeWidgetItemCtor.Dispose (); _treeWidgetItemCtor.Clear ();
+      _tableWidgetCtor.Dispose (); _tableWidgetCtor.Clear ();
+      _tableWidgetItemCtor.Dispose (); _tableWidgetItemCtor.Clear ();
+      _tableSelectionCtor.Dispose (); _tableSelectionCtor.Clear ();
 
       _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
       _allowedAreasStr.Dispose (); _allowedAreasStr.Clear ();
@@ -1002,6 +1028,9 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_tree_widget ();
    _init_list_widget_item ();
    _init_list_widget ();
+   _init_table_widget_item ();
+   _init_table_widget ();
+   _init_table_selection ();
    _init_spinbox ();
    _init_combobox ();
    _init_slider ();

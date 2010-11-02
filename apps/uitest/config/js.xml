@@ -17,8 +17,9 @@
 <javascript>
    <path value="./scripts"/>
    <path value="../../scripts"/>
-   <instance name="tree"/>
+   <instance name="table"/>
 <!--   <instance name="groupbox"/>
+   <instance name="tree"/>
    <instance name="main"/>
    <instance name="dte"/>
    <instance name="test"/>
