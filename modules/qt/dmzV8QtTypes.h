@@ -18,6 +18,7 @@
 #include <dmzV8QtTableWidget.h>
 #include <dmzV8QtTabWidget.h>
 #include <dmzV8QtTextEdit.h>
+#include <dmzV8QtToolBox.h>
 #include <dmzV8QtTreeWidget.h>
 #include <dmzV8QtWidget.h>
 

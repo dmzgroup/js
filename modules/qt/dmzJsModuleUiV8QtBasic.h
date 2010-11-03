@@ -402,6 +402,18 @@ namespace dmz {
          static V8Value _table_range_col_count (const v8::Arguments &Args);
          static V8Value _table_range_row_count (const v8::Arguments &Args);
 
+         // QToolBox bindings implemented in JsModuleUiV8QtBasicToolBox.cpp
+         static V8Value _toolbox_add_item (const v8::Arguments &Args);
+         static V8Value _toolbox_clear (const v8::Arguments &Args);
+         static V8Value _toolbox_count (const v8::Arguments &Args);
+         static V8Value _toolbox_curr_index (const v8::Arguments &Args);
+         static V8Value _toolbox_curr_widget (const v8::Arguments &Args);
+         static V8Value _toolbox_index_of (const v8::Arguments &Args);
+         static V8Value _toolbox_insert_item (const v8::Arguments &Args);
+         static V8Value _toolbox_item_text (const v8::Arguments &Args);
+         static V8Value _toolbox_remove_item (const v8::Arguments &Args);
+         static V8Value _toolbox_widget (const v8::Arguments &Args);
+
          // QInputDialog bindings implemented in JsModuleUiV8QtBasicInputDialog.cpp
          static V8Value _create_input_dialog (const v8::Arguments &Args);
          QInputDialog *_create_input_dialog (V8Object params, QWidget *parent);
@@ -440,6 +452,7 @@ namespace dmz {
          void _init_table_widget ();
          void _init_table_widget_item ();
          void _init_table_selection ();
+         void _init_toolbox ();
          void _init_spinbox ();
          void _init_combobox ();
          void _init_slider ();
@@ -600,6 +613,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _tableSelectionTemp;
          V8FunctionPersist _tableSelectionCtor;
+
+         V8FunctionTemplatePersist _toolboxTemp;
+         V8FunctionPersist _toolboxWidgetCtor;
 
          V8StringPersist _allowMultipleStr;
          V8StringPersist _allowedAreasStr;

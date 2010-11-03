@@ -261,6 +261,14 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
                qobj = new V8QtTreeWidget (vobj, value, &_state);
             }
          }
+         else if (value->inherits ("QToolBox")) {
+
+            if (!_toolboxWidgetCtor.IsEmpty ()) {
+
+               vobj = _toolboxWidgetCtor->NewInstance ();
+               qobj = new V8QtToolBox (vobj, value, &_state);
+            }
+         }
          else if (value->inherits ("QTableWidget")) {
 
             if (!_tableWidgetCtor.IsEmpty ()) {
@@ -478,6 +486,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       if (!_treeWidgetTemp.IsEmpty ()) {
 
          _treeWidgetCtor = V8FunctionPersist::New (_treeWidgetTemp->GetFunction ());
+      }
+
+      if (!_toolboxTemp.IsEmpty ()) {
+
+         _toolboxWidgetCtor = V8FunctionPersist::New (_toolboxTemp->GetFunction ());
       }
 
       if (!_treeWidgetItemTemp.IsEmpty ()) {
@@ -805,6 +818,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _tableWidgetCtor.Dispose (); _tableWidgetCtor.Clear ();
       _tableWidgetItemCtor.Dispose (); _tableWidgetItemCtor.Clear ();
       _tableSelectionCtor.Dispose (); _tableSelectionCtor.Clear ();
+      _toolboxWidgetCtor.Dispose (); _toolboxWidgetCtor.Clear ();
 
       _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
       _allowedAreasStr.Dispose (); _allowedAreasStr.Clear ();
@@ -1081,6 +1095,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_table_widget_item ();
    _init_table_widget ();
    _init_table_selection ();
+   _init_toolbox ();
    _init_spinbox ();
    _init_combobox ();
    _init_slider ();

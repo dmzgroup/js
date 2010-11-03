@@ -1146,7 +1146,7 @@ dmz::JsModuleUiV8QtBasic::_table_item_data (const v8::Arguments &Args) {
 
          if (Args.Length ()) {
 
-            QVariant variant = self->_qvariant_wrap_v8 (Args[1]);
+            QVariant variant = self->_qvariant_wrap_v8 (Args[0]);
             item->setData (Qt::UserRole, variant);
          }
          result = self->_qvariant_unwrap_v8 (item->data (Qt::UserRole));
@@ -1352,36 +1352,36 @@ dmz::JsModuleUiV8QtBasic::_init_table_widget () {
    instance->SetInternalFieldCount (1);
 
    V8ObjectTemplate proto = _tableWidgetTemp->PrototypeTemplate ();
-   proto->Set ("clearSpans", v8::FunctionTemplate::New (_table_clear_spans, _self));
    proto->Set ("clear", v8::FunctionTemplate::New (_table_clear, _self));
+   proto->Set ("clearSpans", v8::FunctionTemplate::New (_table_clear_spans, _self));
    proto->Set ("clearContents", v8::FunctionTemplate::New (_table_clear_contents, _self));
    proto->Set ("setSpan", v8::FunctionTemplate::New (_table_set_span, _self));
-   proto->Set ("insertColumn", v8::FunctionTemplate::New (_table_insert_col, _self));
-   proto->Set ("removeColumn", v8::FunctionTemplate::New (_table_remove_col, _self));
    proto->Set ("columnWidth", v8::FunctionTemplate::New (_table_col_width, _self));
    proto->Set ("columnHidden", v8::FunctionTemplate::New (_table_col_hidden, _self));
+   proto->Set ("insertColumn", v8::FunctionTemplate::New (_table_insert_col, _self));
+   proto->Set ("removeColumn", v8::FunctionTemplate::New (_table_remove_col, _self));
    proto->Set ("selectColumn", v8::FunctionTemplate::New (_table_select_col, _self));
-   proto->Set ("selectRow", v8::FunctionTemplate::New (_table_select_row, _self));
+   proto->Set ("column", v8::FunctionTemplate::New (_table_col, _self));
+   proto->Set ("columnCount", v8::FunctionTemplate::New (_table_col_count, _self));
+   proto->Set ("currentColumn", v8::FunctionTemplate::New (_table_curr_col, _self));
    proto->Set ("rowHeight", v8::FunctionTemplate::New (_table_row_height, _self));
    proto->Set ("rowHidden", v8::FunctionTemplate::New (_table_row_hidden, _self));
    proto->Set ("insertRow", v8::FunctionTemplate::New (_table_insert_row, _self));
    proto->Set ("removeRow", v8::FunctionTemplate::New (_table_remove_row, _self));
+   proto->Set ("selectRow", v8::FunctionTemplate::New (_table_select_row, _self));
+   proto->Set ("row", v8::FunctionTemplate::New (_table_row, _self));
+   proto->Set ("rowCount", v8::FunctionTemplate::New (_table_row_count, _self));
+   proto->Set ("currentRow", v8::FunctionTemplate::New (_table_curr_row, _self));
    proto->Set ("wordWrap", v8::FunctionTemplate::New (_table_word_wrap, _self));
    proto->Set ("resizeColumnToContents", v8::FunctionTemplate::New (_table_resize_single_col, _self));
    proto->Set ("resizeColumnsToContents", v8::FunctionTemplate::New (_table_resize_all_col, _self));
    proto->Set ("resizeRowToContents", v8::FunctionTemplate::New (_table_resize_single_row, _self));
    proto->Set ("resizeRowsToContents", v8::FunctionTemplate::New (_table_resize_all_row, _self));
    proto->Set ("cellWidget", v8::FunctionTemplate::New (_table_cell_widget, _self));
-   proto->Set ("column", v8::FunctionTemplate::New (_table_col, _self));
-   proto->Set ("columnCount", v8::FunctionTemplate::New (_table_col_count, _self));
-   proto->Set ("currentColumn", v8::FunctionTemplate::New (_table_curr_col, _self));
-   proto->Set ("currentItem", v8::FunctionTemplate::New (_table_curr_item, _self));
-   proto->Set ("currentRow", v8::FunctionTemplate::New (_table_curr_row, _self));
-   proto->Set ("findItems", v8::FunctionTemplate::New (_table_find_items, _self));
-   proto->Set ("item", v8::FunctionTemplate::New (_table_item_at, _self));
    proto->Set ("removeCellWidget", v8::FunctionTemplate::New (_table_remove_cell_widget, _self));
-   proto->Set ("row", v8::FunctionTemplate::New (_table_row, _self));
-   proto->Set ("rowCount", v8::FunctionTemplate::New (_table_row_count, _self));
+   proto->Set ("item", v8::FunctionTemplate::New (_table_item_at, _self));
+   proto->Set ("findItems", v8::FunctionTemplate::New (_table_find_items, _self));
+   proto->Set ("currentItem", v8::FunctionTemplate::New (_table_curr_item, _self));
    proto->Set ("selectedItems", v8::FunctionTemplate::New (_table_selected_items, _self));
    proto->Set ("selectedRanges", v8::FunctionTemplate::New (_table_selected_ranges, _self));
    proto->Set ("setCurrentCell", v8::FunctionTemplate::New (_table_set_current_cell, _self));
