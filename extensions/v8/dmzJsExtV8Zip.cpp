@@ -209,6 +209,10 @@ dmz::JsExtV8Zip::_zip_read (const v8::Arguments &Args) {
       }
       else { self->_log.error << "Failed to open archive: " << FileName << endl; }
    }
+   else if (self) {
+
+      self->_log.error << (Int32)Args.Length () << " " << v8_type (Args[0]) << endl;
+   }
 
    return scope.Close (result);
 }
@@ -251,7 +255,11 @@ dmz::JsExtV8Zip::_zip_write (const v8::Arguments &Args) {
                   if (current) { current->next = ls; current = ls; }
                   else { current = files = ls; }
                }
-               else { error = True; }
+               else {
+
+                  self->_log.error << "Failed to add element to list." << endl;
+                  error = True;
+               }
             }
          }
          else {
@@ -264,6 +272,8 @@ dmz::JsExtV8Zip::_zip_write (const v8::Arguments &Args) {
          StreamZip stream;
 
          if (!error && files && stream.open_zip_file (OutFileName)) {
+
+self->_log.warn << "About to create archive" << endl;
 
             current = files;
 
@@ -308,6 +318,8 @@ dmz::JsExtV8Zip::_zip_write (const v8::Arguments &Args) {
 
                         if (stream.write_file (Buffer, size) == False) {
 
+                           self->_log.error << "Failed to write buffer to zip file: "
+                              << stream.get_error () << endl;
                            error = True;
                         }
                      }
@@ -329,6 +341,10 @@ dmz::JsExtV8Zip::_zip_write (const v8::Arguments &Args) {
                               if (in.read_file (buffer, Size) == Size) {
 
                                  if (stream.write_file (buffer, Size) == False) {
+
+                                    self->_log.error
+                                       << "Failed to write buffer to zip file: "
+                                       << stream.get_error () << endl;
 
                                     error = True;
                                  }
@@ -418,7 +434,8 @@ dmz::JsExtV8Zip::_create_list_struct (V8Value value) {
 
       if (name) {
 
-         if ((file && is_valid_path (file) && (!is_directory (file))) || config) {
+         if ((file && is_valid_path (file) && (!is_directory (file))) || config ||
+               v8_is_valid (dataStr)) {
 
             result = new ListStruct (name, file);
 
