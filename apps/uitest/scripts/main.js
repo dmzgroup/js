@@ -29,15 +29,18 @@ listWidget.observe(self, 'currentRowChanged', function (row) {
    index = row;
    // puts('row: ' + index);
    stackedWidget.currentIndex(index);
-
+   
    var label = mainForm.lookup('infoLabel');
    if (label) { label.text(index);}
 });
 
 listWidget.observe(self, 'currentItemChanged', function (item) {
-   var data = item.data();
-   puts('name:', data.name);
-   puts('file:', data.file);
+   if (item) {
+      var data = item.data();
+      puts('name:', data.name);
+      puts('file:', data.file);
+      puts('item:', item.text(), 'row:',listWidget.row(item));
+   }
 });
 
 mainForm.observe(self, 'doneButton', 'clicked', function (button) {

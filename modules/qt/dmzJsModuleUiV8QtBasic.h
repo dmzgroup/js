@@ -18,7 +18,6 @@
 class QInputDialog;
 class QMessageBox;
 
-
 namespace dmz {
 
    class JsModuleUiV8QtBasic;
@@ -46,6 +45,7 @@ namespace dmz {
 
 
    class JsModuleUiV8QtBasic :
+         public QObject,
          public Plugin,
          public TimeSlice,
          public JsModuleUiV8Qt,
@@ -200,10 +200,12 @@ namespace dmz {
 
          // QListWidget bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _list_widget_add_item (const v8::Arguments &Args);
-         static V8Value _list_widget_take_item (const v8::Arguments &Args);
          static V8Value _list_widget_current_item (const v8::Arguments &Args);
          static V8Value _list_widget_clear (const v8::Arguments &Args);
-         // static V8Value _list_widget_item (const v8::Arguments &Args);
+         static V8Value _list_widget_count (const v8::Arguments &Args);
+         static V8Value _list_widget_item (const v8::Arguments &Args);
+         static V8Value _list_widget_row (const v8::Arguments &Args);
+         static V8Value _list_widget_take_item (const v8::Arguments &Args);
 
          // QStackedWidget bindings implemented in JsModuleUiV8QtBasicStackedWidget.cpp
          static V8Value _stacked_widget_add (const v8::Arguments &Args);
@@ -403,6 +405,8 @@ namespace dmz {
          // QInputDialog bindings implemented in JsModuleUiV8QtBasicInputDialog.cpp
          static V8Value _create_input_dialog (const v8::Arguments &Args);
          QInputDialog *_create_input_dialog (V8Object params, QWidget *parent);
+
+         virtual bool eventFilter (QObject *watched, QEvent *event);
 
          QWidget *_to_qwidget (V8Value value) { return v8_to_qobject<QWidget>(value); }
          QObject *_to_qobject (V8Value value);

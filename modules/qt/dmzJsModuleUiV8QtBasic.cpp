@@ -12,7 +12,10 @@
 #include "dmzV8QtTypes.h"
 #include "dmzV8QtUtil.h"
 #include <QtCore/QFile>
+#include <QtCore/QEvent>
 #include <QtGui/QDockWidget>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QLineEdit>
 #include <QtGui/QMainWindow>
 #include <QtUiTools/QUiLoader>
 
@@ -38,6 +41,16 @@ dmz::JsModuleUiV8QtBasic::_uiloader_load (const v8::Arguments &Args) {
          QWidget *widget = loader.load (&file, 0);
          file.close ();
 
+         if (widget) {
+
+            QList<QLineEdit *> list = widget->findChildren<QLineEdit *>();
+
+            foreach (QLineEdit *lineEdit, list) {
+
+               lineEdit->installEventFilter (self->_state.ui);
+            }
+         }
+
          result = self->create_v8_qwidget (widget);
 
          if (!result.IsEmpty ()) {
@@ -57,6 +70,7 @@ dmz::JsModuleUiV8QtBasic::_uiloader_load (const v8::Arguments &Args) {
 
 
 dmz::JsModuleUiV8QtBasic::JsModuleUiV8QtBasic (const PluginInfo &Info, Config &local) :
+      QObject (0),
       Plugin (Info),
       TimeSlice (Info),
       JsModuleUiV8Qt (Info),
@@ -691,6 +705,20 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _valueStr = V8StringPersist::New (v8::String::NewSymbol ("value"));
       _shortcutStr = V8StringPersist::New (v8::String::NewSymbol ("shortcut"));
       _iconStr = V8StringPersist::New (v8::String::NewSymbol ("icon"));
+
+      // create v8 wrapper for the main window and set delete object to false -ss
+      if (_state.mainWindowModule) {
+
+         QMainWindow *mainWindow = _state.mainWindowModule->get_qt_main_window ();
+         if (mainWindow) {
+
+            V8Value value = create_v8_qwidget (mainWindow);
+
+            V8QtObject *vobj = _to_v8_qt_object (value);
+            if (vobj) { vobj->set_delete_object (False); }
+            else { _log.error << "No V8QtObject found for QMainWindow!" << endl; }
+         }
+      }
    }
    else if (State == JsExtV8::Init) {
 
@@ -844,6 +872,26 @@ dmz::JsModuleUiV8QtBasic::release_js_instance_v8 (
 }
 
 
+bool
+dmz::JsModuleUiV8QtBasic::eventFilter (QObject *watched, QEvent *event) {
+
+   bool result (false);
+
+   if (event->type () == QEvent::ShortcutOverride) {
+
+      QKeyEvent* ke = static_cast<QKeyEvent*>(event);
+
+      // ignore undo/redo events
+      if (ke == QKeySequence::Undo || ke == QKeySequence::Redo) { result = true; }
+   }
+
+   // standard event processing
+   if (!result) { result = QObject::eventFilter (watched, event); }
+
+   return result;
+}
+
+
 dmz::V8QtWidget *
 dmz::JsModuleUiV8QtBasic::_to_v8_qt_widget (V8Value value) {
 
@@ -921,6 +969,8 @@ dmz::JsModuleUiV8QtBasic::_find_ui_file (const String &Name) {
 
 void
 dmz::JsModuleUiV8QtBasic::_init (Config &local) {
+
+   setObjectName (get_plugin_name ().get_buffer ());
 
    _searchPaths = config_to_path_string_container (local);
 
