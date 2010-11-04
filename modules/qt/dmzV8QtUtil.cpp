@@ -5,7 +5,7 @@
 dmz::V8Value
 dmz::qvariant_to_v8 (const QVariant &Value) {
 
-   V8Value newValue;
+   V8Value newValue = v8::Undefined ();
 
    if (Value.isValid ()) {
 
@@ -73,6 +73,26 @@ dmz::v8_to_qvariant (V8Value value) {
    }
 
    return result;
+}
+
+
+QStringList
+dmz::v8_to_qstringlist (V8Value value) {
+
+   QStringList list;
+
+   if (!value.IsEmpty () && !value->IsUndefined ()) {
+
+      V8Array array = v8_to_array (value);
+      const uint32_t Length = array->Length ();
+      for (uint32_t ix = 0; ix < Length; ix++) {
+
+         QString value = v8_to_qstring (array->Get (v8::Integer::NewFromUnsigned (ix)));
+         list.append (value);
+      }
+   }
+
+   return list;
 }
 
 

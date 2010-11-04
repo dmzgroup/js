@@ -14,10 +14,13 @@ dmz::V8QtWidget::~V8QtWidget () {
 
    if (_widget) {
 
-      if (!_widget->parentWidget () && _deleteObject) { delete _widget; }
-      _widget = 0;
-      _object = 0;
+      if (!_widget->parentWidget ()) {
+
+         if (_deleteObject) { delete _widget; }
+      }
    }
+
+   _widget = 0;
 }
 
 

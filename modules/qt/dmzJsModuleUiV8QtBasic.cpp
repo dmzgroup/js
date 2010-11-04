@@ -43,11 +43,16 @@ dmz::JsModuleUiV8QtBasic::_uiloader_load (const v8::Arguments &Args) {
 
          if (widget) {
 
-            QList<QLineEdit *> list = widget->findChildren<QLineEdit *>();
+            widget->setProperty ("_uiloader_loaded", True);
+            widget->setProperty ("_uiloader_file", file.fileName ());
+            widget->setProperty ("_uiloader_name", Name.get_buffer ());
+            widget->setProperty ("_uiloader_object_name", widget->objectName ());
 
+            QList<QLineEdit *> list = widget->findChildren<QLineEdit *>();
             foreach (QLineEdit *lineEdit, list) {
 
                lineEdit->installEventFilter (self->_state.ui);
+               lineEdit->setProperty ("_uiloader_event_filter_installed", True);
             }
          }
 
@@ -75,16 +80,15 @@ dmz::JsModuleUiV8QtBasic::JsModuleUiV8QtBasic (const PluginInfo &Info, Config &l
       TimeSlice (Info),
       JsModuleUiV8Qt (Info),
       JsExtV8 (Info),
-      _log (Info) {
+      _log (Info),
+      _centralWidget (0) {
 
    _state.ui = this;
    _init (local);
 }
 
 
-dmz::JsModuleUiV8QtBasic::~JsModuleUiV8QtBasic () {
-
-}
+dmz::JsModuleUiV8QtBasic::~JsModuleUiV8QtBasic () {;}
 
 
 // Plugin Interface
@@ -104,7 +108,6 @@ dmz::JsModuleUiV8QtBasic::update_plugin_state (
    }
    else if (State == PluginStateShutdown) {
 
-      _self.Dispose (); _self.Clear ();
    }
 }
 
@@ -734,6 +737,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _valueStr = V8StringPersist::New (v8::String::NewSymbol ("value"));
       _shortcutStr = V8StringPersist::New (v8::String::NewSymbol ("shortcut"));
       _iconStr = V8StringPersist::New (v8::String::NewSymbol ("icon"));
+      _editableStr = V8StringPersist::New (v8::String::NewSymbol ("editable"));
 
       // create v8 wrapper for the main window and set delete object to false -ss
       if (_state.mainWindowModule) {
@@ -770,7 +774,16 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _mainWindowState.clear ();
 
          QMainWindow *mainWindow = _state.mainWindowModule->get_qt_main_window ();
-         if (mainWindow) { _mainWindowState = mainWindow->saveState (); }
+         if (mainWindow) {
+
+            _mainWindowState = mainWindow->saveState ();
+
+            if (_centralWidget) {
+
+               mainWindow->setCentralWidget (0);
+               _centralWidget->setParent (0);
+            }
+         }
 
          foreach (String dock, _dockList) {
 
@@ -866,6 +879,9 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _valueStr.Dispose (); _valueStr.Clear ();
       _shortcutStr.Dispose (); _shortcutStr.Clear ();
       _iconStr.Dispose (); _iconStr.Clear ();
+      _editableStr.Dispose (); _editableStr.Clear ();
+
+      _self.Dispose (); _self.Clear ();
 
       _qtApi.clear ();
       _uiLoaderApi.clear ();
@@ -1097,6 +1113,10 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _qtApi.add_constant ("MatchWildcard", (UInt32)Qt::MatchWildcard);
    _qtApi.add_constant ("MatchWrap", (UInt32)Qt::MatchWrap);
    _qtApi.add_constant ("MatchRecursive", (UInt32)Qt::MatchRecursive);
+
+   // enum QLineEdit::EchoMode
+   _qtApi.add_constant ("Normal", (UInt32)QLineEdit::Normal);
+   _qtApi.add_constant ("Password", (UInt32)QLineEdit::Password);
 
    // UiLoader API
    _uiLoaderApi.add_function ("load", _uiloader_load, _self);

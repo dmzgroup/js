@@ -4,16 +4,6 @@
 #include <QtGui/QAbstractButton>
 
 
-//QAbstractButton *
-//dmz::JsModuleUiV8QtBasic::_to_qabstractbutton (V8Value value) {
-
-//   QAbstractButton *result (0);
-//   QWidget *widget = _to_qwidget (value);
-//   if (widget) { result = qobject_cast<QAbstractButton *>(widget); }
-//   return result;
-//}
-
-
 dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_button_text (const v8::Arguments &Args) {
 
@@ -66,7 +56,6 @@ dmz::JsModuleUiV8QtBasic::_button_set_checked (const v8::Arguments &Args) {
    V8Value result = v8::Undefined ();
 
    JsModuleUiV8QtBasic *self = _to_self (Args);
-
    if (self) {
 
       QAbstractButton *button = self->v8_to_qobject<QAbstractButton> (Args.This ());;

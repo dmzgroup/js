@@ -127,18 +127,20 @@ dmz::JsModuleUiV8QtBasic::_create_input_dialog (V8Object params, QWidget *parent
          }
          else if (params->Has (_itemsStr)) { // getItem
 
-//            if (params->Has (_currentStr)) {
+            QStringList items = v8_to_qstringlist (params->Get (_itemsStr));
+            dialog->setComboBoxItems (items);
 
-//               dialog->setIntValue (v8_to_int32 (params->Get (_currentStr)));
-//            }
+            if (params->Has (_currentStr)) {
 
-//            if (params->Has (_editableStr)) {
+               Int32 current = v8_to_int32 (params->Get (_currentStr));
+               QString text (items.value (current));
+               dialog->setTextValue (text);
+            }
 
-//            }
-         }
-         else {
+            if (params->Has (_editableStr)) {
 
-            delete dialog; dialog = 0;
+               dialog->setComboBoxEditable (v8_to_boolean (params->Get (_editableStr)));
+            }
          }
       }
    }
@@ -152,14 +154,16 @@ dmz::JsModuleUiV8QtBasic::_init_input_dialog () {
 
    v8::HandleScope scope;
 
-   _inputDialogApi.add_constant ("TextInput", (UInt32)QInputDialog::TextInput);
-   _inputDialogApi.add_constant ("IntInput", (UInt32)QInputDialog::IntInput);
-   _inputDialogApi.add_constant ("DoubleInput", (UInt32)QInputDialog::DoubleInput);
-   _inputDialogApi.add_constant ("NoButtons", (UInt32)QInputDialog::NoButtons);
+//   _inputDialogApi.add_constant ("TextInput", (UInt32)QInputDialog::TextInput);
+//   _inputDialogApi.add_constant ("IntInput", (UInt32)QInputDialog::IntInput);
+//   _inputDialogApi.add_constant ("DoubleInput", (UInt32)QInputDialog::DoubleInput);
+//   _inputDialogApi.add_constant ("NoButtons", (UInt32)QInputDialog::NoButtons);
+//   _inputDialogApi.add_constant ("Normal", (UInt32)QLineEdit::Normal);
+//   _inputDialogApi.add_constant ("Password", (UInt32)QLineEdit::Password);
 
-   _inputDialogApi.add_constant (
-      "UseListViewForComboBoxItems",
-      (UInt32)QInputDialog::UseListViewForComboBoxItems);
+//   _inputDialogApi.add_constant (
+//      "UseListViewForComboBoxItems",
+//      (UInt32)QInputDialog::UseListViewForComboBoxItems);
 
    _inputDialogApi.add_function ("create", _create_input_dialog, _self);
 }

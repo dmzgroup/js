@@ -80,6 +80,7 @@ namespace dmz {
 
          void _do_callback (const String &Signal);
          void _do_callback (const String &Signal, const QVariant &Value);
+         void _do_callback (const String &Signal, const QVariantList &ValueList);
          void _do_callback (const String &Signal, const QList<V8Value> &ValueList);
 
          V8Value _to_v8_value (const QVariant &Value);
