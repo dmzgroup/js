@@ -12,6 +12,7 @@
 #include <QtCore/QList>
 #include <QtCore/QMap>
 #include <QtCore/QObject>
+#include <QtCore/QPointer>
 #include <QtGui/QWidget>
 #include <v8.h>
 
@@ -357,6 +358,7 @@ namespace dmz {
          QMap<QObject *, V8QtObject *> _objectMap;
          QMap<QString, QAction *> _menuActionMap;
          QList<QWidget *> _dialogList;
+         QPointer<QWidget> _centralWidget;
          QList<String> _dockList;
          QByteArray _mainWindowState;
          QList<V8ValueRef *>_valueDeleteList;

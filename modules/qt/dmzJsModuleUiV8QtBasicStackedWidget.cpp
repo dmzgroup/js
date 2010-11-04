@@ -4,8 +4,6 @@
 #include <QtGui/QAbstractButton>
 #include <QtGui/QStackedWidget>
 
-using namespace dmz;
-
 
 dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_stacked_widget_add (const v8::Arguments &Args) {

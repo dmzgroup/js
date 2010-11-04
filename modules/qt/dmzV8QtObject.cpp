@@ -1,10 +1,7 @@
 #include <dmzJsModuleV8.h>
 #include "dmzV8QtObject.h"
 #include "dmzV8QtUtil.h"
-#include <QtCore/QVariant>
-#include <QtGui/QWidget>
 
-#include <QtCore/QDebug>
 
 dmz::V8QtObject::V8QtObject (
       const V8Object &Self,
@@ -31,9 +28,10 @@ dmz::V8QtObject::~V8QtObject () {
       if (!_object->parent ()) {
 
          if (_deleteObject) { delete _object; }
-         _object = 0;
       }
    }
+
+   _object = 0;
 
    _cbTable.empty ();
 
@@ -160,12 +158,22 @@ dmz::V8QtObject::_handle_exception (const Handle Source, v8::TryCatch &tc) {
 void
 dmz::V8QtObject::_do_callback (const String &Signal) {
 
-   _do_callback (Signal, QVariant ());
+   QVariantList args;
+   _do_callback (Signal, args);
 }
 
 
 void
 dmz::V8QtObject::_do_callback (const String &Signal, const QVariant &Value) {
+
+   QVariantList args;
+   args.append (Value);
+   _do_callback (Signal, args);
+}
+
+
+void
+dmz::V8QtObject::_do_callback (const String &Signal, const QVariantList &ValueList) {
 
    if (_state) {
 
@@ -174,8 +182,11 @@ dmz::V8QtObject::_do_callback (const String &Signal, const QVariant &Value) {
 
       QList<V8Value> args;
 
-      V8Value newValue = qvariant_to_v8 (Value);
-      if (!newValue.IsEmpty ()) { args.append (newValue); }
+      foreach (QVariant value, ValueList) {
+
+         V8Value newValue = qvariant_to_v8 (value);
+         if (!newValue.IsEmpty ()) { args.append (newValue); }
+      }
 
       _do_callback (Signal, args);
    }

@@ -34,8 +34,15 @@ dmz::JsModuleUiV8QtBasic::_main_window_central_widget (const v8::Arguments &Args
             QWidget *widget = self->_to_qwidget (Args[0]);
             if (widget) {
 
+               if (self->_centralWidget) {
+
+                  mainWindow->setCentralWidget (0);
+                  self->_centralWidget->setParent (0);
+               }
+
                widget->setParent (mainWindow);
                mainWindow->setCentralWidget (widget);
+               self->_centralWidget = widget;
             }
          }
 

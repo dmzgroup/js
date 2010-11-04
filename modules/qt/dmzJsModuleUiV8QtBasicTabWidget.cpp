@@ -5,8 +5,6 @@
 #include <QtGui/QAbstractButton>
 #include <QtGui/QTabWidget>
 
-using namespace dmz;
-
 
 dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_tab_widget_add (const v8::Arguments &Args) {

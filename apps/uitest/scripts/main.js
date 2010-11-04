@@ -46,14 +46,13 @@ listWidget.observe(self, 'currentItemChanged', function (item) {
 mainForm.observe(self, 'doneButton', 'clicked', function (button) {
    
    var mb = QMessageBox.create(
-      {
-         type: QMessageBox.Information,
-         text: "Are you done?",
-         informativeText: "Hit Ok to quit!",
-         standardButtons: [QMessageBox.Ok, QMessageBox.Cancel],
-         defaultButton: QMessageBox.Ok
-      },
-      button.parent()
+      { type: QMessageBox.Information
+      , text: "Are you done?"
+      , informativeText: "Hit Ok to quit!"
+      , standardButtons: [QMessageBox.Ok, QMessageBox.Cancel]
+      , defaultButton: QMessageBox.Ok
+      }
+      , button.window()
    );
 
    mb.open(self, function (val) {
@@ -138,6 +137,8 @@ var dockName = "My Tools";
 var toolsWidget = QUiLoader.load('./scripts/Tools.ui');
 if(toolsWidget) {
    
+   toolsWidget.name(dockName);
+   
    // toolsWidget.observe(self, 'button1', 'clicked', function (btn) {
    // });
 
@@ -161,7 +162,7 @@ if(toolsWidget) {
             }
             , mainWindow.window());
 
-         puts("saveFileName:", str);
+         if (str) { puts("saveFileName:", str) };
       });
       
       toolsWidget.observe(self, 'button2', 'clicked', function () {
@@ -169,15 +170,21 @@ if(toolsWidget) {
          var input = QInputDialog.create (
             { title: "This is the title"
             , label: "MY LABEL"
-            , value: 11.5
-            , decimal: 2
-            , min: 9
-            , max: 20
+            // , text: 'text'
+            // , mode: Qt.Normal
+            // , value: 11.5
+            // , decimal: 2
+            // , min: 9
+            // , max: 20
+            , items: ['one', 'two', 'three']
+            , current: 1
+            // , editable: true
             }
             , mainWindow.window());
          
-         input.open (self, function (val) {
-            puts (val);
+         input.open (self, function (res, val) {
+            puts ('res:', res);
+            puts ('val:', val);
          });
       });
       

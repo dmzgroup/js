@@ -6,9 +6,6 @@
 #include <QtGui/QListWidgetItem>
 
 
-using namespace dmz;
-
-
 dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_list_widget_item_text (const v8::Arguments &Args) {
 
