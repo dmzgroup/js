@@ -261,6 +261,16 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
                qobj = new V8QtTreeWidget (vobj, value, &_state);
             }
          }
+         else if (value->inherits ("QMessageBox")) {
+
+            if (!_messageboxCtor.IsEmpty ()) {
+
+               vobj = _messageboxCtor->NewInstance();
+               qobj = new V8QtMessageBox (vobj, value, &_state);
+
+               _dialogList.append (value);
+            }
+         }
          else if (value->inherits ("QToolBox")) {
 
             if (!_toolboxWidgetCtor.IsEmpty ()) {
@@ -653,6 +663,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _actionCtor = V8FunctionPersist::New (_actionTemp->GetFunction ());
       }
 
+      if (!_messageboxTemp.IsEmpty ()) {
+
+         _messageboxCtor = V8FunctionPersist::New (_messageboxTemp->GetFunction());
+      }
+
       if (_state.core) {
 
          _state.core->register_interface ("dmz/ui/consts", _qtApi.get_new_instance ());
@@ -694,6 +709,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _areaStr = V8StringPersist::New (v8::String::NewSymbol ("area"));
       _captionStr = V8StringPersist::New (v8::String::NewSymbol ("caption"));
       _defaultButtonStr = V8StringPersist::New (v8::String::NewSymbol ("defaultButton"));
+      _detailedTextStr = V8StringPersist::New (v8::String::NewSymbol ("detailedText"));
       _dirStr = V8StringPersist::New (v8::String::NewSymbol ("dir"));
       _featuresStr = V8StringPersist::New (v8::String::NewSymbol ("features"));
       _filterStr = V8StringPersist::New (v8::String::NewSymbol ("filter"));
@@ -819,12 +835,14 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _tableWidgetItemCtor.Dispose (); _tableWidgetItemCtor.Clear ();
       _tableSelectionCtor.Dispose (); _tableSelectionCtor.Clear ();
       _toolboxWidgetCtor.Dispose (); _toolboxWidgetCtor.Clear ();
+      _messageboxCtor.Dispose (); _messageboxCtor.Clear ();
 
       _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
       _allowedAreasStr.Dispose (); _allowedAreasStr.Clear ();
       _areaStr.Dispose (); _areaStr.Clear ();
       _captionStr.Dispose (); _captionStr.Clear ();
       _defaultButtonStr.Dispose (); _defaultButtonStr.Clear ();
+      _detailedTextStr.Dispose (); _detailedTextStr.Clear ();
       _dirStr.Dispose (); _dirStr.Clear ();
       _filterStr.Dispose (); _filterStr.Clear ();
       _floatingStr.Dispose (); _floatingStr.Clear ();
@@ -1104,8 +1122,8 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_dial ();
    _init_label ();
    _init_progressBar ();
-   _init_message_box ();
    _init_dialog ();
+   _init_message_box ();
    _init_lcdNumber ();
    _init_stacked_widget ();
    _init_tab_widget ();

@@ -415,6 +415,11 @@ namespace dmz {
          static V8Value _toolbox_remove_item (const v8::Arguments &Args);
          static V8Value _toolbox_widget (const v8::Arguments &Args);
 
+         // QMessageBox bindings implemented in JsModuleUiV8QtBasicMessageBox.cpp
+         static V8Value _messagebox_text (const v8::Arguments &Args);
+         static V8Value _messagebox_dtext (const v8::Arguments &Args);
+         static V8Value _messagebox_itext (const v8::Arguments &Args);
+
          // QInputDialog bindings implemented in JsModuleUiV8QtBasicInputDialog.cpp
          static V8Value _create_input_dialog (const v8::Arguments &Args);
          QInputDialog *_create_input_dialog (V8Object params, QWidget *parent);
@@ -618,11 +623,15 @@ namespace dmz {
          V8FunctionTemplatePersist _toolboxTemp;
          V8FunctionPersist _toolboxWidgetCtor;
 
+         V8FunctionTemplatePersist _messageboxTemp;
+         V8FunctionPersist _messageboxCtor;
+
          V8StringPersist _allowMultipleStr;
          V8StringPersist _allowedAreasStr;
          V8StringPersist _areaStr;
          V8StringPersist _captionStr;
          V8StringPersist _defaultButtonStr;
+         V8StringPersist _detailedTextStr;
          V8StringPersist _dirStr;
          V8StringPersist _editableStr;
          V8StringPersist _featuresStr;
