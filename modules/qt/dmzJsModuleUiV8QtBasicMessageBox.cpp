@@ -114,8 +114,8 @@ dmz::JsModuleUiV8QtBasic::_messagebox_text (const v8::Arguments &Args) {
       QMessageBox *mbox = self->v8_to_qobject<QMessageBox> (Args.This ());
       if (mbox) {
 
-         self->_log.warn <<"Set text" << endl;
          if (Args.Length ()) { mbox->setText (v8_to_qstring (Args[0])); }
+         result = v8::String::New (qPrintable (mbox->text ()));
       }
    }
 
@@ -136,8 +136,8 @@ dmz::JsModuleUiV8QtBasic::_messagebox_itext (const v8::Arguments &Args) {
       QMessageBox *mbox = self->v8_to_qobject<QMessageBox> (Args.This ());
       if (mbox) {
 
-         self->_log.warn <<"Set itext" << endl;
          if (Args.Length ()) { mbox->setInformativeText (v8_to_qstring (Args[0])); }
+         result = v8::String::New (qPrintable (mbox->informativeText ()));
       }
    }
 
@@ -158,8 +158,8 @@ dmz::JsModuleUiV8QtBasic::_messagebox_dtext (const v8::Arguments &Args) {
       QMessageBox *mbox = self->v8_to_qobject<QMessageBox> (Args.This ());
       if (mbox) {
 
-         self->_log.warn <<"Set dtext" << endl;
          if (Args.Length ()) { mbox->setDetailedText (v8_to_qstring (Args[0])); }
+         result = v8::String::New (qPrintable (mbox->detailedText ()));
       }
    }
 
@@ -205,7 +205,7 @@ dmz::JsModuleUiV8QtBasic::_init_message_box () {
    instance->SetInternalFieldCount (1);
 
    V8ObjectTemplate proto = _messageboxTemp->PrototypeTemplate ();
-   proto->Set ("setText", v8::FunctionTemplate::New (_messagebox_text, _self));
-   proto->Set ("setDetailedText", v8::FunctionTemplate::New (_messagebox_dtext, _self));
-   proto->Set ("setInformativeText", v8::FunctionTemplate::New (_messagebox_itext, _self));
+   proto->Set ("text", v8::FunctionTemplate::New (_messagebox_text, _self));
+   proto->Set ("detailedText", v8::FunctionTemplate::New (_messagebox_dtext, _self));
+   proto->Set ("informativeText", v8::FunctionTemplate::New (_messagebox_itext, _self));
 }

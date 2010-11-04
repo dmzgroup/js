@@ -23,6 +23,7 @@ namespace dmz {
    QVariant v8_to_qvariant (V8Value value);
    QString v8_to_qstring (V8Value value);
    QDateTime v8_to_qdatetime (V8Value value);
+   QStringList v8_to_qstringlist (V8Value value);
 
    QKeySequence v8_to_qkeysequence (V8Value value);
 

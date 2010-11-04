@@ -4,16 +4,6 @@
 #include <QtGui/QComboBox>
 
 
-//QComboBox *
-//dmz::JsModuleUiV8QtBasic::_to_qcombobox (V8Value value) {
-
-//   QComboBox *result (0);
-//   QWidget *widget = _to_qwidget (value);
-//   if (widget) { result = qobject_cast<QComboBox *>(widget); }
-//   return result;
-//}
-
-
 dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_combobox_count (const v8::Arguments &Args) {
 
