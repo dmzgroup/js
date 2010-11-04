@@ -206,6 +206,7 @@ namespace dmz {
          static V8Value _list_widget_item (const v8::Arguments &Args);
          static V8Value _list_widget_row (const v8::Arguments &Args);
          static V8Value _list_widget_take_item (const v8::Arguments &Args);
+         static V8Value _list_widget_find_items (const v8::Arguments &Args);
 
          // QStackedWidget bindings implemented in JsModuleUiV8QtBasicStackedWidget.cpp
          static V8Value _stacked_widget_add (const v8::Arguments &Args);
