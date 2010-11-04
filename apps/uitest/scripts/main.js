@@ -59,10 +59,15 @@ mainForm.observe(self, 'doneButton', 'clicked', function (button) {
          text: "Are you done?",
          informativeText: "Hit Ok to quit!",
          standardButtons: [QMessageBox.Ok, QMessageBox.Cancel],
-         defaultButton: QMessageBox.Ok
+         defaultButton: QMessageBox.Ok,
+         detailedText: "This window helps you quit!"
       },
       button.parent()
    );
+
+//   mb.setText ("This text has been set");
+//   mb.setDetailedText("Dtext!");
+//   mb.setInformativeText("Itext");
 
    mb.open(self, function (val) {
       if (val === QMessageBox.Ok) {
