@@ -43,6 +43,14 @@ listWidget.observe(self, 'currentItemChanged', function (item) {
    }
 });
 
+mainForm.observe(self, "pushButton", "clicked", function () {
+
+   listWidget.findItems("Slider").forEach(function (key) {
+
+      puts(key.text());
+   });
+});
+
 mainForm.observe(self, 'doneButton', 'clicked', function (button) {
    
    var mb = QMessageBox.create(

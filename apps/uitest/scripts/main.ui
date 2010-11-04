@@ -117,6 +117,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="text">
+        <string>list items</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="doneButton">
        <property name="text">
         <string>Done</string>
