@@ -1,42 +1,39 @@
-var puts = require('sys').puts
-  , timer = require('dmz/runtime/time')
-  , uiLoader = require('dmz/ui/uiLoader')
-  , form
-  , array
-  , cb
-  , rb1
-  , rb2
-  , pb
-  ;
+var dmz = 
+       { module: require('dmz/runtime/module')
+       , ui:
+          { consts: require('dmz/ui/consts')
+          , loader: require('dmz/ui/uiLoader')
+          }
+       }
+   , _exports = {}
+   , _form = dmz.ui.loader.load('button')
+   , _main
+   , _clicked
+   , _toggled
+   ;
 
-puts("Script: " + self.name);
+_clicked = function (btn) { _main.print(self.name, 'clicked:', btn); }
 
-form = uiLoader.load("./scripts/CheckBoxForm.ui");
-form.show();
+_form.observe(self, "pushButton", "clicked", _clicked);
+_form.observe(self, "toolButton", "clicked", _clicked);
+_form.observe(self, "commandLinkButton", "clicked", _clicked);
+_form.observe(self, "radioButton", "clicked", _clicked);
+_form.observe(self, "radioButton_2", "clicked", _clicked);
+_form.observe(self, "radioButton_3", "clicked", _clicked);
+_form.observe(self, "radioButton_4", "clicked", _clicked);
+_form.observe(self, "checkBox", "clicked", _clicked);
+_form.observe(self, "checkBox_2", "clicked", _clicked);
 
-cb = form.lookup("checkBox");
-rb1 = form.lookup("radioButton");
-rb2 = form.lookup("radioButton_2");
-pb = form.lookup("pushButton");
+_toggled = function (val, btn) { _main.print(self.name, 'toggled', val, btn); }
 
-array =
-   [ {var: cb, name: "cb"}
-   , {var: rb1, name: "rb1"},
-   , {var: rb2, name: "rb2"},
-   , {var: pb, name: "pb"}
-   ];
+_form.observe(self, "checkBox", "toggled", _toggled);
+_form.observe(self, "checkBox_2", "toggled", _toggled);
 
-array.forEach(function (obj) {
-   obj.var.observe(self, "clicked", function () { puts(obj.name, "clicked");});
-   obj.var.observe(self, "toggled", function (val) {
-      puts(obj.name, "toggled", val);
-   });
-   puts(obj.name);
-   obj.var.text(obj.name);
-   puts("isChecked:", obj.var.isChecked());
-   obj.var.click();
-   obj.var.setChecked(true);
-   puts("isChecked:", obj.var.isChecked());
+dmz.module.subscribe(self, "main", function (Mode, module) {
+   
+   if (Mode === dmz.module.Activate) {
+      
+      _main = module
+      _main.addPage (_form.title(), _form);
+   }
 });
-
-puts("Done.");
