@@ -28,6 +28,8 @@ namespace dmz {
             const V8Function &Func);
 
       protected:
+         void _make_weak (const Boolean Value = True);
+
          QPointer<QWidget> _widget;
    };
 };

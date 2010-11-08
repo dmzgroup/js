@@ -13,6 +13,7 @@ dmz::V8QtObject::V8QtObject (
       _current (0),
       _deleteObject (True) {
 
+   setObjectName ("V8QtObject");
    if (!Self.IsEmpty ()) {
 
       Self->SetInternalField (0, v8::External::Wrap ((void *)this));
@@ -81,6 +82,16 @@ dmz::V8QtObject::release_callback (const Handle Observer) {
 
 void
 dmz::V8QtObject::set_delete_object (const Boolean Value) { _deleteObject = Value; }
+
+
+void
+dmz::V8QtObject::clean_up () {
+
+   if (_state && _state->ui) {
+
+      _state->ui->v8_qt_object_destroyed (this);
+   }
+}
 
 
 void

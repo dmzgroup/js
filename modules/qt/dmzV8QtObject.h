@@ -40,6 +40,8 @@ namespace dmz {
 
          void set_delete_object (const Boolean Value);
 
+         void clean_up ();
+
          V8ObjectPersist self;
 
       protected:
@@ -84,7 +86,6 @@ namespace dmz {
          void _do_callback (const String &Signal, const QList<V8Value> &ValueList);
 
          V8Value _to_v8_value (const QVariant &Value);
-
 
          QPointer<QObject> _object;
          JsModuleUiV8QtBasicState *_state;

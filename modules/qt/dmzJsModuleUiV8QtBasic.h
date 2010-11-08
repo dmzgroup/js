@@ -52,6 +52,8 @@ namespace dmz {
          public JsModuleUiV8Qt,
          public JsExtV8 {
 
+      Q_OBJECT
+
       public:
          JsModuleUiV8QtBasic (const PluginInfo &Info, Config &local);
          ~JsModuleUiV8QtBasic ();
@@ -91,6 +93,8 @@ namespace dmz {
             if (object) { result = qobject_cast<T *>(object); }
             return result;
          }
+
+         void v8_qt_object_destroyed (V8QtObject *object);
 
       protected:
          struct ObsStruct {

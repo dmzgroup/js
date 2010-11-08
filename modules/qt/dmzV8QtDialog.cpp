@@ -59,6 +59,8 @@ dmz::V8QtDialog::open (
 
       if (bind (LocalSignalFinished, Self, Func)) {
 
+//         _make_weak (False);
+
          dialog->open ();
       }
    }
@@ -101,5 +103,7 @@ dmz::V8QtDialog::on_finished (int value) {
       }
 
       _do_callback (LocalSignalFinished, args);
+
+      _make_weak (True);
    }
 }

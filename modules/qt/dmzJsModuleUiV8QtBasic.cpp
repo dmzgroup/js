@@ -121,7 +121,8 @@ dmz::JsModuleUiV8QtBasic::discover_plugin (
 
       if (!_state.mainWindowModule) {
 
-         _state.mainWindowModule = QtModuleMainWindow::cast (PluginPtr, _mainWindowModuleName);
+         _state.mainWindowModule =
+            QtModuleMainWindow::cast (PluginPtr, _mainWindowModuleName);
       }
    }
    else if (Mode == PluginDiscoverRemove) {
@@ -405,7 +406,8 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
 
 // JsExtV8 Interface
 void
-dmz::JsModuleUiV8QtBasic::update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module) {
+dmz::JsModuleUiV8QtBasic::update_js_module_v8 (
+const ModeEnum Mode, JsModuleV8 &module) {
 
    if (Mode == JsExtV8::Store) {
 
@@ -813,6 +815,19 @@ dmz::JsModuleUiV8QtBasic::eventFilter (QObject *watched, QEvent *event) {
    if (!result) { result = QObject::eventFilter (watched, event); }
 
    return result;
+}
+
+
+void
+dmz::JsModuleUiV8QtBasic::v8_qt_object_destroyed (V8QtObject *object) {
+
+   if (object) {
+
+      if (object->get_qobject ()) {
+
+         _objectMap.remove (object->get_qobject ());
+      }
+   }
 }
 
 
