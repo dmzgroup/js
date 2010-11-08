@@ -185,16 +185,35 @@ if(toolsWidget) {
             , label: "MY LABEL"
             // , text: 'text'
             // , mode: Qt.Normal
-            // , value: 11.5
-            // , decimal: 2
-            // , min: 9
-            // , max: 20
-            , items: ['one', 'two', 'three']
+             , value: 11.5
+             , decimal: 2
+             , min: 9
+             , max: 20
+//             , step: 2
+//            , items: ['one', 'two', 'three']
             , current: 1
             // , editable: true
             }
             , mainWindow.window());
+
+         var signalArray =
+            [ "doubleValueChanged"
+            , "doubleValueSelected"
+            , "intValueChanged"
+            , "intValueSelected"
+            , "textValueChanged"
+            , "textValueSelected"];
+
+         signalArray.forEach(function (signalName) {
+
+            puts ("observe:", signalName);
+            input.observe(self, signalName, function (value) {
+
+               puts (signalName, value);
+            });
+         })
          
+         puts ("QInputDialog");
          input.open (self, function (res, val) {
             puts ('res:', res);
             puts ('val:', val);

@@ -264,6 +264,14 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
                qobj = new V8QtTreeWidget (vobj, value, &_state);
             }
          }
+         else if (value->inherits ("QInputDialog")) {
+
+            if (!_inputDialogCtor.IsEmpty ()) {
+
+               vobj = _inputDialogCtor->NewInstance ();
+               qobj = new V8QtInputDialog (vobj, value, &_state);
+            }
+         }
          else if (value->inherits ("QMessageBox")) {
 
             if (!_messageboxCtor.IsEmpty ()) {
@@ -668,7 +676,12 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
       if (!_messageboxTemp.IsEmpty ()) {
 
-         _messageboxCtor = V8FunctionPersist::New (_messageboxTemp->GetFunction());
+         _messageboxCtor = V8FunctionPersist::New (_messageboxTemp->GetFunction ());
+      }
+
+      if (!_inputDialogTemp.IsEmpty ()) {
+
+         _inputDialogCtor = V8FunctionPersist::New (_inputDialogTemp->GetFunction ());
       }
 
       if (_state.core) {
@@ -849,6 +862,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _tableSelectionCtor.Dispose (); _tableSelectionCtor.Clear ();
       _toolboxWidgetCtor.Dispose (); _toolboxWidgetCtor.Clear ();
       _messageboxCtor.Dispose (); _messageboxCtor.Clear ();
+      _inputDialogCtor.Dispose (); _inputDialogCtor.Dispose ();
 
       _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
       _allowedAreasStr.Dispose (); _allowedAreasStr.Clear ();

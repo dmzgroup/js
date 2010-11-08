@@ -423,7 +423,23 @@ namespace dmz {
 
          // QInputDialog bindings implemented in JsModuleUiV8QtBasicInputDialog.cpp
          static V8Value _create_input_dialog (const v8::Arguments &Args);
+         static V8Value _input_dialog_ddec (const v8::Arguments &Args);
+         static V8Value _input_dialog_dmax (const v8::Arguments &Args);
+         static V8Value _input_dialog_dmin (const v8::Arguments &Args);
+         static V8Value _input_dialog_dval (const v8::Arguments &Args);
+         static V8Value _input_dialog_imax (const v8::Arguments &Args);
+         static V8Value _input_dialog_imin (const v8::Arguments &Args);
+         static V8Value _input_dialog_istep (const v8::Arguments &Args);
+         static V8Value _input_dialog_ival (const v8::Arguments &Args);
+         static V8Value _input_dialog_label_text (const v8::Arguments &Args);
+         static V8Value _input_dialog_ok_btn_text (const v8::Arguments &Args);
+         static V8Value _input_dialog_cancel_btn_text (const v8::Arguments &Args);
+         static V8Value _input_dialog_tval (const v8::Arguments &Args);
+         static V8Value _input_dialog_cbox_items (const v8::Arguments &Args);
+         static V8Value _input_dialog_current (const v8::Arguments &Args);
+         static V8Value _input_dialog_cbox_editable (const v8::Arguments &Args);
          QInputDialog *_create_input_dialog (V8Object params, QWidget *parent);
+
 
          virtual bool eventFilter (QObject *watched, QEvent *event);
 
@@ -627,6 +643,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _messageboxTemp;
          V8FunctionPersist _messageboxCtor;
+
+         V8FunctionTemplatePersist _inputDialogTemp;
+         V8FunctionPersist _inputDialogCtor;
 
          V8StringPersist _allowMultipleStr;
          V8StringPersist _allowedAreasStr;
