@@ -1058,7 +1058,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
 
    // enum Qt::CaseSensitivity
    _qtApi.add_constant ("CaseInsensitive", (UInt32)Qt::CaseInsensitive);
-   _qtApi.add_constant ("CaseInsensitive", (UInt32)Qt::CaseInsensitive);
+   _qtApi.add_constant ("CaseSensitive", (UInt32)Qt::CaseSensitive);
 
    // enum Qt::CheckState
    _qtApi.add_constant ("Unchecked", (UInt32)Qt::Unchecked);
