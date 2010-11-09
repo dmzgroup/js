@@ -94,7 +94,7 @@ namespace dmz {
             return result;
          }
 
-         void v8_qt_object_destroyed (V8QtObject *object);
+         void v8_qt_widget_destroyed (V8QtWidget *widget);
 
       protected:
          struct ObsStruct {

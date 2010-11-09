@@ -3,8 +3,6 @@
 #include "dmzV8QtStackedWidget.h"
 #include <QtGui/QStackedWidget>
 
-#include <QtCore/QDebug>
-
 
 namespace {
 

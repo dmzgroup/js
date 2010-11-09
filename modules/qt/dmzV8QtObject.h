@@ -40,8 +40,6 @@ namespace dmz {
 
          void set_delete_object (const Boolean Value);
 
-         void clean_up ();
-
          V8ObjectPersist self;
 
       protected:

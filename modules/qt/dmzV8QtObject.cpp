@@ -85,16 +85,6 @@ dmz::V8QtObject::set_delete_object (const Boolean Value) { _deleteObject = Value
 
 
 void
-dmz::V8QtObject::clean_up () {
-
-   if (_state && _state->ui) {
-
-      _state->ui->v8_qt_object_destroyed (this);
-   }
-}
-
-
-void
 dmz::V8QtObject::_register_callback (
       const String &Signal,
       const V8Object &Self,

@@ -46,8 +46,6 @@ _form.observe(self, 'doneButton', 'clicked', function (button) {
 
          _print("dmz.ui.messageBox.Cancel");
       }
-      
-      mb = null;
    });
 });
 

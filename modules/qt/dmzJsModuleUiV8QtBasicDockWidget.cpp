@@ -82,8 +82,13 @@ dmz::JsModuleUiV8QtBasic::_init_dock_widget () {
 
    v8::HandleScope scope;
 
-   _dockWidgetApi.add_constant ("DockWidgetClosable", (UInt32)QDockWidget::DockWidgetClosable);
-   _dockWidgetApi.add_constant ("DockWidgetMovable", (UInt32)QDockWidget::DockWidgetMovable);
+   _dockWidgetApi.add_constant (
+      "DockWidgetClosable",
+      (UInt32)QDockWidget::DockWidgetClosable);
+
+   _dockWidgetApi.add_constant (
+      "DockWidgetMovable",
+      (UInt32)QDockWidget::DockWidgetMovable);
 
    _dockWidgetApi.add_constant (
       "DockWidgetFloatable",

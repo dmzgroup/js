@@ -1,8 +1,6 @@
 #include "dmzV8QtWidget.h"
 #include <QtGui/QWidget>
 
-#include <QtCore/QDebug>
-
 using namespace dmz;
 
 namespace {
@@ -14,7 +12,8 @@ namespace {
 
          V8QtWidget *ptr = (V8QtWidget *)param;
          ptr->clean_up ();
-         delete ptr; ptr = 0;
+         delete ptr;
+         ptr = 0;
       }
 
       object.Dispose (); object.Clear ();
@@ -65,37 +64,18 @@ dmz::V8QtWidget::bind (
 
 
 void
+dmz::V8QtWidget::clean_up () {
+
+   if (_state && _state->ui) {
+
+      _state->ui->v8_qt_widget_destroyed (this);
+   }
+}
+
+
+void
 dmz::V8QtWidget::_make_weak (const Boolean Value) {
 
-qDebug () << "-----> make_weak: " << (Value ? "TRUE" : "false");
-
-   if (Value) {
-
-      if (!self.IsWeak ()) {
-
-         if (self.IsNearDeath ()) {
-
-qDebug () << "IS NEAR DEATH ------ making weak now!!!!";
-
-            self.MakeWeak ((void *)this, local_v8_qt_widget_delete);
-         }
-      }
-      else {
-
-qDebug () << "Allreay weak!!!!";
-      }
-   }
-   else {
-
-      if (self.IsWeak ()) {
-
-qDebug () << "IS WEAK ---- not any more!!!!";
-
-         self.ClearWeak ();
-      }
-      else {
-
-qDebug () << "Already NOT weak";
-      }
-   }
+   if (Value) { self.MakeWeak ((void *)this, local_v8_qt_widget_delete); }
+   else { self.ClearWeak (); }
 }

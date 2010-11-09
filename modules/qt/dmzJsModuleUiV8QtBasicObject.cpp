@@ -98,7 +98,10 @@ dmz::JsModuleUiV8QtBasic::_object_observe (const v8::Arguments &Args) {
                   V8Value newObj = self->create_v8_qobject (child);
                   jsObject = self->_to_v8_qt_object (newObj);
                }
-               else { self->_log.warn << "lookup failed to find: " << ObjectName << endl; }
+               else {
+
+                  self->_log.warn << "lookup failed to find: " << ObjectName << endl;
+               }
             }
          }
 
@@ -168,7 +171,10 @@ dmz::JsModuleUiV8QtBasic::_object_property (const v8::Arguments &Args) {
          if (Name && (Args.Length () >= 2)) {
 
             QVariant inValue = v8_to_qvariant (Args[1]);
-            if (inValue.isValid ()) { object->setProperty (Name.get_buffer (), inValue); }
+            if (inValue.isValid ()) {
+
+               object->setProperty (Name.get_buffer (), inValue);
+            }
          }
 
          QVariant prop = object->property (Name.get_buffer ());

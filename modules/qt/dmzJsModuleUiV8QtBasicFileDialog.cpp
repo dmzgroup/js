@@ -6,7 +6,8 @@
 
 
 dmz::V8Value
-dmz::JsModuleUiV8QtBasic::_file_dialog_get_existing_directory (const v8::Arguments &Args) {
+dmz::JsModuleUiV8QtBasic::_file_dialog_get_existing_directory (
+       const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result = v8::Undefined ();
@@ -76,7 +77,9 @@ dmz::JsModuleUiV8QtBasic::_file_dialog_get_open_file_name (const v8::Arguments &
          }
          else {
 
-            QString fileName = QFileDialog::getOpenFileName (parent, caption, dir, filter);
+            QString fileName =
+               QFileDialog::getOpenFileName (parent, caption, dir, filter);
+
             if (!fileName.isEmpty ()) { fileList.append (fileName); }
          }
 
@@ -164,6 +167,11 @@ dmz::JsModuleUiV8QtBasic::_init_file_dialog () {
       "getExistingDirectory",
       _file_dialog_get_existing_directory, _self);
 
-   _fileDialogApi.add_function ("getOpenFileName", _file_dialog_get_open_file_name, _self);
-   _fileDialogApi.add_function ("getSaveFileName", _file_dialog_get_save_file_name, _self);
+   _fileDialogApi.add_function (
+      "getOpenFileName",
+      _file_dialog_get_open_file_name, _self);
+
+   _fileDialogApi.add_function (
+      "getSaveFileName",
+      _file_dialog_get_save_file_name, _self);
 }

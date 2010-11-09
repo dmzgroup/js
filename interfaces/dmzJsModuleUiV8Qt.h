@@ -28,7 +28,9 @@ namespace dmz {
          // JsModuleUiV8Qt Interface
          virtual v8::Handle<v8::Value> create_v8_qobject (QObject *value) = 0;
          virtual v8::Handle<v8::Value> create_v8_qwidget (QWidget *value) = 0;
-         virtual v8::Handle<v8::Value> create_v8_qlistwidgetitem (QListWidgetItem *value) = 0;
+
+         virtual v8::Handle<v8::Value> create_v8_qlistwidgetitem (
+            QListWidgetItem *value) = 0;
 
       protected:
          JsModuleUiV8Qt (const PluginInfo &Info);
@@ -78,7 +80,10 @@ dmz::JsModuleUiV8Qt::get_js_module_ui_v8_qt_name () const { return __Info.get_na
 
 
 inline dmz::Handle
-dmz::JsModuleUiV8Qt::get_js_module_ui_v8_qt_handle () const { return __Info.get_handle (); }
+dmz::JsModuleUiV8Qt::get_js_module_ui_v8_qt_handle () const {
+
+   return __Info.get_handle ();
+}
 
 
 #endif // DMZ_JS_MODULE_UI_V8_QT_DOT_H

@@ -23,6 +23,8 @@ namespace dmz {
                const V8Object &Self,
                const V8Function &Func);
 
+         virtual void clean_up ();
+
          virtual void open  (const V8Object &Self, const V8Function &Func);
 
       public Q_SLOTS:
