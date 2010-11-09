@@ -691,9 +691,6 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
          _state.core->register_interface ("dmz/ui/consts", _qtApi.get_new_instance ());
 
-         _state.core->register_interface ("dmz/ui/frame", _frameApi.get_new_instance ());
-         _state.core->register_interface ("dmz/ui/groupBox", _groupBoxApi.get_new_instance ());
-
          _state.core->register_interface (
             "dmz/ui/frame", _frameApi.get_new_instance ());
 
