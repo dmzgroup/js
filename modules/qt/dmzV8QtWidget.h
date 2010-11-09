@@ -27,7 +27,11 @@ namespace dmz {
             const V8Object &Self,
             const V8Function &Func);
 
+         virtual void clean_up ();
+
       protected:
+         void _make_weak (const Boolean Value = True);
+
          QPointer<QWidget> _widget;
    };
 };

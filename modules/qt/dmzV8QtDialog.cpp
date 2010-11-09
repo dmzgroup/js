@@ -59,9 +59,21 @@ dmz::V8QtDialog::open (
 
       if (bind (LocalSignalFinished, Self, Func)) {
 
+         _make_weak (False);
+
          dialog->open ();
       }
    }
+}
+
+
+void
+dmz::V8QtDialog::clean_up () {
+
+   V8QtWidget::clean_up ();
+
+   // remove the widget's parent so it will get deleted in the dtor
+   if (_widget) { _widget->setParent (0); }
 }
 
 
@@ -96,10 +108,13 @@ dmz::V8QtDialog::on_finished (int value) {
          }
          else {
 
+            // dialog closed, so return an undefined as the value for the dialog
             args.append (v8::Undefined ());
          }
       }
 
       _do_callback (LocalSignalFinished, args);
+
+      _make_weak (True);
    }
 }

@@ -121,7 +121,8 @@ dmz::JsModuleUiV8QtBasic::discover_plugin (
 
       if (!_state.mainWindowModule) {
 
-         _state.mainWindowModule = QtModuleMainWindow::cast (PluginPtr, _mainWindowModuleName);
+         _state.mainWindowModule =
+            QtModuleMainWindow::cast (PluginPtr, _mainWindowModuleName);
       }
    }
    else if (Mode == PluginDiscoverRemove) {
@@ -463,7 +464,8 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
 
 // JsExtV8 Interface
 void
-dmz::JsModuleUiV8QtBasic::update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module) {
+dmz::JsModuleUiV8QtBasic::update_js_module_v8 (
+const ModeEnum Mode, JsModuleV8 &module) {
 
    if (Mode == JsExtV8::Store) {
 
@@ -548,7 +550,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
       if (!_listWidgetItemTemp.IsEmpty ()) {
 
-         _listWidgetItemCtor = V8FunctionPersist::New (_listWidgetItemTemp->GetFunction ());
+         _listWidgetItemCtor =
+            V8FunctionPersist::New (_listWidgetItemTemp->GetFunction ());
       }
 
       if (!_listWidgetTemp.IsEmpty ()) {
@@ -674,10 +677,17 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       if (_state.core) {
 
          _state.core->register_interface ("dmz/ui/consts", _qtApi.get_new_instance ());
-         _state.core->register_interface ("dmz/ui/uiLoader", _uiLoaderApi.get_new_instance ());
 
-         _state.core->register_interface ("dmz/ui/frame", _frameApi.get_new_instance ());
-         _state.core->register_interface ("dmz/ui/groupBox", _groupBoxApi.get_new_instance ());
+         _state.core->register_interface (
+            "dmz/ui/frame", _frameApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/groupBox", _groupBoxApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/uiLoader",
+            _uiLoaderApi.get_new_instance ());
+
          _state.core->register_interface (
             "dmz/ui/mainWindow",
             _mainWindowApi.get_new_instance ());
@@ -707,11 +717,13 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
             _inputDialogApi.get_new_instance ());
       }
 
-      _allowMultipleStr = V8StringPersist::New (v8::String::NewSymbol ("allowMultiple"));
+      _allowMultipleStr =
+         V8StringPersist::New (v8::String::NewSymbol ("allowMultiple"));
       _allowedAreasStr = V8StringPersist::New (v8::String::NewSymbol ("allowedAreas"));
       _areaStr = V8StringPersist::New (v8::String::NewSymbol ("area"));
       _captionStr = V8StringPersist::New (v8::String::NewSymbol ("caption"));
-      _defaultButtonStr = V8StringPersist::New (v8::String::NewSymbol ("defaultButton"));
+      _defaultButtonStr =
+         V8StringPersist::New (v8::String::NewSymbol ("defaultButton"));
       _detailedTextStr = V8StringPersist::New (v8::String::NewSymbol ("detailedText"));
       _dirStr = V8StringPersist::New (v8::String::NewSymbol ("dir"));
       _featuresStr = V8StringPersist::New (v8::String::NewSymbol ("features"));
@@ -719,7 +731,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _floatingStr = V8StringPersist::New (v8::String::NewSymbol ("floating"));
       _infoTextStr = V8StringPersist::New (v8::String::NewSymbol ("informativeText"));
       _optionsStr = V8StringPersist::New (v8::String::NewSymbol ("options"));
-      _standardButtonsStr = V8StringPersist::New (v8::String::NewSymbol ("standardButtons"));
+      _standardButtonsStr =
+         V8StringPersist::New (v8::String::NewSymbol ("standardButtons"));
       _statusTipStr = V8StringPersist::New (v8::String::NewSymbol ("statusTip"));
       _textStr = V8StringPersist::New (v8::String::NewSymbol ("text"));
       _toolTipStr = V8StringPersist::New (v8::String::NewSymbol ("toolTip"));
@@ -937,6 +950,29 @@ dmz::JsModuleUiV8QtBasic::eventFilter (QObject *watched, QEvent *event) {
    if (!result) { result = QObject::eventFilter (watched, event); }
 
    return result;
+}
+
+
+void
+dmz::JsModuleUiV8QtBasic::v8_qt_widget_destroyed (V8QtWidget *widget) {
+
+   if (widget) {
+
+      // remove object from all observer lists
+      HashTableHandleIterator it;
+      ObsStruct *os = _obsTable.get_first (it);
+      while (os) {
+
+         os->list.removeAll (widget);
+         os = _obsTable.get_next (it);
+      }
+
+      // remove from dialog list
+      _dialogList.removeAll (widget->get_qwidget ());
+
+      // remove from object map
+      _objectMap.remove (widget->get_qobject ());
+   }
 }
 
 

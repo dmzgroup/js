@@ -6,6 +6,7 @@ lmkV8.set_name ("dmzJsModuleUiV8QtBasic", lmkQt.get_flags ())
 lmk.set_type "plugin"
 
 lmk.add_files ({
+   "dmzJsModuleUiV8QtBasic.h",
    "dmzV8QtAction.h",
    "dmzV8QtButton.h",
    "dmzV8QtComboBox.h",
