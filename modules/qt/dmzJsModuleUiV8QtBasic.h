@@ -73,10 +73,18 @@ namespace dmz {
          // JsModuleUiV8Qt Interface
          virtual v8::Handle<v8::Value> create_v8_qobject (QObject *value);
          virtual v8::Handle<v8::Value> create_v8_qwidget (QWidget *value);
-         virtual v8::Handle<v8::Value> create_v8_qlistwidgetitem (QListWidgetItem *value);
-         virtual v8::Handle<v8::Value> create_v8_qtreewidgetitem (QTreeWidgetItem *value);
-         virtual v8::Handle<v8::Value> create_v8_qtablewidgetitem (QTableWidgetItem *value);
-         virtual v8::Handle<v8::Value> create_v8_qtablewidgetselectionrange (QTableWidgetSelectionRange *value);
+
+         virtual v8::Handle<v8::Value> create_v8_qlistwidgetitem (
+            QListWidgetItem *value);
+
+         virtual v8::Handle<v8::Value> create_v8_qtreewidgetitem (
+            QTreeWidgetItem *value);
+
+         virtual v8::Handle<v8::Value> create_v8_qtablewidgetitem (
+            QTableWidgetItem *value);
+
+         virtual v8::Handle<v8::Value> create_v8_qtablewidgetselectionrange (
+            QTableWidgetSelectionRange *value);
 
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
@@ -400,7 +408,8 @@ namespace dmz {
          static V8Value _table_item_selected (const v8::Arguments &Args);
          static V8Value _table_item_text (const v8::Arguments &Args);
 
-         // QTableWidgetSelectionRange bindings implemented in JsModuleUiV8QtBasicTableWidget.cpp
+         // QTableWidgetSelectionRange bindings implemented in
+         // JsModuleUiV8QtBasicTableWidget.cpp
          static V8Value _table_range_bottom (const v8::Arguments &Args);
          static V8Value _table_range_top (const v8::Arguments &Args);
          static V8Value _table_range_left (const v8::Arguments &Args);
@@ -427,7 +436,23 @@ namespace dmz {
 
          // QInputDialog bindings implemented in JsModuleUiV8QtBasicInputDialog.cpp
          static V8Value _create_input_dialog (const v8::Arguments &Args);
+         static V8Value _input_dialog_ddec (const v8::Arguments &Args);
+         static V8Value _input_dialog_dmax (const v8::Arguments &Args);
+         static V8Value _input_dialog_dmin (const v8::Arguments &Args);
+         static V8Value _input_dialog_dval (const v8::Arguments &Args);
+         static V8Value _input_dialog_imax (const v8::Arguments &Args);
+         static V8Value _input_dialog_imin (const v8::Arguments &Args);
+         static V8Value _input_dialog_istep (const v8::Arguments &Args);
+         static V8Value _input_dialog_ival (const v8::Arguments &Args);
+         static V8Value _input_dialog_label_text (const v8::Arguments &Args);
+         static V8Value _input_dialog_ok_btn_text (const v8::Arguments &Args);
+         static V8Value _input_dialog_cancel_btn_text (const v8::Arguments &Args);
+         static V8Value _input_dialog_tval (const v8::Arguments &Args);
+         static V8Value _input_dialog_cbox_items (const v8::Arguments &Args);
+         static V8Value _input_dialog_current (const v8::Arguments &Args);
+         static V8Value _input_dialog_cbox_editable (const v8::Arguments &Args);
          QInputDialog *_create_input_dialog (V8Object params, QWidget *parent);
+
 
          virtual bool eventFilter (QObject *watched, QEvent *event);
 
@@ -631,6 +656,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _messageboxTemp;
          V8FunctionPersist _messageboxCtor;
+
+         V8FunctionTemplatePersist _inputDialogTemp;
+         V8FunctionPersist _inputDialogCtor;
 
          V8StringPersist _allowMultipleStr;
          V8StringPersist _allowedAreasStr;

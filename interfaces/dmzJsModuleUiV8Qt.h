@@ -31,12 +31,16 @@ namespace dmz {
          // JsModuleUiV8Qt Interface
          virtual v8::Handle<v8::Value> create_v8_qobject (QObject *value) = 0;
          virtual v8::Handle<v8::Value> create_v8_qwidget (QWidget *value) = 0;
-         virtual v8::Handle<v8::Value> create_v8_qlistwidgetitem (
+
+         virtual v8::Handle<v8::Value>create_v8_qlistwidgetitem (
             QListWidgetItem *value) = 0;
+
          virtual v8::Handle<v8::Value> create_v8_qtreewidgetitem (
             QTreeWidgetItem *value) = 0;
+
          virtual v8::Handle<v8::Value> create_v8_qtablewidgetitem (
             QTableWidgetItem *value) = 0;
+
          virtual v8::Handle<v8::Value> create_v8_qtablewidgetselectionrange (
             QTableWidgetSelectionRange *value) = 0;
 
