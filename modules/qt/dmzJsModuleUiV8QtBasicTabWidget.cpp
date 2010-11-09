@@ -228,8 +228,15 @@ dmz::JsModuleUiV8QtBasic::_init_tab_widget () {
    proto->Set ("add", v8::FunctionTemplate::New (_tab_widget_add, _self));
    proto->Set ("remove", v8::FunctionTemplate::New (_tab_widget_remove, _self));
    proto->Set ("count", v8::FunctionTemplate::New (_tab_widget_count, _self));
-   proto->Set ("currentIndex", v8::FunctionTemplate::New (_tab_widget_current_index, _self));
-   proto->Set ("currentWidget", v8::FunctionTemplate::New (_tab_widget_current_widget, _self));
+
+   proto->Set (
+      "currentIndex",
+      v8::FunctionTemplate::New (_tab_widget_current_index, _self));
+
+   proto->Set (
+      "currentWidget",
+      v8::FunctionTemplate::New (_tab_widget_current_widget, _self));
+
    proto->Set ("at", v8::FunctionTemplate::New (_tab_widget_at, _self));
    proto->Set ("indexOf", v8::FunctionTemplate::New (_tab_widget_index_of, _self));
    proto->Set ("tabText", v8::FunctionTemplate::New (_tab_widget_tab_text, _self));

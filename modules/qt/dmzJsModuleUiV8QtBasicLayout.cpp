@@ -567,10 +567,19 @@ dmz::JsModuleUiV8QtBasic::_init_grid_layout () {
    V8ObjectTemplate proto = _gridLayoutTemp->PrototypeTemplate ();
    proto->Set ("addLayout", v8::FunctionTemplate::New (_grid_layout_add_layout, _self));
    proto->Set ("addWidget", v8::FunctionTemplate::New (_grid_layout_add_widget, _self));
-   proto->Set ("columnCount", v8::FunctionTemplate::New (_grid_layout_column_count, _self));
+
+   proto->Set (
+      "columnCount",
+      v8::FunctionTemplate::New (_grid_layout_column_count, _self));
+
    proto->Set ("rowCount", v8::FunctionTemplate::New (_grid_layout_row_count, _self));
-   proto->Set ("columnStretch", v8::FunctionTemplate::New (_grid_layout_column_stretch, _self));
-   proto->Set ("rowStretch", v8::FunctionTemplate::New (_grid_layout_row_stretch, _self));
+   proto->Set (
+      "columnStretch",
+      v8::FunctionTemplate::New (_grid_layout_column_stretch, _self));
+
+   proto->Set (
+      "rowStretch",
+      v8::FunctionTemplate::New (_grid_layout_row_stretch, _self));
 
    _layoutApi.add_function ("createGridLayout", _create_grid_layout, _self);
 }
@@ -789,7 +798,11 @@ dmz::JsModuleUiV8QtBasic::_init_form_layout () {
    proto->Set ("addRow", v8::FunctionTemplate::New (_form_layout_add_row, _self));
    proto->Set ("insertRow", v8::FunctionTemplate::New (_form_layout_insert_row, _self));
    proto->Set ("rowCount", v8::FunctionTemplate::New (_form_layout_row_count, _self));
-   proto->Set ("verticalSpacing", v8::FunctionTemplate::New (_form_layout_vertical_spacing, _self));
+
+   proto->Set (
+      "verticalSpacing",
+      v8::FunctionTemplate::New (_form_layout_vertical_spacing, _self));
+
    proto->Set ("spacing", v8::FunctionTemplate::New (_form_layout_spacing, _self));
 
    _layoutApi.add_function ("createFormLayout", _create_form_layout, _self);

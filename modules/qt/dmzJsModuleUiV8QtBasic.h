@@ -52,6 +52,8 @@ namespace dmz {
          public JsModuleUiV8Qt,
          public JsExtV8 {
 
+      Q_OBJECT
+
       public:
          JsModuleUiV8QtBasic (const PluginInfo &Info, Config &local);
          ~JsModuleUiV8QtBasic ();
@@ -71,10 +73,14 @@ namespace dmz {
          // JsModuleUiV8Qt Interface
          virtual v8::Handle<v8::Value> create_v8_qobject (QObject *value);
          virtual v8::Handle<v8::Value> create_v8_qwidget (QWidget *value);
-         virtual v8::Handle<v8::Value> create_v8_qlistwidgetitem (QListWidgetItem *value);
-         virtual v8::Handle<v8::Value> create_v8_qtreewidgetitem (QTreeWidgetItem *value);
-         virtual v8::Handle<v8::Value> create_v8_qtablewidgetitem (QTableWidgetItem *value);
-         virtual v8::Handle<v8::Value> create_v8_qtablewidgetselectionrange (QTableWidgetSelectionRange *value);
+         virtual v8::Handle<v8::Value> create_v8_qlistwidgetitem (
+               QListWidgetItem *value);
+         virtual v8::Handle<v8::Value> create_v8_qtreewidgetitem (
+               QTreeWidgetItem *value);
+         virtual v8::Handle<v8::Value> create_v8_qtablewidgetitem (
+            QTableWidgetItem *value);
+         virtual v8::Handle<v8::Value> create_v8_qtablewidgetselectionrange (
+            QTableWidgetSelectionRange *value);
 
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
@@ -94,6 +100,8 @@ namespace dmz {
             if (object) { result = qobject_cast<T *>(object); }
             return result;
          }
+
+         void v8_qt_widget_destroyed (V8QtWidget *widget);
 
       protected:
          struct ObsStruct {
@@ -396,7 +404,8 @@ namespace dmz {
          static V8Value _table_item_selected (const v8::Arguments &Args);
          static V8Value _table_item_text (const v8::Arguments &Args);
 
-         // QTableWidgetSelectionRange bindings implemented in JsModuleUiV8QtBasicTableWidget.cpp
+         // QTableWidgetSelectionRange bindings
+         // implemented in JsModuleUiV8QtBasicTableWidget.cpp
          static V8Value _table_range_bottom (const v8::Arguments &Args);
          static V8Value _table_range_top (const v8::Arguments &Args);
          static V8Value _table_range_left (const v8::Arguments &Args);

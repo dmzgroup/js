@@ -151,6 +151,8 @@ dmz::V8QtInputDialog::on_finished (int value) {
       }
 
       _do_callback (LocalSignalFinished, args);
+
+      _make_weak (True);
    }
 }
 

@@ -30,7 +30,7 @@ _form.observe(self, 'doneButton', 'clicked', function (button) {
    var mb = dmz.ui.messageBox.create(
       { type: dmz.ui.messageBox.Information
       , text: "Are you done?"
-      , informativeText: "Hit Ok to quit!"
+      , informativeText: "Click <b>Ok</b> to quit!"
       , standardButtons: [dmz.ui.messageBox.Ok, dmz.ui.messageBox.Cancel]
       , defaultButton: dmz.ui.messageBox.Ok
       }

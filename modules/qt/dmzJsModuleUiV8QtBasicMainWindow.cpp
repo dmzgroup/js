@@ -124,7 +124,8 @@ dmz::JsModuleUiV8QtBasic::_main_window_create_dock_widget (const v8::Arguments &
 
                   if (params->Has (self->_floatingStr)) {
 
-                     dock->setFloating (v8_to_boolean (params->Get (self->_floatingStr)));
+                     dock->setFloating (
+                        v8_to_boolean (params->Get (self->_floatingStr)));
                   }
 
                   if (params->Has (self->_visibleStr)) {
@@ -141,8 +142,8 @@ dmz::JsModuleUiV8QtBasic::_main_window_create_dock_widget (const v8::Arguments &
                         const uint32_t Length = array->Length ();
                         for (uint32_t ix = 0; ix < Length; ix++) {
 
-                           const UInt32 Value =
-                              v8_to_uint32 (array->Get (v8::Integer::NewFromUnsigned (ix)));
+                           const UInt32 Value = v8_to_uint32 (
+                              array->Get (v8::Integer::NewFromUnsigned (ix)));
 
                            areas |= (Qt::DockWidgetArea)Value;
                         }
@@ -160,8 +161,8 @@ dmz::JsModuleUiV8QtBasic::_main_window_create_dock_widget (const v8::Arguments &
                         const uint32_t Length = array->Length ();
                         for (uint32_t ix = 0; ix < Length; ix++) {
 
-                           const UInt32 Value =
-                              v8_to_uint32 (array->Get (v8::Integer::NewFromUnsigned (ix)));
+                           const UInt32 Value = v8_to_uint32 (
+                              array->Get (v8::Integer::NewFromUnsigned (ix)));
 
                            features |= (QDockWidget::DockWidgetFeature)Value;
                         }
@@ -172,10 +173,11 @@ dmz::JsModuleUiV8QtBasic::_main_window_create_dock_widget (const v8::Arguments &
                }
 
                // _mainWindowState was saved on the last JsExtV8::Shutdown
-               // restoring state now will make sure dock window shows in the right place
-               // NOTE: this might have some side effects depending on when the dock is created
-               // if the dock is created from some kind of user interaction then the
-               // state of the main window could be out of sync
+               // restoring state now will make sure dock window shows in the right
+               // place
+               // NOTE: this might have some side effects depending on when the dock is
+               // created if the dock is created from some kind of user interaction then
+               // the state of the main window could be out of sync
                QMainWindow *mainWindow = module->get_qt_main_window ();
                if (!self->_mainWindowState.isEmpty () && mainWindow) {
 
@@ -375,9 +377,18 @@ dmz::JsModuleUiV8QtBasic::_init_main_window () {
    v8::HandleScope scope;
 
    // enum QMainWindow::DockOption
-   _mainWindowApi.add_constant ("AllowNestedDocks", (UInt32)QMainWindow::AllowNestedDocks);
-   _mainWindowApi.add_constant ("AllowTabbedDocks", (UInt32)QMainWindow::AllowTabbedDocks);
-   _mainWindowApi.add_constant ("ForceTabbedDocks", (UInt32)QMainWindow::ForceTabbedDocks);
+   _mainWindowApi.add_constant (
+      "AllowNestedDocks",
+      (UInt32)QMainWindow::AllowNestedDocks);
+
+   _mainWindowApi.add_constant (
+      "AllowTabbedDocks",
+      (UInt32)QMainWindow::AllowTabbedDocks);
+
+   _mainWindowApi.add_constant (
+      "ForceTabbedDocks",
+      (UInt32)QMainWindow::ForceTabbedDocks);
+
    _mainWindowApi.add_constant ("VerticalTabs", (UInt32)QMainWindow::VerticalTabs);
 
    _mainWindowApi.add_function ("centralWidget", _main_window_central_widget, _self);
@@ -388,8 +399,14 @@ dmz::JsModuleUiV8QtBasic::_init_main_window () {
    _mainWindowApi.add_function ("addMenu", _main_window_add_menu, _self);
    _mainWindowApi.add_function ("addSeparator", _main_window_add_separator, _self);
 //    _mainWindowApi.add_function ("lookupMenu", _main_window_lookup_menu, _self);
-//    _mainWindowApi.add_function ("addMenuAction", _main_window_add_menu_action, _self);
-//    _mainWindowApi.add_function ("removeMenuAction", _main_window_remove_menu_action, _self);
+//    _mainWindowApi.add_function (
+//       "addMenuAction",
+//       _main_window_add_menu_action,
+//       _self);
+//    _mainWindowApi.add_function (
+//       "removeMenuAction",
+//       _main_window_remove_menu_action,
+//       _self);
 
     _mainWindowApi.add_function ("window", _main_window_window, _self);
 }

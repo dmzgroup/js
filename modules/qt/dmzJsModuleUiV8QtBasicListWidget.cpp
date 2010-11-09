@@ -348,7 +348,11 @@ dmz::JsModuleUiV8QtBasic::_init_list_widget () {
 
    V8ObjectTemplate proto = _listWidgetTemp->PrototypeTemplate ();
    proto->Set ("addItem", v8::FunctionTemplate::New (_list_widget_add_item, _self));
-   proto->Set ("currentItem", v8::FunctionTemplate::New (_list_widget_current_item, _self));
+
+   proto->Set (
+      "currentItem",
+      v8::FunctionTemplate::New (_list_widget_current_item, _self));
+
    proto->Set ("clear", v8::FunctionTemplate::New (_list_widget_clear, _self));
    proto->Set ("count", v8::FunctionTemplate::New (_list_widget_count, _self));
    proto->Set ("item", v8::FunctionTemplate::New (_list_widget_item, _self));

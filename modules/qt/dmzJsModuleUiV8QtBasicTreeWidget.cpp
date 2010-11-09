@@ -904,9 +904,13 @@ dmz::JsModuleUiV8QtBasic::_init_tree_widget_item () {
    proto->Set ("parent", v8::FunctionTemplate::New (_tree_item_parent, _self));
    proto->Set ("hidden", v8::FunctionTemplate::New (_tree_item_hidden, _self));
    proto->Set ("text", v8::FunctionTemplate::New (_tree_item_text, _self));
-   proto->Set ("sortChildren", v8::FunctionTemplate::New (_tree_item_sort_children, _self));
+   proto->Set (
+      "sortChildren",
+      v8::FunctionTemplate::New (_tree_item_sort_children, _self));
    proto->Set ("takeChild", v8::FunctionTemplate::New (_tree_item_take_child, _self));
-   proto->Set ("takeChildren", v8::FunctionTemplate::New (_tree_item_take_children, _self));
+   proto->Set (
+      "takeChildren",
+      v8::FunctionTemplate::New (_tree_item_take_children, _self));
    proto->Set ("treeWidget", v8::FunctionTemplate::New (_tree_item_tree_widget, _self));
 }
 
@@ -936,7 +940,9 @@ dmz::JsModuleUiV8QtBasic::_init_tree_widget () {
    proto->Set ("itemAbove", v8::FunctionTemplate::New (_tree_item_above, _self));
    proto->Set ("itemBelow", v8::FunctionTemplate::New (_tree_item_below, _self));
    proto->Set ("itemWidget", v8::FunctionTemplate::New (_tree_item_widget, _self));
-   proto->Set ("removeItemWidget", v8::FunctionTemplate::New (_tree_rem_item_widget, _self));
+   proto->Set (
+      "removeItemWidget",
+      v8::FunctionTemplate::New (_tree_rem_item_widget, _self));
    proto->Set ("selectedItems", v8::FunctionTemplate::New (_tree_selected_items, _self));
    proto->Set ("sortColumn", v8::FunctionTemplate::New (_tree_sort_col, _self));
    proto->Set ("takeItemAt", v8::FunctionTemplate::New (_tree_take_item_at, _self));

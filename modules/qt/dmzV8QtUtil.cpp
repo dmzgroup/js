@@ -108,10 +108,16 @@ dmz::v8_to_qkeysequence (V8Value value) {
    else if (StandardKey == QLatin1String ("new")) { shortcut = QKeySequence::New; }
    else if (StandardKey == QLatin1String ("open")) { shortcut = QKeySequence::Open; }
    else if (StandardKey == QLatin1String ("save")) { shortcut = QKeySequence::Save; }
-   else if (StandardKey == QLatin1String ("saveas")) { shortcut = QKeySequence::SaveAs; }
+   else if (StandardKey == QLatin1String ("saveas")) {
+
+      shortcut = QKeySequence::SaveAs;
+   }
    else if (StandardKey == QLatin1String ("print")) { shortcut = QKeySequence::Print; }
    else if (StandardKey == QLatin1String ("zoomin")) { shortcut = QKeySequence::ZoomIn; }
-   else if (StandardKey == QLatin1String ("zoomout")) { shortcut = QKeySequence::ZoomOut; }
+   else if (StandardKey == QLatin1String ("zoomout")) {
+
+      shortcut = QKeySequence::ZoomOut;
+   }
 
    return shortcut;
 }
@@ -150,7 +156,8 @@ dmz::V8Variant::V8Variant (V8ValueRef *obj) : valueRef (obj) {
 }
 
 
-dmz::V8Variant::V8Variant (const V8Variant &Type) : valueRef ((V8ValueRef *)Type.valueRef) {
+dmz::V8Variant::V8Variant (const V8Variant &Type) :
+      valueRef ((V8ValueRef *)Type.valueRef) {
 
    if (valueRef) { valueRef->ref (); }
 }
