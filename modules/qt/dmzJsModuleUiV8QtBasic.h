@@ -73,7 +73,18 @@ namespace dmz {
          // JsModuleUiV8Qt Interface
          virtual v8::Handle<v8::Value> create_v8_qobject (QObject *value);
          virtual v8::Handle<v8::Value> create_v8_qwidget (QWidget *value);
-         virtual v8::Handle<v8::Value> create_v8_qlistwidgetitem (QListWidgetItem *value);
+
+         virtual v8::Handle<v8::Value> create_v8_qlistwidgetitem (
+            QListWidgetItem *value);
+
+         virtual v8::Handle<v8::Value> create_v8_qtreewidgetitem (
+            QTreeWidgetItem *value);
+
+         virtual v8::Handle<v8::Value> create_v8_qtablewidgetitem (
+            QTableWidgetItem *value);
+
+         virtual v8::Handle<v8::Value> create_v8_qtablewidgetselectionrange (
+            QTableWidgetSelectionRange *value);
 
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
@@ -208,6 +219,7 @@ namespace dmz {
          static V8Value _list_widget_item (const v8::Arguments &Args);
          static V8Value _list_widget_row (const v8::Arguments &Args);
          static V8Value _list_widget_take_item (const v8::Arguments &Args);
+         static V8Value _list_widget_find_items (const v8::Arguments &Args);
 
          // QStackedWidget bindings implemented in JsModuleUiV8QtBasicStackedWidget.cpp
          static V8Value _stacked_widget_add (const v8::Arguments &Args);
@@ -286,21 +298,170 @@ namespace dmz {
 //         static V8Value _dock_window_toggle_view_action (const v8::Arguments &Args);
          static V8Value _dock_widget_floating (const v8::Arguments &Args);
 
+         // QFrame bindings implemented in JsModuleUiV8QtBasicFrame.cpp
+//         static V8Value _frame_create (const v8::Arguments &Args);
+         static V8Value _frame_shadow (const v8::Arguments &Args);
+         static V8Value _frame_shape (const v8::Arguments &Args);
+         static V8Value _frame_width (const v8::Arguments &Args);
+         static V8Value _frame_line_width (const v8::Arguments &Args);
+         static V8Value _frame_mid_line_width (const v8::Arguments &Args);
+
+         // QGroupBox implemented in JsModuleUiV8QtBasicGroupBox.cpp
+         static V8Value _create_group_box (const v8::Arguments &Args);
+         static V8Value _group_box_flat (const v8::Arguments &Args);
+         static V8Value _group_box_title (const v8::Arguments &Args);
+         static V8Value _group_box_alignment (const v8::Arguments &Args);
+         static V8Value _group_box_checkable (const v8::Arguments &Args);
+
+         // QDateTimeEdit implemented in JsModulkeUiV8QtBasicDateTimeEdit.cpp
+         static V8Value _dt_maximum (const v8::Arguments &Args);
+         static V8Value _dt_minimum (const v8::Arguments &Args);
+         static V8Value _dt_datetime (const v8::Arguments &Args);
+
          // QAction bindings implemented in JsModuleUiV8QtBasicAction.cpp
          static V8Value _action_enabled (const v8::Arguments &Args);
          static V8Value _action_shortcut (const v8::Arguments &Args);
          static V8Value _action_text (const v8::Arguments &Args);
          static V8Value _action_trigger (const v8::Arguments &Args);
 
+         // QTreeWidget bindings implemented in JsModuleUiV8QtBasicTreeWidget.cpp
+         static V8Value _tree_clear (const v8::Arguments &Args);
+         static V8Value _tree_header_labels (const v8::Arguments &Args);
+         static V8Value _tree_col_width (const v8::Arguments &Args);
+         static V8Value _tree_col_hidden (const v8::Arguments &Args);
+         static V8Value _tree_word_wrap (const v8::Arguments &Args);
+         static V8Value _tree_add (const v8::Arguments &Args);
+         static V8Value _tree_col_count (const v8::Arguments &Args);
+         static V8Value _tree_curr_col (const v8::Arguments &Args);
+         static V8Value _tree_curr_item (const v8::Arguments &Args);
+         static V8Value _tree_find_items (const v8::Arguments &Args);
+         static V8Value _tree_item_above (const v8::Arguments &Args);
+         static V8Value _tree_item_below (const v8::Arguments &Args);
+         static V8Value _tree_item_widget (const v8::Arguments &Args);
+         static V8Value _tree_rem_item_widget (const v8::Arguments &Args);
+         static V8Value _tree_selected_items (const v8::Arguments &Args);
+         static V8Value _tree_sort_col (const v8::Arguments &Args);
+         static V8Value _tree_take_item_at (const v8::Arguments &Args);
+         static V8Value _tree_item_at (const v8::Arguments &Args);
+         static V8Value _tree_item_count (const v8::Arguments &Args);
+
+         // QTreeWidgetItem bindings implemented in JsModuleUiV8QtBasicTreeWidget.cpp
+         static V8Value _tree_item_add (const v8::Arguments &Args);
+         static V8Value _tree_item_child (const v8::Arguments &Args);
+         static V8Value _tree_item_child_count (const v8::Arguments &Args);
+         static V8Value _tree_item_col_count (const v8::Arguments &Args);
+         static V8Value _tree_item_data (const v8::Arguments &Args);
+         static V8Value _tree_item_parent (const v8::Arguments &Args);
+         static V8Value _tree_item_hidden (const v8::Arguments &Args);
+         static V8Value _tree_item_text (const v8::Arguments &Args);
+         static V8Value _tree_item_sort_children (const v8::Arguments &Args);
+         static V8Value _tree_item_take_child (const v8::Arguments &Args);
+         static V8Value _tree_item_take_children (const v8::Arguments &Args);
+         static V8Value _tree_item_tree_widget (const v8::Arguments &Args);
+
+         // QTableWidget bindings implemented in JsModuleUiV8QtBasicTableWidget.cpp
+         static V8Value _table_clear_spans (const v8::Arguments &Args);
+         static V8Value _table_set_span (const v8::Arguments &Args);
+         static V8Value _table_col_width (const v8::Arguments &Args);
+         static V8Value _table_col_hidden (const v8::Arguments &Args);
+         static V8Value _table_row_height (const v8::Arguments &Args);
+         static V8Value _table_word_wrap (const v8::Arguments &Args);
+         static V8Value _table_row_hidden (const v8::Arguments &Args);
+         static V8Value _table_resize_single_col (const v8::Arguments &Args);
+         static V8Value _table_resize_all_col (const v8::Arguments &Args);
+         static V8Value _table_resize_single_row (const v8::Arguments &Args);
+         static V8Value _table_resize_all_row (const v8::Arguments &Args);
+         static V8Value _table_select_col (const v8::Arguments &Args);
+         static V8Value _table_select_row (const v8::Arguments &Args);
+         static V8Value _table_cell_widget (const v8::Arguments &Args);
+         static V8Value _table_col (const v8::Arguments &Args);
+         static V8Value _table_col_count (const v8::Arguments &Args);
+         static V8Value _table_curr_col (const v8::Arguments &Args);
+         static V8Value _table_curr_item (const v8::Arguments &Args);
+         static V8Value _table_curr_row (const v8::Arguments &Args);
+         static V8Value _table_find_items (const v8::Arguments &Args);
+         static V8Value _table_horiz_header (const v8::Arguments &Args);
+         static V8Value _table_item_at (const v8::Arguments &Args);
+         static V8Value _table_remove_cell_widget (const v8::Arguments &Args);
+         static V8Value _table_row (const v8::Arguments &Args);
+         static V8Value _table_row_count (const v8::Arguments &Args);
+         static V8Value _table_selected_items (const v8::Arguments &Args);
+         static V8Value _table_selected_ranges (const v8::Arguments &Args);
+         static V8Value _table_set_current_cell (const v8::Arguments &Args);
+         static V8Value _table_set_h_labels (const v8::Arguments &Args);
+         static V8Value _table_set_v_labels (const v8::Arguments &Args);
+         static V8Value _table_set_range_selected (const v8::Arguments &Args);
+         static V8Value _table_sort_items (const v8::Arguments &Args);
+         static V8Value _table_take_item (const v8::Arguments &Args);
+         static V8Value _table_clear (const v8::Arguments &Args);
+         static V8Value _table_clear_contents (const v8::Arguments &Args);
+         static V8Value _table_insert_col (const v8::Arguments &Args);
+         static V8Value _table_insert_row (const v8::Arguments &Args);
+         static V8Value _table_remove_col (const v8::Arguments &Args);
+         static V8Value _table_remove_row (const v8::Arguments &Args);
+         static V8Value _table_vert_header (const v8::Arguments &Args);
+
+         // QTableWidgetItem bindings implemented in JsModuleUiV8QtBasicTableWidget.cpp
+         static V8Value _table_item_column (const v8::Arguments &Args);
+         static V8Value _table_item_row (const v8::Arguments &Args);
+         static V8Value _table_item_data (const v8::Arguments &Args);
+         static V8Value _table_item_selected (const v8::Arguments &Args);
+         static V8Value _table_item_text (const v8::Arguments &Args);
+
+         // QTableWidgetSelectionRange bindings implemented in
+         // JsModuleUiV8QtBasicTableWidget.cpp
+         static V8Value _table_range_bottom (const v8::Arguments &Args);
+         static V8Value _table_range_top (const v8::Arguments &Args);
+         static V8Value _table_range_left (const v8::Arguments &Args);
+         static V8Value _table_range_right (const v8::Arguments &Args);
+         static V8Value _table_range_col_count (const v8::Arguments &Args);
+         static V8Value _table_range_row_count (const v8::Arguments &Args);
+
+         // QToolBox bindings implemented in JsModuleUiV8QtBasicToolBox.cpp
+         static V8Value _toolbox_add_item (const v8::Arguments &Args);
+         static V8Value _toolbox_clear (const v8::Arguments &Args);
+         static V8Value _toolbox_count (const v8::Arguments &Args);
+         static V8Value _toolbox_curr_index (const v8::Arguments &Args);
+         static V8Value _toolbox_curr_widget (const v8::Arguments &Args);
+         static V8Value _toolbox_index_of (const v8::Arguments &Args);
+         static V8Value _toolbox_insert_item (const v8::Arguments &Args);
+         static V8Value _toolbox_item_text (const v8::Arguments &Args);
+         static V8Value _toolbox_remove_item (const v8::Arguments &Args);
+         static V8Value _toolbox_widget (const v8::Arguments &Args);
+
+         // QMessageBox bindings implemented in JsModuleUiV8QtBasicMessageBox.cpp
+         static V8Value _messagebox_text (const v8::Arguments &Args);
+         static V8Value _messagebox_dtext (const v8::Arguments &Args);
+         static V8Value _messagebox_itext (const v8::Arguments &Args);
+
          // QInputDialog bindings implemented in JsModuleUiV8QtBasicInputDialog.cpp
          static V8Value _create_input_dialog (const v8::Arguments &Args);
+         static V8Value _input_dialog_ddec (const v8::Arguments &Args);
+         static V8Value _input_dialog_dmax (const v8::Arguments &Args);
+         static V8Value _input_dialog_dmin (const v8::Arguments &Args);
+         static V8Value _input_dialog_dval (const v8::Arguments &Args);
+         static V8Value _input_dialog_imax (const v8::Arguments &Args);
+         static V8Value _input_dialog_imin (const v8::Arguments &Args);
+         static V8Value _input_dialog_istep (const v8::Arguments &Args);
+         static V8Value _input_dialog_ival (const v8::Arguments &Args);
+         static V8Value _input_dialog_label_text (const v8::Arguments &Args);
+         static V8Value _input_dialog_ok_btn_text (const v8::Arguments &Args);
+         static V8Value _input_dialog_cancel_btn_text (const v8::Arguments &Args);
+         static V8Value _input_dialog_tval (const v8::Arguments &Args);
+         static V8Value _input_dialog_cbox_items (const v8::Arguments &Args);
+         static V8Value _input_dialog_current (const v8::Arguments &Args);
+         static V8Value _input_dialog_cbox_editable (const v8::Arguments &Args);
          QInputDialog *_create_input_dialog (V8Object params, QWidget *parent);
+
 
          virtual bool eventFilter (QObject *watched, QEvent *event);
 
          QWidget *_to_qwidget (V8Value value) { return v8_to_qobject<QWidget>(value); }
          QObject *_to_qobject (V8Value value);
          QListWidgetItem *_to_qlistwidgetitem (V8Value value);
+         QTreeWidgetItem *_to_qtreewidgetitem (V8Value value);
+         QTableWidgetItem *_to_qtablewidgetitem (V8Value value);
+         QTableWidgetSelectionRange *_to_qtablewidgetselectionrange (V8Value value);
 
          V8QtDialog *_to_v8_qt_dialog (V8Value value);
          V8QtWidget *_to_v8_qt_widget (V8Value value);
@@ -318,9 +479,16 @@ namespace dmz {
 
          void _init_object ();
          void _init_widget ();
+         void _init_frame ();
          void _init_button ();
          void _init_list_widget ();
          void _init_list_widget_item ();
+         void _init_tree_widget ();
+         void _init_tree_widget_item ();
+         void _init_table_widget ();
+         void _init_table_widget_item ();
+         void _init_table_selection ();
+         void _init_toolbox ();
          void _init_spinbox ();
          void _init_combobox ();
          void _init_slider ();
@@ -337,6 +505,8 @@ namespace dmz {
          void _init_file_dialog ();
          void _init_main_window ();
          void _init_dock_widget ();
+         void _init_group_box ();
+         void _init_dt ();
          void _init_action ();
          void _init_input_dialog ();
 
@@ -375,6 +545,8 @@ namespace dmz {
          V8InterfaceHelper _layoutApi;
          V8InterfaceHelper _fileDialogApi;
          V8InterfaceHelper _actionApi;
+         V8InterfaceHelper _frameApi;
+         V8InterfaceHelper _groupBoxApi;
          V8InterfaceHelper _inputDialogApi;
 
          V8FunctionTemplatePersist _objectTemp;
@@ -455,11 +627,45 @@ namespace dmz {
          V8FunctionTemplatePersist _actionTemp;
          V8FunctionPersist _actionCtor;
 
+         V8FunctionTemplatePersist _frameTemp;
+         V8FunctionPersist _frameCtor;
+
+         V8FunctionTemplatePersist _groupBoxTemp;
+         V8FunctionPersist _groupBoxCtor;
+
+         V8FunctionTemplatePersist _dteTemp;
+         V8FunctionPersist _dteCtor;
+
+         V8FunctionTemplatePersist _treeWidgetTemp;
+         V8FunctionPersist _treeWidgetCtor;
+
+         V8FunctionTemplatePersist _treeWidgetItemTemp;
+         V8FunctionPersist _treeWidgetItemCtor;
+
+         V8FunctionTemplatePersist _tableWidgetTemp;
+         V8FunctionPersist _tableWidgetCtor;
+
+         V8FunctionTemplatePersist _tableWidgetItemTemp;
+         V8FunctionPersist _tableWidgetItemCtor;
+
+         V8FunctionTemplatePersist _tableSelectionTemp;
+         V8FunctionPersist _tableSelectionCtor;
+
+         V8FunctionTemplatePersist _toolboxTemp;
+         V8FunctionPersist _toolboxWidgetCtor;
+
+         V8FunctionTemplatePersist _messageboxTemp;
+         V8FunctionPersist _messageboxCtor;
+
+         V8FunctionTemplatePersist _inputDialogTemp;
+         V8FunctionPersist _inputDialogCtor;
+
          V8StringPersist _allowMultipleStr;
          V8StringPersist _allowedAreasStr;
          V8StringPersist _areaStr;
          V8StringPersist _captionStr;
          V8StringPersist _defaultButtonStr;
+         V8StringPersist _detailedTextStr;
          V8StringPersist _dirStr;
          V8StringPersist _editableStr;
          V8StringPersist _featuresStr;

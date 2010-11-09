@@ -240,6 +240,43 @@ dmz::JsModuleUiV8QtBasic::_list_widget_row (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_list_widget_find_items (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QListWidget *table = self->v8_to_qobject<QListWidget> (Args.This ());
+      if (table) {
+
+         if (Args.Length ()) {
+
+            QString str (v8_to_qstring (Args[0]));
+            Qt::MatchFlags flag = Qt::MatchExactly;
+            if (Args.Length () > 1) {
+
+               flag = (Qt::MatchFlags)v8_to_uint32 (Args[1]);
+            }
+            QList<QListWidgetItem *> items = table->findItems (str, flag);
+            const int Length = items.count ();
+            V8Array array = v8::Array::New (Length);
+            for (int ix = 0; ix < Length; ++ix) {
+
+               V8Value value = self->create_v8_qlistwidgetitem (items.at (ix));
+               array->Set (v8::Integer::New (ix), value);
+            }
+            result = array;
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::create_v8_qlistwidgetitem (QListWidgetItem *value) {
 
    v8::Context::Scope cscope (_state.context);
@@ -321,5 +358,6 @@ dmz::JsModuleUiV8QtBasic::_init_list_widget () {
    proto->Set ("item", v8::FunctionTemplate::New (_list_widget_item, _self));
    proto->Set ("row", v8::FunctionTemplate::New (_list_widget_row, _self));
    proto->Set ("takeItem", v8::FunctionTemplate::New (_list_widget_take_item, _self));
+   proto->Set ("findItems", v8::FunctionTemplate::New (_list_widget_find_items, _self));
 }
 
