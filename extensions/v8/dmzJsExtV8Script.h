@@ -108,6 +108,11 @@ namespace dmz {
          static V8Value _script_instance (const v8::Arguments &Args);
          static V8Value _script_destroy (const v8::Arguments &Args);
 
+         void _do_callback (
+            const int Argc,
+            V8Value argv[],
+            HashTableHandleTemplate<CallbackStruct> &table);
+
          void _init (Config &local);
 
          Log _log;
@@ -116,7 +121,10 @@ namespace dmz {
 
          V8InterfaceHelper _scriptApi;
 
-         HashTableHandleTemplate<CallbackStruct> _releaseTable;
+         HashTableHandleTemplate<CallbackStruct> _scriptCreateTable;
+         HashTableHandleTemplate<CallbackStruct> _scriptDestroyTable;
+         HashTableHandleTemplate<CallbackStruct> _instanceCreateTable;
+         HashTableHandleTemplate<CallbackStruct> _instanceDestroyTable;
 
          v8::Handle<v8::Context> _v8Context;
 
