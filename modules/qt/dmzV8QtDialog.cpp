@@ -60,7 +60,6 @@ dmz::V8QtDialog::open (
       if (bind (LocalSignalFinished, Self, Func)) {
 
          _make_weak (False);
-
          dialog->open ();
       }
    }
@@ -80,16 +79,6 @@ dmz::V8QtDialog::clean_up () {
 void
 dmz::V8QtDialog::on_finished (int value) {
 
-   if (_state) {
-
-      v8::Context::Scope cscope (_state->context);
-      v8::HandleScope scope;
-
-      QList<V8Value> args;
-      args.append (v8::Integer::New (value));
-
-      _do_callback (LocalSignalFinished, args);
-
-      _make_weak (True);
-   }
+   _do_callback (LocalSignalFinished, value);
+   _make_weak (True);
 }

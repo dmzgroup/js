@@ -1,4 +1,5 @@
 #include <dmzJsV8UtilHelpers.h>
+#include <dmzRuntimeLog.h>
 #include <dmzTypesHashTableStringTemplate.h>
 #include <dmzTypesStringTokenizer.h>
 
@@ -101,8 +102,9 @@ struct dmz::V8InterfaceHelper::State {
    HashTableStringTemplate<Float64> numTable;
    V8ObjectTemplatePersist objTemplate;
    V8ObjectPersist obj;
+   Log *log;
 
-   State () {
+   State () : log (0) {
 
       v8::HandleScope scope; 
       objTemplate = V8ObjectTemplatePersist::New (v8::ObjectTemplate::New ());
@@ -119,6 +121,12 @@ struct dmz::V8InterfaceHelper::State {
 };
 
 dmz::V8InterfaceHelper::V8InterfaceHelper () : _state (*(new State)) {;}
+
+
+dmz::V8InterfaceHelper::V8InterfaceHelper (Log &log) : _state (*(new State)) {
+
+   _state.log = &log;
+}
 
 
 dmz::V8InterfaceHelper::~V8InterfaceHelper () { reset (); delete &_state; }
@@ -201,6 +209,11 @@ dmz::V8InterfaceHelper::add_function (
 
             result = True;
          }
+         else if (_state.log) {
+
+            _state.log->error << "Sub-function template not initialized for: "
+               << Path << endl;
+         }
       }
       else {
 
@@ -212,9 +225,22 @@ dmz::V8InterfaceHelper::add_function (
 
             result = True;
          }
+         else if (_state.log) {
+
+            _state.log->error << "Function template not initialized for: " << Path
+               << endl;
+         }
       }
    }
-   else if (is) { delete is; is = 0; }
+   else if (is) {
+
+      if (_state.log) {
+
+         _state.log->error << "Failed to add function template: " << Path << endl;
+      }
+
+      delete is; is = 0;
+   }
 
    return result;
 }
@@ -241,7 +267,28 @@ dmz::V8InterfaceHelper::add_constant (const String &Name, const Float64 Value) {
 
          result = True;
       }
-      else { delete ptr; ptr = 0; }
+      else {
+
+         if (_state.log) {
+
+            _state.log->error << "Failed to add constant: " << Name << "=" << Value
+               << endl;
+         }
+
+         delete ptr; ptr = 0;
+      }
+   }
+   else if (_state.log) {
+
+      if (Name) {
+
+         _state.log->error << "Failed to add non-unique constant: " << Name << "="
+            << Value << endl;
+      }
+      else {
+
+         _state.log->error << "Failed to add nameless constant: " << Value << endl;
+      }
    }
 
    return result;
@@ -276,8 +323,30 @@ dmz::V8InterfaceHelper::add_constant (const String &Name, const String Value) {
 
          result = True;
       }
-      else { delete ptr; ptr = 0; }
+      else {
+
+         if (_state.log) {
+
+            _state.log->error << "Failed to add constant: " << Name << "=" << Value
+               << endl;
+         }
+
+         delete ptr; ptr = 0;
+      }
    }
+   else if (_state.log) {
+
+      if (Name) {
+
+         _state.log->error << "Failed to add non-unique constant: " << Name << "="
+            << Value << endl;
+      }
+      else {
+
+         _state.log->error << "Failed to add nameless constant: " << Value << endl;
+      }
+   }
+
    return result;
 }
 

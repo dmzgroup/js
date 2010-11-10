@@ -987,6 +987,34 @@ dmz::JsModuleV8Basic::set_external_instance_handle_and_name (
 }
 
 
+dmz::V8Value
+dmz::JsModuleV8Basic::_create_self (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+   JsModuleV8Basic *self = (JsModuleV8Basic *)v8::External::Unwrap (Args.Data ());
+
+   if (self) {
+
+      const String Name = v8_to_string (Args[0]);
+
+      if (Name) {
+
+         const Handle Instance = self->_defs.create_named_handle (Name);
+
+         V8Object obj = v8::Object::New ();
+
+         if (self->set_external_instance_handle_and_name (Instance, Name, obj)) {
+
+            result = obj;
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleV8Basic::_dump_to_observer (JsObserver &obs) {
 
@@ -1155,6 +1183,12 @@ dmz::JsModuleV8Basic::_init_builtins () {
          v8::FunctionTemplate::New (
             local_print,
             v8::External::Wrap (&_out))->GetFunction ());
+
+      (*ptr)->Set (
+         v8::String::NewSymbol ("createSelf"),
+         v8::FunctionTemplate::New (
+            _create_self,
+            v8::External::Wrap (this))->GetFunction ());
 
       if (!_requireTable.store ("sys", ptr)) {
 

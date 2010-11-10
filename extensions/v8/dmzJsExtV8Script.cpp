@@ -1,4 +1,5 @@
 #include "dmzJsExtV8Script.h"
+#include <dmzJsModuleV8.h>
 #include <dmzRuntimeConfig.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
@@ -84,7 +85,7 @@ dmz::JsExtV8Script::update_js_ext_v8_state (const StateEnum State) {
       if (_core) {
 
          _core->register_interface (
-            "dmz/components/script",
+            "dmz/runtime/script",
             _scriptApi.get_new_instance ());
       }
    }
@@ -126,6 +127,43 @@ dmz::JsExtV8Script::release_js_instance_v8 (
       const String &InstanceName,
       v8::Handle<v8::Object> &instance) {
 
+   if (InstanceName && (_releaseTable.get_count () > 0) &&
+         (_v8Context.IsEmpty () == false)) {
+
+      v8::Context::Scope cscope (_v8Context);
+      v8::HandleScope scope;
+
+      HashTableHandleIterator it;
+      CallbackStruct *cb (0);
+
+      const int Argc (2);
+      V8Value argv[Argc];
+      argv[0] = v8::String::New (InstanceName.get_buffer ());
+
+      while (_releaseTable.get_next (it, cb)) {
+
+        v8::TryCatch tc;
+        argv[Argc - 1] = cb->self;
+
+        cb->func->Call (cb->self, Argc, argv);
+
+        if (tc.HasCaught ()) {
+
+           if (_core) {
+
+              _core->handle_v8_exception (it.get_hash_key (), tc);
+
+              cb = _releaseTable.remove (it.get_hash_key ());
+
+              if (cb) { delete cb; cb = 0; }
+           }
+        }
+      }
+
+      cb = _releaseTable.remove (InstanceHandle);
+
+      if (cb) { delete cb; cb = 0; }
+   }
 }
 
 
@@ -168,6 +206,71 @@ dmz::JsExtV8Script::update_js_error (
 
 // JsExtV8Script Interface
 // API Bindings
+dmz::V8Value
+dmz::JsExtV8Script::_script_observe (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsExtV8Script *self = _to_self (Args);
+
+   if (self && self->_core) {
+
+      V8Object obj = v8_to_object (Args[0]);
+      V8Function func = v8_to_function (Args[1]);
+
+      if (v8_is_valid (obj) && v8_is_valid (func)) {
+
+         const Handle Instance = self->_core->get_instance_handle (obj);
+
+         CallbackStruct *cb = self->_releaseTable.lookup (Instance);
+
+         if (!cb) {
+
+            cb = new CallbackStruct;
+
+            if (cb && !self->_releaseTable.store (Instance, cb)) { delete cb; cb = 0; }
+         }
+
+         if (cb) {
+
+            cb->clear ();
+            cb->self = V8ObjectPersist::New (obj);
+            cb->func = V8FunctionPersist::New (func);
+
+            result = func;
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Script::_script_release (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsExtV8Script *self = _to_self (Args);
+
+   if (self && self->_core) {
+
+      const Handle Instance = self->_core->get_instance_handle (Args[0]);
+
+      if (Instance) {
+
+         CallbackStruct *cb = self->_releaseTable.remove (Instance);
+
+         if (cb) { delete cb; cb = 0; result = v8::Boolean::New (true); }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 dmz::V8Value
 dmz::JsExtV8Script::_script_error (const v8::Arguments &Args) {
 
@@ -351,16 +454,19 @@ dmz::JsExtV8Script::_script_compile (const v8::Arguments &Args) {
 
       V8Value value = Args[0];
 
-      if (value->IsString ()) { fileName = v8_to_string (value); }
-      else {
+      if (value->IsString ()) {
 
-         scriptHandle = v8_to_handle (Args[0]);
+         fileName = v8_to_string (value);
 
-         if (scriptHandle) {
+         String path, root, ext;
 
-            String fileName = self->_js->lookup_script_file_name (scriptHandle);
-         }
+         split_path_file_ext (fileName, path, root, ext);
+
+         scriptHandle = self->_js->lookup_script (name);
       }
+      else { scriptHandle = v8_to_handle (Args[0]); }
+
+      if (scriptHandle) { fileName = self->_js->lookup_script_file_name (scriptHandle); }
 
       String out;
       const char *Buffer (0);
@@ -396,7 +502,7 @@ dmz::JsExtV8Script::_script_compile (const v8::Arguments &Args) {
 
             if (self->_js->recompile_script (scriptHandle, Buffer, size)) {
 
-               result = value;
+               result = v8::Integer::NewFromUnsigned (scriptHandle);
             }
          }
          else if (fileName) {
@@ -407,14 +513,13 @@ dmz::JsExtV8Script::_script_compile (const v8::Arguments &Args) {
 
             if (!name) { name = fileName; }
 
-            const Handle ScriptHandle =
-               self->_js->compile_script (name, fileName, Buffer, size);
+            scriptHandle = self->_js->compile_script (name, fileName, Buffer, size);
 
-            if (ScriptHandle) {
+            if (scriptHandle) {
 
-               result = v8::Integer::NewFromUnsigned (ScriptHandle);
+               result = v8::Integer::NewFromUnsigned (scriptHandle);
 
-               self->_scripts.add (ScriptHandle);
+               self->_scripts.add (scriptHandle);
             }
          }
       }
@@ -494,6 +599,8 @@ dmz::JsExtV8Script::_init (Config &local) {
    _self = V8ValuePersist::New (v8::External::Wrap (this));
 
    // Bind API
+   _scriptApi.add_function ("observe", _script_observe, _self);
+   _scriptApi.add_function ("release", _script_release, _self);
    _scriptApi.add_function ("error", _script_error, _self);
    _scriptApi.add_function ("load", _script_load, _self);
    _scriptApi.add_function ("reload", _script_reload, _self);

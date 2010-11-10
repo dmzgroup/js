@@ -1,6 +1,7 @@
 #include "dmzJsExtV8File.h"
 #include <dmzJsModuleV8.h>
 #include <dmzJsV8UtilConvert.h>
+#include <dmzJsV8UtilStrings.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
 #include <dmzSystemFile.h>
@@ -178,6 +179,55 @@ dmz::JsExtV8File::_file_valid (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsExtV8File::_file_read (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+
+   V8Value result = v8::Undefined ();
+
+   if (Args.Length () > 0) {
+
+      if (Args[0]->IsString ()) {
+
+         const String FilePath = v8_to_string (Args[0]);
+
+         FILE *file = open_file (FilePath, "r");
+
+         if (file) {
+
+            const int Size = get_file_size (FilePath);
+
+            if (Size > 0) {
+
+               char *buffer = new char[Size];
+
+               if (buffer) {
+
+                  if (read_file (file, Size, buffer) == Size) {
+
+                     V8EmbeddedBuffer *estr = new V8EmbeddedBuffer (buffer, Size);
+
+                     if (estr) { result = v8::String::NewExternal (estr); }
+                     else { delete []buffer; buffer = 0; }
+                  }
+                  else { delete []buffer; buffer = 0; }
+               }
+            }
+            else {
+
+               result = v8::String::New ("");
+            }
+
+            close_file (file); file = 0;
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsExtV8File::_init (Config &local) {
 
@@ -188,6 +238,7 @@ dmz::JsExtV8File::_init (Config &local) {
    // Bind API
    _fileApi.add_function ("split", _file_split, _self);
    _fileApi.add_function ("valid", _file_valid, _self);
+   _fileApi.add_function ("read", _file_read, _self);
 
 }
 

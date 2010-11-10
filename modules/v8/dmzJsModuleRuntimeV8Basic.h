@@ -93,6 +93,7 @@ namespace dmz {
          static V8Value _create_config (const v8::Arguments &Args);
          static V8Value _config_is_type_of (const v8::Arguments &Args);
          static V8Value _config_to_string (const v8::Arguments &Args);
+         static V8Value _config_attribute (const v8::Arguments &Args);
          static V8Value _config_add (const v8::Arguments &Args);
          static V8Value _config_get (const v8::Arguments &Args);
          static V8Value _config_string (const v8::Arguments &Args);

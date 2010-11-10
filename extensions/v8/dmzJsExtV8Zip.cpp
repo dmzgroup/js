@@ -1,4 +1,5 @@
 #include <dmzFoundationConsts.h>
+#include <dmzFoundationConfigFileIO.h>
 #include <dmzFoundationReaderWriterFile.h>
 #include <dmzFoundationReaderWriterZip.h>
 #include <dmzFoundationStreamZip.h>
@@ -13,6 +14,7 @@
 #include <dmzRuntimePluginInfo.h>
 #include <dmzSystemFile.h>
 #include <dmzTypesDeleteListTemplate.h>
+
 
 dmz::JsExtV8Zip::JsExtV8Zip (const PluginInfo &Info, Config &local) :
       Plugin (Info),
@@ -101,6 +103,7 @@ dmz::JsExtV8Zip::update_js_ext_v8_state (const StateEnum State) {
 
       _nameStr = V8StringPersist::New (v8::String::NewSymbol ("name"));
       _fileStr = V8StringPersist::New (v8::String::NewSymbol ("file"));
+      _dataStr = V8StringPersist::New (v8::String::NewSymbol ("data"));
       _configStr = V8StringPersist::New (v8::String::NewSymbol ("config"));
    }
    else if (State == JsExtV8::Stop) {
@@ -110,6 +113,7 @@ dmz::JsExtV8Zip::update_js_ext_v8_state (const StateEnum State) {
 
       _nameStr.Dispose (); _nameStr.Clear ();
       _fileStr.Dispose (); _fileStr.Clear ();
+      _dataStr.Dispose (); _dataStr.Clear ();
       _configStr.Dispose (); _configStr.Clear ();
 
       _zipApi.clear ();
@@ -124,24 +128,36 @@ dmz::JsExtV8Zip::release_js_instance_v8 (
       const String &InstanceName,
       v8::Handle<v8::Object> &instance) {;}
 
-namespace {
-
-struct ListStruct {
-
-   const dmz::String Name;
-   const dmz::String File;
-   dmz::Config data;
-   ListStruct *next;
-
-   ListStruct (const dmz::String &TheName, const dmz::String &TheFile) :
-         Name (TheName),
-         File (TheFile),
-         next (0) {;}
-};
-
-};
-
 // JsExtV8Zip Interface
+dmz::V8Value
+dmz::JsExtV8Zip::_zip_manifest (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+
+   V8Value result = v8::Undefined ();
+
+   JsExtV8Zip *self = _to_self (Args);
+
+   if (self && self->_runtime) {
+
+      Config manifest ("manifest");
+
+      const int Length = Args.Length ();
+
+      for (int ix = 0; ix < Length; ix++) {
+
+         Config config ("config");
+         config.store_attribute ("file", v8_to_string (Args[ix]));
+         manifest.add_config (config);
+      }
+
+      result = self->_runtime->create_v8_config (&manifest);
+   }
+
+   return scope.Close (result);
+}
+
+
 dmz::V8Value
 dmz::JsExtV8Zip::_zip_read (const v8::Arguments &Args) {
 
@@ -193,6 +209,10 @@ dmz::JsExtV8Zip::_zip_read (const v8::Arguments &Args) {
       }
       else { self->_log.error << "Failed to open archive: " << FileName << endl; }
    }
+   else if (self) {
+
+      self->_log.error << (Int32)Args.Length () << " " << v8_type (Args[0]) << endl;
+   }
 
    return scope.Close (result);
 }
@@ -227,90 +247,33 @@ dmz::JsExtV8Zip::_zip_write (const v8::Arguments &Args) {
 
             for (int ix = 0; ix < Length; ix++) {
 
-               String name;
-               String file;
-               Config data;
-               Boolean valid (False);
+               ListStruct *ls = self->_create_list_struct (
+                  list->Get (v8::Integer::New (ix)));
 
-               V8Value item = list->Get(v8::Integer::New (ix));
+               if (ls) {
 
-               if (v8_is_valid (item)) {
-
-                  if (item->IsString ()) {
-
-                     file = v8_to_string (item);
-
-                     String path, root, ext;
-                     split_path_file_ext (name, path, root, ext);
-        
-                     name = root + ext;
-                  }
-                  else if (item->IsObject ()) {
-
-                     V8Object obj = v8_to_object (item);
-
-                     if (v8_is_valid (obj)) {
-
-                        name = v8_to_string (obj->Get (self->_nameStr));
-                        file = v8_to_string (obj->Get (self->_fileStr));
-
-                        if (!file) {
-
-                           String path, root, ext;
-                           split_path_file_ext (name, path, root, ext);
-        
-                           file = name;
-                           name = root + ext;
-                        }
-
-                        if (self->_runtime) {
-
-                           if (self->_runtime->to_dmz_config (
-                                 obj->Get (self->_configStr),
-                                 data)) { file.flush (); }
-                        }
-                     }
-                  }
-
-                  if (name) {
-
-                     if ((file && is_valid_path (file) && (!is_directory (file))) ||
-                           data) {
-
-                        ListStruct *ls = new ListStruct (name, file);
-
-                        if (ls) {
-
-                           valid = True;
-                           ls->data = data;
-                           if (current) { current->next = ls; current = ls; }
-                           else { files = current = ls; }
-                        }
-                     }
-                  }
+                  if (current) { current->next = ls; current = ls; }
+                  else { current = files = ls; }
                }
+               else {
 
-               if (!valid) { error = True; }
+                  self->_log.error << "Failed to add element to list." << endl;
+                  error = True;
+               }
             }
          }
-         else if (value->IsString ()) {
+         else {
 
-            const String Name = v8_to_string (value);
+            files = self->_create_list_struct (value);
 
-            if (Name && is_valid_path (Name) && !is_directory (Name)) {
-
-               files = new ListStruct (Name, Name);
-            }
-            else { error = True; }
-         }
-         else if (value->IsObject ()) {
-
-            error = True;
+            if (!files) { error = True; }
          }
 
          StreamZip stream;
 
          if (!error && files && stream.open_zip_file (OutFileName)) {
+
+self->_log.warn << "About to create archive" << endl;
 
             current = files;
 
@@ -318,13 +281,48 @@ dmz::JsExtV8Zip::_zip_write (const v8::Arguments &Args) {
 
                if (stream.open_file (current->Name)) {
 
-                  if (current->data) {
+                  if (current->config) {
 
                      format_config_to_xml (
-                        current->data,
+                        current->config,
                         stream,
                         ConfigPrettyPrint,
                         &(self->_log));
+                  }
+                  else if (v8_is_valid (current->data)) {
+
+                     String tmp;
+                     const char *Buffer (0);
+                     int size (0);
+
+                     if (current->data->IsExternalAscii ()) {
+
+                        v8::String::ExternalAsciiStringResource *rc =
+                           current->data->GetExternalAsciiStringResource ();
+
+                        if (rc) {
+
+                           Buffer = rc->data ();
+                           size = rc->length ();
+                        }
+                     }
+                     else {
+
+                        tmp = v8_to_string (current->data);
+
+                        Buffer = tmp.get_buffer ();
+                        size = tmp.get_length ();
+                     }
+
+                     if (Buffer && size) {
+
+                        if (stream.write_file (Buffer, size) == False) {
+
+                           self->_log.error << "Failed to write buffer to zip file: "
+                              << stream.get_error () << endl;
+                           error = True;
+                        }
+                     }
                   }
                   else if (current->File) {
 
@@ -343,6 +341,10 @@ dmz::JsExtV8Zip::_zip_write (const v8::Arguments &Args) {
                               if (in.read_file (buffer, Size) == Size) {
 
                                  if (stream.write_file (buffer, Size) == False) {
+
+                                    self->_log.error
+                                       << "Failed to write buffer to zip file: "
+                                       << stream.get_error () << endl;
 
                                     error = True;
                                  }
@@ -371,6 +373,88 @@ dmz::JsExtV8Zip::_zip_write (const v8::Arguments &Args) {
 }
 
 
+dmz::JsExtV8Zip::ListStruct *
+dmz::JsExtV8Zip::_create_list_struct (V8Value value) {
+
+   v8::HandleScope scope;
+
+   ListStruct *result (0);
+
+   String name;
+   String file;
+   V8String dataStr;
+   Config config;
+
+   if (v8_is_valid (value)) {
+
+      if (value->IsString ()) {
+
+         file = v8_to_string (value);
+
+         String path, root, ext;
+         split_path_file_ext (name, path, root, ext);
+
+         name = root + ext;
+      }
+      else if (value->IsObject ()) {
+
+         V8Object obj = v8_to_object (value);
+
+         if (v8_is_valid (obj)) {
+
+            name = v8_to_string (obj->Get (_nameStr));
+            file = v8_to_string (obj->Get (_fileStr));
+
+            if (!file) {
+
+               String path, root, ext;
+               split_path_file_ext (name, path, root, ext);
+
+               file = name;
+               name = root + ext;
+            }
+
+            V8Value dataValue = obj->Get (_dataStr);
+
+            if (v8_is_valid (dataValue) && dataValue->IsString ()) {
+
+               dataStr = dataValue->ToString ();
+
+               file.flush ();
+            }
+            else if (_runtime) {
+
+               if (_runtime->to_dmz_config (obj->Get (_configStr), config)) {
+
+                  file.flush ();
+               }
+            }
+         }
+      }
+
+      if (name) {
+
+         if ((file && is_valid_path (file) && (!is_directory (file))) || config ||
+               v8_is_valid (dataStr)) {
+
+            result = new ListStruct (name, file);
+
+            if (result) {
+
+               if (v8_is_valid (dataStr)) {
+
+                  result->data = V8StringPersist::New (dataStr);
+               }
+               else { result->config = config; }
+            }
+         }
+      }
+   }
+ 
+   return result;
+}
+
+
 void
 dmz::JsExtV8Zip::_init (Config &local) {
 
@@ -379,6 +463,8 @@ dmz::JsExtV8Zip::_init (Config &local) {
    _self = V8ValuePersist::New (v8::External::Wrap (this));
 
    // Bind API
+   _zipApi.add_constant ("ManifestFileName", ArchiveManifestFileName);
+   _zipApi.add_function ("manifest", _zip_manifest, _self);
    _zipApi.add_function ("read", _zip_read, _self);
    _zipApi.add_function ("write", _zip_write, _self);
 }
