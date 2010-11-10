@@ -175,6 +175,12 @@ dmz::JsModuleRuntimeV8Basic::to_dmz_log (v8::Handle<v8::Value> value) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleRuntimeV8Basic::_create_log (const v8::Arguments &Args) {
+
+}
+
+
 void
 dmz::JsModuleRuntimeV8Basic::_init_log () {
 

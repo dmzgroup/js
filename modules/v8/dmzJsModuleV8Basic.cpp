@@ -1006,6 +1006,10 @@ dmz::JsModuleV8Basic::_create_self (const v8::Arguments &Args) {
 
          if (self->set_external_instance_handle_and_name (Instance, Name, obj)) {
 
+            obj->Set (
+               v8::String::NewSymbol ("name"),
+               v8::String::New (Name.get_buffer ()));
+
             result = obj;
          }
       }
