@@ -3,6 +3,7 @@ var dmz =
        , ui:
           { consts: require('dmz/ui/consts')
           , loader: require('dmz/ui/uiLoader')
+          , widget: require("dmz/ui/widget")
           }
        }
    , _exports = {}
@@ -30,3 +31,5 @@ dmz.module.subscribe(self, "main", function (Mode, module) {
       _main.addPage (_form.title(), _form);
    }
 });
+
+_form.layout().addWidget (dmz.ui.widget.create());

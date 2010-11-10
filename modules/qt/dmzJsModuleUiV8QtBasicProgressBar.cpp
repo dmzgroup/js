@@ -124,6 +124,25 @@ dmz::JsModuleUiV8QtBasic::_progress_bar_reset (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_pbar (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = 0;
+      if (Args.Length ()) { parent = self->_to_qwidget (Args[0]); }
+      QProgressBar *widget = new QProgressBar (parent);
+      result = self->create_v8_qobject (widget);
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_progressBar () {
 
@@ -141,4 +160,6 @@ dmz::JsModuleUiV8QtBasic::_init_progressBar () {
    proto->Set ("minimum", v8::FunctionTemplate::New (_progress_bar_minimum, _self));
    proto->Set ("text", v8::FunctionTemplate::New (_progress_bar_text, _self));
    proto->Set ("reset", v8::FunctionTemplate::New (_progress_bar_reset, _self));
+
+   _pbarApi.add_function ("create", _create_pbar, _self);
 }

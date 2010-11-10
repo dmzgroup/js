@@ -22,5 +22,6 @@
    <instance name="main"/>
    <instance name="button"/>
    <instance name="comboBox"/>
+   <instance name="createTest"/>
 </javascript>
 </dmz>

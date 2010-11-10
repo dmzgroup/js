@@ -137,12 +137,17 @@ namespace dmz {
          static V8Value _widget_title (const v8::Arguments &Args);
          static V8Value _widget_visible (const v8::Arguments &Args);
          static V8Value _widget_window (const v8::Arguments &Args);
+         static V8Value _create_widget (const v8::Arguments &Args);
 
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
          static V8Value _button_text (const v8::Arguments &Args);
          static V8Value _button_is_checked (const v8::Arguments &Args);
          static V8Value _button_set_checked (const v8::Arguments &Args);
          static V8Value _button_click (const v8::Arguments &Args);
+         static V8Value _create_push_button (const v8::Arguments &Args);
+         static V8Value _create_radio_button (const v8::Arguments &Args);
+         static V8Value _create_check_box (const v8::Arguments &Args);
+//         static V8Value _create_tool_button (const v8::Arguments &Args);
 
          // QDialog bindings implemented in JsModuleUiV8QtBasicDialog.cpp
          static V8Value _dialog_open (const v8::Arguments &Args);
@@ -152,6 +157,7 @@ namespace dmz {
          static V8Value _spinbox_minimum (const v8::Arguments &Args);
          static V8Value _spinbox_value (const v8::Arguments &Args);
          static V8Value _spinbox_text (const v8::Arguments &Args);
+         static V8Value _create_spinbox (const v8::Arguments &Args);
 
          // QComboBox bindings implemented in JsModuleUiV8QtBasicComboBox.cpp
          static V8Value _combobox_count (const v8::Arguments &Args);
@@ -163,22 +169,26 @@ namespace dmz {
          static V8Value _combobox_remove_item (const v8::Arguments &Args);
          static V8Value _combobox_clear (const v8::Arguments &Args);
          static V8Value _combobox_item_text (const v8::Arguments &Args);
+         static V8Value _create_comboBox (const v8::Arguments &Args);
 
          // QSlider bindings implemented in JsModuleUiV8QtBasicSlider.cpp
          static V8Value _slider_maximum (const v8::Arguments &Args);
          static V8Value _slider_minimum (const v8::Arguments &Args);
          static V8Value _slider_value (const v8::Arguments &Args);
          static V8Value _slider_is_down (const v8::Arguments &Args);
+         static V8Value _create_slider (const v8::Arguments &Args);
 
          // QDial bindings implemented in JsModuleUiV8QtBasicSlider.cpp
          static V8Value _dial_wrapping (const v8::Arguments &Args);
          static V8Value _dial_notches_visible (const v8::Arguments &Args);
+         static V8Value _create_dial (const v8::Arguments &Args);
 
          // QLineEdit bindings implemented in JsModuleUiV8QtBasicLineEdit.cpp
          static V8Value _lineEdit_text (const v8::Arguments &Args);
          static V8Value _lineEdit_clear (const v8::Arguments &Args);
          static V8Value _lineEdit_undo (const v8::Arguments &Args);
          static V8Value _lineEdit_redo (const v8::Arguments &Args);
+         static V8Value _create_line_edit (const v8::Arguments &Args);
 
          // QTextEdit bindings implemented in JsModuleUiV8QtBasicTextEdit.cpp
          static V8Value _textEdit_append (const v8::Arguments &Args);
@@ -187,11 +197,13 @@ namespace dmz {
          static V8Value _textEdit_undo (const v8::Arguments &Args);
          static V8Value _textEdit_text (const v8::Arguments &Args);
          static V8Value _textEdit_allow_undo (const v8::Arguments &Args);
+         static V8Value _create_text_edit (const v8::Arguments &Args);
 
          // QLabel bindings implemented in JsModuleUiV8QtLabel.cpp
          static V8Value _label_text (const v8::Arguments &Args);
          static V8Value _label_word_wrap (const v8::Arguments &Args);
          static V8Value _label_clear (const v8::Arguments &Args);
+         static V8Value _create_label (const v8::Arguments &Args);
 
          // QProgressBar bindings implemented in JsModuleUiV8QtLabel.cpp
          static V8Value _progress_bar_maximum (const v8::Arguments &Args);
@@ -199,9 +211,11 @@ namespace dmz {
          static V8Value _progress_bar_text (const v8::Arguments &Args);
          static V8Value _progress_bar_value (const v8::Arguments &Args);
          static V8Value _progress_bar_reset (const v8::Arguments &Args);
+         static V8Value _create_pbar (const v8::Arguments &Args);
 
          // QLCDNumber bindings implemented in JsModuleUiV8QtLCDNumber.cpp
          static V8Value _lcd_number_value (const v8::Arguments &Args);
+         static V8Value _create_lcd (const v8::Arguments &Args);
 
          // QListWidgetItem bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _list_widget_item_text (const v8::Arguments &Args);
@@ -216,6 +230,7 @@ namespace dmz {
          static V8Value _list_widget_row (const v8::Arguments &Args);
          static V8Value _list_widget_take_item (const v8::Arguments &Args);
          static V8Value _list_widget_find_items (const v8::Arguments &Args);
+         static V8Value _create_list (const v8::Arguments &Args);
 
          // QStackedWidget bindings implemented in JsModuleUiV8QtBasicStackedWidget.cpp
          static V8Value _stacked_widget_add (const v8::Arguments &Args);
@@ -225,6 +240,7 @@ namespace dmz {
          static V8Value _stacked_widget_current_widget (const v8::Arguments &Args);
          static V8Value _stacked_widget_at (const v8::Arguments &Args);
          static V8Value _stacked_widget_index_of (const v8::Arguments &Args);
+         static V8Value _create_stacked_widget (const v8::Arguments &Args);
 
          // QTabWidget bindings implemented in JsModuleUiV8QtBasicTabWidget.cpp
          static V8Value _tab_widget_add (const v8::Arguments &Args);
@@ -235,6 +251,7 @@ namespace dmz {
          static V8Value _tab_widget_index_of (const v8::Arguments &Args);
          static V8Value _tab_widget_tab_text (const v8::Arguments &Args);
          static V8Value _tab_widget_at (const v8::Arguments &Args);
+         static V8Value _create_tab_widget (const v8::Arguments &Args);
 
          // QMessageBox bindings implemented in JsModuleUiV8QtBasicMessageBox.cpp
          static V8Value _create_message_box (const v8::Arguments &Args);
@@ -303,16 +320,17 @@ namespace dmz {
          static V8Value _frame_mid_line_width (const v8::Arguments &Args);
 
          // QGroupBox implemented in JsModuleUiV8QtBasicGroupBox.cpp
-         static V8Value _create_group_box (const v8::Arguments &Args);
          static V8Value _group_box_flat (const v8::Arguments &Args);
          static V8Value _group_box_title (const v8::Arguments &Args);
          static V8Value _group_box_alignment (const v8::Arguments &Args);
          static V8Value _group_box_checkable (const v8::Arguments &Args);
+         static V8Value _create_group_box (const v8::Arguments &Args);
 
          // QDateTimeEdit implemented in JsModulkeUiV8QtBasicDateTimeEdit.cpp
          static V8Value _dt_maximum (const v8::Arguments &Args);
          static V8Value _dt_minimum (const v8::Arguments &Args);
          static V8Value _dt_datetime (const v8::Arguments &Args);
+         static V8Value _create_dte (const v8::Arguments &Args);
 
          // QAction bindings implemented in JsModuleUiV8QtBasicAction.cpp
          static V8Value _action_enabled (const v8::Arguments &Args);
@@ -340,6 +358,7 @@ namespace dmz {
          static V8Value _tree_take_item_at (const v8::Arguments &Args);
          static V8Value _tree_item_at (const v8::Arguments &Args);
          static V8Value _tree_item_count (const v8::Arguments &Args);
+         static V8Value _create_tree_widget (const v8::Arguments &Args);
 
          // QTreeWidgetItem bindings implemented in JsModuleUiV8QtBasicTreeWidget.cpp
          static V8Value _tree_item_add (const v8::Arguments &Args);
@@ -396,6 +415,7 @@ namespace dmz {
          static V8Value _table_remove_col (const v8::Arguments &Args);
          static V8Value _table_remove_row (const v8::Arguments &Args);
          static V8Value _table_vert_header (const v8::Arguments &Args);
+         static V8Value _create_table_widget (const v8::Arguments &Args);
 
          // QTableWidgetItem bindings implemented in JsModuleUiV8QtBasicTableWidget.cpp
          static V8Value _table_item_column (const v8::Arguments &Args);
@@ -424,6 +444,7 @@ namespace dmz {
          static V8Value _toolbox_item_text (const v8::Arguments &Args);
          static V8Value _toolbox_remove_item (const v8::Arguments &Args);
          static V8Value _toolbox_widget (const v8::Arguments &Args);
+         static V8Value _create_toolbox (const v8::Arguments &Args);
 
          // QMessageBox bindings implemented in JsModuleUiV8QtBasicMessageBox.cpp
          static V8Value _messagebox_text (const v8::Arguments &Args);
@@ -544,6 +565,26 @@ namespace dmz {
          V8InterfaceHelper _frameApi;
          V8InterfaceHelper _groupBoxApi;
          V8InterfaceHelper _inputDialogApi;
+
+         V8InterfaceHelper _buttonApi;
+         V8InterfaceHelper _comboBoxApi;
+         V8InterfaceHelper _dialApi;
+         V8InterfaceHelper _dialogApi;
+         V8InterfaceHelper _dteApi;
+         V8InterfaceHelper _lcdApi;
+         V8InterfaceHelper _labelApi;
+         V8InterfaceHelper _lineEditApi;
+         V8InterfaceHelper _listApi;
+         V8InterfaceHelper _pbarApi;
+         V8InterfaceHelper _sliderApi;
+         V8InterfaceHelper _spinBoxApi;
+         V8InterfaceHelper _stackApi;
+         V8InterfaceHelper _tabApi;
+         V8InterfaceHelper _tableApi;
+         V8InterfaceHelper _textEditApi;
+         V8InterfaceHelper _toolBoxApi;
+         V8InterfaceHelper _treeApi;
+         V8InterfaceHelper _widgetApi;
 
          V8FunctionTemplatePersist _objectTemp;
          V8FunctionPersist _objectCtor;

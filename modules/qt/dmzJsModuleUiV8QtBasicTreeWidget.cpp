@@ -885,6 +885,25 @@ dmz::JsModuleUiV8QtBasic::_tree_item_tree_widget (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_tree_widget (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = 0;
+      if (Args.Length ()) { parent = self->_to_qwidget (Args[0]); }
+      QTreeWidget *widget = new QTreeWidget (parent);
+      result = self->create_v8_qobject (widget);
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_tree_widget_item () {
 
@@ -948,5 +967,7 @@ dmz::JsModuleUiV8QtBasic::_init_tree_widget () {
    proto->Set ("takeItemAt", v8::FunctionTemplate::New (_tree_take_item_at, _self));
    proto->Set ("itemAt", v8::FunctionTemplate::New (_tree_item_at, _self));
    proto->Set ("itemCount", v8::FunctionTemplate::New (_tree_item_count, _self));
+
+   _treeApi.add_function ("create", _create_tree_widget, _self);
 }
 

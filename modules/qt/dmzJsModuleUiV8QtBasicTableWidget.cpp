@@ -1312,6 +1312,36 @@ dmz::JsModuleUiV8QtBasic::_table_range_row_count (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_table_widget (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = 0;
+      int row = -1;
+      int col = -1;
+      if (Args.Length ()) {
+
+         if (Args.Length () == 1) { parent = self->_to_qwidget (Args[0]); }
+         if (Args.Length () >= 2) {
+
+            row = v8_to_uint32 (Args[0]);
+            col = v8_to_uint32 (Args[1]);
+         }
+         if (Args.Length () == 3) { parent = self->_to_qwidget (Args[2]); }
+      }
+      QTableWidget *widget = new QTableWidget (parent);
+      result = self->create_v8_qobject (widget);
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_table_selection () {
 
@@ -1432,4 +1462,6 @@ dmz::JsModuleUiV8QtBasic::_init_table_widget () {
    proto->Set (
       "verticalHeaderItem",
       v8::FunctionTemplate::New (_table_vert_header, _self));
+
+   _tableApi.add_function ("create", _create_table_widget, _self);
 }

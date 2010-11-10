@@ -2,9 +2,11 @@ var dmz =
        { module: require('dmz/runtime/module')
        , ui:
           { consts: require('dmz/ui/consts')
+          , layout: require("dmz/ui/layout")
           , loader: require('dmz/ui/uiLoader')
           , mainWindow: require('dmz/ui/mainWindow')
           , messageBox: require('dmz/ui/messageBox')
+          , widget: require("dmz/ui/widget")
           }
        }
    , _log = require('sys').puts
@@ -15,6 +17,8 @@ var dmz =
    , _list = _form.lookup('listWidget')
    , _stack = _form.lookup('stackedWidget')
    , _index = 0
+   , _widget
+   , _layout
    ;
 
 _list.observe(self, 'currentRowChanged', function (row) {
@@ -48,12 +52,6 @@ _form.observe(self, 'doneButton', 'clicked', function (button) {
       }
    });
 });
-
-// mainForm.observe(self, 'prevButton', 'clicked', function (btn) {
-// });
-
-// mainForm.observe(self, 'nextButton', 'clicked', function (button) {
-// });
 
 _stack.currentIndex(0);
 

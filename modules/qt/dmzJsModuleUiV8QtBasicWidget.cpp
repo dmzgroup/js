@@ -6,6 +6,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QLayout>
 
+#include <QtGui/QPushButton>
 
 dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_widget_close (const v8::Arguments &Args) {
@@ -187,6 +188,24 @@ dmz::JsModuleUiV8QtBasic::_widget_window (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_widget (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = 0;
+      if (Args.Length ()) { parent = self->_to_qwidget (Args[0]); }
+      QWidget *widget = new QWidget (parent);
+      result = self->create_v8_qobject (widget);
+   }
+
+   return scope.Close (result);
+}
+
 void
 dmz::JsModuleUiV8QtBasic::_init_widget () {
 
@@ -207,5 +226,7 @@ dmz::JsModuleUiV8QtBasic::_init_widget () {
    proto->Set ("title", v8::FunctionTemplate::New (_widget_title, _self));
    proto->Set ("visible", v8::FunctionTemplate::New (_widget_visible, _self));
    proto->Set ("window", v8::FunctionTemplate::New (_widget_window, _self));
+
+   _widgetApi.add_function ("create", _create_widget, _self);
 }
 

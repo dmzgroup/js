@@ -729,6 +729,82 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _state.core->register_interface (
             "dmz/ui/inputDialog",
             _inputDialogApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/widget",
+            _widgetApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/button",
+            _buttonApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/comboBox",
+            _comboBoxApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/dateTimeEdit",
+            _dteApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/dial",
+            _dialApi.get_new_instance ());
+
+//         _state.core->register_interface (
+//            "dmz/ui/dialog",
+//            _dialogApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/lcd",
+            _lcdApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/label",
+            _labelApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/lineEdit",
+            _lineEditApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/listWidget",
+            _listApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/progressBar",
+            _pbarApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/slider",
+            _sliderApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/spinBox",
+            _spinBoxApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/stackWidget",
+            _stackApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/tabWidget",
+            _tabApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/tableWidget",
+            _tableApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/textEdit",
+            _textEditApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/toolBox",
+            _toolBoxApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/treeWidget",
+            _treeApi.get_new_instance ());
       }
 
       _allowMultipleStr =
@@ -921,6 +997,27 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _groupBoxApi.clear ();
       _actionApi.clear ();
       _inputDialogApi.clear ();
+
+      _buttonApi.clear ();
+      _comboBoxApi.clear ();
+      _dteApi.clear ();
+      _dialApi.clear ();
+      _dialogApi.clear ();
+      _lcdApi.clear ();
+      _labelApi.clear ();
+      _lineEditApi.clear ();
+      _listApi.clear ();
+      _pbarApi.clear ();
+      _sliderApi.clear ();
+      _spinBoxApi.clear ();
+      _stackApi.clear ();
+      _tabApi.clear ();
+      _tableApi.clear ();
+      _textEditApi.clear ();
+      _toolBoxApi.clear ();
+      _treeApi.clear ();
+      _widgetApi.clear ();
+
       _state.context.Clear ();
 
       _obsTable.empty ();

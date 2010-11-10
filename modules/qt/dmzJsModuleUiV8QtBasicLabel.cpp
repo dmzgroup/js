@@ -1,5 +1,6 @@
 #include "dmzJsModuleUiV8QtBasic.h"
 #include <dmzJsV8UtilConvert.h>
+#include <dmzV8QtUtil.h>
 #include <QtGui/QLabel>
 
 
@@ -77,6 +78,36 @@ dmz::JsModuleUiV8QtBasic::_label_clear (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_label (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = 0;
+      QLabel *widget = 0;
+      QString str;
+      if (Args.Length ()) {
+
+         if (Args[0]->IsString ()) {
+
+            str = v8_to_qstring (Args[0]);
+            if (Args.Length () > 1) { parent = self->_to_qwidget (Args[1]); }
+         }
+         else { parent = self->_to_qwidget (Args[0]); }
+      }
+      if (str.isEmpty ()) { widget = new QLabel (parent); }
+      else { widget = new QLabel (str, parent); }
+      result = self->create_v8_qobject (widget);
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_label () {
 
@@ -92,4 +123,6 @@ dmz::JsModuleUiV8QtBasic::_init_label () {
    proto->Set ("text", v8::FunctionTemplate::New (_label_text, _self));
    proto->Set ("wordWrap", v8::FunctionTemplate::New (_label_word_wrap, _self));
    proto->Set ("clear", v8::FunctionTemplate::New (_label_clear, _self));
+
+   _labelApi.add_function ("create", _create_label, _self);
 }
