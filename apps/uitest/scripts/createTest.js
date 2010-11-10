@@ -18,7 +18,7 @@ var dmz =
           , pbar: require("dmz/ui/progressBar")
           , slider: require("dmz/ui/slider")
           , spinbox: require("dmz/ui/spinBox")
-          , stack: require("dmz/ui/stackWidget")
+          , stack: require("dmz/ui/stackedWidget")
           , tab: require("dmz/ui/tabWidget")
           , table: require("dmz/ui/tableWidget")
           , textEdit: require("dmz/ui/textEdit")
@@ -140,6 +140,7 @@ dmz.module.subscribe(self, "main", function (Mode, module) {
 
       _form = dmz.ui.widget.create();
       dmz.ui.tree.create(_form);
+
       _form.show();
       _main.addPage ("tree", _form);
 

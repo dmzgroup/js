@@ -783,7 +783,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
             _spinBoxApi.get_new_instance ());
 
          _state.core->register_interface (
-            "dmz/ui/stackWidget",
+            "dmz/ui/stackedWidget",
             _stackApi.get_new_instance ());
 
          _state.core->register_interface (
