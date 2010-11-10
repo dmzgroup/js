@@ -353,6 +353,7 @@ namespace dmz {
          static V8Value _tree_item_below (const v8::Arguments &Args);
          static V8Value _tree_item_widget (const v8::Arguments &Args);
          static V8Value _tree_rem_item_widget (const v8::Arguments &Args);
+         static V8Value _tree_index_of (const v8::Arguments &Args);
          static V8Value _tree_selected_items (const v8::Arguments &Args);
          static V8Value _tree_sort_col (const v8::Arguments &Args);
          static V8Value _tree_take_item_at (const v8::Arguments &Args);
@@ -373,6 +374,8 @@ namespace dmz {
          static V8Value _tree_item_take_child (const v8::Arguments &Args);
          static V8Value _tree_item_take_children (const v8::Arguments &Args);
          static V8Value _tree_item_tree_widget (const v8::Arguments &Args);
+         static V8Value _tree_item_index_of (const v8::Arguments &Args);
+         static V8Value _tree_item_disable (const v8::Arguments &Args);
 
          // QTableWidget bindings implemented in JsModuleUiV8QtBasicTableWidget.cpp
          static V8Value _table_clear_spans (const v8::Arguments &Args);
