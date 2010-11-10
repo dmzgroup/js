@@ -11,8 +11,6 @@
 #include <QtGui/QKeySequence>
 #include <v8.h>
 
-#include <QtCore/QDebug>
-
 namespace dmz {
 
    V8Value qvariant_to_v8 (const QVariant &Value);

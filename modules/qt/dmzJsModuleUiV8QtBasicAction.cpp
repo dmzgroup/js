@@ -117,7 +117,8 @@ dmz::JsModuleUiV8QtBasic::_action_text (const v8::Arguments &Args) {
 
                   if (obj->Has (self->_statusTipStr)) {
 
-                     action->setStatusTip (v8_to_qstring (obj->Get (self->_statusTipStr)));
+                     action->setStatusTip (
+                        v8_to_qstring (obj->Get (self->_statusTipStr)));
                   }
 
                   if (obj->Has (self->_toolTipStr)) {

@@ -1,244 +1,101 @@
-var puts = require('sys').puts
-  , Qt = require('dmz/ui/consts')
-  , QUiLoader = require('dmz/ui/uiLoader')
-  , QMessageBox = require('dmz/ui/messageBox')
-  , QInputDialog = require('dmz/ui/inputDialog')
-  , QDockWidget = require('dmz/ui/dockWidget')
-  , file = require("dmz/ui/fileDialog")
-  , QAction = require('dmz/ui/action')
-  , mainWindow = require('dmz/ui/mainWindow')
-  , mainForm = QUiLoader.load('./scripts/main.ui')
-  , listWidget = mainForm.lookup('listWidget')
-  , stackedWidget = mainForm.lookup('stackedWidget')
-  , index = 0
-  ;
+var dmz = 
+       { module: require('dmz/runtime/module')
+       , ui:
+          { consts: require('dmz/ui/consts')
+          , layout: require("dmz/ui/layout")
+          , loader: require('dmz/ui/uiLoader')
+          , mainWindow: require('dmz/ui/mainWindow')
+          , messageBox: require('dmz/ui/messageBox')
+          , widget: require("dmz/ui/widget")
+          }
+       }
+   , _log = require('sys').puts
+   , _print
+   , _exports = {}
+   , _table = {}
+   , _form = dmz.ui.loader.load('main')
+   , _list = _form.lookup('listWidget')
+   , _stack = _form.lookup('stackedWidget')
+   , _index = 0
+   , _widget
+   , _layout
+   ;
 
-puts('Script: ' + self.name);
+_list.observe(self, 'currentRowChanged', function (row) {
+   _index = row;
+   _stack.currentIndex(_index);
+   _print(self.name, 'currentRowChanged', _index)
+   var label = _form.lookup('infoLabel');
+   label.text(_index);
+});
 
-
-function add_script (script) {
-   var uiFile = './scripts/' + script + '.ui';
-   var form = QUiLoader.load(uiFile);
-   form.name(script);
-   var data = { name: script, file: uiFile };
-   listWidget.addItem(script, data);
-   stackedWidget.add(form);
-}
-
-listWidget.observe(self, 'currentRowChanged', function (row) {
-   index = row;
-   // puts('row: ' + index);
-   stackedWidget.currentIndex(index);
+_form.observe(self, 'doneButton', 'clicked', function (button) {
    
-   var label = mainForm.lookup('infoLabel');
-   if (label) { label.text(index);}
-});
-
-listWidget.observe(self, 'currentItemChanged', function (item) {
-   if (item) {
-      var data = item.data();
-      puts('name:', data.name);
-      puts('file:', data.file);
-      puts('item:', item.text(), 'row:',listWidget.row(item));
-   }
-});
-
-mainForm.observe(self, "pushButton", "clicked", function () {
-
-   listWidget.findItems("Slider").forEach(function (key) {
-
-      puts(key.text());
-   });
-});
-
-mainForm.observe(self, 'doneButton', 'clicked', function (button) {
-   
-   var mb = QMessageBox.create(
-      { type: QMessageBox.Information
+   var mb = dmz.ui.messageBox.create(
+      { type: dmz.ui.messageBox.Information
       , text: "Are you done?"
-      , informativeText: "Hit Ok to quit!"
-      , standardButtons: [QMessageBox.Ok, QMessageBox.Cancel]
-      , defaultButton: QMessageBox.Ok
-      , detailedText: "This window helps you quit!"
+      , informativeText: "Click <b>Ok</b> to quit!"
+      , standardButtons: [dmz.ui.messageBox.Ok, dmz.ui.messageBox.Cancel]
+      , defaultButton: dmz.ui.messageBox.Ok
       }
-      , button.window()
+      , _form
    );
 
-//   mb.setText ("This text has been set");
-//   mb.setDetailedText("Dtext!");
-//   mb.setInformativeText("Itext");
-
    mb.open(self, function (val) {
-      if (val === QMessageBox.Ok) {
+      if (val === dmz.ui.messageBox.Ok) {
 
-         puts("mb: OK pressed");
-         mainWindow.close();
+         dmz.ui.mainWindow.close();
       }
-      else if (val === QMessageBox.Cancel) {
+      else if (val === dmz.ui.messageBox.Cancel) {
 
-         puts("mb: Cancel pressed");
+         _print("dmz.ui.messageBox.Cancel");
       }
    });
 });
 
-// mainForm.observe(self, 'prevButton', 'clicked', function (btn) {
-// });
+_stack.currentIndex(0);
 
-// mainForm.observe(self, 'nextButton', 'clicked', function (button) {
-// });
+dmz.ui.mainWindow.centralWidget (_form);
 
-add_script('Slider');
-add_script('Widgets');
+dmz.module.subscribe(self, 'log', function (Mode, module) {
 
-
-mainForm.observe(self, 'comboBox', 'currentIndexChanged', function (value, comboBox) {
-
-   // puts('comboBox: ' + value);
-   var comboBoxLabel = mainForm.lookup ('comboBoxLabel');
-   if (comboBoxLabel) { comboBoxLabel.text (comboBox.itemText(value)); }
-});
-
-mainForm.observe(self, 'lineEdit', 'textChanged', function (value) {
-
-   // puts('lineEdit: ' + value);
-   var lineEditLabel = mainForm.lookup ('lineEditLabel');
-   if (lineEditLabel) { lineEditLabel.text (value); }
-});
-
-mainForm.observe(self, 'spinBox', 'valueChanged', function (value) {
-
-   // puts('spinBox: ' + value);
-   var spinBoxLabel = mainForm.lookup ('spinBoxLabel');
-   if (spinBoxLabel) { spinBoxLabel.text (value); }
-});
-
-mainForm.observe(self, 'doubleSpinBox', 'valueChanged', function (value) {
-
-   // puts('doubleSpinBox: ' + value);
-   var doubleSpinBoxLabel = mainForm.lookup ('doubleSpinBoxLabel');
-   if (doubleSpinBoxLabel) { doubleSpinBoxLabel.text (value); }
-});
-
-function sliderUpdate (val) {
-
-   // puts('slider update: ' + val);
-
-   var lcd = mainForm.lookup ('lcd');
-   if (lcd) { lcd.property ('value', val); }
-
-   var progressBar = mainForm.lookup ('progressBar');
-   if (progressBar) {
-      // progressBar.value (val);
-      progressBar.property ('value', val);
+   if (Mode === dmz.module.Activate) {
+      
+      _log = module.print;
    }
+});
 
-   var dial = mainForm.lookup ('dial');
-   if (dial) { dial.value (val); }
 
-   var slider = mainForm.lookup ('slider');
-   if (slider) { slider.value (val); }
+_exports.addPage = function (name, widget) {
+   
+   if (name && widget) {
+      
+      _table[name] = 
+         { name: name
+         , widget: widget
+         , index: _stack.add(widget)
+         };
+
+      _list.addItem(name);
+      
+      _print(self.name, 'addPage', name, widget);
+   }
+};
+
+_print = function () {
+   
+   var message = ''
+     , separator = ' '
+     ;
+   
+   for(var ix = 0; ix < arguments.length; ix++) {
+      
+      message += arguments[ix] + separator;
+   } 
+   
+   _log(message);
 }
 
-mainForm.observe(self, 'slider', 'valueChanged', sliderUpdate);
-mainForm.observe(self, 'dial', 'valueChanged', sliderUpdate);
+_exports.print = _print;
 
-stackedWidget.currentIndex(0);
-
-mainWindow.centralWidget (mainForm);
-
-var dockName = "My Tools";
-var toolsWidget = QUiLoader.load('./scripts/Tools.ui');
-if(toolsWidget) {
-   
-   toolsWidget.name(dockName);
-   
-   // toolsWidget.observe(self, 'button1', 'clicked', function (btn) {
-   // });
-
-   // toolsWidget.observe(self, 'button2', 'clicked', function (btn) {
-   // });
-
-   // toolsWidget.observe(self, 'button3', 'clicked', function (btn) {
-   // });
-   
-   var toolsDock = mainWindow.createDock (dockName, Qt.BottomDockWidgetArea, toolsWidget);
-   if (toolsDock) {
-      
-      toolsDock.title ("Tools I Like");
-      
-      toolsWidget.observe(self, "button1", "clicked", function () {
-
-         var str = file.getSaveFileName(
-            { caption: "Save File Dialog"
-            , dir: "/Users"
-            , filter: "Scripts (*.js)"
-            }
-            , mainWindow.window());
-
-         if (str) { puts("saveFileName:", str) };
-      });
-      
-      toolsWidget.observe(self, 'button2', 'clicked', function () {
-         
-         var input = QInputDialog.create (
-            { title: "This is the title"
-            , label: "MY LABEL"
-            // , text: 'text'
-            // , mode: Qt.Normal
-            // , value: 11.5
-            // , decimal: 2
-            // , min: 9
-            // , max: 20
-            , items: ['one', 'two', 'three']
-            , current: 1
-            // , editable: true
-            }
-            , mainWindow.window());
-         
-         input.open (self, function (res, val) {
-            puts ('res:', res);
-            puts ('val:', val);
-         });
-      });
-      
-      toolsWidget.observe(self, 'button3', 'clicked', function () {
-
-         listWidget.clear ();
-      });
-   }
-}
-
-mainWindow.addMenu (self, "&File", "Hello", { shortcut: "new" }, function () {
-   puts("Friends");
-});
-
-mainWindow.addSeparator("&File");
-
-mainWindow.addMenu (self, "&File", "Show It", "", function (obj) {
-   toolsDock.show();
-});
-
-mainWindow.addSeparator("&File");
-
-mainWindow.addMenu (self, "&File", "What", "Ctrl+h", function (obj) {
-   toolsDock.hide();
-}).text("Hide It");
-
-mainWindow.addSeparator("&File");
-
-var action = mainWindow.addMenu (self, "&Name", "My Name Is1", "Meta+y", function (obj) {
-   obj.enabled(false);
-   // puts("action:", action.callback(self, "triggered"));
-});
-
-mainWindow.addSeparator("&Name");
-
-action.text ({statusTip:"What ever you do, do not select this menu"});
-
-mainWindow.addMenu (self, "&Name", "My Name Is2", function (obj) {
-   action.enabled(true);
-});
-
-action.trigger();
-
-puts('Done with: ' + self.name);
+dmz.module.publish(self, _exports);

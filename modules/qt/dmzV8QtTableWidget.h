@@ -28,7 +28,9 @@ namespace dmz {
       public Q_SLOTS:
          void on_cellClicked(int row, int col);
          void on_cellDoubleClicked (int row, int col);
-         void on_currentItemChanged (QTableWidgetItem *current, QTableWidgetItem *previous);
+         void on_currentItemChanged (
+            QTableWidgetItem *current,
+            QTableWidgetItem *previous);
          void on_itemSelectionChanged ();
    };
 };

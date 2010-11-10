@@ -121,7 +121,8 @@ dmz::JsModuleUiV8QtBasic::discover_plugin (
 
       if (!_state.mainWindowModule) {
 
-         _state.mainWindowModule = QtModuleMainWindow::cast (PluginPtr, _mainWindowModuleName);
+         _state.mainWindowModule =
+            QtModuleMainWindow::cast (PluginPtr, _mainWindowModuleName);
       }
    }
    else if (Mode == PluginDiscoverRemove) {
@@ -262,6 +263,14 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
 
                vobj = _treeWidgetCtor->NewInstance ();
                qobj = new V8QtTreeWidget (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QInputDialog")) {
+
+            if (!_inputDialogCtor.IsEmpty ()) {
+
+               vobj = _inputDialogCtor->NewInstance ();
+               qobj = new V8QtInputDialog (vobj, value, &_state);
             }
          }
          else if (value->inherits ("QMessageBox")) {
@@ -463,7 +472,8 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
 
 // JsExtV8 Interface
 void
-dmz::JsModuleUiV8QtBasic::update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module) {
+dmz::JsModuleUiV8QtBasic::update_js_module_v8 (
+const ModeEnum Mode, JsModuleV8 &module) {
 
    if (Mode == JsExtV8::Store) {
 
@@ -508,7 +518,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
       if (!_treeWidgetItemTemp.IsEmpty ()) {
 
-         _treeWidgetItemCtor = V8FunctionPersist::New (_treeWidgetItemTemp->GetFunction ());
+         _treeWidgetItemCtor =
+            V8FunctionPersist::New (_treeWidgetItemTemp->GetFunction ());
       }
 
       if (!_tableWidgetTemp.IsEmpty ()) {
@@ -518,12 +529,14 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
       if (!_tableWidgetItemTemp.IsEmpty ()) {
 
-         _tableWidgetItemCtor = V8FunctionPersist::New (_tableWidgetItemTemp->GetFunction ());
+         _tableWidgetItemCtor =
+            V8FunctionPersist::New (_tableWidgetItemTemp->GetFunction ());
       }
 
       if (!_tableSelectionTemp.IsEmpty ()) {
 
-         _tableSelectionCtor = V8FunctionPersist::New (_tableSelectionTemp->GetFunction ());
+         _tableSelectionCtor =
+            V8FunctionPersist::New (_tableSelectionTemp->GetFunction ());
       }
 
       if (!_widgetTemp.IsEmpty ()) {
@@ -548,7 +561,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
       if (!_listWidgetItemTemp.IsEmpty ()) {
 
-         _listWidgetItemCtor = V8FunctionPersist::New (_listWidgetItemTemp->GetFunction ());
+         _listWidgetItemCtor =
+            V8FunctionPersist::New (_listWidgetItemTemp->GetFunction ());
       }
 
       if (!_listWidgetTemp.IsEmpty ()) {
@@ -668,16 +682,26 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
       if (!_messageboxTemp.IsEmpty ()) {
 
-         _messageboxCtor = V8FunctionPersist::New (_messageboxTemp->GetFunction());
+         _messageboxCtor = V8FunctionPersist::New (_messageboxTemp->GetFunction ());
+      }
+
+      if (!_inputDialogTemp.IsEmpty ()) {
+
+         _inputDialogCtor = V8FunctionPersist::New (_inputDialogTemp->GetFunction ());
       }
 
       if (_state.core) {
 
          _state.core->register_interface ("dmz/ui/consts", _qtApi.get_new_instance ());
-         _state.core->register_interface ("dmz/ui/uiLoader", _uiLoaderApi.get_new_instance ());
 
          _state.core->register_interface ("dmz/ui/frame", _frameApi.get_new_instance ());
-         _state.core->register_interface ("dmz/ui/groupBox", _groupBoxApi.get_new_instance ());
+         _state.core->register_interface (
+            "dmz/ui/groupBox",
+            _groupBoxApi.get_new_instance ());
+         _state.core->register_interface (
+            "dmz/ui/uiLoader",
+            _uiLoaderApi.get_new_instance ());
+
          _state.core->register_interface (
             "dmz/ui/mainWindow",
             _mainWindowApi.get_new_instance ());
@@ -705,9 +729,86 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _state.core->register_interface (
             "dmz/ui/inputDialog",
             _inputDialogApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/widget",
+            _widgetApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/button",
+            _buttonApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/comboBox",
+            _comboBoxApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/dateTimeEdit",
+            _dteApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/dial",
+            _dialApi.get_new_instance ());
+
+//         _state.core->register_interface (
+//            "dmz/ui/dialog",
+//            _dialogApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/lcd",
+            _lcdApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/label",
+            _labelApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/lineEdit",
+            _lineEditApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/listWidget",
+            _listApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/progressBar",
+            _pbarApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/slider",
+            _sliderApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/spinBox",
+            _spinBoxApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/stackWidget",
+            _stackApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/tabWidget",
+            _tabApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/tableWidget",
+            _tableApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/textEdit",
+            _textEditApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/toolBox",
+            _toolBoxApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/treeWidget",
+            _treeApi.get_new_instance ());
       }
 
-      _allowMultipleStr = V8StringPersist::New (v8::String::NewSymbol ("allowMultiple"));
+      _allowMultipleStr =
+         V8StringPersist::New (v8::String::NewSymbol ("allowMultiple"));
       _allowedAreasStr = V8StringPersist::New (v8::String::NewSymbol ("allowedAreas"));
       _areaStr = V8StringPersist::New (v8::String::NewSymbol ("area"));
       _captionStr = V8StringPersist::New (v8::String::NewSymbol ("caption"));
@@ -719,7 +820,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _floatingStr = V8StringPersist::New (v8::String::NewSymbol ("floating"));
       _infoTextStr = V8StringPersist::New (v8::String::NewSymbol ("informativeText"));
       _optionsStr = V8StringPersist::New (v8::String::NewSymbol ("options"));
-      _standardButtonsStr = V8StringPersist::New (v8::String::NewSymbol ("standardButtons"));
+      _standardButtonsStr =
+         V8StringPersist::New (v8::String::NewSymbol ("standardButtons"));
       _statusTipStr = V8StringPersist::New (v8::String::NewSymbol ("statusTip"));
       _textStr = V8StringPersist::New (v8::String::NewSymbol ("text"));
       _toolTipStr = V8StringPersist::New (v8::String::NewSymbol ("toolTip"));
@@ -849,6 +951,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _tableSelectionCtor.Dispose (); _tableSelectionCtor.Clear ();
       _toolboxWidgetCtor.Dispose (); _toolboxWidgetCtor.Clear ();
       _messageboxCtor.Dispose (); _messageboxCtor.Clear ();
+      _inputDialogCtor.Dispose (); _inputDialogCtor.Dispose ();
 
       _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
       _allowedAreasStr.Dispose (); _allowedAreasStr.Clear ();
@@ -894,6 +997,27 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _groupBoxApi.clear ();
       _actionApi.clear ();
       _inputDialogApi.clear ();
+
+      _buttonApi.clear ();
+      _comboBoxApi.clear ();
+      _dteApi.clear ();
+      _dialApi.clear ();
+      _dialogApi.clear ();
+      _lcdApi.clear ();
+      _labelApi.clear ();
+      _lineEditApi.clear ();
+      _listApi.clear ();
+      _pbarApi.clear ();
+      _sliderApi.clear ();
+      _spinBoxApi.clear ();
+      _stackApi.clear ();
+      _tabApi.clear ();
+      _tableApi.clear ();
+      _textEditApi.clear ();
+      _toolBoxApi.clear ();
+      _treeApi.clear ();
+      _widgetApi.clear ();
+
       _state.context.Clear ();
 
       _obsTable.empty ();
@@ -937,6 +1061,29 @@ dmz::JsModuleUiV8QtBasic::eventFilter (QObject *watched, QEvent *event) {
    if (!result) { result = QObject::eventFilter (watched, event); }
 
    return result;
+}
+
+
+void
+dmz::JsModuleUiV8QtBasic::v8_qt_widget_destroyed (V8QtWidget *widget) {
+
+   if (widget) {
+
+      // remove object from all observer lists
+      HashTableHandleIterator it;
+      ObsStruct *os = _obsTable.get_first (it);
+      while (os) {
+
+         os->list.removeAll (widget);
+         os = _obsTable.get_next (it);
+      }
+
+      // remove from dialog list
+      _dialogList.removeAll (widget->get_qwidget ());
+
+      // remove from object map
+      _objectMap.remove (widget->get_qobject ());
+   }
 }
 
 
@@ -1044,7 +1191,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
 
    // enum Qt::CaseSensitivity
    _qtApi.add_constant ("CaseInsensitive", (UInt32)Qt::CaseInsensitive);
-   _qtApi.add_constant ("CaseInsensitive", (UInt32)Qt::CaseInsensitive);
+   _qtApi.add_constant ("CaseSensitive", (UInt32)Qt::CaseSensitive);
 
    // enum Qt::CheckState
    _qtApi.add_constant ("Unchecked", (UInt32)Qt::Unchecked);

@@ -319,6 +319,25 @@ dmz::JsModuleUiV8QtBasic::_to_qlistwidgetitem (V8Value value) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_list (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = 0;
+      if (Args.Length ()) { parent = self->_to_qwidget (Args[0]); }
+      QListWidget *widget = new QListWidget (parent);
+      result = self->create_v8_qobject (widget);
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_list_widget_item () {
 
@@ -348,12 +367,18 @@ dmz::JsModuleUiV8QtBasic::_init_list_widget () {
 
    V8ObjectTemplate proto = _listWidgetTemp->PrototypeTemplate ();
    proto->Set ("addItem", v8::FunctionTemplate::New (_list_widget_add_item, _self));
-   proto->Set ("currentItem", v8::FunctionTemplate::New (_list_widget_current_item, _self));
+
+   proto->Set (
+      "currentItem",
+      v8::FunctionTemplate::New (_list_widget_current_item, _self));
+
    proto->Set ("clear", v8::FunctionTemplate::New (_list_widget_clear, _self));
    proto->Set ("count", v8::FunctionTemplate::New (_list_widget_count, _self));
    proto->Set ("item", v8::FunctionTemplate::New (_list_widget_item, _self));
    proto->Set ("row", v8::FunctionTemplate::New (_list_widget_row, _self));
    proto->Set ("takeItem", v8::FunctionTemplate::New (_list_widget_take_item, _self));
    proto->Set ("findItems", v8::FunctionTemplate::New (_list_widget_find_items, _self));
+
+   _listApi.add_function ("create", _create_list, _self);
 }
 

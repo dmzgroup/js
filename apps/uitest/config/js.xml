@@ -4,10 +4,11 @@
    <plugin name="dmzJsModuleV8Basic" scope="javascript"/>
    <plugin name="dmzJsModuleTypesV8Basic" scope="javascript"/>
    <plugin name="dmzJsModuleRuntimeV8Basic" scope="javascript"/>
-   <plugin name="dmzJsPluginV8ConsoleQt" scope="javascript"/>
-   <plugin name="dmzJsExtV8Input" scope="javascript"/>
-   <plugin name="dmzJsExtV8Event" scope="javascript"/>
    <plugin name="dmzJsModuleUiV8QtBasic" scope="javascript"/>
+   <plugin name="dmzJsPluginV8ConsoleQt" scope="javascript"/>
+   <plugin name="dmzJsExtV8Module" scope="javascript"/>
+   <!-- <plugin name="dmzJsExtV8Input" scope="javascript"/> -->
+   <!-- <plugin name="dmzJsExtV8Event" scope="javascript"/> -->
    <!-- <plugin name="dmzJsExtV8EventCommon" scope="javascript"/> -->
    <!-- <plugin name="dmzJsExtV8Object" scope="javascript"/> -->
    <!-- <plugin name="dmzJsExtV8Portal" scope="javascript"/> -->
@@ -16,36 +17,11 @@
 </plugin-list>
 <javascript>
    <path value="./scripts"/>
-   <path value="../../scripts"/>
+   <path value="./ui"/>
+   <instance name="log"/>
    <instance name="main"/>
-<!--   <instance name="groupbox"/>
-   <instance name="toolbox"/>
-   <instance name="table"/>
-   <instance name="tree"/>
-   <instance name="main"/>
-   <instance name="dte"/>
-   <instance name="test"/>
-   <instance name="lcd"/>
-   <instance name="combobox"/>
-   <instance name="spin"/>
-   <instance name="spin"/>
-   <instance name="slider"/>
-   <instance name="line"/>
-   <instance name="textedit"/>
    <instance name="button"/>
-   <instance name="dial"/>
-   <instance name="label"/>
-   <instance name="pbar"/>
-   <instance name="dialog"/>
-   <instance name="stacked"/>
-   <instance name="tab"/>
-   <instance name="layout"/> 
-   <instance name="formlayout"/>
-   <instance name="gridlayout"/>
-   <instance name="fileDialog"/> -->
+   <instance name="comboBox"/>
+   <instance name="createTest"/>
 </javascript>
-<test>
-   <name value="my_name"/>
-</test>
 </dmz>
-

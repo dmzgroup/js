@@ -1,38 +1,35 @@
-var puts = require('sys').puts
-  , timer = require('dmz/runtime/time')
-  , uiLoader = require('dmz/ui/uiLoader')
-  , form
-  , cb
-  , count
-  ;
+var dmz = 
+       { module: require('dmz/runtime/module')
+       , ui:
+          { consts: require('dmz/ui/consts')
+          , loader: require('dmz/ui/uiLoader')
+          , widget: require("dmz/ui/widget")
+          }
+       }
+   , _exports = {}
+   , _form = dmz.ui.loader.load('comboBox')
+   , _comboBox = _form.lookup('comboBox')
+   , _main
+   ;
 
-puts("Script: " + self.name);
+(function () {
+   _comboBox.addItem("HTTP");
+   _comboBox.addItem("FTP");
+   _comboBox.addItem("SSH");
+   _comboBox.addItem("Telnet");
+})();
 
-form = uiLoader.load("./scripts/comboBoxForm.ui");
-form.show();
-
-cb = form.lookup("comboBox");
-cb.observe(self, "currentIndexChanged", function (value) {
-   puts("Count:", cb.count());
-   puts("currentIndex:", value, cb.currentIndex());
-   puts("currentText:", cb.currentText());
+_comboBox.observe(self, "currentIndexChanged", function (value) {
+   _main.print(self.name, "currentIndexChanged:", value, "text:", _comboBox.currentText());
 });
 
-cb.addItem("addItem1");
-cb.addItems(["addItems2", "addItems3", "addItems4", "addItems5"]);
-puts("findText (2):", cb.findText("addItems3"));
-cb.removeIndex(1);
+dmz.module.subscribe(self, "main", function (Mode, module) {
+   
+   if (Mode === dmz.module.Activate) {
+      
+      _main = module
+      _main.addPage (_form.title(), _form);
+   }
+});
 
-for (count = 0; count < cb.count(); count += 1) {
-   puts(count, cb.itemText(count));
-}
-
-//cb.clear();
-puts("count:", cb.count());
-
-for (count = 0; count < cb.count(); count += 1) {
-   puts(count, cb.itemText(count));
-}
-
-cb.currentIndex (3);
-puts("Done.");
+_form.layout().addWidget (dmz.ui.widget.create());

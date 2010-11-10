@@ -213,6 +213,25 @@ dmz::JsModuleUiV8QtBasic::_tab_widget_tab_text (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_tab_widget (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = 0;
+      if (Args.Length ()) { parent = self->_to_qwidget (Args[0]); }
+      QTabWidget *widget = new QTabWidget (parent);
+      result = self->create_v8_qobject (widget);
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_tab_widget () {
 
@@ -228,10 +247,19 @@ dmz::JsModuleUiV8QtBasic::_init_tab_widget () {
    proto->Set ("add", v8::FunctionTemplate::New (_tab_widget_add, _self));
    proto->Set ("remove", v8::FunctionTemplate::New (_tab_widget_remove, _self));
    proto->Set ("count", v8::FunctionTemplate::New (_tab_widget_count, _self));
-   proto->Set ("currentIndex", v8::FunctionTemplate::New (_tab_widget_current_index, _self));
-   proto->Set ("currentWidget", v8::FunctionTemplate::New (_tab_widget_current_widget, _self));
+
+   proto->Set (
+      "currentIndex",
+      v8::FunctionTemplate::New (_tab_widget_current_index, _self));
+
+   proto->Set (
+      "currentWidget",
+      v8::FunctionTemplate::New (_tab_widget_current_widget, _self));
+
    proto->Set ("at", v8::FunctionTemplate::New (_tab_widget_at, _self));
    proto->Set ("indexOf", v8::FunctionTemplate::New (_tab_widget_index_of, _self));
    proto->Set ("tabText", v8::FunctionTemplate::New (_tab_widget_tab_text, _self));
+
+   _tabApi.add_function ("create", _create_tab_widget, _self);
 }
 

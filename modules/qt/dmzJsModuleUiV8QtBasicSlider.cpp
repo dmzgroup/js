@@ -2,6 +2,7 @@
 #include <dmzJsV8UtilConvert.h>
 #include <QtGui/QAbstractSlider>
 #include <QtGui/QDial>
+#include <QtGui/QSlider>
 
 
 dmz::V8Value
@@ -155,6 +156,54 @@ dmz::JsModuleUiV8QtBasic::_dial_notches_visible (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_slider (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = 0;
+      QSlider *widget = 0;
+      Qt::Orientation ori = Qt::Vertical;
+      if (Args.Length ()) {
+
+         if (Args[0]->IsInt32 ()) {
+
+            ori = (Qt::Orientation)v8_to_uint32 (Args[0]);
+            if (Args.Length () > 1) { parent = self->_to_qwidget (Args[1]); }
+         }
+         else { parent = self->_to_qwidget (Args[0]); }
+      }
+      widget = new QSlider (ori, parent);
+      result = self->create_v8_qobject (widget);
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_dial (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = 0;
+      if (Args.Length ()) { parent = self->_to_qwidget (Args[0]); }
+      QDial *widget = new QDial (parent);
+      result = self->create_v8_qobject (widget);
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_slider () {
 
@@ -171,6 +220,8 @@ dmz::JsModuleUiV8QtBasic::_init_slider () {
    proto->Set ("maximum", v8::FunctionTemplate::New (_slider_maximum, _self));
    proto->Set ("minimum", v8::FunctionTemplate::New (_slider_minimum, _self));
    proto->Set ("isDown", v8::FunctionTemplate::New (_slider_is_down, _self));
+
+   _sliderApi.add_function ("create", _create_slider, _self);
 }
 
 
@@ -190,4 +241,6 @@ dmz::JsModuleUiV8QtBasic::_init_dial () {
    proto->Set (
       "notchesVisible",
       v8::FunctionTemplate::New (_dial_notches_visible, _self));
+
+   _dialApi.add_function ("create", _create_dial, _self);
 }

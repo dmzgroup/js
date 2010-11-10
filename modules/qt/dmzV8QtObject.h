@@ -85,7 +85,6 @@ namespace dmz {
 
          V8Value _to_v8_value (const QVariant &Value);
 
-
          QPointer<QObject> _object;
          JsModuleUiV8QtBasicState *_state;
          HashTableStringTemplate<CallbackTable> _cbTable;

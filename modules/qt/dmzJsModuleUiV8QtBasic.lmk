@@ -6,6 +6,7 @@ lmkV8.set_name ("dmzJsModuleUiV8QtBasic", lmkQt.get_flags ())
 lmk.set_type "plugin"
 
 lmk.add_files ({
+   "dmzJsModuleUiV8QtBasic.h",
    "dmzV8QtAction.h",
    "dmzV8QtButton.h",
    "dmzV8QtComboBox.h",
@@ -13,6 +14,7 @@ lmk.add_files ({
    "dmzV8QtDialog.h",
    "dmzV8QtDockWidget.h",
    "dmzV8QtGroupBox.h",
+   "dmzV8QtInputDialog.h",
    "dmzV8QtLineEdit.h",
    "dmzV8QtListWidget.h",
    "dmzV8QtMessageBox.h",
@@ -66,6 +68,7 @@ lmk.add_files {
    "dmzV8QtDialog.cpp",
    "dmzV8QtDockWidget.cpp",
    "dmzV8QtGroupBox.cpp",
+   "dmzV8QtInputDialog.cpp",
    "dmzV8QtLineEdit.cpp",
    "dmzV8QtListWidget.cpp",
    "dmzV8QtMessageBox.cpp",

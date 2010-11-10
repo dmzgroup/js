@@ -172,8 +172,8 @@ dmz::JsModuleUiV8QtBasic::_init_message_box () {
 
    v8::HandleScope scope;
 
-   _messageBoxApi.add_constant ("Infomation", (UInt32)QMessageBox::Information);
-   _messageBoxApi.add_constant ("Quesiton", (UInt32)QMessageBox::Question);
+   _messageBoxApi.add_constant ("Information", (UInt32)QMessageBox::Information);
+   _messageBoxApi.add_constant ("Question", (UInt32)QMessageBox::Question);
    _messageBoxApi.add_constant ("Warning", (UInt32)QMessageBox::Warning);
    _messageBoxApi.add_constant ("Critical", (UInt32)QMessageBox::Critical);
 

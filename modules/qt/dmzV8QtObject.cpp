@@ -13,6 +13,7 @@ dmz::V8QtObject::V8QtObject (
       _current (0),
       _deleteObject (True) {
 
+   setObjectName ("V8QtObject");
    if (!Self.IsEmpty ()) {
 
       Self->SetInternalField (0, v8::External::Wrap ((void *)this));

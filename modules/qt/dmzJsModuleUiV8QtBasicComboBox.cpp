@@ -220,6 +220,25 @@ dmz::JsModuleUiV8QtBasic::_combobox_clear (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_comboBox (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = 0;
+      if (Args.Length ()) { parent = self->_to_qwidget (Args[0]); }
+      QComboBox *widget = new QComboBox (parent);
+      result = self->create_v8_qobject (widget);
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_combobox () {
 
@@ -248,4 +267,6 @@ dmz::JsModuleUiV8QtBasic::_init_combobox () {
    proto->Set ("findText", v8::FunctionTemplate::New (_combobox_find_text, _self));
    proto->Set ("removeIndex", v8::FunctionTemplate::New (_combobox_remove_item, _self));
    proto->Set ("clear", v8::FunctionTemplate::New (_combobox_clear, _self));
+
+   _comboBoxApi.add_function ("create", _create_comboBox, _self);
 }
