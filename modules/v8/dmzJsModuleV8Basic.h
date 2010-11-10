@@ -179,6 +179,8 @@ namespace dmz {
             }
          };
 
+         static V8Value _create_self (const v8::Arguments &Args);
+
          void _dump_to_observer (JsObserver &obs);
          void _observe_script (const JsObserverModeEnum Mode, const Handle Script);
          void _observe_instance (const JsObserverModeEnum Mode, const Handle Instance);

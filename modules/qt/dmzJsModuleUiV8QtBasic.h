@@ -73,12 +73,16 @@ namespace dmz {
          // JsModuleUiV8Qt Interface
          virtual v8::Handle<v8::Value> create_v8_qobject (QObject *value);
          virtual v8::Handle<v8::Value> create_v8_qwidget (QWidget *value);
+
          virtual v8::Handle<v8::Value> create_v8_qlistwidgetitem (
-               QListWidgetItem *value);
+            QListWidgetItem *value);
+
          virtual v8::Handle<v8::Value> create_v8_qtreewidgetitem (
-               QTreeWidgetItem *value);
+            QTreeWidgetItem *value);
+
          virtual v8::Handle<v8::Value> create_v8_qtablewidgetitem (
             QTableWidgetItem *value);
+
          virtual v8::Handle<v8::Value> create_v8_qtablewidgetselectionrange (
             QTableWidgetSelectionRange *value);
 
@@ -427,8 +431,8 @@ namespace dmz {
          static V8Value _table_item_selected (const v8::Arguments &Args);
          static V8Value _table_item_text (const v8::Arguments &Args);
 
-         // QTableWidgetSelectionRange bindings
-         // implemented in JsModuleUiV8QtBasicTableWidget.cpp
+         // QTableWidgetSelectionRange bindings implemented in
+         // JsModuleUiV8QtBasicTableWidget.cpp
          static V8Value _table_range_bottom (const v8::Arguments &Args);
          static V8Value _table_range_top (const v8::Arguments &Args);
          static V8Value _table_range_left (const v8::Arguments &Args);

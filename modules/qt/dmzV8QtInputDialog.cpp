@@ -151,7 +151,6 @@ dmz::V8QtInputDialog::on_finished (int value) {
       }
 
       _do_callback (LocalSignalFinished, args);
-
       _make_weak (True);
    }
 }
@@ -160,48 +159,21 @@ dmz::V8QtInputDialog::on_finished (int value) {
 void
 dmz::V8QtInputDialog::on_doubleValueChanged (double value) {
 
-   if (_state) {
-
-      v8::Context::Scope cscope (_state->context);
-      v8::HandleScope scope;
-
-      QList<V8Value> args;
-      args.append (v8::Number::New (value));
-
-      _do_callback (LocalSignalDValChanged, args);
-   }
+   _do_callback (LocalSignalDValChanged, value);
 }
 
 
 void
 dmz::V8QtInputDialog::on_doubleValueSelected (double value) {
 
-   if (_state) {
-
-      v8::Context::Scope cscope (_state->context);
-      v8::HandleScope scope;
-
-      QList<V8Value> args;
-      args.append (v8::Number::New (value));
-
-      _do_callback (LocalSignalDValSelected, args);
-   }
+   _do_callback (LocalSignalDValSelected, value);
 }
 
 
 void
 dmz::V8QtInputDialog::on_intValueChanged (int value) {
 
-   if (_state) {
-
-      v8::Context::Scope cscope (_state->context);
-      v8::HandleScope scope;
-
-      QList<V8Value> args;
-      args.append (v8::Integer::New (value));
-
-      _do_callback (LocalSignalIValChanged, args);
-   }
+   _do_callback (LocalSignalIValChanged, value);
 }
 
 
@@ -209,16 +181,7 @@ dmz::V8QtInputDialog::on_intValueChanged (int value) {
 void
 dmz::V8QtInputDialog::on_intValueSelected (int value) {
 
-   if (_state) {
-
-      v8::Context::Scope cscope (_state->context);
-      v8::HandleScope scope;
-
-      QList<V8Value> args;
-      args.append (v8::Integer::New (value));
-
-      _do_callback (LocalSignalIValSelected, args);
-   }
+   _do_callback (LocalSignalIValSelected, value);
 }
 
 
@@ -226,16 +189,7 @@ dmz::V8QtInputDialog::on_intValueSelected (int value) {
 void
 dmz::V8QtInputDialog::on_textValueChanged (const QString &value) {
 
-   if (_state) {
-
-      v8::Context::Scope cscope (_state->context);
-      v8::HandleScope scope;
-
-      QList<V8Value> args;
-      args.append (qstring_to_v8 (value));
-
-      _do_callback (LocalSignalTValChanged, args);
-   }
+   _do_callback (LocalSignalTValChanged, value);
 }
 
 
@@ -243,16 +197,7 @@ dmz::V8QtInputDialog::on_textValueChanged (const QString &value) {
 void
 dmz::V8QtInputDialog::on_textValueSelected (const QString &value) {
 
-   if (_state) {
-
-      v8::Context::Scope cscope (_state->context);
-      v8::HandleScope scope;
-
-      QList<V8Value> args;
-      args.append (qstring_to_v8 (value));
-
-      _do_callback (LocalSignalTValSelected, args);
-   }
+   _do_callback (LocalSignalTValSelected, value);
 }
 
 

@@ -812,7 +812,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _allowedAreasStr = V8StringPersist::New (v8::String::NewSymbol ("allowedAreas"));
       _areaStr = V8StringPersist::New (v8::String::NewSymbol ("area"));
       _captionStr = V8StringPersist::New (v8::String::NewSymbol ("caption"));
-      _defaultButtonStr = V8StringPersist::New (v8::String::NewSymbol ("defaultButton"));
+      _defaultButtonStr =
+         V8StringPersist::New (v8::String::NewSymbol ("defaultButton"));
       _detailedTextStr = V8StringPersist::New (v8::String::NewSymbol ("detailedText"));
       _dirStr = V8StringPersist::New (v8::String::NewSymbol ("dir"));
       _featuresStr = V8StringPersist::New (v8::String::NewSymbol ("features"));

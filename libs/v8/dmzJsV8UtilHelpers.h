@@ -9,10 +9,13 @@
 
 namespace dmz {
 
+class Log;
+
 class DMZ_JS_V8_UTIL_LINK_SYMBOL V8InterfaceHelper {
 
    public:
       V8InterfaceHelper ();
+      V8InterfaceHelper (Log &log);
       ~V8InterfaceHelper ();
 
       void clear ();
