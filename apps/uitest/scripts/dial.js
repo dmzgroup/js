@@ -1,7 +1,16 @@
-var puts = require('sys').puts
-  , timer = require('dmz/runtime/time')
-  , uiLoader = require('dmz/ui/uiLoader')
-  , form
+var dmz =
+       { module: require('dmz/runtime/module')
+       , ui:
+          { consts: require('dmz/ui/consts')
+          , loader: require('dmz/ui/uiLoader')
+          , widget: require("dmz/ui/widget")
+          }
+       , timer: require('dmz/runtime/time')
+       }
+  , _main
+  , _exports = {}
+  , form = dmz.ui.loader.load("./scripts/DialForm.ui")
+  , puts = require('sys').puts
   , d1
   , d2
   , count
@@ -9,7 +18,6 @@ var puts = require('sys').puts
 
 puts("Script: " + self.name);
 
-form = uiLoader.load("./scripts/DialForm.ui");
 form.show();
 
 d1 = form.lookup("dial");
@@ -61,5 +69,14 @@ d2.minimum(d2.minimum() + 1);
 puts("d2.min2:", d2.minimum());
 d2.wrapping(true);
 puts("d2.wrapping:", d2.wrapping());
+
+dmz.module.subscribe(self, "main", function (Mode, module) {
+
+   if (Mode === dmz.module.Activate) {
+
+      _main = module
+      _main.addPage (self.name, form);
+   }
+});
 
 puts("Done.");

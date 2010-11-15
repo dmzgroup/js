@@ -22,6 +22,27 @@
    <instance name="main"/>
    <instance name="button"/>
    <instance name="comboBox"/>
-   <instance name="createTest"/>
+   <!-- <instance name="createTest"/> -->
+   <instance name="checkbox"/>
+   <instance name="dial"/>
+   <instance name="dialog"/>
+   <instance name="dte"/>
+   <instance name="fileDialog"/>
+   <instance name="formlayout"/>
+   <instance name="gridlayout"/>
+   <instance name="groupBox"/>
+   <instance name="label"/>
+   <instance name="layout"/>
+   <instance name="lcd"/>
+   <instance name="line"/>
+   <instance name="pbar"/>
+   <instance name="slider"/>
+   <instance name="spin"/>
+   <instance name="stacked"/>
+   <instance name="tab"/>
+   <instance name="table"/>
+   <instance name="textedit"/>
+   <instance name="toolbox"/>
+   <instance name="tree"/>
 </javascript>
 </dmz>

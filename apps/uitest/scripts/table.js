@@ -1,15 +1,23 @@
-var puts = require('sys').puts
-  , Qt = require('dmz/ui/consts')
-  , QUiLoader = require('dmz/ui/uiLoader')
-  , file = require("dmz/ui/fileDialog")
-  , QAction = require('dmz/ui/action')
-  , mainWindow = require('dmz/ui/mainWindow')
-  , form = QUiLoader.load("./scripts/TableForm.ui")
+var dmz =
+       { module: require('dmz/runtime/module')
+       , ui:
+          { consts: require('dmz/ui/consts')
+          , file: require("dmz/ui/fileDialog")
+          , loader: require('dmz/ui/uiLoader')
+          , mainWindow: require('dmz/ui/mainWindow')
+          , widget: require("dmz/ui/widget")
+          }
+       , timer: require('dmz/runtime/time')
+       }
+   , _main
+   , _exports = {}
+   , puts = require('sys').puts
+   , form = dmz.ui.loader.load("./scripts/TableForm.ui")
   , table = form.lookup ("tableWidget")
   , item
   , item2
   , item3
-  , widget = QUiLoader.load ("lcd.ui")
+  , widget = dmz.ui.loader.load("lcd.ui")
   , item_to_str
   , ranges
   ;
@@ -91,3 +99,12 @@ table.observe(self, "currentItemChanged", function (curr, prev) {
 table.cellWidget(0, 0, widget);
 
 table.setCurrentCell (0, 1);
+
+dmz.module.subscribe(self, "main", function (Mode, module) {
+
+   if (Mode === dmz.module.Activate) {
+
+      _main = module
+      _main.addPage (self.name, form);
+   }
+});

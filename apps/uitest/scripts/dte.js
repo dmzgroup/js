@@ -1,7 +1,16 @@
-var puts = require('sys').puts
-  , timer = require('dmz/runtime/time')
-  , uiLoader = require('dmz/ui/uiLoader')
-  , form = uiLoader.load ("./scripts/DateTimeEditForm.ui")
+var dmz =
+       { module: require('dmz/runtime/module')
+       , ui:
+          { consts: require('dmz/ui/consts')
+          , loader: require('dmz/ui/uiLoader')
+          , widget: require("dmz/ui/widget")
+          }
+       , timer: require('dmz/runtime/time')
+       }
+  , _main
+  , _exports = {}
+  , puts = require('sys').puts
+  , form = dmz.ui.loader.load("./scripts/DateTimeEditForm.ui")
   , dte = form.lookup ("dte")
   , de = form.lookup ("de")
   , te = form.lookup ("te")
@@ -33,5 +42,13 @@ te.observe(self, "dateTimeChanged", function (date) {
    puts ("te time:", date);
 });
 
+dmz.module.subscribe(self, "main", function (Mode, module) {
+
+   if (Mode === dmz.module.Activate) {
+
+      _main = module
+      _main.addPage (self.name, form);
+   }
+});
 
 puts("Done.");
