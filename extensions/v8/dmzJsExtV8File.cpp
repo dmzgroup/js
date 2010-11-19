@@ -6,6 +6,8 @@
 #include <dmzRuntimePluginInfo.h>
 #include <dmzSystemFile.h>
 
+#include <stdio.h>
+
 dmz::JsExtV8File::JsExtV8File (const PluginInfo &Info, Config &local) :
       Plugin (Info),
       JsExtV8 (Info),
@@ -228,6 +230,37 @@ dmz::JsExtV8File::_file_read (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsExtV8File::_file_write (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+
+   V8Value result = v8::Undefined ();
+
+   const String FilePath = v8_to_string (Args[0]);
+   const String Data = v8_to_string (Args[1]);
+
+   if (FilePath) {
+
+      FILE *file = open_file (FilePath, "w");
+
+      if (file) {
+
+         const size_t Size = Data.get_length ();
+
+         if (fwrite (Data.get_buffer (), sizeof (char), Size, file) == Size) {
+
+            result = v8::Integer::New (Size);
+         }
+
+         close_file (file); file = 0;
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsExtV8File::_init (Config &local) {
 
@@ -239,6 +272,7 @@ dmz::JsExtV8File::_init (Config &local) {
    _fileApi.add_function ("split", _file_split, _self);
    _fileApi.add_function ("valid", _file_valid, _self);
    _fileApi.add_function ("read", _file_read, _self);
+   _fileApi.add_function ("write", _file_write, _self);
 
 }
 
