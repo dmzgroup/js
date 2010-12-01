@@ -11,6 +11,7 @@ var undo = require('dmz/runtime/undo');
 var config = require('dmz/runtime/config');
 var ot = require('dmz/runtime/objectType');
 var obj = require('dmz/components/object');
+var sphere = require("dmz/runtime/sphere");
 
 obj.create.observe(self, function (handle, type) {
 
@@ -30,4 +31,14 @@ obj.release(self, cb);
 obj.position(o1, null, [4,5,6]);
 var cb = obj.position.observe(self, cb);
 obj.position(o1, null, [7,8,9]);
+
+var sph = sphere.create([2,2,2], 20);
+puts(sph);
+if (sph.containsPoint([2,2,2])) { puts("contains 2,2,2"); }
+if (sph.containsPoint([20,2,2])) { puts("contains 21,21,21"); }
+if (sph.containsPoint([5,5,5])) { puts("contains 5,5,5"); }
+puts ("radius: " + sph.radius(3));
+if (sph.containsPoint([5,2,2])) { puts("contains 5,5,5"); }
+puts ("origin: " + sph.origin([5,5,5]));
+if (sph.containsPoint([5,5,5])) { puts("contains 5,5,5"); }
 
