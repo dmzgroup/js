@@ -96,6 +96,7 @@ namespace dmz {
          static V8Value _config_attribute (const v8::Arguments &Args);
          static V8Value _config_add (const v8::Arguments &Args);
          static V8Value _config_get (const v8::Arguments &Args);
+         static V8Value _config_boolean (const v8::Arguments &Args);
          static V8Value _config_string (const v8::Arguments &Args);
          static V8Value _config_number (const v8::Arguments &Args);
          static V8Value _config_vector (const v8::Arguments &Args);
