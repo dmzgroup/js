@@ -5,11 +5,13 @@
 #include <dmzObjectConsts.h>
 #include <dmzObjectModule.h>
 #include <dmzObjectModuleSelect.h>
+#include <dmzObjectModuleGrid.h>
 #include <dmzObjectAttributeMasks.h>
 #include <dmzRuntimeData.h>
 #include <dmzRuntimeObjectType.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
+#include <dmzTypesSphere.h>
 #include <dmzTypesUUID.h>
 
 #include <qdb.h>
@@ -2035,6 +2037,30 @@ dmz::JsExtV8Object::_object_unselect_all (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsExtV8Object::_object_find (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   JsExtV8Object *self = to_self (Args);
+   JsModuleRuntimeV8 *runtime = self ? self->_runtime : 0;
+
+   if (runtime) {
+
+      ObjectModuleGrid *grid;
+      Sphere *sphere;
+
+      if (grid && sphere) {
+
+         HandleContainer list;
+         grid->find_objects (*sphere, list, 0, 0);
+         result = v8_to_array (objects);
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 dmz::JsExtV8Object::JsExtV8Object (const PluginInfo &Info, Config &local) :
       Plugin (Info),
       JsExtV8 (Info),
@@ -3059,6 +3085,7 @@ dmz::JsExtV8Object::_init (Config &local) {
    _objectApi.add_function ("select", _object_select, _self);
    _objectApi.add_function ("unselect", _object_unselect, _self);
    _objectApi.add_function ("unselectAll", _object_unselect_all, _self);
+   _objectApi.add_function ("find", _object_find, _self);
 }
 
 
