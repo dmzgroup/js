@@ -59,6 +59,7 @@ namespace dmz {
             v8::Handle<v8::Value> value,
             ObjectType &out);
          virtual v8::Handle<v8::Value> create_v8_sphere (const Sphere *Value);
+         virtual Sphere *to_dmz_sphere (v8::Handle<v8::Value> value);
 
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);

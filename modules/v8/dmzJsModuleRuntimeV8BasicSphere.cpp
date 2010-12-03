@@ -230,6 +230,19 @@ dmz::JsModuleRuntimeV8Basic::create_v8_sphere (const Sphere *Value) {
 
 
 dmz::Sphere *
+dmz::JsModuleRuntimeV8Basic::to_dmz_sphere (v8::Handle<v8::Value> value) {
+
+   Sphere *result (0);
+   v8::Context::Scope cscope (_v8Context);
+   v8::HandleScope scope;
+
+   if (!value.IsEmpty ()) { result = _to_sphere_ptr (value); }
+
+   return result;
+}
+
+
+dmz::Sphere *
 dmz::JsModuleRuntimeV8Basic::_to_sphere_ptr (V8Value value) {
 
    v8::HandleScope scope;

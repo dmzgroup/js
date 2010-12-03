@@ -42,3 +42,15 @@ if (sph.containsPoint([5,2,2])) { puts("contains 5,5,5"); }
 puts ("origin: " + sph.origin([5,5,5]));
 if (sph.containsPoint([5,5,5])) { puts("contains 5,5,5"); }
 
+
+
+for (var ix = 0; ix < 20; ix += 1) {
+
+   var tmpObj = obj.create("tank");
+   obj.position(tmpObj, null, [ix, ix, ix]);
+   puts("["+ix+","+ix+","+ix+"]:", tmpObj);
+}
+
+puts("origin: " + sph.origin(), " radius:", sph.radius());
+var findSph = obj.find(sph);
+puts("findSph:", findSph.length, findSph);

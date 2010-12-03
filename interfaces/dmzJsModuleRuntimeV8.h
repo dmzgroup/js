@@ -15,6 +15,7 @@ namespace dmz {
    class EventType;
    class Log;
    class ObjectType;
+   class Sphere;
 
    class JsModuleRuntimeV8 {
 
@@ -43,6 +44,8 @@ namespace dmz {
          virtual Boolean to_dmz_object_type (
             v8::Handle<v8::Value> value,
             ObjectType &out) = 0;
+         virtual v8::Handle<v8::Value> create_v8_sphere (const Sphere *Value) = 0;
+         virtual Sphere *to_dmz_sphere (v8::Handle<v8::Value> value) = 0;
 
       protected:
          JsModuleRuntimeV8 (const PluginInfo &Info);

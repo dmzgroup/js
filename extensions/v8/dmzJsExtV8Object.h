@@ -5,6 +5,7 @@
 #include <dmzJsV8UtilConvert.h>
 #include <dmzJsV8UtilHelpers.h>
 #include <dmzJsV8UtilTypes.h>
+#include <dmzObjectModuleGrid.h>
 #include <dmzObjectObserverUtil.h>
 #include <dmzRuntimeDefinitions.h>
 #include <dmzRuntimeLog.h>
@@ -22,6 +23,7 @@ namespace dmz {
    class JsModuleTypesV8;
    class JsModuleV8;
    class ObjectModuleSelect;
+//   class ObjectModuleGrid;
 
    class JsExtV8Object :
          public Plugin,
@@ -376,6 +378,8 @@ namespace dmz {
          static V8Value _object_select (const v8::Arguments &Args);
          static V8Value _object_unselect (const v8::Arguments &Args);
          static V8Value _object_unselect_all (const v8::Arguments &Args);
+         // Sphere bindings
+         static V8Value _object_find (const v8::Arguments &Args);
          
          // JsExtV8Object Interface
          Handle _to_handle (V8Value value);
@@ -418,6 +422,7 @@ namespace dmz {
          JsModuleTypesV8 *_types;
          JsModuleV8 *_core;
          ObjectModuleSelect *_select;
+         ObjectModuleGrid *_gridMod;
 
          CallbackStruct *_newCallback;
 

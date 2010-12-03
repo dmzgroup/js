@@ -5,7 +5,6 @@
 #include <dmzObjectConsts.h>
 #include <dmzObjectModule.h>
 #include <dmzObjectModuleSelect.h>
-#include <dmzObjectModuleGrid.h>
 #include <dmzObjectAttributeMasks.h>
 #include <dmzRuntimeData.h>
 #include <dmzRuntimeObjectType.h>
@@ -2041,19 +2040,19 @@ dmz::V8Value
 dmz::JsExtV8Object::_object_find (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
    JsExtV8Object *self = to_self (Args);
    JsModuleRuntimeV8 *runtime = self ? self->_runtime : 0;
 
-   if (runtime) {
+   if (runtime && Args.Length ()) {
 
-      ObjectModuleGrid *grid;
-      Sphere *sphere;
+      Sphere *sphere = runtime->to_dmz_sphere (Args[0]);
 
-      if (grid && sphere) {
+      if (self->_gridMod && sphere) {
 
          HandleContainer list;
-         grid->find_objects (*sphere, list, 0, 0);
-         result = v8_to_array (objects);
+         self->_gridMod->find_objects (*sphere, list, 0, 0);
+         result = v8_to_array (list);
       }
    }
 
@@ -2075,6 +2074,7 @@ dmz::JsExtV8Object::JsExtV8Object (const PluginInfo &Info, Config &local) :
       _types (0),
       _core (0),
       _select (0),
+      _gridMod (0),
       _newCallback (0),
       _createTable (0, ObjectCreateMask),
       _destroyTable (0, ObjectDestroyMask),
@@ -2122,12 +2122,14 @@ dmz::JsExtV8Object::discover_plugin (
       if (!_runtime) { _runtime = JsModuleRuntimeV8::cast (PluginPtr); }
       if (!_types) { _types = JsModuleTypesV8::cast (PluginPtr); }
       if (!_select) { _select = ObjectModuleSelect::cast (PluginPtr); }
+      if (!_gridMod) { _gridMod = ObjectModuleGrid::cast (PluginPtr); }
    }
    else if (Mode == PluginDiscoverRemove) {
 
       if (_runtime && (_runtime == JsModuleRuntimeV8::cast (PluginPtr))) { _runtime = 0; }
       if (_types && (_types == JsModuleTypesV8::cast (PluginPtr))) { _types = 0; }
       if (_select && (_select == ObjectModuleSelect::cast (PluginPtr))) { _select = 0; }
+      if (_gridMod && (_gridMod == ObjectModuleGrid::cast (PluginPtr))) { _gridMod = 0; }
    }
 }
 
