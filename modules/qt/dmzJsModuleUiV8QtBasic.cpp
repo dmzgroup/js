@@ -231,6 +231,14 @@ dmz::JsModuleUiV8QtBasic::create_v8_qobject (QObject *value) {
                qobj = new V8QtObject (vobj, value, &_state);
             }
          }
+         else if (value->inherits ("QGraphicsScene")) {
+
+            if (!_gSceneCtor.IsEmpty ()) {
+
+               vobj = _gSceneCtor->NewInstance ();
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
 
          if (qobj) { _objectMap.insert (value, qobj); }
       }
@@ -257,6 +265,15 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
 
       if (!qobj) {
 
+         if (value->inherits ("QGraphicsView")) {
+
+            if (!_gViewCtor.IsEmpty ()) {
+
+               vobj = _gViewCtor->NewInstance ();
+               //qobj = new V8QtGraphicsView (vobj, value, &_state);
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
          if (value->inherits ("QTreeWidget")) {
 
             if (!_treeWidgetCtor.IsEmpty ()) {
@@ -753,6 +770,10 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 //         _state.core->register_interface (
 //            "dmz/ui/dialog",
 //            _dialogApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/graph",
+            _graphApi.get_new_instance ());
 
          _state.core->register_interface (
             "dmz/ui/lcd",
@@ -1265,6 +1286,43 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    // enum QLineEdit::EchoMode
    _qtApi.add_constant ("Normal", (UInt32)QLineEdit::Normal);
    _qtApi.add_constant ("Password", (UInt32)QLineEdit::Password);
+
+   // enum Qt::ItemSelectionMode
+   _qtApi.add_constant ("ContainsItemShape", (UInt32)Qt::ContainsItemShape);
+   _qtApi.add_constant ("IntersectsItemShape", (UInt32)Qt::IntersectsItemShape);
+   _qtApi.add_constant (
+      "ContainsItemBoundingRect",
+      (UInt32)Qt::ContainsItemBoundingRect);
+   _qtApi.add_constant (
+      "IntersectsItemBoundingRect",
+      (UInt32)Qt::IntersectsItemBoundingRect);
+
+   // enum Qt::BrushStyle
+   _qtApi.add_constant ("NoBrush", (UInt32)Qt::NoBrush);
+   _qtApi.add_constant ("SolidPattern", (UInt32)Qt::SolidPattern);
+   _qtApi.add_constant ("Dense1Pattern", (UInt32)Qt::Dense1Pattern);
+   _qtApi.add_constant ("Dense2Pattern", (UInt32)Qt::Dense2Pattern);
+   _qtApi.add_constant ("Dense3Pattern", (UInt32)Qt::Dense3Pattern);
+   _qtApi.add_constant ("Dense4Pattern", (UInt32)Qt::Dense4Pattern);
+   _qtApi.add_constant ("Dense5Pattern", (UInt32)Qt::Dense5Pattern);
+   _qtApi.add_constant ("Dense6Pattern", (UInt32)Qt::Dense6Pattern);
+   _qtApi.add_constant ("Dense7Pattern", (UInt32)Qt::Dense7Pattern);
+   _qtApi.add_constant ("HorPattern", (UInt32)Qt::HorPattern);
+   _qtApi.add_constant ("VerPattern", (UInt32)Qt::VerPattern);
+   _qtApi.add_constant ("CrossPattern", (UInt32)Qt::CrossPattern);
+   _qtApi.add_constant ("BDiagPattern", (UInt32)Qt::BDiagPattern);
+   _qtApi.add_constant ("FDiagPattern", (UInt32)Qt::FDiagPattern);
+   _qtApi.add_constant ("DiagCrossPattern", (UInt32)Qt::DiagCrossPattern);
+   _qtApi.add_constant ("LinearGradientPattern", (UInt32)Qt::LinearGradientPattern);
+   _qtApi.add_constant ("ConicalGradientPattern", (UInt32)Qt::ConicalGradientPattern);
+   _qtApi.add_constant ("RadialGradientPattern", (UInt32)Qt::RadialGradientPattern);
+   _qtApi.add_constant ("TexturePattern", (UInt32)Qt::TexturePattern);
+
+   // enum Qt::PenJoinStyle
+   _qtApi.add_constant ("MiterJoin", (UInt32)Qt::MiterJoin);
+   _qtApi.add_constant ("BevelJoin", (UInt32)Qt::BevelJoin);
+   _qtApi.add_constant ("RoundJoin", (UInt32)Qt::RoundJoin);
+   _qtApi.add_constant ("SvgMiterJoin", (UInt32)Qt::SvgMiterJoin);
 
    // UiLoader API
    _uiLoaderApi.add_function ("load", _uiloader_load, _self);
