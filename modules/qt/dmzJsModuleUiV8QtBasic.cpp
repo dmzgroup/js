@@ -274,7 +274,7 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
                qobj = new V8QtObject (vobj, value, &_state);
             }
          }
-         if (value->inherits ("QTreeWidget")) {
+         else if (value->inherits ("QTreeWidget")) {
 
             if (!_treeWidgetCtor.IsEmpty ()) {
 
@@ -707,6 +707,61 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _inputDialogCtor = V8FunctionPersist::New (_inputDialogTemp->GetFunction ());
       }
 
+      if (!_graphTemp.IsEmpty ()) {
+
+         _graphCtor = V8FunctionPersist::New (_graphTemp->GetFunction ());
+      }
+
+      if (!_gAbsItemTemp.IsEmpty ()) {
+
+         _gAbsItemCtor = V8FunctionPersist::New (_gAbsItemTemp->GetFunction ());
+      }
+
+      if (!_gRectTemp.IsEmpty ()) {
+
+         _gRectCtor = V8FunctionPersist::New (_gRectTemp->GetFunction ());
+      }
+
+      if (!_gTextTemp.IsEmpty ()) {
+
+         _gTextCtor = V8FunctionPersist::New (_gTextTemp->GetFunction ());
+      }
+
+      if (!_gLineTemp.IsEmpty ()) {
+
+         _gLineCtor = V8FunctionPersist::New (_gLineTemp->GetFunction ());
+      }
+
+      if (!_gPathTemp.IsEmpty ()) {
+
+         _gPathCtor = V8FunctionPersist::New (_gPathTemp->GetFunction ());
+      }
+
+      if (!_gSceneTemp.IsEmpty ()) {
+
+         _gSceneCtor = V8FunctionPersist::New (_gSceneTemp->GetFunction ());
+      }
+
+      if (!_gViewTemp.IsEmpty ()) {
+
+         _gViewCtor = V8FunctionPersist::New (_gViewTemp->GetFunction ());
+      }
+
+      if (!_gBrushTemp.IsEmpty ()) {
+
+         _gBrushCtor = V8FunctionPersist::New (_gBrushTemp->GetFunction ());
+      }
+
+      if (!_gPenTemp.IsEmpty ()) {
+
+         _gPenCtor = V8FunctionPersist::New (_gPenTemp->GetFunction ());
+      }
+
+      if (!_gPainterPathTemp.IsEmpty ()) {
+
+         _gPainterPathCtor = V8FunctionPersist::New (_gPainterPathTemp->GetFunction ());
+      }
+
       if (_state.core) {
 
          _state.core->register_interface ("dmz/ui/consts", _qtApi.get_new_instance ());
@@ -826,6 +881,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _state.core->register_interface (
             "dmz/ui/treeWidget",
             _treeApi.get_new_instance ());
+
       }
 
       _allowMultipleStr =
@@ -973,7 +1029,19 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _tableSelectionCtor.Dispose (); _tableSelectionCtor.Clear ();
       _toolboxWidgetCtor.Dispose (); _toolboxWidgetCtor.Clear ();
       _messageboxCtor.Dispose (); _messageboxCtor.Clear ();
-      _inputDialogCtor.Dispose (); _inputDialogCtor.Dispose ();
+      _inputDialogCtor.Dispose (); _inputDialogCtor.Clear ();
+
+      _graphCtor.Dispose (); _graphCtor.Clear ();
+      _gAbsItemCtor.Dispose (); _gAbsItemCtor.Clear ();
+      _gRectCtor.Dispose (); _gRectCtor.Clear ();
+      _gTextCtor.Dispose (); _gTextCtor.Clear ();
+      _gLineCtor.Dispose (); _gLineCtor.Clear ();
+      _gPathCtor.Dispose (); _gPathCtor.Clear ();
+      _gPainterPathCtor.Dispose (); _gPainterPathCtor.Clear ();
+      _gSceneCtor.Dispose (); _gSceneCtor.Clear ();
+      _gViewCtor.Dispose (); _gViewCtor.Clear ();
+      _gBrushCtor.Dispose (); _gBrushCtor.Clear ();
+      _gPenCtor.Dispose (); _gPenCtor.Clear ();
 
       _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
       _allowedAreasStr.Dispose (); _allowedAreasStr.Clear ();
@@ -1019,6 +1087,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _groupBoxApi.clear ();
       _actionApi.clear ();
       _inputDialogApi.clear ();
+
+      _graphApi.clear ();
 
       _buttonApi.clear ();
       _comboBoxApi.clear ();
@@ -1365,6 +1435,18 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_dt ();
    _init_action ();
    _init_input_dialog ();
+
+   _init_graph ();
+   _init_abs_graph_item ();
+   _init_grect_item ();
+   _init_gpath_item ();
+   _init_gtext_item ();
+   _init_gline_item ();
+   _init_gview ();
+   _init_gscene ();
+   _init_gbrush ();
+   _init_gpen ();
+   _init_gpainter_path ();
 }
 
 

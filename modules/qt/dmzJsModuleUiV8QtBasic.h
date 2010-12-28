@@ -87,7 +87,7 @@ namespace dmz {
          virtual v8::Handle<v8::Value> create_v8_qtablewidgetselectionrange (
             QTableWidgetSelectionRange *value);
 
-         virtual v8::Handle<v8::Value> create_v8_graphicsitem (QGraphicsItem *value);
+         virtual v8::Handle<v8::Value> create_v8_graphics_item (QGraphicsItem *value);
          virtual v8::Handle<v8::Value> create_v8_gbrush (QBrush *value);
          virtual v8::Handle<v8::Value> create_v8_gpen (QPen *value);
          virtual v8::Handle<v8::Value> create_v8_gpainter_path (QPainterPath *value);
@@ -515,9 +515,11 @@ namespace dmz {
          static V8Value _gitem_enabled (const v8::Arguments &Args);
          static V8Value _gitem_visible (const v8::Arguments &Args);
          static V8Value _gitem_parent_item (const v8::Arguments &Args);
-         static V8Value _gitem_x (const v8::Arguments &Args);
-         static V8Value _gitem_y (const v8::Arguments &Args);
+         static V8Value _gitem_z (const v8::Arguments &Args);
+         static V8Value _gitem_pos (const v8::Arguments &Args);
+         static V8Value _gitem_spos (const v8::Arguments &Args);
          static V8Value _gitem_stack_before (const v8::Arguments &Args);
+         static V8Value _gitem_rotation (const v8::Arguments &Args);
 
          static V8Value _gabs_brush (const v8::Arguments &Args);
          static V8Value _gabs_pen (const v8::Arguments &Args);
@@ -563,8 +565,8 @@ namespace dmz {
          static V8Value _gscene_colliding_items (const v8::Arguments &Args);
          static V8Value _gscene_focus_item (const v8::Arguments &Args);
          static V8Value _gscene_fg_brush (const v8::Arguments &Args);
-         static V8Value _gscene_active (const v8::Arguments &Args);
-         static V8Value _gscene_item_at (const v8::Arguments &Args);
+         static V8Value _gscene_active_panel (const v8::Arguments &Args);
+//         static V8Value _gscene_item_at (const v8::Arguments &Args);
          static V8Value _gscene_items (const v8::Arguments &Args);
          static V8Value _gscene_remove_item (const v8::Arguments &Args);
          static V8Value _gscene_scene_rect (const v8::Arguments &Args);
@@ -583,7 +585,7 @@ namespace dmz {
          static V8Value _gpp_add_path (const v8::Arguments &Args);
          static V8Value _gpp_add_rect (const v8::Arguments &Args);
          static V8Value _gpp_add_rrect (const v8::Arguments &Args);
-         static V8Value _gpp_add_text (const v8::Arguments &Args);
+//         static V8Value _gpp_add_text (const v8::Arguments &Args);
          static V8Value _gpp_angle_at_pct (const v8::Arguments &Args);
          static V8Value _gpp_arc_move_to (const v8::Arguments &Args);
          static V8Value _gpp_arc_to (const v8::Arguments &Args);
@@ -591,6 +593,7 @@ namespace dmz {
          static V8Value _gpp_close_subpath (const v8::Arguments &Args);
          static V8Value _gpp_connect_path (const v8::Arguments &Args);
          static V8Value _gpp_contains (const v8::Arguments &Args);
+         static V8Value _gpp_count (const v8::Arguments &Args);
          static V8Value _gpp_cubic (const v8::Arguments &Args);
          static V8Value _gpp_current_position (const v8::Arguments &Args);
          static V8Value _gpp_intersected (const v8::Arguments &Args);
@@ -665,7 +668,18 @@ namespace dmz {
          void _init_dt ();
          void _init_action ();
          void _init_input_dialog ();
+
          void _init_graph ();
+         void _init_abs_graph_item ();
+         void _init_grect_item ();
+         void _init_gpath_item ();
+         void _init_gtext_item ();
+         void _init_gline_item ();
+         void _init_gview ();
+         void _init_gscene ();
+         void _init_gbrush ();
+         void _init_gpen ();
+         void _init_gpainter_path ();
 
          void _init_layout ();
          void _init_box_layout ();
@@ -687,12 +701,13 @@ namespace dmz {
 
          HashTableHandleTemplate<ObsStruct> _obsTable;
          QMap<QObject *, V8QtObject *> _objectMap;
+
          QMap<QString, QAction *> _menuActionMap;
          QList<QWidget *> _dialogList;
          QPointer<QWidget> _centralWidget;
          QList<String> _dockList;
          QByteArray _mainWindowState;
-         QList<V8ValueRef *>_valueDeleteList;
+         QList<V8ValueRef *> _valueDeleteList;
 
          V8InterfaceHelper _qtApi;
          V8InterfaceHelper _uiLoaderApi;
