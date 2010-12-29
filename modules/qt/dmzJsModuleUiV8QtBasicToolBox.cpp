@@ -224,6 +224,26 @@ dmz::JsModuleUiV8QtBasic::_toolbox_remove_item (const v8::Arguments &Args) {
    return scope.Close (result);
 }
 
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_toolbox (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = 0;
+      if (Args.Length ()) { parent = self->_to_qwidget (Args[0]); }
+      QToolBox *widget = new QToolBox (parent);
+      result = self->create_v8_qobject (widget);
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_toolbox () {
 
@@ -245,4 +265,6 @@ dmz::JsModuleUiV8QtBasic::_init_toolbox () {
    proto->Set ("itemText", v8::FunctionTemplate::New (_toolbox_item_text, _self));
    proto->Set ("removeItem", v8::FunctionTemplate::New (_toolbox_remove_item, _self));
    proto->Set ("widget", v8::FunctionTemplate::New (_toolbox_widget, _self));
+
+   _toolBoxApi.add_function ("create", _create_toolbox, _self);
 }

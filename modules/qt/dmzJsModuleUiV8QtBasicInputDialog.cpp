@@ -479,11 +479,19 @@ dmz::JsModuleUiV8QtBasic::_init_input_dialog () {
    proto->Set ("intStep", v8::FunctionTemplate::New (_input_dialog_istep, _self));
    proto->Set ("intValue", v8::FunctionTemplate::New (_input_dialog_ival, _self));
    proto->Set ("labelText", v8::FunctionTemplate::New (_input_dialog_label_text, _self));
-   proto->Set ("okButtonText", v8::FunctionTemplate::New (_input_dialog_ok_btn_text, _self));
-   proto->Set ("cancelButtonText", v8::FunctionTemplate::New (_input_dialog_cancel_btn_text, _self));
+   proto->Set (
+      "okButtonText",
+      v8::FunctionTemplate::New (_input_dialog_ok_btn_text, _self));
+   proto->Set (
+      "cancelButtonText",
+      v8::FunctionTemplate::New (_input_dialog_cancel_btn_text, _self));
    proto->Set ("textValue", v8::FunctionTemplate::New (_input_dialog_tval, _self));
-   proto->Set ("comboBoxItems", v8::FunctionTemplate::New (_input_dialog_cbox_items, _self));
-   proto->Set ("comboBoxEditable", v8::FunctionTemplate::New (_input_dialog_cbox_editable, _self));
+   proto->Set (
+      "comboBoxItems",
+      v8::FunctionTemplate::New (_input_dialog_cbox_items, _self));
+   proto->Set (
+      "comboBoxEditable",
+      v8::FunctionTemplate::New (_input_dialog_cbox_editable, _self));
 
 
 //   _inputDialogApi.add_constant ("TextInput", (UInt32)QInputDialog::TextInput);

@@ -181,6 +181,25 @@ dmz::JsModuleUiV8QtBasic::_stacked_widget_index_of (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_stacked_widget (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = 0;
+      if (Args.Length ()) { parent = self->_to_qwidget (Args[0]); }
+      QStackedWidget *widget = new QStackedWidget (parent);
+      result = self->create_v8_qobject (widget);
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_stacked_widget () {
 
@@ -207,5 +226,7 @@ dmz::JsModuleUiV8QtBasic::_init_stacked_widget () {
 
    proto->Set ("at", v8::FunctionTemplate::New (_stacked_widget_at, _self));
    proto->Set ("indexOf", v8::FunctionTemplate::New (_stacked_widget_index_of, _self));
+
+   _stackApi.add_function ("create", _create_stacked_widget, _self);
 }
 

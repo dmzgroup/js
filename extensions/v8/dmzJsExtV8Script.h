@@ -81,14 +81,38 @@ namespace dmz {
             }
          };
 
+         struct CallbackStruct {
+
+            V8FunctionPersist func;
+            V8ObjectPersist self;
+
+            void clear () {
+
+               func.Dispose (); func.Clear ();
+               self.Dispose (); self.Clear ();
+            }
+
+            CallbackStruct () {;}
+
+            ~CallbackStruct () { clear (); }
+         };
+
          static JsExtV8Script *_to_self (const v8::Arguments &Args);
          // API Bindings
+         static V8Value _script_observe (const v8::Arguments &Args);
+         static V8Value _script_release (const v8::Arguments &Args);
          static V8Value _script_error (const v8::Arguments &Args);
          static V8Value _script_load (const v8::Arguments &Args);
          static V8Value _script_reload (const v8::Arguments &Args);
          static V8Value _script_compile (const v8::Arguments &Args);
          static V8Value _script_instance (const v8::Arguments &Args);
          static V8Value _script_destroy (const v8::Arguments &Args);
+
+         void _do_callback (
+            const int Argc,
+            V8Value argv[],
+            HashTableHandleTemplate<CallbackStruct> &table);
+
          void _init (Config &local);
 
          Log _log;
@@ -96,6 +120,11 @@ namespace dmz {
          HandleContainer _scripts;
 
          V8InterfaceHelper _scriptApi;
+
+         HashTableHandleTemplate<CallbackStruct> _scriptCreateTable;
+         HashTableHandleTemplate<CallbackStruct> _scriptDestroyTable;
+         HashTableHandleTemplate<CallbackStruct> _instanceCreateTable;
+         HashTableHandleTemplate<CallbackStruct> _instanceDestroyTable;
 
          v8::Handle<v8::Context> _v8Context;
 

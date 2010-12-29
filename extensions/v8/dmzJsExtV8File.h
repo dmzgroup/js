@@ -40,6 +40,8 @@ namespace dmz {
          static JsExtV8File *_to_self (const v8::Arguments &Args);
          static V8Value _file_split (const v8::Arguments &Args);
          static V8Value _file_valid (const v8::Arguments &Args);
+         static V8Value _file_read (const v8::Arguments &Args);
+         static V8Value _file_write (const v8::Arguments &Args);
          void _init (Config &local);
 
          Log _log;

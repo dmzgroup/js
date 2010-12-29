@@ -21,7 +21,10 @@ dmz::JsModuleUiV8QtBasic::create_v8_qtablewidgetitem (QTableWidgetItem *value) {
    if (value) {
 
       V8Object obj;
-      if (!_tableWidgetItemCtor.IsEmpty ()) { obj = _tableWidgetItemCtor->NewInstance (); }
+      if (!_tableWidgetItemCtor.IsEmpty ()) {
+
+         obj = _tableWidgetItemCtor->NewInstance ();
+      }
 
       if (!obj.IsEmpty ()) {
 
@@ -54,7 +57,8 @@ dmz::JsModuleUiV8QtBasic::_to_qtablewidgetitem (V8Value value) {
 
 
 dmz::V8Value
-dmz::JsModuleUiV8QtBasic::create_v8_qtablewidgetselectionrange (QTableWidgetSelectionRange *value) {
+dmz::JsModuleUiV8QtBasic::create_v8_qtablewidgetselectionrange (
+   QTableWidgetSelectionRange *value) {
 
    v8::Context::Scope cscope (_state.context);
    v8::HandleScope scope;
@@ -88,7 +92,9 @@ dmz::JsModuleUiV8QtBasic::_to_qtablewidgetselectionrange (V8Value value) {
 
       if (_tableSelectionTemp->HasInstance (obj)) {
 
-         result = (QTableWidgetSelectionRange *)v8::External::Unwrap (obj->GetInternalField (0));
+         result =
+            (QTableWidgetSelectionRange *)
+               v8::External::Unwrap (obj->GetInternalField (0));
       }
    }
 
@@ -638,9 +644,8 @@ dmz::JsModuleUiV8QtBasic::_table_selected_ranges (const v8::Arguments &Args) {
          V8Array array = v8::Array::New (Length);
          for (int ix = 0; !items.isEmpty (); ++ix) {
 
-//            QTableWidgetSelectionRange *range = new QTableWidgetSelectionRange(items.at(ix));
-//            self->_log.warn << "range: " << range << endl;
-            QTableWidgetSelectionRange *range = new QTableWidgetSelectionRange(items.takeFirst ());
+            QTableWidgetSelectionRange *range =
+               new QTableWidgetSelectionRange(items.takeFirst ());
             V8Value value = self->create_v8_qtablewidgetselectionrange (range);
             array->Set (v8::Integer::New (ix), value);
          }
@@ -821,7 +826,8 @@ dmz::JsModuleUiV8QtBasic::_table_set_range_selected (const v8::Arguments &Args) 
 
          if (Args.Length () > 1) {
 
-            QTableWidgetSelectionRange *range = self->_to_qtablewidgetselectionrange (Args[0]);
+            QTableWidgetSelectionRange *range =
+               self->_to_qtablewidgetselectionrange (Args[0]);
             if (range) { table->setRangeSelected (*range, v8_to_boolean (Args[1])); }
          }
       }
@@ -1208,7 +1214,8 @@ dmz::JsModuleUiV8QtBasic::_table_range_bottom (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QTableWidgetSelectionRange *range = self->_to_qtablewidgetselectionrange (Args.This ());
+      QTableWidgetSelectionRange *range =
+         self->_to_qtablewidgetselectionrange (Args.This ());
       if (range) { result = v8::Number::New (range->bottomRow ()); }
    }
 
@@ -1225,7 +1232,8 @@ dmz::JsModuleUiV8QtBasic::_table_range_top (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QTableWidgetSelectionRange *range = self->_to_qtablewidgetselectionrange (Args.This ());
+      QTableWidgetSelectionRange *range =
+         self->_to_qtablewidgetselectionrange (Args.This ());
       if (range) { result = v8::Number::New (range->topRow ()); }
    }
 
@@ -1242,7 +1250,8 @@ dmz::JsModuleUiV8QtBasic::_table_range_left (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QTableWidgetSelectionRange *range = self->_to_qtablewidgetselectionrange (Args.This ());
+      QTableWidgetSelectionRange *range =
+         self->_to_qtablewidgetselectionrange (Args.This ());
       if (range) { result = v8::Number::New (range->leftColumn ()); }
    }
 
@@ -1259,7 +1268,8 @@ dmz::JsModuleUiV8QtBasic::_table_range_right (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QTableWidgetSelectionRange *range = self->_to_qtablewidgetselectionrange (Args.This ());
+      QTableWidgetSelectionRange *range =
+         self->_to_qtablewidgetselectionrange (Args.This ());
       if (range) { result = v8::Number::New (range->rightColumn ()); }
    }
 
@@ -1275,7 +1285,8 @@ dmz::JsModuleUiV8QtBasic::_table_range_col_count (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QTableWidgetSelectionRange *range = self->_to_qtablewidgetselectionrange (Args.This ());
+      QTableWidgetSelectionRange *range =
+         self->_to_qtablewidgetselectionrange (Args.This ());
       if (range) { result = v8::Number::New (range->columnCount ()); }
    }
 
@@ -1292,8 +1303,39 @@ dmz::JsModuleUiV8QtBasic::_table_range_row_count (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QTableWidgetSelectionRange *range = self->_to_qtablewidgetselectionrange (Args.This ());
+      QTableWidgetSelectionRange *range =
+         self->_to_qtablewidgetselectionrange (Args.This ());
       if (range) { result = v8::Number::New (range->rowCount ()); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_table_widget (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = 0;
+      int row = -1;
+      int col = -1;
+      if (Args.Length ()) {
+
+         if (Args.Length () == 1) { parent = self->_to_qwidget (Args[0]); }
+         if (Args.Length () >= 2) {
+
+            row = v8_to_uint32 (Args[0]);
+            col = v8_to_uint32 (Args[1]);
+         }
+         if (Args.Length () == 3) { parent = self->_to_qwidget (Args[2]); }
+      }
+      QTableWidget *widget = new QTableWidget (parent);
+      result = self->create_v8_qobject (widget);
    }
 
    return scope.Close (result);
@@ -1354,7 +1396,9 @@ dmz::JsModuleUiV8QtBasic::_init_table_widget () {
    V8ObjectTemplate proto = _tableWidgetTemp->PrototypeTemplate ();
    proto->Set ("clear", v8::FunctionTemplate::New (_table_clear, _self));
    proto->Set ("clearSpans", v8::FunctionTemplate::New (_table_clear_spans, _self));
-   proto->Set ("clearContents", v8::FunctionTemplate::New (_table_clear_contents, _self));
+   proto->Set (
+      "clearContents",
+      v8::FunctionTemplate::New (_table_clear_contents, _self));
    proto->Set ("setSpan", v8::FunctionTemplate::New (_table_set_span, _self));
    proto->Set ("columnWidth", v8::FunctionTemplate::New (_table_col_width, _self));
    proto->Set ("columnHidden", v8::FunctionTemplate::New (_table_col_hidden, _self));
@@ -1373,23 +1417,51 @@ dmz::JsModuleUiV8QtBasic::_init_table_widget () {
    proto->Set ("rowCount", v8::FunctionTemplate::New (_table_row_count, _self));
    proto->Set ("currentRow", v8::FunctionTemplate::New (_table_curr_row, _self));
    proto->Set ("wordWrap", v8::FunctionTemplate::New (_table_word_wrap, _self));
-   proto->Set ("resizeColumnToContents", v8::FunctionTemplate::New (_table_resize_single_col, _self));
-   proto->Set ("resizeColumnsToContents", v8::FunctionTemplate::New (_table_resize_all_col, _self));
-   proto->Set ("resizeRowToContents", v8::FunctionTemplate::New (_table_resize_single_row, _self));
-   proto->Set ("resizeRowsToContents", v8::FunctionTemplate::New (_table_resize_all_row, _self));
+   proto->Set (
+      "resizeColumnToContents",
+      v8::FunctionTemplate::New (_table_resize_single_col, _self));
+   proto->Set (
+      "resizeColumnsToContents",
+      v8::FunctionTemplate::New (_table_resize_all_col, _self));
+   proto->Set (
+      "resizeRowToContents",
+      v8::FunctionTemplate::New (_table_resize_single_row, _self));
+   proto->Set (
+      "resizeRowsToContents",
+      v8::FunctionTemplate::New (_table_resize_all_row, _self));
    proto->Set ("cellWidget", v8::FunctionTemplate::New (_table_cell_widget, _self));
-   proto->Set ("removeCellWidget", v8::FunctionTemplate::New (_table_remove_cell_widget, _self));
+   proto->Set (
+      "removeCellWidget",
+      v8::FunctionTemplate::New (_table_remove_cell_widget, _self));
    proto->Set ("item", v8::FunctionTemplate::New (_table_item_at, _self));
    proto->Set ("findItems", v8::FunctionTemplate::New (_table_find_items, _self));
    proto->Set ("currentItem", v8::FunctionTemplate::New (_table_curr_item, _self));
-   proto->Set ("selectedItems", v8::FunctionTemplate::New (_table_selected_items, _self));
-   proto->Set ("selectedRanges", v8::FunctionTemplate::New (_table_selected_ranges, _self));
-   proto->Set ("setCurrentCell", v8::FunctionTemplate::New (_table_set_current_cell, _self));
-   proto->Set ("setHorizontalLabels", v8::FunctionTemplate::New (_table_set_h_labels, _self));
-   proto->Set ("setVerticalLabels", v8::FunctionTemplate::New (_table_set_v_labels, _self));
-   proto->Set ("setRangeSelected", v8::FunctionTemplate::New (_table_set_range_selected, _self));
+   proto->Set (
+      "selectedItems",
+      v8::FunctionTemplate::New (_table_selected_items, _self));
+   proto->Set (
+      "selectedRanges",
+      v8::FunctionTemplate::New (_table_selected_ranges, _self));
+   proto->Set (
+      "setCurrentCell",
+      v8::FunctionTemplate::New (_table_set_current_cell, _self));
+   proto->Set (
+      "setHorizontalLabels",
+      v8::FunctionTemplate::New (_table_set_h_labels, _self));
+   proto->Set (
+      "setVerticalLabels",
+      v8::FunctionTemplate::New (_table_set_v_labels, _self));
+   proto->Set (
+      "setRangeSelected",
+      v8::FunctionTemplate::New (_table_set_range_selected, _self));
    proto->Set ("sortItems", v8::FunctionTemplate::New (_table_sort_items, _self));
    proto->Set ("takeItem", v8::FunctionTemplate::New (_table_take_item, _self));
-   proto->Set ("horizontalHeaderItem", v8::FunctionTemplate::New (_table_horiz_header, _self));
-   proto->Set ("verticalHeaderItem", v8::FunctionTemplate::New (_table_vert_header, _self));
+   proto->Set (
+      "horizontalHeaderItem",
+      v8::FunctionTemplate::New (_table_horiz_header, _self));
+   proto->Set (
+      "verticalHeaderItem",
+      v8::FunctionTemplate::New (_table_vert_header, _self));
+
+   _tableApi.add_function ("create", _create_table_widget, _self);
 }

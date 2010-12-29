@@ -139,6 +139,36 @@ dmz::JsModuleUiV8QtBasic::_textEdit_allow_undo (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_text_edit (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = 0;
+      QTextEdit *widget = 0;
+      QString str;
+      if (Args.Length ()) {
+
+         if (Args[0]->IsString ()) {
+
+            str = v8_to_qstring (Args[0]);
+            if (Args.Length () > 1) { parent = self->_to_qwidget (Args[1]); }
+         }
+         else { parent = self->_to_qwidget (Args[0]); }
+      }
+      if (str.isEmpty ()) { widget = new QTextEdit (parent); }
+      else { widget = new QTextEdit (str, parent); }
+      result = self->create_v8_qobject (widget);
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_textEdit () {
 
@@ -157,4 +187,6 @@ dmz::JsModuleUiV8QtBasic::_init_textEdit () {
    proto->Set ("undo", v8::FunctionTemplate::New (_textEdit_undo, _self));
    proto->Set ("redo", v8::FunctionTemplate::New (_textEdit_redo, _self));
    proto->Set ("allowUndo", v8::FunctionTemplate::New (_textEdit_allow_undo, _self));
+
+   _textEditApi.add_function ("create", _create_line_edit, _self);
 }

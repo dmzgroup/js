@@ -199,14 +199,17 @@ dmz::JsExtV8Module::_module_publish (const v8::Arguments &Args) {
 
             InstanceStruct *instance = new InstanceStruct (Name, Scope, *module);
 
-            if (instance && self->_register_instance (*module, *instance)) {
+            if (instance) {
 
                instance->module = V8ObjectPersist::New (exportModule);
 
-               instance->next = ss->instanceList;
-               ss->instanceList = instance;
+               if (self->_register_instance (*module, *instance)) {
+
+                  instance->next = ss->instanceList;
+                  ss->instanceList = instance;
+               }
+               else if (instance) { delete instance; instance = 0; }
             }
-            else if (instance) { delete instance; instance = 0; }
          }
       }
    }
@@ -438,7 +441,8 @@ dmz::JsExtV8Module::_do_callback (
       v8::Context::Scope cscope (_v8Context);
       v8::HandleScope scope;
 
-      if (v8_is_valid (sub.self) && v8_is_valid (sub.func)) {
+      if (v8_is_valid (sub.self) && v8_is_valid (sub.func) &&
+            v8_is_valid (instance.module)) {
 
          const int Argc (5);
          V8Value argv[Argc];
