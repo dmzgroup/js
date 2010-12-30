@@ -507,6 +507,7 @@ namespace dmz {
          static V8Value _gitem_contains (const v8::Arguments &Args);
          static V8Value _gitem_data (const v8::Arguments &Args);
          static V8Value _gitem_ensure_vis (const v8::Arguments &Args);
+         static V8Value _gitem_flag (const v8::Arguments &Args);
          static V8Value _gitem_focus_item (const v8::Arguments &Args);
          static V8Value _gitem_has_focus (const v8::Arguments &Args);
          static V8Value _gitem_hide (const v8::Arguments &Args);
@@ -582,6 +583,7 @@ namespace dmz {
          static V8Value _gpen_join_style (const v8::Arguments &Args);
          static V8Value _gpen_width (const v8::Arguments &Args);
 
+         static V8Value _gpp_add_ellipse (const v8::Arguments &Args);
          static V8Value _gpp_add_path (const v8::Arguments &Args);
          static V8Value _gpp_add_rect (const v8::Arguments &Args);
          static V8Value _gpp_add_rrect (const v8::Arguments &Args);
@@ -703,6 +705,7 @@ namespace dmz {
          QMap<QObject *, V8QtObject *> _objectMap;
 
          QMap<QString, QAction *> _menuActionMap;
+
          QList<QWidget *> _dialogList;
          QPointer<QWidget> _centralWidget;
          QList<String> _dockList;

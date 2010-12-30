@@ -7,7 +7,7 @@ var dmz =
           , widget: require("dmz/ui/widget")
           }
        , timer: require('dmz/runtime/time')
-//       , util: require("dmz/types/util")
+       , util: require("dmz/types/util")
        , sys: require("sys")
        }
    , xyGraph
@@ -40,7 +40,7 @@ var dmz =
    ;
 
 XYGraph = function
-   ( GraphForm
+   ( GraphicsView
    , startValue
    , yDivisions
    , xAxisLabel
@@ -72,16 +72,22 @@ XYGraph = function
 
      ;
 
-   if (startValue === undefined) { startValue = 1; }
+   if (startValue === undefined) { startValue = 0; }
    if (xAxisLabel === undefined) { xAxisLabel = ""; }
    if (yAxisLabel === undefined) { yAxisLabel = ""; }
-   if ((barStroke === undefined) || !(barStroke.r && barStroke.g && barStroke.b)) {
+   if ((barStroke === undefined) ||
+         !((barStroke.r !== undefined) &&
+           (barStroke.g !== undefined) &&
+           (barStroke.b !== undefined))) {
 
-      barStroke = dmz.ui.graph.createPen({ r: 0.5, g: 0, b: 0 });
+      barStroke = { r: 0.5, g: 0, b: 0 };
    }
-   if ((barFill === undefined) || !(barFill.r && barFill.g && barStroke.b)) {
+   if ((barFill === undefined) ||
+         !((barFill.r !== undefined) &&
+           (barFill.g !== undefined) &&
+           (barFill.b !== undefined))) {
 
-      barFill = dmz.ui.graph.createBrush({ r: 0.3, g: 0.8, b: 0.3 });
+      barFill = { r: 0.3, g: 0.8, b: 0.3 };
    }
    if ((barWidth === undefined) || (barWidth < 1)) { barWidth = 12.5; }
    if ((barHeight === undefined) || (barHeight < 1)) { barHeight = 130; }
@@ -90,7 +96,15 @@ XYGraph = function
    if (xLabelRotation === undefined) { xLabelRotation = 0; }
    if (showPowerLaw !== true) { showPowerLaw = false; }
 
-   GraphForm.lookup("graphicsView").scene (scene);
+   if (!GraphicsView) {
+
+      throw dmz.util.createError ("Invalid Graphics View argument: " + GraphicsView);
+   }
+
+   GraphicsView.alignment (dmz.ui.consts.AlignLeft | dmz.ui.consts.AlignBottom);
+   GraphicsView.scene (scene);
+   barFill = dmz.ui.graph.createBrush(barFill);
+   barStroke = dmz.ui.graph.createPen(barStroke);
 
    for (ix = 0; ix < yDivisions; ix += 1) {
 
@@ -123,7 +137,7 @@ XYGraph = function
    xAxis.z (1);
    scene.addItem(xAxis);
 
-   this.form = GraphForm;
+   this.GraphicsView = GraphicsView;
    this.scene = scene;
    this.xAxisLabel = xAxisLabel;
    this.yAxisLabel = yAxisLabel;
@@ -145,7 +159,7 @@ XYGraph = function
 
 createHLine = function (x, y, len) { return dmz.ui.graph.createLineItem(x, y, x + len, y); }
 createVLine = function (x, y, height) { return dmz.ui.graph.createLineItem(x, y, x, -(-y + height)); }
-createBar = function (Value, XLabel, ValueString, XPos, YPos, XAxis, Width, BarHeight, LabelRotation, Pen, Brush) {
+createBar = function (Value, XLabel, XPos, YPos, XAxis, Width, BarHeight, LabelRotation, Pen, Brush) {
 
    var bar
      , label
@@ -168,14 +182,13 @@ createBar = function (Value, XLabel, ValueString, XPos, YPos, XAxis, Width, BarH
    bar = dmz.ui.graph.createRectItem (XPos, YPos, Width, height, XAxis);
    bar.pen(Pen);
    bar.brush(Brush);
-   bar.z(0);
+   bar.flag(dmz.ui.graph.ItemStacksBehindParent, true);
 
    label = dmz.ui.graph.createTextItem (XLabel, bar);
    rect = label.boundingRect();
    label.pos (XPos + ((rect.width * Math.cos(90 - LabelRotation)) + (rect.height * Math.sin(LabelRotation))) / 2, 20);
    label.rotation(LabelRotation);
 
-//   valueLabel = dmz.ui.graph.createTextItem (ValueString, bar);
    valueLabel = dmz.ui.graph.createTextItem (Math.round(Value * 100).toString(), bar);
    rect = valueLabel.boundingRect();
    valueLabel.pos(XPos + (Width - rect.width) / 2, -rect.height + height);
@@ -187,63 +200,6 @@ createBar = function (Value, XLabel, ValueString, XPos, YPos, XAxis, Width, BarH
    result.valueLabel = valueLabel;
 
    return result;
-};
-
-XYGraph.prototype.updateDegreeGraph = function (values) {
-
-   var bar
-     , idx
-     , value
-     , xpos
-     , ypos
-     , valueString
-     , label
-     , count = {}
-     , keys
-     ;
-
-   while (this.bars && this.bars.length) {
-
-      bar = this.bars.pop();
-      this.scene.removeItem(bar.image);
-   }
-
-   delete this.bars;
-   this.bars = [];
-
-   for (idx = 0; idx < values.length; idx += 1) {
-
-      count[values[idx]] = count[values[idx]] ? count[values[idx]] + 1 : 1;
-   }
-
-   keys = Object.keys(count);
-   for (idx = 0; idx < keys.length; idx += 1) {
-
-      xpos = this.spaceWidth + (this.barWidth + this.spaceWidth) * idx;
-      ypos = 0;
-
-      value = count[keys[idx]] / values.length;
-      label = keys[idx].toString();
-      bar = createBar
-         ( value
-         , label
-         , valueString
-         , xpos
-         , ypos
-         , this.xAxis
-         , this.barWidth
-         , this.barHeight
-         , this.xLabelRotation
-         , this.barStroke
-         , this.barFill
-         );
-
-      this.bars.push(bar);
-   }
-
-   var rect = this.xAxis.childrenBoundingRect();
-   var line = this.xAxis.line();
-   this.xAxis.line(line.x1, line.y2, rect.width, line.y2);
 };
 
 XYGraph.prototype.drawPowerLaw = function () {
@@ -276,8 +232,6 @@ XYGraph.prototype.drawPowerLaw = function () {
       }
    }
 
-   puts ("startIndex:", startIndex);
-
    for (idx = startIndex; idx < this.bars.length; idx += 1) {
 
       if (idx == startIndex) { x = 1; }
@@ -286,7 +240,6 @@ XYGraph.prototype.drawPowerLaw = function () {
       if (this.bars[idx].height < 0) {
 
          y = Math.log (this.bars[idx].value * 100);
-         puts ("y:", y, this.bars[idx].value);
          sumY += y;
          sumX += x;
          sumXY += x * y;
@@ -303,22 +256,11 @@ XYGraph.prototype.drawPowerLaw = function () {
       p = Math.exp ((sumY - (q * sumX)) / nonZeroCount);
    }
 
-   puts
-      ( "nZC:", nonZeroCount
-      , "sumY:", sumY
-      , "sumX", sumX
-      , "sumXY", sumXY
-      , "sumX2:", sumX2
-      , "q:", q
-      , "p:", p
-      )
-
    powerPath = dmz.ui.graph.createPainterPath();
    scaleHeightMax = -local_power (p, q, startIndex);
 
-   puts ("startIndex:", startIndex);
    x = this.spaceWidth + (this.barWidth + this.spaceWidth) * startIndex;
-   y = this.bars[startIndex].image.boundingRect().height;
+   y = -this.barHeight;
    powerPath.moveTo (x + (this.barWidth / 2), y);
    for (idx = startIndex + 1; idx < this.bars.length; idx += 1) {
 
@@ -331,14 +273,31 @@ XYGraph.prototype.drawPowerLaw = function () {
 
       this.powerLawPath = dmz.ui.graph.createPathItem (powerPath);
       this.powerLawPath.z(2);
-      this.powerLawExponentLabel = dmz.ui.graph.createTextItem("Exponent = " + (-q));
-      this.powerLawExponentLabel.pos(260, -this.barHeight - 60);
-      this.scene.addItem(this.powerLawExponentLabel);
+      this.powerLawExpLabel = dmz.ui.graph.createTextItem("Exponent = " + (-q));
+      this.powerLawExpLabel.pos(260, -this.barHeight - 60);
+      this.scene.addItem(this.powerLawExpLabel);
       this.scene.addItem(this.powerLawPath);
    }
 };
 
-XYGraph.prototype.updateEPGraph = function (values) {
+
+XYGraph.prototype.clearData = function () {
+
+   if (this.bars) {
+
+      while (this.bars.length) { this.scene.removeItem(this.bars.pop().image); }
+      delete this.bars;
+   }
+
+   if (this.powerLawPath) { this.scene.removeItem (this.powerLawPath); delete this.powerLawPath; }
+   if (this.powerLawExpLabel) {
+
+      this.scene.removeItem (this.powerLawExpLabel);
+      delete this.powerLawExpLabel;
+   }
+}
+
+XYGraph.prototype.update = function (values, fnc) {
 
    var lastBar
      , bar
@@ -351,40 +310,22 @@ XYGraph.prototype.updateEPGraph = function (values) {
      , label
      , length
      , powerPath
-     , valueString
      ;
 
-   while (values[values.length - 1] == 0) { values.pop(); }
+   this.clearData();
 
-   for (idx = this.startValue; idx < values.length; idx += 1) {
-
-      if (values[idx] > maxValue) { maxValue = values[idx]; }
-   }
-
-   while (this.bars && this.bars.length) {
-
-      bar = this.bars.pop();
-//      this.scene.removeItem(bar.valueLabel);
-//      this.scene.removeItem(bar.label);
-      this.scene.removeItem(bar.image);
-   }
-   if (this.powerLawPath) { this.scene.removeItem (this.powerLawPath); }
-   if (this.powerLawExponentLabel) { this.scene.removeItem (this.powerLawExponentLabel); }
-
-   delete this.bars;
    this.bars = [];
+   while (values[values.length - 1] == 0) { values.pop(); }
 
    for (idx = this.startValue; idx < values.length; idx += 1) {
 
       xpos = this.spaceWidth + (this.barWidth + this.spaceWidth) * (idx - this.startValue);
       ypos = 0;
-      value = values[idx] / maxValue;
-//      valueString = Math.round(value * 100).toString();
+      value = fnc(idx, values);
       label = idx.toString();
       bar = createBar
          ( value
          , label
-         , valueString
          , xpos
          , ypos
          , this.xAxis
@@ -398,9 +339,12 @@ XYGraph.prototype.updateEPGraph = function (values) {
       this.bars.push(bar);
    }
 
-   while (Math.round(this.bars[this.bars.length - 1].value * 100) == 0) {
+   if (this.bars.length > 0) {
 
-      this.scene.removeItem (this.bars.pop().image);
+      while (Math.round(this.bars[this.bars.length - 1].value * 100) == 0) {
+
+         this.scene.removeItem (this.bars.pop().image);
+      }
    }
 
    if (this.showPowerLaw) { this.drawPowerLaw(); }
@@ -411,13 +355,14 @@ XYGraph.prototype.updateEPGraph = function (values) {
    this.xAxis.line(line.x1, line.y2, rect.width, line.y2);
 }
 
+
 exports.createHLine = createHLine;
 exports.createVLine = createVLine;
 
 exports.createXYGraph = function () {
 
    return new XYGraph
-   ( arguments[0] // GraphForm
+   ( arguments[0] // GraphicsView
    , arguments[1] // startValue
    , arguments[2] // yDivisions
    , arguments[3] // xAxisLabel
@@ -440,7 +385,7 @@ XYGraph.prototype.create = createXYGraph;
 XYGraph.prototype.copy = function () {
 
    return this.create
-      ( this.GraphForm
+      ( this.GraphicsView
       , this.startValue
       , this.yDivisions
       , this.xAxisLabel
@@ -473,4 +418,13 @@ XYGraph.prototype.toString = function () {
       " ]";
 }
 
-puts ("Done");
+/*
+MBRA Graph data example
+
+      var maxval = 0;
+      for (var idx = 0; idx < mbraData.length; idx+=1) {
+
+         if (maxval < mbraData[idx]) { maxval = mbraData[idx]; }
+      }
+      mitesGraph.update(mbraData, function(idx, values) { return values[idx]/maxval; });
+*/

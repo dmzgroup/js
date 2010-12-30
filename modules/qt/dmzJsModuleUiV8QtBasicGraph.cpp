@@ -14,6 +14,8 @@
 
 namespace {
 
+QMap<QGraphicsItem *, v8::Persistent<v8::Value> > _weakGItemsTable;
+
 dmz::V8Value
 qrectf_to_v8 (const QRectF &Value) {
 
@@ -33,7 +35,6 @@ qrectf_to_v8 (const QRectF &Value) {
 QRectF
 v8_to_qrectf (dmz::V8Value value) {
 
-//   v8::HandleScope scope;
    QRectF result;
 
    if (!value.IsEmpty ()) {
@@ -70,7 +71,6 @@ qcolor_to_v8 (const QColor &Value) {
 QColor
 v8_to_qcolor (dmz::V8Value value) {
 
-//   v8::HandleScope scope;
    QColor result;
 
    if (!value.IsEmpty ()) {
@@ -88,48 +88,28 @@ v8_to_qcolor (dmz::V8Value value) {
 }
 
 
-void local_grect_delete (v8::Persistent<v8::Value> object, void *param) {
+void local_recursive_unweaken (QGraphicsItem *curr) {
 
-   if (param) {
+   if (_weakGItemsTable.contains(curr)) {
 
-      QGraphicsRectItem *ptr = (QGraphicsRectItem *)param;
-      delete ptr; ptr = 0;
+      _weakGItemsTable[curr].ClearWeak ();
+      _weakGItemsTable.remove (curr);
    }
 
-   object.Dispose (); object.Clear ();
-}
+   QList<QGraphicsItem *> children = curr->childItems ();
+   int length = children.count ();
+   for (int idx = 0; idx < length; ++idx) {
 
-
-void local_gpath_delete (v8::Persistent<v8::Value> object, void *param) {
-
-   if (param) {
-
-      QGraphicsPathItem *ptr = (QGraphicsPathItem *)param;
-      delete ptr; ptr = 0;
+      local_recursive_unweaken (children.at (idx));
    }
-
-   object.Dispose (); object.Clear ();
 }
 
-
-void local_gtext_delete (v8::Persistent<v8::Value> object, void *param) {
+void local_gitem_delete (v8::Persistent<v8::Value> object, void *param) {
 
    if (param) {
 
-      QGraphicsTextItem *ptr = (QGraphicsTextItem *)param;
-      delete ptr; ptr = 0;
-   }
-
-   object.Dispose (); object.Clear ();
-}
-
-
-void local_gline_delete (v8::Persistent<v8::Value> object, void *param) {
-
-   if (param) {
-
-      QGraphicsLineItem *ptr = (QGraphicsLineItem *)param;
-      delete ptr; ptr = 0;
+      QGraphicsItem *ptr = (QGraphicsItem *)param;
+      if (!ptr->parentItem ()) { delete ptr; ptr = 0; }
    }
 
    object.Dispose (); object.Clear ();
@@ -460,8 +440,8 @@ dmz::JsModuleUiV8QtBasic::create_v8_gbrush (QBrush *value) {
          obj->SetInternalField (0, v8::External::Wrap ((void *)value));
          result = obj;
 
-//         v8::Persistent<v8::Value> persist = v8::Persistent<v8::Value>::New (result);
-//         persist.MakeWeak ((void *)value, local_gbrush_delete);
+         v8::Persistent<v8::Value> persist = v8::Persistent<v8::Value>::New (result);
+         persist.MakeWeak ((void *)value, local_gbrush_delete);
       }
    }
 
@@ -486,8 +466,8 @@ dmz::JsModuleUiV8QtBasic::create_v8_gpen (QPen *value) {
          obj->SetInternalField (0, v8::External::Wrap ((void *)value));
          result = obj;
 
-//         v8::Persistent<v8::Value> persist = v8::Persistent<v8::Value>::New (result);
-//         persist.MakeWeak ((void *)value, local_gpen_delete);
+         v8::Persistent<v8::Value> persist = v8::Persistent<v8::Value>::New (result);
+         persist.MakeWeak ((void *)value, local_gpen_delete);
       }
    }
 
@@ -511,6 +491,9 @@ dmz::JsModuleUiV8QtBasic::create_v8_gpainter_path (QPainterPath *value) {
 
          obj->SetInternalField (0, v8::External::Wrap ((void *)value));
          result = obj;
+
+         v8::Persistent<v8::Value> persist = v8::Persistent<v8::Value>::New (result);
+         persist.MakeWeak ((void *)value, local_gpainter_path_delete);
       }
    }
 
@@ -1205,6 +1188,32 @@ dmz::JsModuleUiV8QtBasic::_gitem_rotation (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gitem_flag (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsItem *item = self->_to_graphics_item (Args.This ());
+      if (item) {
+
+         if (Args.Length ()) {
+
+            QGraphicsItem::GraphicsItemFlag flag =
+               (QGraphicsItem::GraphicsItemFlag)v8_to_int32 (Args[0]);
+            if (Args.Length () == 2) { item->setFlag (flag, v8_to_boolean(Args[1])); }
+            result = v8::Boolean::New (item->flags () | flag);
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_graph () {
 
@@ -1240,7 +1249,24 @@ dmz::JsModuleUiV8QtBasic::_init_graph () {
    proto->Set ("pos", v8::FunctionTemplate::New (_gitem_pos, _self));
    proto->Set ("scenePos", v8::FunctionTemplate::New (_gitem_spos, _self));
    proto->Set ("rotation", v8::FunctionTemplate::New (_gitem_rotation, _self));
+   proto->Set ("flag", v8::FunctionTemplate::New (_gitem_flag, _self));
 
+   _graphApi.add_constant ("ItemIsMovable", (UInt32)QGraphicsItem::ItemIsMovable);
+   _graphApi.add_constant ("ItemIsSelectable", (UInt32)QGraphicsItem::ItemIsSelectable);
+   _graphApi.add_constant ("ItemIsFocusable", (UInt32)QGraphicsItem::ItemIsFocusable);
+   _graphApi.add_constant ("ItemClipsToShape", (UInt32)QGraphicsItem::ItemClipsToShape);
+   _graphApi.add_constant ("ItemClipsChildrenToShape", (UInt32)QGraphicsItem::ItemClipsChildrenToShape);
+   _graphApi.add_constant ("ItemIgnoresTransformations", (UInt32)QGraphicsItem::ItemIgnoresTransformations);
+   _graphApi.add_constant ("ItemIgnoresParentOpacity", (UInt32)QGraphicsItem::ItemIgnoresParentOpacity);
+   _graphApi.add_constant ("ItemDoesntPropagateOpacityToChildren", (UInt32)QGraphicsItem::ItemDoesntPropagateOpacityToChildren);
+   _graphApi.add_constant ("ItemStacksBehindParent", (UInt32)QGraphicsItem::ItemStacksBehindParent);
+   _graphApi.add_constant ("ItemUsesExtendedStyleOption", (UInt32)QGraphicsItem::ItemUsesExtendedStyleOption);
+   _graphApi.add_constant ("ItemHasNoContents", (UInt32)QGraphicsItem::ItemHasNoContents);
+   _graphApi.add_constant ("ItemSendsGeometryChanges", (UInt32)QGraphicsItem::ItemSendsGeometryChanges);
+   _graphApi.add_constant ("ItemAcceptsInputMethod", (UInt32)QGraphicsItem::ItemAcceptsInputMethod);
+   _graphApi.add_constant ("ItemNegativeZStacksBehindParent", (UInt32)QGraphicsItem::ItemNegativeZStacksBehindParent);
+   _graphApi.add_constant ("ItemIsPanel", (UInt32)QGraphicsItem::ItemIsPanel);
+   _graphApi.add_constant ("ItemSendsScenePositionChanges", (UInt32)QGraphicsItem::ItemSendsScenePositionChanges);
 }
 
 
@@ -1563,7 +1589,6 @@ dmz::JsModuleUiV8QtBasic::_init_gtext_item () {
 
    proto->Set ("adjustSize", v8::FunctionTemplate::New (_gtext_adjust_size, _self));
    proto->Set ("textColor", v8::FunctionTemplate::New (_gtext_text_color, _self));
-//   proto->Set ("font", v8::FunctionTemplate::New (_gtext_font, _self));
    proto->Set ("plainText", v8::FunctionTemplate::New (_gtext_plain_text, _self));
    proto->Set ("htmlText", v8::FunctionTemplate::New (_gtext_html_text, _self));
    proto->Set ("width", v8::FunctionTemplate::New (_gtext_width, _self));
@@ -2199,7 +2224,11 @@ dmz::JsModuleUiV8QtBasic::_gscene_add_item (const v8::Arguments &Args) {
          if (Args.Length ()) {
 
             QGraphicsItem *item = self->_to_graphics_item (Args[0]);
-            if (item) { scene->addItem (item); }
+            if (item) {
+
+               local_recursive_unweaken (item);
+               scene->addItem (item);
+            }
          }
       }
    }
@@ -2586,31 +2615,6 @@ dmz::JsModuleUiV8QtBasic::_gscene_items (const v8::Arguments &Args) {
 }
 
 
-
-//dmz::V8Value
-//dmz::JsModuleUiV8QtBasic::_gscene_item_at (const v8::Arguments &Args) {
-
-//   v8::HandleScope scope;
-//   V8Value result = v8::Undefined ();
-
-//   JsModuleUiV8QtBasic *self = _to_self (Args);
-//   if (self) {
-
-//      QGraphicsScene *scene = self->v8_to_qobject<QGraphicsScene> (Args.This ());
-//      if (scene) {
-
-//         if (Args.Length ()) {
-
-
-//         }
-//      }
-//   }
-
-//   return scope.Close (result);
-//}
-
-
-
 dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_gscene_remove_item (const v8::Arguments &Args) {
 
@@ -2626,7 +2630,13 @@ dmz::JsModuleUiV8QtBasic::_gscene_remove_item (const v8::Arguments &Args) {
          if (Args.Length ()) {
 
             QGraphicsItem *item = self->_to_graphics_item (Args[0]);
-            if (item) { scene->removeItem (item); }
+            if (item) {
+
+               scene->removeItem (item);
+               v8::Persistent<v8::Value> persist = v8::Persistent<v8::Value>::New (Args[0]);
+               persist.MakeWeak ((void *)item, local_gitem_delete);
+               _weakGItemsTable.insert (item, persist);
+            }
          }
       }
    }
@@ -2736,7 +2746,6 @@ dmz::JsModuleUiV8QtBasic::_init_gscene () {
    proto->Set ("focusItem", v8::FunctionTemplate::New (_gscene_focus_item, _self));
    proto->Set ("foregroundBrush", v8::FunctionTemplate::New (_gscene_fg_brush, _self));
    proto->Set ("activePanel", v8::FunctionTemplate::New (_gscene_active_panel, _self));
-//   proto->Set ("itemAt", v8::FunctionTemplate::New (_gscene_item_at (), _self));
    proto->Set ("items", v8::FunctionTemplate::New (_gscene_items, _self));
    proto->Set ("removeItem", v8::FunctionTemplate::New (_gscene_remove_item, _self));
    proto->Set ("sceneRect", v8::FunctionTemplate::New (_gscene_scene_rect, _self));
@@ -2941,6 +2950,34 @@ dmz::JsModuleUiV8QtBasic::_init_gpen () {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gpp_add_ellipse (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QPainterPath *path = self->_to_gpainter_path (Args.This ());
+      if (path) {
+
+         if (Args.Length () >= 4) {
+
+            qreal x, y, rx, ry;
+            x = v8_to_number (Args[0]);
+            y = v8_to_number (Args[1]);
+            rx = v8_to_number (Args[2]);
+            ry = v8_to_number (Args[3]);
+            path->addEllipse (QPointF(x, y), rx, ry);
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_gpp_add_path (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -3020,29 +3057,6 @@ dmz::JsModuleUiV8QtBasic::_gpp_add_rrect (const v8::Arguments &Args) {
 
    return scope.Close (result);
 }
-
-
-//dmz::V8Value
-//dmz::JsModuleUiV8QtBasic::_gpp_add_text (const v8::Arguments &Args) {
-
-//   v8::HandleScope scope;
-//   V8Value result = v8::Undefined ();
-
-//   JsModuleUiV8QtBasic *self = _to_self (Args);
-//   if (self) {
-
-//      QPainterPath *path = self->_to_gpainter_path (Args.This ());
-//      if (path) {
-
-//         if (Args.Length () <) {
-
-//            QString str = v8_to_qstring (Args[0]);
-//         }
-//      }
-//   }
-
-//   return scope.Close (result);
-//}
 
 
 dmz::V8Value
@@ -3586,10 +3600,10 @@ dmz::JsModuleUiV8QtBasic::_init_gpainter_path () {
    instance->SetInternalFieldCount (1);
 
    V8ObjectTemplate proto = _gPainterPathTemp->PrototypeTemplate ();
+   proto->Set ("addEllipse", v8::FunctionTemplate::New (_gpp_add_ellipse, _self));
    proto->Set ("addPath", v8::FunctionTemplate::New (_gpp_add_path, _self));
    proto->Set ("addRect", v8::FunctionTemplate::New (_gpp_add_rect, _self));
    proto->Set ("addRoundedRect", v8::FunctionTemplate::New (_gpp_add_rrect, _self));
-//   proto->Set ("addText", v8::FunctionTemplate::New (_gpp_add_text, _self));
    proto->Set ("angleAtPercent", v8::FunctionTemplate::New (_gpp_angle_at_pct, _self));
    proto->Set ("arcMoveTo", v8::FunctionTemplate::New (_gpp_arc_move_to, _self));
    proto->Set ("arcTo", v8::FunctionTemplate::New (_gpp_arc_to, _self));

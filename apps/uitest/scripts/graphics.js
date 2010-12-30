@@ -8,7 +8,7 @@ var dmz =
           }
        , timer: require('dmz/runtime/time')
 //       , util: require("dmz/types/util")
-       , graphlib: require("dmz/types/graph")
+//       , graphlib: require("dmz/types/graph")
        }
    , _main
    , _exports = {}
@@ -209,6 +209,7 @@ updateXYGraphBars = function (xyGraph, values) {
 //      xyGraph.scene.removeItem(bar.valueLabel);
 //      xyGraph.scene.removeItem(bar.label);
       xyGraph.scene.removeItem(bar.image);
+      xyGraph.scene.addItem(bar.image);
    }
    if (xyGraph.powerLawPath) { xyGraph.scene.removeItem (xyGraph.powerLawPath); }
    if (xyGraph.powerLawExponentLabel) { xyGraph.scene.removeItem (xyGraph.powerLawExponentLabel); }
@@ -374,9 +375,9 @@ dmz.module.subscribe(self, "main", function (Mode, module) {
       for (idx = 0; idx < 100; idx += 1) { values[idx] = idx; }
 //      for (idx = 0; idx < 5; idx += 1) { values[idx] = idx; }
       for (idx = 99; idx >= 0; idx -= 1) { values2[idx] = 99 - idx; }
-//      dmz.timer.setTimer(self, 0, function () { updateXYGraphBars(xyGraph, values); });
-//      dmz.timer.setTimer(self, 5, function () { updateXYGraphBars(xyGraph, values2); });
-      updateXYGraphBars(xyGraph, mbraData);
+      dmz.timer.setTimer(self, 0, function () { updateXYGraphBars(xyGraph, values); });
+      dmz.timer.setTimer(self, 5, function () { updateXYGraphBars(xyGraph, mbraData); });
+//      updateXYGraphBars(xyGraph, mbraData);
    }
 });
 
