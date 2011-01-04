@@ -159,7 +159,7 @@ XYGraph = function
 
 createHLine = function (x, y, len) { return dmz.ui.graph.createLineItem(x, y, x + len, y); }
 createVLine = function (x, y, height) { return dmz.ui.graph.createLineItem(x, y, x, -(-y + height)); }
-createBar = function (Value, XLabel, XPos, YPos, XAxis, Width, BarHeight, LabelRotation, Pen, Brush) {
+createBar = function (Value, XLabel, ValueLabel, XPos, YPos, XAxis, Width, BarHeight, LabelRotation, Pen, Brush) {
 
    var bar
      , label
@@ -189,7 +189,7 @@ createBar = function (Value, XLabel, XPos, YPos, XAxis, Width, BarHeight, LabelR
    label.pos (XPos + ((rect.width * Math.cos(90 - LabelRotation)) + (rect.height * Math.sin(LabelRotation))) / 2, 20);
    label.rotation(LabelRotation);
 
-   valueLabel = dmz.ui.graph.createTextItem (Math.round(Value * 100).toString(), bar);
+   valueLabel = dmz.ui.graph.createTextItem (ValueLabel, bar);
    rect = valueLabel.boundingRect();
    valueLabel.pos(XPos + (Width - rect.width) / 2, -rect.height + height);
 
@@ -297,7 +297,7 @@ XYGraph.prototype.clearData = function () {
    }
 }
 
-XYGraph.prototype.update = function (values, fnc) {
+XYGraph.prototype.update = function (values, valFnc, valLabelFnc) {
 
    var lastBar
      , bar
@@ -310,6 +310,9 @@ XYGraph.prototype.update = function (values, fnc) {
      , label
      , length
      , powerPath
+     , defaultValFnc = function (idx, values) { return values[idx]; }
+     , defaultValLabelFnc = function (idx, values, value) { return Math.round(value * 100).toString(); }
+     , valueLabel
      ;
 
    this.clearData();
@@ -321,11 +324,13 @@ XYGraph.prototype.update = function (values, fnc) {
 
       xpos = this.spaceWidth + (this.barWidth + this.spaceWidth) * (idx - this.startValue);
       ypos = 0;
-      value = fnc(idx, values);
+      value = valFnc ? valFnc(idx, values) : defaultValFnc(idx, values);
       label = idx.toString();
+      valueLabel = valLabelFnc ? valLabelFnc(idx, values, value) : defaultValLabelFnc(idx, values, value);
       bar = createBar
          ( value
          , label
+         , valueLabel
          , xpos
          , ypos
          , this.xAxis
@@ -428,3 +433,20 @@ MBRA Graph data example
       }
       mitesGraph.update(mbraData, function(idx, values) { return values[idx]/maxval; });
 */
+
+exports.setExportButton = function (self, button) {
+
+   if (button) {
+
+     button.observe(self, button, function () {
+
+        var file = dmz.fileDialog.getSaveFileName(
+              { caption: "Export graph image", filter: "Image file (*.png)" }
+              , button)
+          , image
+          ;
+
+
+     });
+   }
+};
