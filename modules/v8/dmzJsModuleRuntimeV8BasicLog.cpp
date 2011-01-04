@@ -1,4 +1,5 @@
 #include "dmzJsModuleRuntimeV8Basic.h"
+#include <dmzJsModuleV8.h>
 
 namespace {
 
@@ -85,29 +86,6 @@ local_log_out (const v8::Arguments &args) {
 }
 
 
-v8::Persistent<v8::FunctionTemplate>
-local_create_log_template () {
-
-   v8::HandleScope scope;
-
-   v8::Handle<v8::FunctionTemplate> result = v8::FunctionTemplate::New ();
-
-   v8::Handle<v8::ObjectTemplate> instance = result->InstanceTemplate ();
-
-   instance->SetInternalFieldCount (1);
-
-   v8::Handle<v8::ObjectTemplate> proto = result->PrototypeTemplate ();
-
-   proto->Set ("error", v8::FunctionTemplate::New (local_log_error));
-   proto->Set ("warn", v8::FunctionTemplate::New (local_log_warn));
-   proto->Set ("info", v8::FunctionTemplate::New (local_log_info));
-   proto->Set ("debug", v8::FunctionTemplate::New (local_log_debug));
-   proto->Set ("out", v8::FunctionTemplate::New (local_log_out));
-
-   return v8::Persistent<v8::FunctionTemplate>::New (result);
-}
-
-
 void
 local_log_delete (v8::Persistent<v8::Value> object, void *param) {
 
@@ -175,8 +153,54 @@ dmz::JsModuleRuntimeV8Basic::to_dmz_log (v8::Handle<v8::Value> value) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleRuntimeV8Basic::_create_log (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self) {
+
+      String name;
+
+      V8Value value = Args[0];
+
+      if (v8_is_valid (value)) {
+
+         if (value->IsString ()) { name = v8_to_string (value); }
+         else if (value->IsObject ()) {
+
+            if (self->_core) { name = self->_core->get_instance_name (value); }
+         }
+      }
+
+      if (name) { result = self->create_v8_log (name); }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
 void
 dmz::JsModuleRuntimeV8Basic::_init_log () {
 
-   _logFuncTemplate = local_create_log_template ();
+   v8::HandleScope scope;
+
+   _logFuncTemplate = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
+
+   v8::Handle<v8::ObjectTemplate> instance = _logFuncTemplate->InstanceTemplate ();
+
+   instance->SetInternalFieldCount (1);
+
+   v8::Handle<v8::ObjectTemplate> proto = _logFuncTemplate->PrototypeTemplate ();
+
+   proto->Set ("error", v8::FunctionTemplate::New (local_log_error));
+   proto->Set ("warn", v8::FunctionTemplate::New (local_log_warn));
+   proto->Set ("info", v8::FunctionTemplate::New (local_log_info));
+   proto->Set ("debug", v8::FunctionTemplate::New (local_log_debug));
+   proto->Set ("out", v8::FunctionTemplate::New (local_log_out));
+
+   _logApi.add_function ("create", _create_log, _self);
 }

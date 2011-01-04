@@ -99,6 +99,7 @@ namespace dmz {
          static V8Value _config_attribute (const v8::Arguments &Args);
          static V8Value _config_add (const v8::Arguments &Args);
          static V8Value _config_get (const v8::Arguments &Args);
+         static V8Value _config_boolean (const v8::Arguments &Args);
          static V8Value _config_string (const v8::Arguments &Args);
          static V8Value _config_number (const v8::Arguments &Args);
          static V8Value _config_vector (const v8::Arguments &Args);
@@ -139,6 +140,9 @@ namespace dmz {
          static V8Value _data_string (const v8::Arguments &Args);
          static V8Value _data_matrix (const v8::Arguments &Args);
          static V8Value _data_vector (const v8::Arguments &Args);
+
+         // Data bindings implemented in dmzJsModuleRuntimeV8BasicLog.cpp
+         static V8Value _create_log (const v8::Arguments &Args);
 
          // Definitions bindings implemented in dmzJsModuleRuntimeV8BasicDefinitions.cpp
          static V8Value _create_named_handle (const v8::Arguments &Args);
@@ -268,6 +272,7 @@ namespace dmz {
          V8InterfaceHelper _dataApi; 
          V8InterfaceHelper _defsApi; 
          V8InterfaceHelper _eventTypeApi; 
+         V8InterfaceHelper _logApi; 
          V8InterfaceHelper _msgApi; 
          V8InterfaceHelper _objTypeApi;
          V8InterfaceHelper _sphereApi;

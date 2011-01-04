@@ -227,6 +227,33 @@ dmz::JsModuleRuntimeV8Basic::_config_get (const v8::Arguments &Args) {
 
 
 V8Value
+dmz::JsModuleRuntimeV8Basic::_config_boolean (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self) {
+
+      Config *ptr = self->_to_config_ptr (Args.This ());
+
+      if (ptr) {
+
+         const Boolean Value = config_to_boolean (
+            v8_to_string (Args[0]),
+            *ptr,
+            Args.Length () > 1 ? v8_to_boolean (Args[1]) : False);
+
+         result = v8::Boolean::New (Value);
+      }
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+V8Value
 dmz::JsModuleRuntimeV8Basic::_config_string (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -515,6 +542,7 @@ dmz::JsModuleRuntimeV8Basic::_init_config () {
    proto->Set ("attribute", v8::FunctionTemplate::New (_config_attribute, _self));
    proto->Set ("add", v8::FunctionTemplate::New (_config_add, _self));
    proto->Set ("get", v8::FunctionTemplate::New (_config_get, _self));
+   proto->Set ("boolean", v8::FunctionTemplate::New (_config_boolean, _self));
    proto->Set ("string", v8::FunctionTemplate::New (_config_string, _self));
    proto->Set ("number", v8::FunctionTemplate::New (_config_number, _self));
    proto->Set ("vector", v8::FunctionTemplate::New (_config_vector, _self));

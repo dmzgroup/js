@@ -10,8 +10,10 @@
 #include <dmzRuntimeConfigToStringContainer.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
+#include <dmzSystem.h>
 #include <dmzTypesHandleContainer.h>
 #include <dmzTypesStringContainer.h>
+#include <dmzTypesUUID.h>
 
 #include <string.h>
 #include <stdio.h>
@@ -65,6 +67,18 @@ local_print (const v8::Arguments &Args) {
    }
 
    return scope.Close (v8::Undefined());
+}
+
+
+v8::Handle<v8::Value>
+local_create_uuid (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   dmz::UUID uuid;
+   dmz::create_uuid (uuid);
+
+   return scope.Close (
+      v8::String::New (uuid.to_string (dmz::UUID::NotFormatted).get_buffer ()));
 }
 
 
@@ -1006,6 +1020,10 @@ dmz::JsModuleV8Basic::_create_self (const v8::Arguments &Args) {
 
          if (self->set_external_instance_handle_and_name (Instance, Name, obj)) {
 
+            obj->Set (
+               v8::String::NewSymbol ("name"),
+               v8::String::New (Name.get_buffer ()));
+
             result = obj;
          }
       }
@@ -1183,6 +1201,10 @@ dmz::JsModuleV8Basic::_init_builtins () {
          v8::FunctionTemplate::New (
             local_print,
             v8::External::Wrap (&_out))->GetFunction ());
+
+      (*ptr)->Set (
+         v8::String::NewSymbol ("createUUID"),
+         v8::FunctionTemplate::New (local_create_uuid)->GetFunction ());
 
       (*ptr)->Set (
          v8::String::NewSymbol ("createSelf"),

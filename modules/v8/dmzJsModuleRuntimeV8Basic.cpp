@@ -161,6 +161,10 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
             _eventTypeApi.get_new_instance ());
 
          _core->register_interface (
+            "dmz/runtime/log",
+            _logApi.get_new_instance ());
+
+         _core->register_interface (
             "dmz/runtime/messaging",
             _msgApi.get_new_instance ());
 
@@ -198,6 +202,7 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
       _dataApi.clear (); 
       _defsApi.clear (); 
       _eventTypeApi.clear (); 
+      _logApi.clear (); 
       _msgApi.clear (); 
       _objTypeApi.clear (); 
       _timeApi.clear (); 
