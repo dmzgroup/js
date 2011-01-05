@@ -6,6 +6,7 @@ var dmz =
           , graph: require("dmz/ui/graph")
           , widget: require("dmz/ui/widget")
           }
+       , fileDialog: require("dmz/ui/fileDialog")
        , timer: require('dmz/runtime/time')
        , util: require("dmz/types/util")
        , sys: require("sys")
@@ -434,19 +435,35 @@ MBRA Graph data example
       mitesGraph.update(mbraData, function(idx, values) { return values[idx]/maxval; });
 */
 
-exports.setExportButton = function (self, button) {
+XYGraph.prototype.export = function (button) {
 
-   if (button) {
+   var file = dmz.fileDialog.getSaveFileName(
+         { caption: "Export graph image" }
+         , button)
+     , image
+     , pixmap
+     , painter
+     , rect
+     ;
 
-     button.observe(self, button, function () {
+   if (file) {
 
-        var file = dmz.fileDialog.getSaveFileName(
-              { caption: "Export graph image", filter: "Image file (*.png)" }
-              , button)
-          , image
-          ;
+      file += ".png";
+      rect = this.GraphicsView.viewport().rect();
+      pixmap = dmz.ui.graph.createPixmap (rect.width, rect.height);
+      if (pixmap) {
 
+         pixmap.fill();
+         painter = dmz.ui.graph.createPainter(pixmap);
+         if (painter) {
 
-     });
+            this.GraphicsView.render(painter);
+            painter.end();
+            image = pixmap.toImage();
+            if (image) { image.save(file); }
+         }
+      }
    }
+
 };
+

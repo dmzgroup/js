@@ -54,6 +54,43 @@ v8_to_qrectf (dmz::V8Value value) {
 
 
 dmz::V8Value
+qrect_to_v8 (const QRect &Value) {
+
+   v8::HandleScope scope;
+   dmz::V8Object result;
+
+   result = v8::Object::New ();
+   result->Set (v8::String::NewSymbol ("x"), v8::Number::New (Value.x ()));
+   result->Set (v8::String::NewSymbol ("y"), v8::Number::New (Value.y ()));
+   result->Set (v8::String::NewSymbol ("width"), v8::Number::New (Value.width ()));
+   result->Set (v8::String::NewSymbol ("height"), v8::Number::New (Value.height ()));
+
+   return scope.Close (result);
+}
+
+
+QRect
+v8_to_qrect (dmz::V8Value value) {
+
+   QRect result;
+
+   if (!value.IsEmpty ()) {
+
+      dmz::V8Object obj = dmz::v8_to_object (value);
+      if (!obj.IsEmpty ()) {
+         qreal x, y, w, h;
+         x = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("x")));
+         y = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("y")));
+         w = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("width")));
+         h = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("height")));
+         result = QRect(x, y, w, h);
+      }
+   }
+   return result;
+}
+
+
+dmz::V8Value
 qcolor_to_v8 (const QColor &Value) {
 
    v8::HandleScope scope;
@@ -145,6 +182,54 @@ void local_gpainter_path_delete (v8::Persistent<v8::Value> object, void *param) 
    if (param) {
 
       QPainterPath *ptr = (QPainterPath *)param;
+      delete ptr; ptr = 0;
+   }
+
+   object.Dispose (); object.Clear ();
+}
+
+
+void local_gpainter_delete (v8::Persistent<v8::Value> object, void *param) {
+
+   if (param) {
+
+      QPainter *ptr = (QPainter *)param;
+      delete ptr; ptr = 0;
+   }
+
+   object.Dispose (); object.Clear ();
+}
+
+
+void local_gimage_delete (v8::Persistent<v8::Value> object, void *param) {
+
+   if (param) {
+
+      QImage *ptr = (QImage *)param;
+      delete ptr; ptr = 0;
+   }
+
+   object.Dispose (); object.Clear ();
+}
+
+
+void local_gpixmap_delete (v8::Persistent<v8::Value> object, void *param) {
+
+   if (param) {
+
+      QPixmap *ptr = (QPixmap *)param;
+      delete ptr; ptr = 0;
+   }
+
+   object.Dispose (); object.Clear ();
+}
+
+
+void local_gpaint_device_delete (v8::Persistent<v8::Value> object, void *param) {
+
+   if (param) {
+
+      QPaintDevice *ptr = (QPaintDevice *)param;
       delete ptr; ptr = 0;
    }
 
@@ -356,6 +441,96 @@ dmz::JsModuleUiV8QtBasic::_create_gbrush (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_gimage (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QImage *image = 0;
+      if (Args.Length () == 1) { image = new QImage (v8_to_qstring (Args[0])); }
+      if (Args.Length () == 2) {
+
+         if (Args[1]->IsString ()) {
+
+            dmz::String format = v8_to_string (Args[1]);
+            image = new QImage (v8_to_qstring (Args[0]), format.get_buffer ());
+         }
+      }
+      if (Args.Length () == 3) {
+
+         int width = v8_to_uint32 (Args[0]);
+         int height = v8_to_uint32 (Args[1]);
+         QImage::Format format = (QImage::Format)v8_to_uint32 (Args[2]);
+         image = new QImage (width, height, format);
+      }
+      result = self->create_v8_gimage (image);
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_gpainter (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QPainter *painter = 0;
+      if (Args.Length () == 1) {
+
+         QPaintDevice *pd = self->_to_gpaint_device (Args[0]);
+         if (pd) {
+
+            painter = new QPainter (pd);
+            result = self->create_v8_gpainter (painter);
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_gpixmap (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QPixmap *pix = 0;
+      if (Args.Length () == 1) { pix = new QPixmap (v8_to_qstring (Args[0])); }
+      if (Args.Length () == 2) {
+
+         if (Args[1]->IsString ()) {
+
+            dmz::String format = v8_to_string (Args[1]);
+            pix = new QPixmap (v8_to_qstring (Args[0]), format.get_buffer ());
+         }
+         else {
+
+            int width = v8_to_uint32 (Args[0]);
+            int height = v8_to_uint32 (Args[1]);
+            pix = new QPixmap (width, height);
+         }
+      }
+      result = self->create_v8_gpixmap (pix);
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_create_gpen (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -502,6 +677,109 @@ dmz::JsModuleUiV8QtBasic::create_v8_gpainter_path (QPainterPath *value) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::create_v8_gpainter (QPainter *value) {
+
+   v8::Context::Scope cscope (_state.context);
+   v8::HandleScope scope;
+
+   V8Value result = v8::Undefined ();
+
+   if (value) {
+
+      V8Object obj;
+      if (!_gPainterCtor.IsEmpty ()) { obj = _gPainterCtor->NewInstance (); }
+      if (!obj.IsEmpty ()) {
+
+         obj->SetInternalField (0, v8::External::Wrap ((void *)value));
+         result = obj;
+
+         v8::Persistent<v8::Value> persist = v8::Persistent<v8::Value>::New (result);
+         persist.MakeWeak ((void *)value, local_gpainter_delete);
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::create_v8_gpixmap (QPixmap *value) {
+
+   v8::Context::Scope cscope (_state.context);
+   v8::HandleScope scope;
+
+   V8Value result = v8::Undefined ();
+
+   if (value) {
+
+      V8Object obj;
+      if (!_gPixmapCtor.IsEmpty ()) { obj = _gPixmapCtor->NewInstance (); }
+      if (!obj.IsEmpty ()) {
+
+         obj->SetInternalField (0, v8::External::Wrap ((void *)value));
+         result = obj;
+
+         v8::Persistent<v8::Value> persist = v8::Persistent<v8::Value>::New (result);
+         persist.MakeWeak ((void *)value, local_gpixmap_delete);
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::create_v8_gpaint_device (QPaintDevice *value) {
+
+   v8::Context::Scope cscope (_state.context);
+   v8::HandleScope scope;
+
+   V8Value result = v8::Undefined ();
+
+   if (value) {
+
+      V8Object obj;
+      if (!_gPaintDeviceCtor.IsEmpty ()) { obj = _gPaintDeviceCtor->NewInstance (); }
+      if (!obj.IsEmpty ()) {
+
+         obj->SetInternalField (0, v8::External::Wrap ((void *)value));
+         result = obj;
+
+         v8::Persistent<v8::Value> persist = v8::Persistent<v8::Value>::New (result);
+         persist.MakeWeak ((void *)value, local_gpaint_device_delete);
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::create_v8_gimage (QImage *value) {
+
+   v8::Context::Scope cscope (_state.context);
+   v8::HandleScope scope;
+
+   V8Value result = v8::Undefined ();
+
+   if (value) {
+
+      V8Object obj;
+      if (!_gImageCtor.IsEmpty ()) { obj = _gImageCtor->NewInstance (); }
+      if (!obj.IsEmpty ()) {
+
+         obj->SetInternalField (0, v8::External::Wrap ((void *)value));
+         result = obj;
+
+         v8::Persistent<v8::Value> persist = v8::Persistent<v8::Value>::New (result);
+         persist.MakeWeak ((void *)value, local_gimage_delete);
+      }
+   }
+
+   return scope.Close (result);
+}
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::create_v8_graphics_item (QGraphicsItem *value) {
 
    v8::Context::Scope cscope (_state.context);
@@ -625,6 +903,82 @@ dmz::JsModuleUiV8QtBasic::_to_gpainter_path (V8Value value) {
       if (_gPainterPathTemp->HasInstance (obj)) {
 
          result = (QPainterPath *)v8::External::Unwrap (obj->GetInternalField (0));
+      }
+   }
+
+   return result;
+}
+
+
+QPainter *
+dmz::JsModuleUiV8QtBasic::_to_gpainter (V8Value value) {
+
+   v8::HandleScope scope;
+   QPainter *result (0);
+
+   V8Object obj = v8_to_object (value);
+   if (!obj.IsEmpty ()) {
+
+      if (_gPainterTemp->HasInstance (obj)) {
+
+         result = (QPainter *)v8::External::Unwrap (obj->GetInternalField (0));
+      }
+   }
+
+   return result;
+}
+
+
+QPixmap *
+dmz::JsModuleUiV8QtBasic::_to_gpixmap (V8Value value) {
+
+   v8::HandleScope scope;
+   QPixmap *result (0);
+
+   V8Object obj = v8_to_object (value);
+   if (!obj.IsEmpty ()) {
+
+      if (_gPixmapTemp->HasInstance (obj)) {
+
+         result = (QPixmap *)v8::External::Unwrap (obj->GetInternalField (0));
+      }
+   }
+
+   return result;
+}
+
+
+QImage *
+dmz::JsModuleUiV8QtBasic::_to_gimage (V8Value value) {
+
+   v8::HandleScope scope;
+   QImage *result (0);
+
+   V8Object obj = v8_to_object (value);
+   if (!obj.IsEmpty ()) {
+
+      if (_gImageTemp->HasInstance (obj)) {
+
+         result = (QImage *)v8::External::Unwrap (obj->GetInternalField (0));
+      }
+   }
+
+   return result;
+}
+
+
+QPaintDevice *
+dmz::JsModuleUiV8QtBasic::_to_gpaint_device (V8Value value) {
+
+   v8::HandleScope scope;
+   QPaintDevice *result (0);
+
+   V8Object obj = v8_to_object (value);
+   if (!obj.IsEmpty ()) {
+
+      if (_gPaintDeviceTemp->HasInstance (obj)) {
+
+         result = (QPaintDevice *)v8::External::Unwrap (obj->GetInternalField (0));
       }
    }
 
@@ -1539,7 +1893,6 @@ dmz::JsModuleUiV8QtBasic::_gtext_width (const v8::Arguments &Args) {
       if (item) {
 
          if (Args.Length ()) { item->setTextWidth (v8_to_number (Args[0])); }
-         self->_log.warn << "Width: " << item->textWidth () << endl;
          result = v8::Number::New (item->textWidth ());
       }
    }
@@ -2133,6 +2486,49 @@ dmz::JsModuleUiV8QtBasic::_gview_translate (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gview_viewport (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsView *view = self->v8_to_qobject<QGraphicsView> (Args.This ());
+      if (view) { result = self->create_v8_qwidget (view->viewport ()); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gview_render (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsView *view = self->v8_to_qobject<QGraphicsView> (Args.This ());
+      if (view) {
+
+         if (Args.Length ()) {
+
+            QPainter *painter = self->_to_gpainter (Args[0]);
+            QRect target, source;
+            if (Args.Length () > 1) { target = v8_to_qrect (Args[1]); }
+            if (Args.Length () > 2) { source = v8_to_qrect (Args[2]); }
+            view->render (painter, target, source);
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
 
 void
 dmz::JsModuleUiV8QtBasic::_init_gview () {
@@ -2160,6 +2556,8 @@ dmz::JsModuleUiV8QtBasic::_init_gview () {
    proto->Set ("scale", v8::FunctionTemplate::New (_gview_scale, _self));
    proto->Set ("scene", v8::FunctionTemplate::New (_gview_scene, _self));
    proto->Set ("sceneRect", v8::FunctionTemplate::New (_gview_scene_rect, _self));
+   proto->Set ("render", v8::FunctionTemplate::New (_gview_render, _self));
+   proto->Set ("viewport", v8::FunctionTemplate::New (_gview_viewport, _self));
    proto->Set (
       "viewportUpdateMode",
       v8::FunctionTemplate::New (_gview_viewport_update_mode, _self));
@@ -3628,5 +4026,419 @@ dmz::JsModuleUiV8QtBasic::_init_gpainter_path () {
    proto->Set ("translated", v8::FunctionTemplate::New (_gpp_translated, _self));
 
    _graphApi.add_function ("createPainterPath", _create_gpainter_path, _self);
+}
 
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gpd_height (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QPaintDevice *pd = self->_to_gpaint_device (Args.This ());
+      if (pd) { result = v8::Number::New (pd->height ()); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gpd_width (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QPaintDevice *pd = self->_to_gpaint_device (Args.This ());
+      if (pd) { result = v8::Number::New (pd->width ()); }
+   }
+
+   return scope.Close (result);
+}
+
+
+void
+dmz::JsModuleUiV8QtBasic::_init_gpaint_device () {
+
+   v8::HandleScope scope;
+
+   _gPaintDeviceTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
+
+   V8ObjectTemplate instance = _gPaintDeviceTemp->InstanceTemplate ();
+   instance->SetInternalFieldCount (1);
+
+   V8ObjectTemplate proto = _gPaintDeviceTemp->PrototypeTemplate ();
+   proto->Set ("height", v8::FunctionTemplate::New (_gpd_height, _self));
+   proto->Set ("width", v8::FunctionTemplate::New (_gpd_width, _self));
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gpixmap_fill (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QPixmap *pix = self->_to_gpixmap (Args.This ());
+      if (pix) {
+
+         QColor c = Qt::white;
+         if (Args.Length ()) { c = v8_to_qcolor (Args[0]); }
+         pix->fill (c);
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gpixmap_load (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QPixmap *pix = self->_to_gpixmap (Args.This ());
+      if (pix) {
+
+         if (Args.Length ()) {
+
+            QString filename = v8_to_qstring (Args[0]);
+            if ((Args.Length () > 1) && Args[1]->IsString ()) {
+
+               pix->load (filename, v8_to_string (Args[1]).get_buffer ());
+            }
+            else { pix->load (filename); }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gpixmap_rect (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QPixmap *pix = self->_to_gpixmap (Args.This ());
+      if (pix) { result = qrectf_to_v8 (pix->rect ()); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gpixmap_save (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QPixmap *pix = self->_to_gpixmap (Args.This ());
+      if (pix) {
+
+         if (Args.Length ()) {
+
+            QString filename = v8_to_qstring (Args[0]);
+            if ((Args.Length () > 1) && Args[1]->IsString ()) {
+
+               pix->save (filename, v8_to_string (Args[1]).get_buffer ());
+            }
+            else { pix->save (filename); }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gpixmap_scaled (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QPixmap *pix = self->_to_gpixmap (Args.This ());
+      if (pix) {
+
+         if (Args.Length () > 1) {
+
+            int width = v8_to_uint32 (Args[0]);
+            int height = v8_to_uint32 (Args[1]);
+            pix->scaled (width, height);
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gpixmap_to_image (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QPixmap *pix = self->_to_gpixmap (Args.This ());
+      if (pix) { result = self->create_v8_gimage (new QImage (pix->toImage ())); }
+   }
+
+   return scope.Close (result);
+}
+
+
+void
+dmz::JsModuleUiV8QtBasic::_init_gpixmap () {
+
+   v8::HandleScope scope;
+
+   _gPixmapTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
+   _gPixmapTemp->Inherit (_gPaintDeviceTemp);
+
+   V8ObjectTemplate instance = _gPixmapTemp->InstanceTemplate ();
+   instance->SetInternalFieldCount (1);
+
+   V8ObjectTemplate proto = _gPixmapTemp->PrototypeTemplate ();
+   proto->Set ("fill", v8::FunctionTemplate::New (_gpixmap_fill, _self));
+   proto->Set ("load", v8::FunctionTemplate::New (_gpixmap_load, _self));
+   proto->Set ("rect", v8::FunctionTemplate::New (_gpixmap_rect, _self));
+   proto->Set ("save", v8::FunctionTemplate::New (_gpixmap_save, _self));
+   proto->Set ("scaled", v8::FunctionTemplate::New (_gpixmap_scaled, _self));
+   proto->Set ("toImage", v8::FunctionTemplate::New (_gpixmap_to_image, _self));
+
+   _graphApi.add_function ("createPixmap", _create_gpixmap, _self);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gimage_format (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QImage *image = self->_to_gimage (Args.This ());
+      if (image) {
+
+         if (Args.Length ()) {
+
+            image->convertToFormat ((QImage::Format)v8_to_uint32 (Args[0]));
+         }
+         result = v8::Number::New ((QImage::Format) image->format ());
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gimage_rect (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QImage *image = self->_to_gimage (Args.This ());
+      if (image) { result = qrectf_to_v8 (image->rect ()); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gimage_load (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QImage *image = self->_to_gimage (Args.This ());
+      if (image) {
+
+         if (Args.Length ()) {
+
+            QString filename = v8_to_qstring (Args[0]);
+            if ((Args.Length () > 1) && Args[1]->IsString ()) {
+
+               image->load (filename, v8_to_string (Args[1]).get_buffer ());
+            }
+            else { image->load (filename); }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gimage_save (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QImage *image = self->_to_gimage (Args.This ());
+      if (image) {
+
+         if (Args.Length ()) {
+
+            QString filename = v8_to_qstring (Args[0]);
+            if ((Args.Length () > 1) && Args[1]->IsString ()) {
+
+               image->save (filename, v8_to_string (Args[1]).get_buffer ());
+            }
+            else { image->save (filename); }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gimage_scaled (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QImage *image = self->_to_gimage (Args.This ());
+      if (image) {
+
+         if (Args.Length () > 1) {
+
+            int width, height;
+            width = v8_to_uint32 (Args[0]);
+            height = v8_to_uint32 (Args[1]);
+            image->scaled (width, height);
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+void
+dmz::JsModuleUiV8QtBasic::_init_gimage () {
+
+   v8::HandleScope scope;
+
+   _gImageTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
+   _gImageTemp->Inherit (_gPaintDeviceTemp);
+
+   V8ObjectTemplate instance = _gImageTemp->InstanceTemplate ();
+   instance->SetInternalFieldCount (1);
+
+   V8ObjectTemplate proto = _gImageTemp->PrototypeTemplate ();
+   proto->Set ("format", v8::FunctionTemplate::New (_gimage_format, _self));
+   proto->Set ("rect", v8::FunctionTemplate::New (_gimage_rect, _self));
+   proto->Set ("save", v8::FunctionTemplate::New (_gimage_save, _self));
+   proto->Set ("load", v8::FunctionTemplate::New (_gimage_load, _self));
+   proto->Set ("scaled", v8::FunctionTemplate::New (_gimage_scaled, _self));
+
+   _graphApi.add_function ("createImage", _create_gimage, _self);
+   _graphApi.add_constant ("FormatInvalid", (UInt32)QImage::Format_Invalid);
+   _graphApi.add_constant ("FormatMono", (UInt32)QImage::Format_Mono);
+   _graphApi.add_constant ("FormatMonoLSB", (UInt32)QImage::Format_MonoLSB);
+   _graphApi.add_constant ("FormatIndexed8", (UInt32)QImage::Format_Indexed8);
+   _graphApi.add_constant ("FormatRGB32", (UInt32)QImage::Format_RGB32);
+   _graphApi.add_constant ("FormatARGB32", (UInt32)QImage::Format_ARGB32);
+   _graphApi.add_constant (
+      "FormatARGB32Premultiplied",
+      (UInt32)QImage::Format_ARGB32_Premultiplied);
+   _graphApi.add_constant ("FormatRGB16", (UInt32)QImage::Format_RGB16);
+   _graphApi.add_constant (
+      "FormatARGB8565Premultiplied",
+      (UInt32)QImage::Format_ARGB8565_Premultiplied);
+   _graphApi.add_constant ("FormatRGB666", (UInt32)QImage::Format_RGB666);
+   _graphApi.add_constant (
+      "FormatARGB6666Premultiplied",
+      (UInt32)QImage::Format_ARGB6666_Premultiplied);
+   _graphApi.add_constant ("FormatRGB555", (UInt32)QImage::Format_RGB555);
+   _graphApi.add_constant (
+      "FormatARGB8555Premultiplied",
+      (UInt32)QImage::Format_ARGB8555_Premultiplied);
+   _graphApi.add_constant ("FormatRGB888", (UInt32)QImage::Format_RGB888);
+   _graphApi.add_constant ("FormatRGB444", (UInt32)QImage::Format_RGB444);
+   _graphApi.add_constant (
+      "FormatARGB4444",
+      (UInt32)QImage::Format_ARGB4444_Premultiplied);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gpainter_end (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QPainter *painter = self->_to_gpainter (Args.This ());
+      if (painter) { painter->end (); }
+   }
+
+   return scope.Close (result);
+}
+
+
+void
+dmz::JsModuleUiV8QtBasic::_init_gpainter () {
+
+   v8::HandleScope scope;
+
+   _gPainterTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
+
+   V8ObjectTemplate instance = _gPainterTemp->InstanceTemplate ();
+   instance->SetInternalFieldCount (1);
+
+   V8ObjectTemplate proto = _gPainterTemp->PrototypeTemplate ();
+   proto->Set ("end", v8::FunctionTemplate::New (_gpainter_end, _self));
+
+   _graphApi.add_function ("createPainter", _create_gpainter, _self);
 }

@@ -91,7 +91,10 @@ namespace dmz {
          virtual v8::Handle<v8::Value> create_v8_gbrush (QBrush *value);
          virtual v8::Handle<v8::Value> create_v8_gpen (QPen *value);
          virtual v8::Handle<v8::Value> create_v8_gpainter_path (QPainterPath *value);
-
+         virtual v8::Handle<v8::Value> create_v8_gpainter (QPainter *value);
+         virtual v8::Handle<v8::Value> create_v8_gimage (QImage *value);
+         virtual v8::Handle<v8::Value> create_v8_gpixmap (QPixmap *value);
+         virtual v8::Handle<v8::Value> create_v8_gpaint_device (QPaintDevice *value);
 
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
@@ -148,6 +151,7 @@ namespace dmz {
          static V8Value _widget_title (const v8::Arguments &Args);
          static V8Value _widget_visible (const v8::Arguments &Args);
          static V8Value _widget_window (const v8::Arguments &Args);
+         static V8Value _widget_rect (const v8::Arguments &Args);
          static V8Value _create_widget (const v8::Arguments &Args);
 
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
@@ -495,6 +499,10 @@ namespace dmz {
          static V8Value _create_gbrush (const v8::Arguments &Args);
          static V8Value _create_gpen (const v8::Arguments &Args);
          static V8Value _create_gpainter_path (const v8::Arguments &Args);
+         static V8Value _create_gpixmap (const v8::Arguments &Args);
+         static V8Value _create_gimage (const v8::Arguments &Args);
+         static V8Value _create_gpaint_device (const v8::Arguments &Args);
+         static V8Value _create_gpainter (const v8::Arguments &Args);
 
          static V8Value _gitem_drops (const v8::Arguments &Args);
          static V8Value _gitem_brect (const v8::Arguments &Args);
@@ -555,6 +563,8 @@ namespace dmz {
          static V8Value _gview_scene_rect (const v8::Arguments &Args);
          static V8Value _gview_viewport_update_mode (const v8::Arguments &Args);
          static V8Value _gview_translate (const v8::Arguments &Args);
+         static V8Value _gview_render (const v8::Arguments &Args);
+         static V8Value _gview_viewport (const v8::Arguments &Args);
 
          static V8Value _gscene_add_item (const v8::Arguments &Args);
          static V8Value _gscene_add_line (const v8::Arguments &Args);
@@ -609,6 +619,23 @@ namespace dmz {
          static V8Value _gpp_translate (const v8::Arguments &Args);
          static V8Value _gpp_translated (const v8::Arguments &Args);
 
+         static V8Value _gpd_width (const v8::Arguments &Args);
+         static V8Value _gpd_height (const v8::Arguments &Args);
+
+         static V8Value _gpixmap_fill (const v8::Arguments &Args);
+         static V8Value _gpixmap_load (const v8::Arguments &Args);
+         static V8Value _gpixmap_rect (const v8::Arguments &Args);
+         static V8Value _gpixmap_save (const v8::Arguments &Args);
+         static V8Value _gpixmap_scaled (const v8::Arguments &Args);
+         static V8Value _gpixmap_to_image (const v8::Arguments &Args);
+
+         static V8Value _gpainter_end (const v8::Arguments &Args);
+
+         static V8Value _gimage_format (const v8::Arguments &Args);
+         static V8Value _gimage_rect (const v8::Arguments &Args);
+         static V8Value _gimage_load (const v8::Arguments &Args);
+         static V8Value _gimage_save (const v8::Arguments &Args);
+         static V8Value _gimage_scaled (const v8::Arguments &Args);
 
          virtual bool eventFilter (QObject *watched, QEvent *event);
 
@@ -623,6 +650,10 @@ namespace dmz {
          QBrush *_to_gbrush (V8Value value);
          QPen *_to_gpen (V8Value value);
          QPainterPath *_to_gpainter_path (V8Value value);
+         QPainter *_to_gpainter (V8Value value);
+         QImage *_to_gimage (V8Value value);
+         QPixmap *_to_gpixmap (V8Value value);
+         QPaintDevice *_to_gpaint_device (V8Value value);
 
          V8QtDialog *_to_v8_qt_dialog (V8Value value);
          V8QtWidget *_to_v8_qt_widget (V8Value value);
@@ -682,6 +713,11 @@ namespace dmz {
          void _init_gbrush ();
          void _init_gpen ();
          void _init_gpainter_path ();
+         void _init_gpaint_device ();
+         void _init_gpainter ();
+         void _init_gpixmap ();
+         void _init_gimage ();
+
 
          void _init_layout ();
          void _init_box_layout ();
@@ -892,6 +928,17 @@ namespace dmz {
          V8FunctionTemplatePersist _gAbsItemTemp;
          V8FunctionPersist _gAbsItemCtor;
 
+         V8FunctionTemplatePersist _gPainterTemp;
+         V8FunctionPersist _gPainterCtor;
+
+         V8FunctionTemplatePersist _gPixmapTemp;
+         V8FunctionPersist _gPixmapCtor;
+
+         V8FunctionTemplatePersist _gImageTemp;
+         V8FunctionPersist _gImageCtor;
+
+         V8FunctionTemplatePersist _gPaintDeviceTemp;
+         V8FunctionPersist _gPaintDeviceCtor;
 
          V8StringPersist _allowMultipleStr;
          V8StringPersist _allowedAreasStr;

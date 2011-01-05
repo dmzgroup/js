@@ -8,6 +8,23 @@
 
 #include <QtGui/QPushButton>
 
+namespace {
+dmz::V8Value
+qrect_to_v8 (const QRect &Value) {
+
+   v8::HandleScope scope;
+   dmz::V8Object result;
+
+   result = v8::Object::New ();
+   result->Set (v8::String::NewSymbol ("x"), v8::Number::New (Value.x ()));
+   result->Set (v8::String::NewSymbol ("y"), v8::Number::New (Value.y ()));
+   result->Set (v8::String::NewSymbol ("width"), v8::Number::New (Value.width ()));
+   result->Set (v8::String::NewSymbol ("height"), v8::Number::New (Value.height ()));
+
+   return scope.Close (result);
+}
+};
+
 dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_widget_close (const v8::Arguments &Args) {
 
@@ -206,6 +223,24 @@ dmz::JsModuleUiV8QtBasic::_create_widget (const v8::Arguments &Args) {
    return scope.Close (result);
 }
 
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_rect (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qwidget (Args.This ());
+      if (widget) { result = qrect_to_v8 (widget->rect()); }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_widget () {
 
@@ -226,6 +261,7 @@ dmz::JsModuleUiV8QtBasic::_init_widget () {
    proto->Set ("title", v8::FunctionTemplate::New (_widget_title, _self));
    proto->Set ("visible", v8::FunctionTemplate::New (_widget_visible, _self));
    proto->Set ("window", v8::FunctionTemplate::New (_widget_window, _self));
+   proto->Set ("rect", v8::FunctionTemplate::New (_widget_rect, _self));
 
    _widgetApi.add_function ("create", _create_widget, _self);
 }

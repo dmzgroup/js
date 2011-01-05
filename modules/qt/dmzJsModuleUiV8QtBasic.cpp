@@ -762,6 +762,26 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _gPainterPathCtor = V8FunctionPersist::New (_gPainterPathTemp->GetFunction ());
       }
 
+      if (!_gPainterTemp.IsEmpty ()) {
+
+         _gPainterCtor = V8FunctionPersist::New (_gPainterTemp->GetFunction ());
+      }
+
+      if (!_gPixmapTemp.IsEmpty ()) {
+
+         _gPixmapCtor = V8FunctionPersist::New (_gPixmapTemp->GetFunction ());
+      }
+
+      if (!_gImageTemp.IsEmpty ()) {
+
+         _gImageCtor = V8FunctionPersist::New (_gImageTemp->GetFunction ());
+      }
+
+      if (!_gPaintDeviceTemp.IsEmpty ()) {
+
+         _gPaintDeviceCtor = V8FunctionPersist::New (_gPaintDeviceTemp->GetFunction ());
+      }
+
       if (_state.core) {
 
          _state.core->register_interface ("dmz/ui/consts", _qtApi.get_new_instance ());
@@ -1042,6 +1062,10 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _gViewCtor.Dispose (); _gViewCtor.Clear ();
       _gBrushCtor.Dispose (); _gBrushCtor.Clear ();
       _gPenCtor.Dispose (); _gPenCtor.Clear ();
+      _gPainterCtor.Dispose (); _gPainterCtor.Clear ();
+      _gPixmapCtor.Dispose (); _gPixmapCtor.Clear ();
+      _gImageCtor.Dispose (); _gImageCtor.Clear ();
+      _gPaintDeviceCtor.Dispose (); _gPaintDeviceCtor.Clear ();
 
       _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
       _allowedAreasStr.Dispose (); _allowedAreasStr.Clear ();
@@ -1447,6 +1471,10 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_gbrush ();
    _init_gpen ();
    _init_gpainter_path ();
+   _init_gpaint_device ();
+   _init_gimage ();
+   _init_gpixmap ();
+   _init_gpainter ();
 }
 
 
