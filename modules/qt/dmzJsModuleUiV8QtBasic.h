@@ -14,6 +14,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
+#include <QtGui/QGraphicsItem>
 #include <v8.h>
 
 class QInputDialog;
@@ -86,6 +87,15 @@ namespace dmz {
          virtual v8::Handle<v8::Value> create_v8_qtablewidgetselectionrange (
             QTableWidgetSelectionRange *value);
 
+         virtual v8::Handle<v8::Value> create_v8_graphics_item (QGraphicsItem *value);
+         virtual v8::Handle<v8::Value> create_v8_gbrush (QBrush *value);
+         virtual v8::Handle<v8::Value> create_v8_gpen (QPen *value);
+         virtual v8::Handle<v8::Value> create_v8_gpainter_path (QPainterPath *value);
+         virtual v8::Handle<v8::Value> create_v8_gpainter (QPainter *value);
+         virtual v8::Handle<v8::Value> create_v8_gimage (QImage *value);
+         virtual v8::Handle<v8::Value> create_v8_gpixmap (QPixmap *value);
+         virtual v8::Handle<v8::Value> create_v8_gpaint_device (QPaintDevice *value);
+
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
          virtual void update_js_context_v8 (v8::Handle<v8::Context> context);
@@ -141,6 +151,7 @@ namespace dmz {
          static V8Value _widget_title (const v8::Arguments &Args);
          static V8Value _widget_visible (const v8::Arguments &Args);
          static V8Value _widget_window (const v8::Arguments &Args);
+         static V8Value _widget_rect (const v8::Arguments &Args);
          static V8Value _create_widget (const v8::Arguments &Args);
 
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
@@ -162,6 +173,7 @@ namespace dmz {
          static V8Value _spinbox_value (const v8::Arguments &Args);
          static V8Value _spinbox_text (const v8::Arguments &Args);
          static V8Value _create_spinbox (const v8::Arguments &Args);
+         static V8Value _create_dspinbox (const v8::Arguments &Args);
 
          // QComboBox bindings implemented in JsModuleUiV8QtBasicComboBox.cpp
          static V8Value _combobox_count (const v8::Arguments &Args);
@@ -477,6 +489,154 @@ namespace dmz {
          static V8Value _input_dialog_cbox_editable (const v8::Arguments &Args);
          QInputDialog *_create_input_dialog (V8Object params, QWidget *parent);
 
+         // Graph bindings implemented in JsModuleUiV8QtBasicGraph.cpp
+         static V8Value _create_grect_item (const v8::Arguments &Args);
+         static V8Value _create_gtext_item (const v8::Arguments &Args);
+         static V8Value _create_gline_item (const v8::Arguments &Args);
+         static V8Value _create_gpath_item (const v8::Arguments &Args);
+         static V8Value _create_gscene (const v8::Arguments &Args);
+         static V8Value _create_gview (const v8::Arguments &Args);
+         static V8Value _create_gbrush (const v8::Arguments &Args);
+         static V8Value _create_gpen (const v8::Arguments &Args);
+         static V8Value _create_gpainter_path (const v8::Arguments &Args);
+         static V8Value _create_gpixmap (const v8::Arguments &Args);
+         static V8Value _create_gimage (const v8::Arguments &Args);
+         static V8Value _create_gpaint_device (const v8::Arguments &Args);
+         static V8Value _create_gpainter (const v8::Arguments &Args);
+
+         static V8Value _gitem_drops (const v8::Arguments &Args);
+         static V8Value _gitem_brect (const v8::Arguments &Args);
+         static V8Value _gitem_child_items (const v8::Arguments &Args);
+         static V8Value _gitem_children_brect (const v8::Arguments &Args);
+         static V8Value _gitem_clear_focus (const v8::Arguments &Args);
+         static V8Value _gitem_collides_item (const v8::Arguments &Args);
+         static V8Value _gitem_collides_path (const v8::Arguments &Args);
+         static V8Value _gitem_collides_items (const v8::Arguments &Args);
+         static V8Value _gitem_contains (const v8::Arguments &Args);
+         static V8Value _gitem_data (const v8::Arguments &Args);
+         static V8Value _gitem_ensure_vis (const v8::Arguments &Args);
+         static V8Value _gitem_flag (const v8::Arguments &Args);
+         static V8Value _gitem_focus_item (const v8::Arguments &Args);
+         static V8Value _gitem_has_focus (const v8::Arguments &Args);
+         static V8Value _gitem_hide (const v8::Arguments &Args);
+         static V8Value _gitem_show (const v8::Arguments &Args);
+         static V8Value _gitem_active (const v8::Arguments &Args);
+         static V8Value _gitem_enabled (const v8::Arguments &Args);
+         static V8Value _gitem_visible (const v8::Arguments &Args);
+         static V8Value _gitem_parent_item (const v8::Arguments &Args);
+         static V8Value _gitem_z (const v8::Arguments &Args);
+         static V8Value _gitem_pos (const v8::Arguments &Args);
+         static V8Value _gitem_spos (const v8::Arguments &Args);
+         static V8Value _gitem_stack_before (const v8::Arguments &Args);
+         static V8Value _gitem_rotation (const v8::Arguments &Args);
+
+         static V8Value _gabs_brush (const v8::Arguments &Args);
+         static V8Value _gabs_pen (const v8::Arguments &Args);
+
+         static V8Value _grect_rect (const v8::Arguments &Args);
+
+         static V8Value _gpath_path (const v8::Arguments &Args);
+
+         static V8Value _gtext_adjust_size (const v8::Arguments &Args);
+         static V8Value _gtext_text_color (const v8::Arguments &Args);
+//         static V8Value _gtext_font (const v8::Arguments &Args);
+         static V8Value _gtext_plain_text (const v8::Arguments &Args);
+         static V8Value _gtext_html_text (const v8::Arguments &Args);
+         static V8Value _gtext_width (const v8::Arguments &Args);
+         static V8Value _gtext_text_interact_flags (const v8::Arguments &Args);
+
+         static V8Value _gline_line (const v8::Arguments &Args);
+         static V8Value _gline_pen (const v8::Arguments &Args);
+
+         static V8Value _gview_alignment (const v8::Arguments &Args);
+         static V8Value _gview_bg_brush (const v8::Arguments &Args);
+         static V8Value _gview_cache (const v8::Arguments &Args);
+         static V8Value _gview_center (const v8::Arguments &Args);
+         static V8Value _gview_visible (const v8::Arguments &Args);
+         static V8Value _gview_fg_brush (const v8::Arguments &Args);
+         static V8Value _gview_interactive (const v8::Arguments &Args);
+         static V8Value _gview_item_at (const v8::Arguments &Args);
+         static V8Value _gview_items (const v8::Arguments &Args);
+         static V8Value _gview_rotate (const v8::Arguments &Args);
+         static V8Value _gview_scale (const v8::Arguments &Args);
+         static V8Value _gview_scene (const v8::Arguments &Args);
+         static V8Value _gview_scene_rect (const v8::Arguments &Args);
+         static V8Value _gview_viewport_update_mode (const v8::Arguments &Args);
+         static V8Value _gview_translate (const v8::Arguments &Args);
+         static V8Value _gview_render (const v8::Arguments &Args);
+         static V8Value _gview_viewport (const v8::Arguments &Args);
+
+         static V8Value _gscene_add_item (const v8::Arguments &Args);
+         static V8Value _gscene_add_line (const v8::Arguments &Args);
+         static V8Value _gscene_add_path (const v8::Arguments &Args);
+         static V8Value _gscene_add_rect (const v8::Arguments &Args);
+         static V8Value _gscene_add_text (const v8::Arguments &Args);
+         static V8Value _gscene_bg_brush (const v8::Arguments &Args);
+         static V8Value _gscene_clear_focus (const v8::Arguments &Args);
+         static V8Value _gscene_colliding_items (const v8::Arguments &Args);
+         static V8Value _gscene_focus_item (const v8::Arguments &Args);
+         static V8Value _gscene_fg_brush (const v8::Arguments &Args);
+         static V8Value _gscene_active_panel (const v8::Arguments &Args);
+//         static V8Value _gscene_item_at (const v8::Arguments &Args);
+         static V8Value _gscene_items (const v8::Arguments &Args);
+         static V8Value _gscene_remove_item (const v8::Arguments &Args);
+         static V8Value _gscene_scene_rect (const v8::Arguments &Args);
+         static V8Value _gscene_selected_items (const v8::Arguments &Args);
+         static V8Value _gscene_width (const v8::Arguments &Args);
+         static V8Value _gscene_height (const v8::Arguments &Args);
+
+         static V8Value _gbrush_color (const v8::Arguments &Args);
+         static V8Value _gbrush_style (const v8::Arguments &Args);
+
+         static V8Value _gpen_brush (const v8::Arguments &Args);
+         static V8Value _gpen_color (const v8::Arguments &Args);
+         static V8Value _gpen_join_style (const v8::Arguments &Args);
+         static V8Value _gpen_width (const v8::Arguments &Args);
+
+         static V8Value _gpp_add_ellipse (const v8::Arguments &Args);
+         static V8Value _gpp_add_path (const v8::Arguments &Args);
+         static V8Value _gpp_add_rect (const v8::Arguments &Args);
+         static V8Value _gpp_add_rrect (const v8::Arguments &Args);
+//         static V8Value _gpp_add_text (const v8::Arguments &Args);
+         static V8Value _gpp_angle_at_pct (const v8::Arguments &Args);
+         static V8Value _gpp_arc_move_to (const v8::Arguments &Args);
+         static V8Value _gpp_arc_to (const v8::Arguments &Args);
+         static V8Value _gpp_brect (const v8::Arguments &Args);
+         static V8Value _gpp_close_subpath (const v8::Arguments &Args);
+         static V8Value _gpp_connect_path (const v8::Arguments &Args);
+         static V8Value _gpp_contains (const v8::Arguments &Args);
+         static V8Value _gpp_count (const v8::Arguments &Args);
+         static V8Value _gpp_cubic (const v8::Arguments &Args);
+         static V8Value _gpp_current_position (const v8::Arguments &Args);
+         static V8Value _gpp_intersected (const v8::Arguments &Args);
+         static V8Value _gpp_intersects (const v8::Arguments &Args);
+         static V8Value _gpp_empty (const v8::Arguments &Args);
+         static V8Value _gpp_length (const v8::Arguments &Args);
+         static V8Value _gpp_line_to (const v8::Arguments &Args);
+         static V8Value _gpp_move_to (const v8::Arguments &Args);
+         static V8Value _gpp_quad_to (const v8::Arguments &Args);
+         static V8Value _gpp_simplified (const v8::Arguments &Args);
+         static V8Value _gpp_translate (const v8::Arguments &Args);
+         static V8Value _gpp_translated (const v8::Arguments &Args);
+
+         static V8Value _gpd_width (const v8::Arguments &Args);
+         static V8Value _gpd_height (const v8::Arguments &Args);
+
+         static V8Value _gpixmap_fill (const v8::Arguments &Args);
+         static V8Value _gpixmap_load (const v8::Arguments &Args);
+         static V8Value _gpixmap_rect (const v8::Arguments &Args);
+         static V8Value _gpixmap_save (const v8::Arguments &Args);
+         static V8Value _gpixmap_scaled (const v8::Arguments &Args);
+         static V8Value _gpixmap_to_image (const v8::Arguments &Args);
+
+         static V8Value _gpainter_end (const v8::Arguments &Args);
+
+         static V8Value _gimage_format (const v8::Arguments &Args);
+         static V8Value _gimage_rect (const v8::Arguments &Args);
+         static V8Value _gimage_load (const v8::Arguments &Args);
+         static V8Value _gimage_save (const v8::Arguments &Args);
+         static V8Value _gimage_scaled (const v8::Arguments &Args);
+
          virtual bool eventFilter (QObject *watched, QEvent *event);
 
          QWidget *_to_qwidget (V8Value value) { return v8_to_qobject<QWidget>(value); }
@@ -485,6 +645,15 @@ namespace dmz {
          QTreeWidgetItem *_to_qtreewidgetitem (V8Value value);
          QTableWidgetItem *_to_qtablewidgetitem (V8Value value);
          QTableWidgetSelectionRange *_to_qtablewidgetselectionrange (V8Value value);
+
+         QGraphicsItem *_to_graphics_item (V8Value value);
+         QBrush *_to_gbrush (V8Value value);
+         QPen *_to_gpen (V8Value value);
+         QPainterPath *_to_gpainter_path (V8Value value);
+         QPainter *_to_gpainter (V8Value value);
+         QImage *_to_gimage (V8Value value);
+         QPixmap *_to_gpixmap (V8Value value);
+         QPaintDevice *_to_gpaint_device (V8Value value);
 
          V8QtDialog *_to_v8_qt_dialog (V8Value value);
          V8QtWidget *_to_v8_qt_widget (V8Value value);
@@ -533,6 +702,23 @@ namespace dmz {
          void _init_action ();
          void _init_input_dialog ();
 
+         void _init_graph ();
+         void _init_abs_graph_item ();
+         void _init_grect_item ();
+         void _init_gpath_item ();
+         void _init_gtext_item ();
+         void _init_gline_item ();
+         void _init_gview ();
+         void _init_gscene ();
+         void _init_gbrush ();
+         void _init_gpen ();
+         void _init_gpainter_path ();
+         void _init_gpaint_device ();
+         void _init_gpainter ();
+         void _init_gpixmap ();
+         void _init_gimage ();
+
+
          void _init_layout ();
          void _init_box_layout ();
          void _init_hbox_layout ();
@@ -553,12 +739,14 @@ namespace dmz {
 
          HashTableHandleTemplate<ObsStruct> _obsTable;
          QMap<QObject *, V8QtObject *> _objectMap;
+
          QMap<QString, QAction *> _menuActionMap;
+
          QList<QWidget *> _dialogList;
          QPointer<QWidget> _centralWidget;
          QList<String> _dockList;
          QByteArray _mainWindowState;
-         QList<V8ValueRef *>_valueDeleteList;
+         QList<V8ValueRef *> _valueDeleteList;
 
          V8InterfaceHelper _qtApi;
          V8InterfaceHelper _uiLoaderApi;
@@ -591,6 +779,9 @@ namespace dmz {
          V8InterfaceHelper _toolBoxApi;
          V8InterfaceHelper _treeApi;
          V8InterfaceHelper _widgetApi;
+
+         V8InterfaceHelper _graphApi;
+
 
          V8FunctionTemplatePersist _objectTemp;
          V8FunctionPersist _objectCtor;
@@ -702,6 +893,52 @@ namespace dmz {
 
          V8FunctionTemplatePersist _inputDialogTemp;
          V8FunctionPersist _inputDialogCtor;
+
+
+         V8FunctionTemplatePersist _graphTemp;
+         V8FunctionPersist _graphCtor;
+
+         V8FunctionTemplatePersist _gRectTemp;
+         V8FunctionPersist _gRectCtor;
+
+         V8FunctionTemplatePersist _gTextTemp;
+         V8FunctionPersist _gTextCtor;
+
+         V8FunctionTemplatePersist _gLineTemp;
+         V8FunctionPersist _gLineCtor;
+
+         V8FunctionTemplatePersist _gPathTemp;
+         V8FunctionPersist _gPathCtor;
+
+         V8FunctionTemplatePersist _gSceneTemp;
+         V8FunctionPersist _gSceneCtor;
+
+         V8FunctionTemplatePersist _gViewTemp;
+         V8FunctionPersist _gViewCtor;
+
+         V8FunctionTemplatePersist _gBrushTemp;
+         V8FunctionPersist _gBrushCtor;
+
+         V8FunctionTemplatePersist _gPenTemp;
+         V8FunctionPersist _gPenCtor;
+
+         V8FunctionTemplatePersist _gPainterPathTemp;
+         V8FunctionPersist _gPainterPathCtor;
+
+         V8FunctionTemplatePersist _gAbsItemTemp;
+         V8FunctionPersist _gAbsItemCtor;
+
+         V8FunctionTemplatePersist _gPainterTemp;
+         V8FunctionPersist _gPainterCtor;
+
+         V8FunctionTemplatePersist _gPixmapTemp;
+         V8FunctionPersist _gPixmapCtor;
+
+         V8FunctionTemplatePersist _gImageTemp;
+         V8FunctionPersist _gImageCtor;
+
+         V8FunctionTemplatePersist _gPaintDeviceTemp;
+         V8FunctionPersist _gPaintDeviceCtor;
 
          V8StringPersist _allowMultipleStr;
          V8StringPersist _allowedAreasStr;

@@ -31,29 +31,29 @@ Matrix.prototype.copy = function () {
 
 Matrix.prototype.set = function () {
 
-   var vaules;
+   var values;
 
    if (arguments.length === 1) {
 
       if (Array.isArray (arguments[0].v)) {
 
-         vaules = arguments[0].v;
+         values = arguments[0].v;
       }
       else if (Array.isArray(arguments[0])) {
 
-         vaules = arguments[0];
+         values = arguments[0];
       }
       else { throw createError("Invalid Matrix initialization value"); }
    }
    else if (arguments.length === 9) {
 
-      vaules = arguments;
+      values = arguments;
    } 
    else { throw createError("Invalid number of parameters for Matrix.set()"); }
 
-   if (vaules !== undefined) {
+   if (values !== undefined) {
 
-      this.fromArray (vaules);
+      this.fromArray (values);
    }
 
    return this;

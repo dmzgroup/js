@@ -158,6 +158,25 @@ dmz::JsModuleUiV8QtBasic::_create_spinbox (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_dspinbox (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *parent = 0;
+      if (Args.Length ()) { parent = self->_to_qwidget (Args[0]); }
+      QDoubleSpinBox *widget = new QDoubleSpinBox (parent);
+      result = self->create_v8_qobject (widget);
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_spinbox () {
 
@@ -175,5 +194,6 @@ dmz::JsModuleUiV8QtBasic::_init_spinbox () {
    proto->Set ("value", v8::FunctionTemplate::New (_spinbox_value, _self));
    proto->Set ("text", v8::FunctionTemplate::New (_spinbox_text, _self));
 
-   _spinBoxApi.add_function ("create", _create_spinbox, _self);
+   _spinBoxApi.add_function ("createSpinBox", _create_spinbox, _self);
+   _spinBoxApi.add_function ("createDoubleSpinBox", _create_dspinbox, _self);
 }

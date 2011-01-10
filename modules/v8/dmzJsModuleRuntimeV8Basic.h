@@ -16,6 +16,7 @@
 #include <dmzRuntimeTime.h>
 #include <dmzRuntimeUndo.h>
 #include <dmzTypesHashTableHandleTemplate.h>
+#include <dmzTypesSphere.h>
 
 #include <v8.h>
 
@@ -57,6 +58,8 @@ namespace dmz {
          virtual Boolean to_dmz_object_type (
             v8::Handle<v8::Value> value,
             ObjectType &out);
+         virtual v8::Handle<v8::Value> create_v8_sphere (const Sphere *Value);
+         virtual Sphere *to_dmz_sphere (v8::Handle<v8::Value> value);
 
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
@@ -183,6 +186,12 @@ namespace dmz {
          static V8Value _get_frame_time (const v8::Arguments &Args);
          static V8Value _get_system_time (const v8::Arguments &Args);
 
+         // Sphere binding implemened in dJsModuleRuntimeV8BasicSphere.cpp
+         static V8Value _sphere_create (const v8::Arguments &Args);
+         static V8Value _sphere_origin (const v8::Arguments &Args);
+         static V8Value _sphere_radius (const v8::Arguments &Args);
+         static V8Value _sphere_contains_point (const v8::Arguments &Args);
+
          // Undo bindings implemented in dmzJsModuleRuntimeV8BasicUndo.cpp
          static V8Value _undo_reset (const v8::Arguments &Args);
          static V8Value _undo_is_nested_handle (const v8::Arguments &Args);
@@ -229,6 +238,9 @@ namespace dmz {
          void _init_object_type ();
          V8Object _to_object_type (V8Value value);
          ObjectType *_to_object_type_ptr (V8Value value);
+         // implemented n dmzJsModuleRuntimeV8BasicSphere.cpp
+         void _init_sphere ();
+         Sphere *_to_sphere_ptr (V8Value value);
          // implemented in dmzJsModuleRuntimeV8BasicTimer.cpp
          void _init_time ();
          void _reset_time ();
@@ -262,7 +274,8 @@ namespace dmz {
          V8InterfaceHelper _eventTypeApi; 
          V8InterfaceHelper _logApi; 
          V8InterfaceHelper _msgApi; 
-         V8InterfaceHelper _objTypeApi; 
+         V8InterfaceHelper _objTypeApi;
+         V8InterfaceHelper _sphereApi;
          V8InterfaceHelper _timeApi; 
          V8InterfaceHelper _undoApi; 
 
@@ -286,6 +299,9 @@ namespace dmz {
 
          v8::Persistent<v8::FunctionTemplate> _msgFuncTemplate;
          v8::Persistent<v8::Function> _msgFunc;
+
+         v8::Persistent<v8::FunctionTemplate> _sphereTemplate;
+         v8::Persistent<v8::Function> _sphereFunc;
 
          v8::Persistent<v8::FunctionTemplate> _objTypeFuncTemplate;
          v8::Persistent<v8::Function> _objTypeFunc;

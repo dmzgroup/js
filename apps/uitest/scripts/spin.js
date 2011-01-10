@@ -1,7 +1,16 @@
-var puts = require('sys').puts
-  , timer = require('dmz/runtime/time')
-  , uiLoader = require('dmz/ui/uiLoader')
-  , form
+var dmz =
+       { module: require('dmz/runtime/module')
+       , ui:
+          { consts: require('dmz/ui/consts')
+          , loader: require('dmz/ui/uiLoader')
+          , widget: require("dmz/ui/widget")
+          }
+       , timer: require('dmz/runtime/time')
+       }
+   , _main
+   , _exports = {}
+   , puts = require('sys').puts
+   , form = dmz.ui.loader.load("./scripts/SpinBoxTestForm.ui")
   , spinbox
   , dspinbox
   , val
@@ -10,7 +19,6 @@ var puts = require('sys').puts
 
 puts("Script: " + self.name);
 
-form = uiLoader.load("./scripts/SpinBoxTestForm.ui");
 form.show();
 
 spinbox = form.lookup("spinBox");
@@ -37,6 +45,15 @@ dspinbox.observe(self, "valueChanged", function (value) {
    puts("Max2:", dspinbox.maximum());
    puts("Min2:", dspinbox.minimum());
    puts("Text:", dspinbox.text());
+});
+
+dmz.module.subscribe(self, "main", function (Mode, module) {
+
+   if (Mode === dmz.module.Activate) {
+
+      _main = module
+      _main.addPage (self.name, form);
+   }
 });
 
 puts("Done.");

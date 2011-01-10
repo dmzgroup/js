@@ -137,6 +137,11 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
          _objTypeFunc = V8FunctionPersist::New (_objTypeFuncTemplate->GetFunction ());
       }
 
+      if (_sphereTemplate.IsEmpty () == false) {
+
+         _sphereFunc = V8FunctionPersist::New (_sphereTemplate->GetFunction ());
+      }
+
       if (_core) {
 
          _core->register_interface (
@@ -174,6 +179,10 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
          _core->register_interface (
             "dmz/runtime/undo",
             _undoApi.get_new_instance ());
+
+         _core->register_interface (
+            "dmz/runtime/sphere",
+            _sphereApi.get_new_instance ());
       }
    }
    else if (State == JsExtV8::Init) {
@@ -187,6 +196,7 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
       _logFunc.Dispose (); _logFunc.Clear ();
       _msgFunc.Dispose (); _msgFunc.Clear ();
       _objTypeFunc.Dispose (); _objTypeFunc.Clear ();
+      _sphereFunc.Dispose (); _sphereFunc.Clear ();
 
       _configApi.clear (); 
       _dataApi.clear (); 
@@ -197,6 +207,7 @@ dmz::JsModuleRuntimeV8Basic::update_js_ext_v8_state (const StateEnum State) {
       _objTypeApi.clear (); 
       _timeApi.clear (); 
       _undoApi.clear (); 
+      _sphereApi.clear ();
 
       _reset_time ();
       _reset_messaging ();
@@ -263,6 +274,7 @@ dmz::JsModuleRuntimeV8Basic::_init (Config &local) {
    _init_object_type ();
    _init_time ();
    _init_undo ();
+   _init_sphere ();
 }
 
 

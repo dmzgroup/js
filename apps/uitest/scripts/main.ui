@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>628</width>
-    <height>521</height>
+    <width>663</width>
+    <height>470</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,6 +23,12 @@
          <horstretch>1</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>132</width>
+         <height>16777215</height>
+        </size>
        </property>
        <property name="title">
         <string>JS</string>
@@ -133,6 +139,7 @@
     </layout>
    </item>
   </layout>
+  <zorder>groupBox_2</zorder>
  </widget>
  <resources/>
  <connections/>

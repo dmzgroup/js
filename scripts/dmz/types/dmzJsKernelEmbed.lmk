@@ -4,6 +4,7 @@ lmk.add_files ({
    "util.js",
    "vector.js",
    "matrix.js",
+   "graph.js",
 }, { src="embed", })
 lmk.add_libs {"dmzKernel",}
 lmk.add_vars {

@@ -10,13 +10,13 @@ var dmz =
    , _main
    , _exports = {}
    , puts = require('sys').puts
-   , form = dmz.ui.loader.load("./scripts/ToolBoxForm.ui")
+   , form = dmz.ui.loader.load("./scripts/TabForm.ui")
   , pbar = dmz.ui.loader.load("./scripts/ProgressBarForm.ui")
   , widget = dmz.ui.loader.load("./scripts/SliderForm.ui")
   , cb = dmz.ui.loader.load("./scripts/CheckBoxForm.ui")
   , label = dmz.ui.loader.load("./scripts/LabelForm.ui")
   , combo = dmz.ui.loader.load("./scripts/comboBoxForm.ui")
-  , tb
+  , tw
   , at
   ;
 
@@ -24,38 +24,35 @@ puts("Script: " + self.name);
 
 form.show();
 
-tb = form.lookup("toolBox");
+tw = form.lookup("tabWidget");
 
-form.observe(self, "add", "clicked", function () {
+tw.add(label, "label");
+tw.add(cb, "cb");
+tw.add(pbar, "pbar");
+tw.add(combo, "combo");
+tw.add(widget, "slider", 1);
 
-   tb.addItem(label, "label");
-   tb.addItem(cb, "cb");
-   tb.addItem(pbar, "pbar");
-   tb.addItem(combo, "combo");
-   tb.insertItem(widget, "slider", 1);
-});
+puts("tab text:",tw.tabText(1));
 
-puts("item text:",tb.itemText(1));
+tw.observe(self, "currentChanged", function (val) {
 
-tb.observe(self, "currentChanged", function (val) {
-
-   puts("tb.observe");
+   puts("tw.observe");
    puts("changed to:", val);
-   puts("tT:", tb.itemText(val), "cI:", tb.currentIndex());
-   puts("at:", tb.currentWidget());
-   puts(tb.itemText(tb.indexOf(tb.currentWidget())));
+   puts("tT:", tw.tabText(val), "cI:", tw.currentIndex());
+   puts("at:", tw.currentWidget());
+   puts(tw.tabText(tw.indexOf(tw.currentWidget())));
 });
 
-puts("tab count:", tb.count());
-tb.removeItem(2);
-puts("tab count2:", tb.count());
-at = tb.widget(1);
-puts("cw:", tb.currentWidget());
-tb.currentWidget(cb);
+puts("tab count:", tw.count());
+tw.remove(2);
+puts("tab count2:", tw.count());
+at = tw.at(1);
+puts("cw:", tw.currentWidget());
+tw.currentWidget(cb);
 puts("at:", at);
-tb.currentWidget(at);
+tw.currentWidget(at);
 puts("finished cW");
-tb.currentIndex(tb.indexOf(tb.widget(2)));
+tw.currentIndex(tw.indexOf(tw.at(2)));
 
 dmz.module.subscribe(self, "main", function (Mode, module) {
 

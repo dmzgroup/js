@@ -11,6 +11,7 @@ lmk.add_files {
    "dmzJsModuleRuntimeV8BasicLog.cpp",
    "dmzJsModuleRuntimeV8BasicMessaging.cpp",
    "dmzJsModuleRuntimeV8BasicObjectType.cpp",
+   "dmzJsModuleRuntimeV8BasicSphere.cpp",
    "dmzJsModuleRuntimeV8BasicTimer.cpp",
    "dmzJsModuleRuntimeV8BasicUndo.cpp",
 }

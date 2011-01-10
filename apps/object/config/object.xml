@@ -22,6 +22,7 @@
    <plugin name="dmzJsModuleRuntimeV8Basic" scope="javascript"/>
    <plugin name="dmzJsExtV8Object" scope="javascript"/>
    <plugin name="dmzJsPluginV8ConsoleQt" scope="javascript"/>
+   <plugin name="dmzObjectModuleGridBasic"/>
 </plugin-list>
 <javascript>
    <path value="./scripts"/>
@@ -29,4 +30,11 @@
    <instance name="object"/>
    <instance name="show"/>
 </javascript>
+<!-- <dmzObjectModuleGridBasic>
+   <grid>
+      <cell x="1" y="1"/>
+      <min x="0" y="0" z="0"/>
+      <max x="40" y="40" z="40"/>
+   </grid>
+</dmzObjectModuleGridBasic> -->
 </dmz>

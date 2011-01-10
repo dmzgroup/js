@@ -1,15 +1,23 @@
-var puts = require('sys').puts
-  , Qt = require('dmz/ui/consts')
-  , QUiLoader = require('dmz/ui/uiLoader')
-  , file = require("dmz/ui/fileDialog")
-  , QAction = require('dmz/ui/action')
-  , mainWindow = require('dmz/ui/mainWindow')
-  , form = QUiLoader.load("./scripts/TreeForm.ui")
+var dmz =
+       { module: require('dmz/runtime/module')
+       , ui:
+          { consts: require('dmz/ui/consts')
+          , file: require("dmz/ui/fileDialog")
+          , loader: require('dmz/ui/uiLoader')
+          , mainWindow: require('dmz/ui/mainWindow')
+          , widget: require("dmz/ui/widget")
+          }
+       , timer: require('dmz/runtime/time')
+       }
+  , _main
+  , _exports = {}
+  , puts = require('sys').puts
+  , form = dmz.ui.loader.load("./scripts/TreeForm.ui")
   , tree = form.lookup ("treeWidget")
   , item
   , item2
   , item3
-  , widget = QUiLoader.load ("lcd.ui")
+  , widget = dmz.ui.loader.load ("lcd.ui")
   , item_to_str
   ;
 
@@ -52,7 +60,7 @@ puts ("wordWrap:", tree.wordWrap (true));
 puts ("currentColumn:", tree.currentColumn());
 puts ("currentItem:", tree.currentItem().text(1));
 
-tree.findItems ("four", Qt.MatchContains).forEach(function (item) {
+tree.findItems ("four", dmz.ui.consts.MatchContains).forEach(function (item) {
 
    var str = "item: ";
    for (var ix = 0; ix < item.columnCount(); ix += 1) {
@@ -69,7 +77,7 @@ tree.itemWidget(item3, 0).lookup("lcd").value (tree.itemWidget(item3, 0).lookup(
 
 tree.selectedItems().forEach(item_to_str);
 
-tree.sortOnColumn(0, Qt.Ascending);
+tree.sortColumn(0, dmz.ui.consts.Ascending);
 
 item_to_str(item.child(0));
 puts(item.childCount());
@@ -77,8 +85,17 @@ puts(item.columnCount());
 item_to_str(item);
 item_to_str(item2.parent());
 
-item.sortChildren(Qt.Descending);
+item.sortChildren(dmz.ui.consts.Descending);
 
 widget.observe(self, "b0", "clicked", function () { item.takeChild(0); });
 widget.observe(self, "b1", "clicked", function () { item.takeChildren(); });
 widget.observe(self, "b2", "clicked", function () { item.treeWidget().clear(); });
+
+dmz.module.subscribe(self, "main", function (Mode, module) {
+
+   if (Mode === dmz.module.Activate) {
+
+      _main = module
+      _main.addPage (self.name, form);
+   }
+});

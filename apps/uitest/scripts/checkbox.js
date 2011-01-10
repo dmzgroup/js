@@ -9,8 +9,8 @@ var dmz =
        }
    , _main
    , _exports = {}
-   , puts = require('sys').puts
    , form = dmz.ui.loader.load("./scripts/CheckBoxForm.ui")
+   , puts = require('sys').puts
    , array
    , cb
    , rb1
@@ -52,7 +52,7 @@ dmz.module.subscribe(self, "main", function (Mode, module) {
    if (Mode === dmz.module.Activate) {
 
       _main = module
-      _main.addPage (self.name, form);
+      _main.addPage (form.title(), form);
    }
 });
 

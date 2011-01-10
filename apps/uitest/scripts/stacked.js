@@ -1,18 +1,26 @@
-var puts = require('sys').puts
-  , timer = require('dmz/runtime/time')
-  , uiLoader = require('dmz/ui/uiLoader')
-  , form
-  , pbar = uiLoader.load("./scripts/ProgressBarForm.ui")
-  , widget = uiLoader.load("./scripts/SliderForm.ui")
-  , cb = uiLoader.load("./scripts/CheckBoxForm.ui")
-  , label = uiLoader.load("./scripts/LabelForm.ui")
-  , combo = uiLoader.load("./scripts/comboBoxForm.ui")
+var dmz =
+       { module: require('dmz/runtime/module')
+       , ui:
+          { consts: require('dmz/ui/consts')
+          , loader: require('dmz/ui/uiLoader')
+          , widget: require("dmz/ui/widget")
+          }
+       , timer: require('dmz/runtime/time')
+       }
+   , _main
+   , _exports = {}
+   , puts = require('sys').puts
+   , form = dmz.ui.loader.load("./scripts/StackedWidgetForm.ui")
+  , pbar = dmz.ui.loader.load("./scripts/ProgressBarForm.ui")
+  , widget = dmz.ui.loader.load("./scripts/SliderForm.ui")
+  , cb = dmz.ui.loader.load("./scripts/CheckBoxForm.ui")
+  , label = dmz.ui.loader.load("./scripts/LabelForm.ui")
+  , combo = dmz.ui.loader.load("./scripts/comboBoxForm.ui")
   , sw
   ;
 
 puts("Script: " + self.name);
 
-form = uiLoader.load("./scripts/StackedWidgetForm.ui");
 form.show();
 
 sw = form.lookup("stackedWidget");
@@ -31,98 +39,98 @@ sw.add(widget, 1);
 
 self.log.warn ("count:", sw.count());
 
-timer.setTimer(self, 5, function () {
+dmz.timer.setTimer(self, 5, function () {
 
    sw.currentIndex(0);
    puts("stacked: 0 ", sw.currentIndex ());
 });
 
-timer.setTimer(self, 10, function () {
+dmz.timer.setTimer(self, 10, function () {
 
    sw.currentIndex(1);
    puts("stacked: 1 ", sw.currentIndex ());
 });
 
-timer.setTimer(self, 15, function () {
+dmz.timer.setTimer(self, 15, function () {
 
    sw.currentIndex(2);
    puts("stacked: 2 ", sw.currentIndex ());
 });
 
-timer.setTimer(self, 20, function () {
+dmz.timer.setTimer(self, 20, function () {
 
    sw.currentIndex(3);
    puts("stacked: 3 ", sw.currentIndex ());
 });
 
-timer.setTimer(self, 25, function () {
+dmz.timer.setTimer(self, 25, function () {
 
    sw.currentIndex(4);
    puts("stacked: 4 ", sw.currentIndex ());
 });
 
-timer.setTimer(self, 30, function () {
+dmz.timer.setTimer(self, 30, function () {
 
    sw.currentIndex(5);
    puts("stacked: 5 ", sw.currentIndex ());
 });
 
-timer.setTimer(self, 35, function () {
+dmz.timer.setTimer(self, 35, function () {
 
    sw.currentIndex(6);
    puts("stacked: 6 ", sw.currentIndex ());
 });
 
-timer.setTimer(self, 40, function () {
+dmz.timer.setTimer(self, 40, function () {
 
    puts("3: ", sw.indexOf(sw.at(3)));
    sw.remove(widget);
    puts(sw.at(3));
    puts(sw.count());
-   timer.setTimer(self, 5, function () {
+   dmz.timer.setTimer(self, 5, function () {
 
       sw.currentIndex(0);
       puts("stacked: 0 ", sw.currentIndex ());
    });
 
-   timer.setTimer(self, 10, function () {
+   dmz.timer.setTimer(self, 10, function () {
 
       sw.currentIndex(1);
       puts("stacked: 1 ", sw.currentIndex ());
    });
 
-   timer.setTimer(self, 15, function () {
+   dmz.timer.setTimer(self, 15, function () {
 
       sw.currentIndex(2);
       puts("stacked: 2 ", sw.currentIndex ());
    });
 
-   timer.setTimer(self, 20, function () {
+   dmz.timer.setTimer(self, 20, function () {
 
       sw.currentIndex(3);
       puts("stacked: 3 ", sw.currentIndex ());
    });
 
-   timer.setTimer(self, 25, function () {
+   dmz.timer.setTimer(self, 25, function () {
 
       sw.currentIndex(4);
       puts("stacked: 4 ", sw.currentIndex ());
    });
 
-   timer.setTimer(self, 30, function () {
+   dmz.timer.setTimer(self, 30, function () {
 
       sw.currentIndex(5);
       puts("stacked: 5 ", sw.currentIndex ());
    });
 });
 
-//timer.setTimer(self, 5 * (sw.count () + 1), function () {
+//dmz.timer.setTimer(self, 5 * (sw.count () + 1), function () {
 //   sw.remove(widget);
 //   sw.remove(sw.at(2));
 
 //   self.log.warn ("count:", sw.count());
 //   for (var ix = 0; ix < sw.count (); ix += 1) {
-//      timer.setTimer(self, 5 * (ix + 1), function () {
+//      dmz.timer.setTimer(self, 5 * (ix + 1), function () {
 //         sw.currentIndex(ix);
 //         puts("stacked2:", ix, sw.currentIndex ());
 //      });
@@ -135,3 +143,12 @@ timer.setTimer(self, 40, function () {
 //   puts("Done.");
 
 //});
+
+dmz.module.subscribe(self, "main", function (Mode, module) {
+
+   if (Mode === dmz.module.Activate) {
+
+      _main = module
+      _main.addPage (self.name, form);
+   }
+});

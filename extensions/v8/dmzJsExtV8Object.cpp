@@ -10,6 +10,7 @@
 #include <dmzRuntimeObjectType.h>
 #include <dmzRuntimePluginFactoryLinkSymbol.h>
 #include <dmzRuntimePluginInfo.h>
+#include <dmzTypesSphere.h>
 #include <dmzTypesUUID.h>
 
 #include <qdb.h>
@@ -2035,6 +2036,30 @@ dmz::JsExtV8Object::_object_unselect_all (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsExtV8Object::_object_find (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+   JsExtV8Object *self = to_self (Args);
+   JsModuleRuntimeV8 *runtime = self ? self->_runtime : 0;
+
+   if (runtime && Args.Length ()) {
+
+      Sphere *sphere = runtime->to_dmz_sphere (Args[0]);
+
+      if (self->_gridMod && sphere) {
+
+         HandleContainer list;
+         self->_gridMod->find_objects (*sphere, list, 0, 0);
+         result = v8_to_array (list);
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 dmz::JsExtV8Object::JsExtV8Object (const PluginInfo &Info, Config &local) :
       Plugin (Info),
       JsExtV8 (Info),
@@ -2049,6 +2074,7 @@ dmz::JsExtV8Object::JsExtV8Object (const PluginInfo &Info, Config &local) :
       _types (0),
       _core (0),
       _select (0),
+      _gridMod (0),
       _newCallback (0),
       _createTable (0, ObjectCreateMask),
       _destroyTable (0, ObjectDestroyMask),
@@ -2096,12 +2122,14 @@ dmz::JsExtV8Object::discover_plugin (
       if (!_runtime) { _runtime = JsModuleRuntimeV8::cast (PluginPtr); }
       if (!_types) { _types = JsModuleTypesV8::cast (PluginPtr); }
       if (!_select) { _select = ObjectModuleSelect::cast (PluginPtr); }
+      if (!_gridMod) { _gridMod = ObjectModuleGrid::cast (PluginPtr); }
    }
    else if (Mode == PluginDiscoverRemove) {
 
       if (_runtime && (_runtime == JsModuleRuntimeV8::cast (PluginPtr))) { _runtime = 0; }
       if (_types && (_types == JsModuleTypesV8::cast (PluginPtr))) { _types = 0; }
       if (_select && (_select == ObjectModuleSelect::cast (PluginPtr))) { _select = 0; }
+      if (_gridMod && (_gridMod == ObjectModuleGrid::cast (PluginPtr))) { _gridMod = 0; }
    }
 }
 
@@ -3059,6 +3087,7 @@ dmz::JsExtV8Object::_init (Config &local) {
    _objectApi.add_function ("select", _object_select, _self);
    _objectApi.add_function ("unselect", _object_unselect, _self);
    _objectApi.add_function ("unselectAll", _object_unselect_all, _self);
+   _objectApi.add_function ("find", _object_find, _self);
 }
 
 

@@ -243,7 +243,7 @@ dmz::JsModuleUiV8QtBasic::_object_callback (const v8::Arguments &Args) {
 }
 
 
-QObject  *
+QObject *
 dmz::JsModuleUiV8QtBasic::_to_qobject (V8Value value) {
 
    QObject *result (0);

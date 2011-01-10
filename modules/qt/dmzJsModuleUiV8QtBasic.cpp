@@ -231,6 +231,14 @@ dmz::JsModuleUiV8QtBasic::create_v8_qobject (QObject *value) {
                qobj = new V8QtObject (vobj, value, &_state);
             }
          }
+         else if (value->inherits ("QGraphicsScene")) {
+
+            if (!_gSceneCtor.IsEmpty ()) {
+
+               vobj = _gSceneCtor->NewInstance ();
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
 
          if (qobj) { _objectMap.insert (value, qobj); }
       }
@@ -257,7 +265,16 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
 
       if (!qobj) {
 
-         if (value->inherits ("QTreeWidget")) {
+         if (value->inherits ("QGraphicsView")) {
+
+            if (!_gViewCtor.IsEmpty ()) {
+
+               vobj = _gViewCtor->NewInstance ();
+               //qobj = new V8QtGraphicsView (vobj, value, &_state);
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QTreeWidget")) {
 
             if (!_treeWidgetCtor.IsEmpty ()) {
 
@@ -690,6 +707,81 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _inputDialogCtor = V8FunctionPersist::New (_inputDialogTemp->GetFunction ());
       }
 
+      if (!_graphTemp.IsEmpty ()) {
+
+         _graphCtor = V8FunctionPersist::New (_graphTemp->GetFunction ());
+      }
+
+      if (!_gAbsItemTemp.IsEmpty ()) {
+
+         _gAbsItemCtor = V8FunctionPersist::New (_gAbsItemTemp->GetFunction ());
+      }
+
+      if (!_gRectTemp.IsEmpty ()) {
+
+         _gRectCtor = V8FunctionPersist::New (_gRectTemp->GetFunction ());
+      }
+
+      if (!_gTextTemp.IsEmpty ()) {
+
+         _gTextCtor = V8FunctionPersist::New (_gTextTemp->GetFunction ());
+      }
+
+      if (!_gLineTemp.IsEmpty ()) {
+
+         _gLineCtor = V8FunctionPersist::New (_gLineTemp->GetFunction ());
+      }
+
+      if (!_gPathTemp.IsEmpty ()) {
+
+         _gPathCtor = V8FunctionPersist::New (_gPathTemp->GetFunction ());
+      }
+
+      if (!_gSceneTemp.IsEmpty ()) {
+
+         _gSceneCtor = V8FunctionPersist::New (_gSceneTemp->GetFunction ());
+      }
+
+      if (!_gViewTemp.IsEmpty ()) {
+
+         _gViewCtor = V8FunctionPersist::New (_gViewTemp->GetFunction ());
+      }
+
+      if (!_gBrushTemp.IsEmpty ()) {
+
+         _gBrushCtor = V8FunctionPersist::New (_gBrushTemp->GetFunction ());
+      }
+
+      if (!_gPenTemp.IsEmpty ()) {
+
+         _gPenCtor = V8FunctionPersist::New (_gPenTemp->GetFunction ());
+      }
+
+      if (!_gPainterPathTemp.IsEmpty ()) {
+
+         _gPainterPathCtor = V8FunctionPersist::New (_gPainterPathTemp->GetFunction ());
+      }
+
+      if (!_gPainterTemp.IsEmpty ()) {
+
+         _gPainterCtor = V8FunctionPersist::New (_gPainterTemp->GetFunction ());
+      }
+
+      if (!_gPixmapTemp.IsEmpty ()) {
+
+         _gPixmapCtor = V8FunctionPersist::New (_gPixmapTemp->GetFunction ());
+      }
+
+      if (!_gImageTemp.IsEmpty ()) {
+
+         _gImageCtor = V8FunctionPersist::New (_gImageTemp->GetFunction ());
+      }
+
+      if (!_gPaintDeviceTemp.IsEmpty ()) {
+
+         _gPaintDeviceCtor = V8FunctionPersist::New (_gPaintDeviceTemp->GetFunction ());
+      }
+
       if (_state.core) {
 
          _state.core->register_interface ("dmz/ui/consts", _qtApi.get_new_instance ());
@@ -755,6 +847,10 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 //            _dialogApi.get_new_instance ());
 
          _state.core->register_interface (
+            "dmz/ui/graph",
+            _graphApi.get_new_instance ());
+
+         _state.core->register_interface (
             "dmz/ui/lcd",
             _lcdApi.get_new_instance ());
 
@@ -783,7 +879,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
             _spinBoxApi.get_new_instance ());
 
          _state.core->register_interface (
-            "dmz/ui/stackWidget",
+            "dmz/ui/stackedWidget",
             _stackApi.get_new_instance ());
 
          _state.core->register_interface (
@@ -805,6 +901,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _state.core->register_interface (
             "dmz/ui/treeWidget",
             _treeApi.get_new_instance ());
+
       }
 
       _allowMultipleStr =
@@ -952,7 +1049,23 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _tableSelectionCtor.Dispose (); _tableSelectionCtor.Clear ();
       _toolboxWidgetCtor.Dispose (); _toolboxWidgetCtor.Clear ();
       _messageboxCtor.Dispose (); _messageboxCtor.Clear ();
-      _inputDialogCtor.Dispose (); _inputDialogCtor.Dispose ();
+      _inputDialogCtor.Dispose (); _inputDialogCtor.Clear ();
+
+      _graphCtor.Dispose (); _graphCtor.Clear ();
+      _gAbsItemCtor.Dispose (); _gAbsItemCtor.Clear ();
+      _gRectCtor.Dispose (); _gRectCtor.Clear ();
+      _gTextCtor.Dispose (); _gTextCtor.Clear ();
+      _gLineCtor.Dispose (); _gLineCtor.Clear ();
+      _gPathCtor.Dispose (); _gPathCtor.Clear ();
+      _gPainterPathCtor.Dispose (); _gPainterPathCtor.Clear ();
+      _gSceneCtor.Dispose (); _gSceneCtor.Clear ();
+      _gViewCtor.Dispose (); _gViewCtor.Clear ();
+      _gBrushCtor.Dispose (); _gBrushCtor.Clear ();
+      _gPenCtor.Dispose (); _gPenCtor.Clear ();
+      _gPainterCtor.Dispose (); _gPainterCtor.Clear ();
+      _gPixmapCtor.Dispose (); _gPixmapCtor.Clear ();
+      _gImageCtor.Dispose (); _gImageCtor.Clear ();
+      _gPaintDeviceCtor.Dispose (); _gPaintDeviceCtor.Clear ();
 
       _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
       _allowedAreasStr.Dispose (); _allowedAreasStr.Clear ();
@@ -998,6 +1111,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _groupBoxApi.clear ();
       _actionApi.clear ();
       _inputDialogApi.clear ();
+
+      _graphApi.clear ();
 
       _buttonApi.clear ();
       _comboBoxApi.clear ();
@@ -1266,6 +1381,43 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _qtApi.add_constant ("Normal", (UInt32)QLineEdit::Normal);
    _qtApi.add_constant ("Password", (UInt32)QLineEdit::Password);
 
+   // enum Qt::ItemSelectionMode
+   _qtApi.add_constant ("ContainsItemShape", (UInt32)Qt::ContainsItemShape);
+   _qtApi.add_constant ("IntersectsItemShape", (UInt32)Qt::IntersectsItemShape);
+   _qtApi.add_constant (
+      "ContainsItemBoundingRect",
+      (UInt32)Qt::ContainsItemBoundingRect);
+   _qtApi.add_constant (
+      "IntersectsItemBoundingRect",
+      (UInt32)Qt::IntersectsItemBoundingRect);
+
+   // enum Qt::BrushStyle
+   _qtApi.add_constant ("NoBrush", (UInt32)Qt::NoBrush);
+   _qtApi.add_constant ("SolidPattern", (UInt32)Qt::SolidPattern);
+   _qtApi.add_constant ("Dense1Pattern", (UInt32)Qt::Dense1Pattern);
+   _qtApi.add_constant ("Dense2Pattern", (UInt32)Qt::Dense2Pattern);
+   _qtApi.add_constant ("Dense3Pattern", (UInt32)Qt::Dense3Pattern);
+   _qtApi.add_constant ("Dense4Pattern", (UInt32)Qt::Dense4Pattern);
+   _qtApi.add_constant ("Dense5Pattern", (UInt32)Qt::Dense5Pattern);
+   _qtApi.add_constant ("Dense6Pattern", (UInt32)Qt::Dense6Pattern);
+   _qtApi.add_constant ("Dense7Pattern", (UInt32)Qt::Dense7Pattern);
+   _qtApi.add_constant ("HorPattern", (UInt32)Qt::HorPattern);
+   _qtApi.add_constant ("VerPattern", (UInt32)Qt::VerPattern);
+   _qtApi.add_constant ("CrossPattern", (UInt32)Qt::CrossPattern);
+   _qtApi.add_constant ("BDiagPattern", (UInt32)Qt::BDiagPattern);
+   _qtApi.add_constant ("FDiagPattern", (UInt32)Qt::FDiagPattern);
+   _qtApi.add_constant ("DiagCrossPattern", (UInt32)Qt::DiagCrossPattern);
+   _qtApi.add_constant ("LinearGradientPattern", (UInt32)Qt::LinearGradientPattern);
+   _qtApi.add_constant ("ConicalGradientPattern", (UInt32)Qt::ConicalGradientPattern);
+   _qtApi.add_constant ("RadialGradientPattern", (UInt32)Qt::RadialGradientPattern);
+   _qtApi.add_constant ("TexturePattern", (UInt32)Qt::TexturePattern);
+
+   // enum Qt::PenJoinStyle
+   _qtApi.add_constant ("MiterJoin", (UInt32)Qt::MiterJoin);
+   _qtApi.add_constant ("BevelJoin", (UInt32)Qt::BevelJoin);
+   _qtApi.add_constant ("RoundJoin", (UInt32)Qt::RoundJoin);
+   _qtApi.add_constant ("SvgMiterJoin", (UInt32)Qt::SvgMiterJoin);
+
    // UiLoader API
    _uiLoaderApi.add_function ("load", _uiloader_load, _self);
 
@@ -1307,6 +1459,22 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_dt ();
    _init_action ();
    _init_input_dialog ();
+
+   _init_graph ();
+   _init_abs_graph_item ();
+   _init_grect_item ();
+   _init_gpath_item ();
+   _init_gtext_item ();
+   _init_gline_item ();
+   _init_gview ();
+   _init_gscene ();
+   _init_gbrush ();
+   _init_gpen ();
+   _init_gpainter_path ();
+   _init_gpaint_device ();
+   _init_gimage ();
+   _init_gpixmap ();
+   _init_gpainter ();
 }
 
 
