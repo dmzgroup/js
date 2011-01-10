@@ -2496,7 +2496,11 @@ dmz::JsModuleUiV8QtBasic::_gview_viewport (const v8::Arguments &Args) {
    if (self) {
 
       QGraphicsView *view = self->v8_to_qobject<QGraphicsView> (Args.This ());
-      if (view) { result = self->create_v8_qwidget (view->viewport ()); }
+      if (view) {
+
+         if (Args.Length ()) { view->setViewport (self->v8_to_qobject<QWidget> (Args[0])); }
+         result = self->create_v8_qwidget (view->viewport ());
+      }
    }
 
    return scope.Close (result);
