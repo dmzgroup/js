@@ -275,8 +275,9 @@ XYGraph.prototype.drawPowerLaw = function () {
       this.powerLawPath = dmz.ui.graph.createPathItem (powerPath);
       this.powerLawPath.pen (dmz.ui.graph.createPen ({ r:0.8, b: 0, g: 0 }));
       this.powerLawPath.z(2);
+      q = Math.round(q * 1000000) / 1000000;
       this.powerLawExpLabel = dmz.ui.graph.createTextItem("Exponent = " + (-q));
-      this.powerLawExpLabel.pos(260, -this.barHeight - 60);
+      this.powerLawExpLabel.pos(180, -this.barHeight - 40);
       this.scene.addItem(this.powerLawExpLabel);
       this.scene.addItem(this.powerLawPath);
    }
