@@ -98,5 +98,5 @@ lmk.add_preqs {
 }
 
 lmkV8.add_libs ()
-lmkQt.add_libs {"QtCore", "QtGui"}
+lmkQt.add_libs {"QtCore", "QtGui", "QtWebKit"}
 lmkQt.add_uitools ()

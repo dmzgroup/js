@@ -20,7 +20,8 @@
    <path value="./ui"/>
    <instance name="log"/>
    <instance name="main"/>
-   <instance name="graphics"/>
+<!--   <instance name="graphics"/> -->
+   <instance name="webview"/>
    <!-- <instance name="createTest"/> -->
 <!--   <instance name="button"/>
    <instance name="comboBox"/>

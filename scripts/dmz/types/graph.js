@@ -50,13 +50,14 @@ XYGraph = function
    , showPowerLaw
    , barStroke
    , barFill
+   , legendTexts
    , barWidth
    , barHeight
    , spaceWidth
    )
 {
 
-   var scene = dmz.ui.graph.createScene(-50, 50, 50, 1)
+   var scene
      , ix
      , offset
      , xAxis
@@ -70,9 +71,12 @@ XYGraph = function
      , whitePen = dmz.ui.graph.createPen({ r: 1, g: 1, b: 1 })
      , yLabels = []
      , spacer
-
+     , fillLegal = true
+     , x
+     , legendheight = 30
      ;
 
+   if (legendTexts === undefined) { legendTexts = []; }
    if (startValue === undefined) { startValue = 0; }
    if (xAxisLabel === undefined) { xAxisLabel = ""; }
    if (yAxisLabel === undefined) { yAxisLabel = ""; }
@@ -83,19 +87,44 @@ XYGraph = function
 
       barStroke = { r: 0.5, g: 0, b: 0 };
    }
-   if ((barFill === undefined) ||
+   if (barFill instanceof Array) {
+
+      barFill.forEach(function (color) {
+
+         if (fillLegal) {
+
+            fillLegal =
+               (color.r !== undefined) &&
+               (color.g !== undefined) &&
+               (color.b !== undefined);
+
+            if (!fillLegal) {
+
+               throw dmz.util.createError ("Invalid bar fill color:", color, Object.keys(color));
+            }
+         }
+      });
+
+      if (!fillLegal) { barFill = [{ r: 0.3, g: 0.8, b: 0.3 }]; }
+   }
+   else if ((barFill === undefined) ||
          !((barFill.r !== undefined) &&
            (barFill.g !== undefined) &&
            (barFill.b !== undefined))) {
 
-      barFill = { r: 0.3, g: 0.8, b: 0.3 };
+      barFill = [{ r: 0.3, g: 0.8, b: 0.3 }];
    }
+   else { barFill = [barFill]; }
+
    if ((barWidth === undefined) || (barWidth < 1)) { barWidth = 12.5; }
    if ((barHeight === undefined) || (barHeight < 1)) { barHeight = 130; }
    if ((spaceWidth === undefined) || (spaceWidth < 0)) { spaceWidth = 5; }
    if ((yDivisions === undefined) || (yDivisions < 0)) { yDivisions = 0; }
    if (xLabelRotation === undefined) { xLabelRotation = 0; }
    if (showPowerLaw !== true) { showPowerLaw = false; }
+
+   if (yDivisions === 0) { scene = dmz.ui.graph.createScene(-5, 50, 50, 1); }
+   else { scene = dmz.ui.graph.createScene(-50, 50, 50, 1); }
 
    if (!GraphicsView) {
 
@@ -104,7 +133,11 @@ XYGraph = function
 
    GraphicsView.alignment (dmz.ui.consts.AlignLeft | dmz.ui.consts.AlignBottom);
    GraphicsView.scene (scene);
-   barFill = dmz.ui.graph.createBrush(barFill);
+   for (ix = 0; ix < barFill.length; ix+=1) {
+
+      barFill[ix] = dmz.ui.graph.createBrush(barFill[ix]);
+   }
+
    barStroke = dmz.ui.graph.createPen(barStroke);
 
    for (ix = 0; ix < yDivisions; ix += 1) {
@@ -123,7 +156,7 @@ XYGraph = function
    }
 
    xAxisLabel = dmz.ui.graph.createTextItem(xAxisLabel);
-   xAxisLabel.pos (0, 0);
+   xAxisLabel.pos (0, -3);
    scene.addItem (xAxisLabel);
 
    yAxisLabel = dmz.ui.graph.createTextItem(yAxisLabel);
@@ -138,6 +171,26 @@ XYGraph = function
    xAxis.z (1);
    scene.addItem(xAxis);
 
+   for (ix = 0; ix < legendTexts.length; ix+=1) {
+
+      if (ix > 0) {
+
+         x = legendTexts[ix - 1].label.pos()[0] + legendTexts[ix - 1].label.boundingRect().width + 10;
+      }
+      else { x = 0; }
+
+      legendTexts[ix] =
+         { text: legendTexts[ix]
+         , rect: dmz.ui.graph.createRectItem (x, legendheight, 20, 20, xAxis)
+         };
+
+      legendTexts[ix].label = dmz.ui.graph.createTextItem (legendTexts[ix].text, legendTexts[ix].rect);
+      legendTexts[ix].rect.brush(barFill[ix]);
+      legendTexts[ix].rect.pen(whitePen);
+      legendTexts[ix].label.pos (x + 17, legendheight);
+   }
+
+
    this.GraphicsView = GraphicsView;
    this.scene = scene;
    this.xAxisLabel = xAxisLabel;
@@ -148,6 +201,7 @@ XYGraph = function
    this.yAxis = yAxis;
    this.barStroke = barStroke;
    this.barFill = barFill;
+   this.legendTexts = legendTexts;
    this.spaceWidth = spaceWidth;
    this.xLabelRotation = xLabelRotation;
    this.barWidth = barWidth;
@@ -187,7 +241,7 @@ createBar = function (Value, XLabel, ValueLabel, XPos, YPos, XAxis, Width, BarHe
 
    label = dmz.ui.graph.createTextItem (XLabel, bar);
    rect = label.boundingRect();
-   label.pos (XPos + ((rect.width * Math.cos(90 - LabelRotation)) + (rect.height * Math.sin(LabelRotation))) / 2, 20);
+   label.pos (XPos + ((rect.width * Math.cos(90 - LabelRotation)) + (rect.height * Math.sin(LabelRotation))) / 2, 11);
    label.rotation(LabelRotation);
 
    valueLabel = dmz.ui.graph.createTextItem (ValueLabel, bar);
@@ -223,9 +277,9 @@ XYGraph.prototype.drawPowerLaw = function () {
      , local_power = function (p, q, x) { return (x <= 0) ? p : p * Math.pow(x, q); }
      ;
 
-   for (idx = 0; idx < this.bars.length && !foundStartIndex; idx += 1) {
+   for (idx = 0; idx < this.bars[0].length && !foundStartIndex; idx += 1) {
 
-      if (this.bars[idx].value != 1) {
+      if (this.bars[0][idx].value != 1) {
 
          if (idx == 0) { startIndex = 0; }
          else { startIndex = idx - 1; }
@@ -233,14 +287,14 @@ XYGraph.prototype.drawPowerLaw = function () {
       }
    }
 
-   for (idx = startIndex; idx < this.bars.length; idx += 1) {
+   for (idx = startIndex; idx < this.bars[0].length; idx += 1) {
 
       if (idx == startIndex) { x = 1; }
       else { x = Math.log (idx - startIndex); }
 
-      if (this.bars[idx].height < 0) {
+      if (this.bars[0][idx].height < 0) {
 
-         y = Math.log (this.bars[idx].value * 100);
+         y = Math.log (this.bars[0][idx].value * 100);
          sumY += y;
          sumX += x;
          sumXY += x * y;
@@ -263,7 +317,7 @@ XYGraph.prototype.drawPowerLaw = function () {
    x = this.spaceWidth + (this.barWidth + this.spaceWidth) * startIndex;
    y = -this.barHeight;
    powerPath.moveTo (x + (this.barWidth / 2), y);
-   for (idx = startIndex + 1; idx < this.bars.length; idx += 1) {
+   for (idx = startIndex + 1; idx < this.bars[0].length; idx += 1) {
 
       x = this.spaceWidth + (this.barWidth + this.spaceWidth) * idx;
       y = local_power (p, q, idx - startIndex + this.startValue) / scaleHeightMax * this.barHeight;
@@ -286,9 +340,18 @@ XYGraph.prototype.drawPowerLaw = function () {
 
 XYGraph.prototype.clearData = function () {
 
+   var barSet;
+
    if (this.bars) {
 
-      while (this.bars.length) { this.scene.removeItem(this.bars.pop().image); }
+      while (this.bars.length) {
+
+         barSet = this.bars.pop();
+         while (barSet.length) {
+
+            this.scene.removeItem(barSet.pop().image);
+         }
+      }
       delete this.bars;
    }
 
@@ -300,7 +363,8 @@ XYGraph.prototype.clearData = function () {
    }
 }
 
-XYGraph.prototype.update = function (values, valFnc, valLabelFnc) {
+
+XYGraph.prototype.update = function (valFnc, valLabelFnc) {
 
    var lastBar
      , bar
@@ -316,44 +380,63 @@ XYGraph.prototype.update = function (values, valFnc, valLabelFnc) {
      , defaultValFnc = function (idx, values) { return values[idx]; }
      , defaultValLabelFnc = function (idx, values, value) { return Math.round(value * 100).toString(); }
      , valueLabel
+     , argIndex
+     , valuesStartIndex = 2
+     , barSet
+     , values
+     , fill
      ;
 
    this.clearData();
 
    this.bars = [];
-   while (values[values.length - 1] == 0) { values.pop(); }
 
-   for (idx = this.startValue; idx < values.length; idx += 1) {
+   for (argIndex = valuesStartIndex; argIndex < arguments.length; argIndex +=1) {
 
-      xpos = this.spaceWidth + (this.barWidth + this.spaceWidth) * (idx - this.startValue);
-      ypos = 0;
-      value = valFnc ? valFnc(idx, values) : defaultValFnc(idx, values);
-      label = idx.toString();
-      valueLabel = valLabelFnc ? valLabelFnc(idx, values, value) : defaultValLabelFnc(idx, values, value);
-      bar = createBar
-         ( value
-         , label
-         , valueLabel
-         , xpos
-         , ypos
-         , this.xAxis
-         , this.barWidth
-         , this.barHeight
-         , this.xLabelRotation
-         , this.barStroke
-         , this.barFill
-         );
+      barSet = [];
+      values = arguments[argIndex];
+      while (values[values.length - 1] == 0) { values.pop(); }
 
-      this.bars.push(bar);
-   }
+      for (idx = this.startValue; idx < values.length; idx += 1) {
 
-   if (this.bars.length > 0) {
+         xpos = this.spaceWidth + (this.barWidth + this.spaceWidth) * (idx - this.startValue);
+         ypos = 0;
+         value = valFnc ? valFnc(idx, values) : defaultValFnc(idx, values);
+         label = idx.toString();
+         valueLabel = valLabelFnc ? valLabelFnc(idx, values, value) : defaultValLabelFnc(idx, values, value);
+         fill = this.barFill[argIndex - valuesStartIndex];
+         bar = createBar
+            ( value
+            , label
+            , valueLabel
+            , xpos
+            , ypos
+            , this.xAxis
+            , this.barWidth
+            , this.barHeight
+            , this.xLabelRotation
+            , this.barStroke
+            , fill
+            );
 
-      while (Math.round(this.bars[this.bars.length - 1].value * 100) == 0) {
-
-         this.scene.removeItem (this.bars.pop().image);
+         barSet.push(bar);
       }
+
+      if (barSet.length > 0) {
+
+         while (Math.round(barSet[barSet.length - 1].value * 100) == 0) {
+
+            this.scene.removeItem (barSet.pop().image);
+         }
+      }
+
+
+
+
+
+      this.bars.push (barSet);
    }
+
 
    if (this.showPowerLaw) { this.drawPowerLaw(); }
 
@@ -379,9 +462,10 @@ exports.createXYGraph = function () {
    , arguments[6] // showPowerLaw
    , arguments[7] // barStroke
    , arguments[8] // barFill
-   , arguments[9] // barWidth
-   , arguments[10] // barHeight
-   , arguments[11] // spaceWidth
+   , arguments[9] // legendTexts
+   , arguments[10] // barWidth
+   , arguments[11] // barHeight
+   , arguments[12] // spaceWidth
    );
 }
 exports.isTypeOf = function (value) {
@@ -402,6 +486,7 @@ XYGraph.prototype.copy = function () {
       , this.showPowerLaw
       , this.barStroke
       , this.barFill
+      , this.legendTexts
       , this.barWidth
       , this.barHeight
       , this.spaceWidth
@@ -421,7 +506,6 @@ XYGraph.prototype.toString = function () {
       " X Axis Label: " + this.xAxisLabel +
       " Y Axis Label: " + this.yAxisLabel +
       " Bar Stroke: "  + this.barStroke.color() +
-      " Bar Fill: " + this.barFill.color() +
       " Label Rotation: " + this.xLabelRotation +
       " ]";
 }

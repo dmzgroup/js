@@ -782,6 +782,16 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _gPaintDeviceCtor = V8FunctionPersist::New (_gPaintDeviceTemp->GetFunction ());
       }
 
+      if (!_gWidgetTemp.IsEmpty ()) {
+
+         _gWidgetCtor = V8FunctionPersist::New (_gWidgetTemp->GetFunction ());
+      }
+
+      if (!_gWebViewTemp.IsEmpty ()) {
+
+         _gWebViewCtor = V8FunctionPersist::New (_gWebViewTemp->GetFunction ());
+      }
+
       if (_state.core) {
 
          _state.core->register_interface ("dmz/ui/consts", _qtApi.get_new_instance ());
@@ -1066,6 +1076,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _gPixmapCtor.Dispose (); _gPixmapCtor.Clear ();
       _gImageCtor.Dispose (); _gImageCtor.Clear ();
       _gPaintDeviceCtor.Dispose (); _gPaintDeviceCtor.Clear ();
+      _gWidgetCtor.Dispose (); _gWidgetCtor.Clear ();
+      _gWebViewCtor.Dispose (); _gWebViewCtor.Clear ();
 
       _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
       _allowedAreasStr.Dispose (); _allowedAreasStr.Clear ();
@@ -1475,6 +1487,8 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_gimage ();
    _init_gpixmap ();
    _init_gpainter ();
+   _init_gwidget ();
+   _init_gwebview ();
 }
 
 

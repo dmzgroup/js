@@ -494,6 +494,7 @@ namespace dmz {
          static V8Value _create_gtext_item (const v8::Arguments &Args);
          static V8Value _create_gline_item (const v8::Arguments &Args);
          static V8Value _create_gpath_item (const v8::Arguments &Args);
+         static V8Value _create_gwebview (const v8::Arguments &Args);
          static V8Value _create_gscene (const v8::Arguments &Args);
          static V8Value _create_gview (const v8::Arguments &Args);
          static V8Value _create_gbrush (const v8::Arguments &Args);
@@ -637,6 +638,21 @@ namespace dmz {
          static V8Value _gimage_save (const v8::Arguments &Args);
          static V8Value _gimage_scaled (const v8::Arguments &Args);
 
+         static V8Value _gwidget_actions (const v8::Arguments &Args);
+         static V8Value _gwidget_add_action (const v8::Arguments &Args);
+         static V8Value _gwidget_add_actions (const v8::Arguments &Args);
+         static V8Value _gwidget_adjust_size (const v8::Arguments &Args);
+         static V8Value _gwidget_window_active (const v8::Arguments &Args);
+         static V8Value _gwidget_rect (const v8::Arguments &Args);
+         static V8Value _gwidget_remove_action (const v8::Arguments &Args);
+         static V8Value _gwidget_window_title (const v8::Arguments &Args);
+
+         static V8Value _gweb_modified (const v8::Arguments &Args);
+         static V8Value _gweb_load (const v8::Arguments &Args);
+//         static V8Value _gweb_page (const v8::Arguments &Args);
+         static V8Value _gweb_reload (const v8::Arguments &Args);
+         static V8Value _gweb_url (const v8::Arguments &Args);
+
          virtual bool eventFilter (QObject *watched, QEvent *event);
 
          QWidget *_to_qwidget (V8Value value) { return v8_to_qobject<QWidget>(value); }
@@ -717,6 +733,8 @@ namespace dmz {
          void _init_gpainter ();
          void _init_gpixmap ();
          void _init_gimage ();
+         void _init_gwidget ();
+         void _init_gwebview ();
 
 
          void _init_layout ();
@@ -939,6 +957,12 @@ namespace dmz {
 
          V8FunctionTemplatePersist _gPaintDeviceTemp;
          V8FunctionPersist _gPaintDeviceCtor;
+
+         V8FunctionTemplatePersist _gWidgetTemp;
+         V8FunctionPersist _gWidgetCtor;
+
+         V8FunctionTemplatePersist _gWebViewTemp;
+         V8FunctionPersist _gWebViewCtor;
 
          V8StringPersist _allowMultipleStr;
          V8StringPersist _allowedAreasStr;
