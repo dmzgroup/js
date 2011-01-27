@@ -96,6 +96,8 @@ namespace dmz {
          virtual v8::Handle<v8::Value> create_v8_gpixmap (QPixmap *value);
          virtual v8::Handle<v8::Value> create_v8_gpaint_device (QPaintDevice *value);
 
+         virtual v8::Handle<v8::Value> create_v8_qevent (QEvent *value);
+
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
          virtual void update_js_context_v8 (v8::Handle<v8::Context> context);
@@ -137,6 +139,7 @@ namespace dmz {
          static V8Value _object_lookup (const v8::Arguments &Args);
          static V8Value _object_name (const v8::Arguments &Args);
          static V8Value _object_observe (const v8::Arguments &Args);
+         static V8Value _object_event_filter (const v8::Arguments &Args);
          static V8Value _object_parent (const v8::Arguments &Args);
          static V8Value _object_property (const v8::Arguments &Args);
          static V8Value _object_callback (const v8::Arguments &Args);
@@ -152,6 +155,7 @@ namespace dmz {
          static V8Value _widget_visible (const v8::Arguments &Args);
          static V8Value _widget_window (const v8::Arguments &Args);
          static V8Value _widget_rect (const v8::Arguments &Args);
+         static V8Value _widget_context_menu (const v8::Arguments &Args);
          static V8Value _create_widget (const v8::Arguments &Args);
 
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
@@ -653,7 +657,33 @@ namespace dmz {
          static V8Value _gweb_reload (const v8::Arguments &Args);
          static V8Value _gweb_url (const v8::Arguments &Args);
 
-         virtual bool eventFilter (QObject *watched, QEvent *event);
+         // QWebView bindings implemented in dmzJsModuleUiV8QtBasicWebView.cpp
+         static V8Value _webview_find_text (const v8::Arguments &Args);
+         static V8Value _webview_modified (const v8::Arguments &Args);
+         static V8Value _webview_load (const v8::Arguments &Args);
+         static V8Value _webview_selected_text (const v8::Arguments &Args);
+         static V8Value _webview_text_size_mult (const v8::Arguments &Args);
+         static V8Value _webview_zoom_factor (const v8::Arguments &Args);
+         static V8Value _webview_url (const v8::Arguments &Args);
+         static V8Value _webview_reload (const v8::Arguments &Args);
+         static V8Value _create_webview (const v8::Arguments &Args);
+
+         // QEvent bindings implemented in dmzJsModuleUiV8QtBasicEvent.cpp
+         static V8Value _event_type (const v8::Arguments &Args);
+
+         // QMouseEvent bindings implemented in dmzJsModuleUiV8QtBasicEvent.cpp
+         static V8Value _mouse_event_button (const v8::Arguments &Args);
+         static V8Value _mouse_event_buttons (const v8::Arguments &Args);
+         static V8Value _mouse_event_global_x (const v8::Arguments &Args);
+         static V8Value _mouse_event_global_y (const v8::Arguments &Args);
+         static V8Value _mouse_event_global_pos (const v8::Arguments &Args);
+         static V8Value _mouse_event_pos (const v8::Arguments &Args);
+         static V8Value _mouse_event_posf (const v8::Arguments &Args);
+         static V8Value _mouse_event_x (const v8::Arguments &Args);
+         static V8Value _mouse_event_y (const v8::Arguments &Args);
+
+
+         bool eventFilter (QObject *watched, QEvent *event);
 
          QWidget *_to_qwidget (V8Value value) { return v8_to_qobject<QWidget>(value); }
          QObject *_to_qobject (V8Value value);
@@ -670,6 +700,8 @@ namespace dmz {
          QImage *_to_gimage (V8Value value);
          QPixmap *_to_gpixmap (V8Value value);
          QPaintDevice *_to_gpaint_device (V8Value value);
+
+         QEvent *_to_qevent (V8Value value);
 
          V8QtDialog *_to_v8_qt_dialog (V8Value value);
          V8QtWidget *_to_v8_qt_widget (V8Value value);
@@ -735,7 +767,10 @@ namespace dmz {
          void _init_gimage ();
          void _init_gwidget ();
          void _init_gwebview ();
+         void _init_webview ();
 
+         void _init_event ();
+         void _init_mouse_event ();
 
          void _init_layout ();
          void _init_box_layout ();
@@ -799,6 +834,8 @@ namespace dmz {
          V8InterfaceHelper _widgetApi;
 
          V8InterfaceHelper _graphApi;
+         V8InterfaceHelper _webviewApi;
+         V8InterfaceHelper _eventApi;
 
 
          V8FunctionTemplatePersist _objectTemp;
@@ -963,6 +1000,15 @@ namespace dmz {
 
          V8FunctionTemplatePersist _gWebViewTemp;
          V8FunctionPersist _gWebViewCtor;
+
+         V8FunctionTemplatePersist _webviewTemp;
+         V8FunctionPersist _webviewCtor;
+
+         V8FunctionTemplatePersist _eventTemp;
+         V8FunctionPersist _eventCtor;
+
+         V8FunctionTemplatePersist _mouseEventTemp;
+         V8FunctionPersist _mouseEventCtor;
 
          V8StringPersist _allowMultipleStr;
          V8StringPersist _allowedAreasStr;

@@ -1,7 +1,7 @@
 #include <dmzJsModuleV8.h>
 #include "dmzV8QtObject.h"
 #include "dmzV8QtUtil.h"
-
+//#include <QtCore/QDebug>
 
 dmz::V8QtObject::V8QtObject (
       const V8Object &Self,
@@ -54,6 +54,13 @@ dmz::V8QtObject::bind (
       const V8Function &Func) {
 
    return False;
+}
+
+
+void
+dmz::V8QtObject::bind_event (const V8Object &Self, const V8Function &Func) {
+
+   _register_event_callback (Self, Func);
 }
 
 
@@ -121,6 +128,77 @@ dmz::V8QtObject::_register_callback (
          }
       }
    }
+}
+
+
+void
+dmz::V8QtObject::_register_event_callback (
+      const V8Object &Self,
+      const V8Function &Func) {
+
+   if (_state && _state->core) {
+
+      const Handle ObsHandle = _state->core->get_instance_handle (Self);
+
+      if (ObsHandle) {
+
+//         CallbackStruct *cs = ct->table.lookup (ObsHandle);
+         CallbackStruct *cs = _eventCallbackTable.lookup (ObsHandle);
+         if (cs) {
+
+            if (!(cs->func.IsEmpty ())) { cs->func.Dispose (); cs->func.Clear (); }
+            cs->func = V8FunctionPersist::New (Func);
+         }
+         else {
+
+            cs = new CallbackStruct (ObsHandle);
+            cs->self = V8ObjectPersist::New (Self);
+            cs->func = V8FunctionPersist::New (Func);
+
+            if (!_eventCallbackTable.store (ObsHandle, cs)) { delete cs; cs = 0; }
+         }
+      }
+   }
+}
+
+
+bool
+dmz::V8QtObject::eventFilter (QObject *object, QEvent *event) {
+
+   bool result = false;
+
+   if (_state && _state->core && _state->ui) {
+
+      v8::Context::Scope cscope (_state->context);
+      v8::HandleScope scope;
+
+      HashTableHandleIterator it;
+      CallbackStruct *cs = _eventCallbackTable.get_first (it);
+      while (cs) {
+
+         if (!(cs->func.IsEmpty ()) && !(cs->self.IsEmpty ())) {
+
+            const Handle Observer = cs->Observer;
+
+            const int Argc (2);
+
+            V8Value *argv = new V8Value[Argc];
+
+            argv[0] = _state->ui->create_v8_qobject (object);
+            argv[1] = _state->ui->create_v8_qevent (event);
+
+            v8::TryCatch tc;
+            cs->func->Call (cs->self, Argc, argv);
+            if (tc.HasCaught ()) { _handle_exception (Observer, tc); }
+
+            delete []argv; argv = 0;
+         }
+
+         cs = _eventCallbackTable.get_next (it);
+      }
+   }
+
+   return result;
 }
 
 

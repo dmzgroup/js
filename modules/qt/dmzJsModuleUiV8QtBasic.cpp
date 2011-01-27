@@ -274,6 +274,11 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
                qobj = new V8QtObject (vobj, value, &_state);
             }
          }
+         else if (value->inherits ("QWebView")) {
+
+            vobj = _webviewCtor->NewInstance ();
+            qobj = new V8QtWidget (vobj, value, &_state);
+         }
          else if (value->inherits ("QTreeWidget")) {
 
             if (!_treeWidgetCtor.IsEmpty ()) {
@@ -792,6 +797,21 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _gWebViewCtor = V8FunctionPersist::New (_gWebViewTemp->GetFunction ());
       }
 
+      if (!_webviewTemp.IsEmpty ()) {
+
+         _webviewCtor = V8FunctionPersist::New (_webviewTemp->GetFunction ());
+      }
+
+      if (!_eventTemp.IsEmpty ()) {
+
+         _eventCtor = V8FunctionPersist::New (_eventTemp->GetFunction ());
+      }
+
+      if (!_mouseEventTemp.IsEmpty ()) {
+
+         _mouseEventCtor = V8FunctionPersist::New (_mouseEventTemp->GetFunction ());
+      }
+
       if (_state.core) {
 
          _state.core->register_interface ("dmz/ui/consts", _qtApi.get_new_instance ());
@@ -911,6 +931,14 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _state.core->register_interface (
             "dmz/ui/treeWidget",
             _treeApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/webView",
+            _webviewApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/event",
+            _eventApi.get_new_instance ());
 
       }
 
@@ -1079,6 +1107,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _gWidgetCtor.Dispose (); _gWidgetCtor.Clear ();
       _gWebViewCtor.Dispose (); _gWebViewCtor.Clear ();
 
+      _webviewCtor.Dispose (); _webviewCtor.Clear ();
+
+      _mouseEventCtor.Dispose (); _mouseEventCtor.Clear ();
+      _eventCtor.Dispose (); _eventCtor.Clear ();
+
       _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
       _allowedAreasStr.Dispose (); _allowedAreasStr.Clear ();
       _areaStr.Dispose (); _areaStr.Clear ();
@@ -1131,6 +1164,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _dteApi.clear ();
       _dialApi.clear ();
       _dialogApi.clear ();
+      _eventApi.clear ();
       _lcdApi.clear ();
       _labelApi.clear ();
       _lineEditApi.clear ();
@@ -1144,6 +1178,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _textEditApi.clear ();
       _toolBoxApi.clear ();
       _treeApi.clear ();
+      _webviewApi.clear ();
       _widgetApi.clear ();
 
       _state.context.Clear ();
@@ -1430,6 +1465,20 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _qtApi.add_constant ("RoundJoin", (UInt32)Qt::RoundJoin);
    _qtApi.add_constant ("SvgMiterJoin", (UInt32)Qt::SvgMiterJoin);
 
+   // enum Qt::MouseButton
+   _qtApi.add_constant ("NoButton", (UInt32)Qt::NoButton);
+   _qtApi.add_constant ("LeftButton", (UInt32)Qt::LeftButton);
+   _qtApi.add_constant ("RightButton", (UInt32)Qt::RightButton);
+   _qtApi.add_constant ("MidButton", (UInt32)Qt::MidButton);
+
+   // enum Qt::ContextMenuPolicy
+   _qtApi.add_constant ("NoContextMenu", (UInt32)Qt::NoContextMenu);
+   _qtApi.add_constant ("PreventContextMenu", (UInt32)Qt::PreventContextMenu);
+   _qtApi.add_constant ("DefaultContextMenu", (UInt32)Qt::DefaultContextMenu);
+   _qtApi.add_constant ("ActionsContextMenu", (UInt32)Qt::ActionsContextMenu);
+   _qtApi.add_constant ("CustomContextMenu", (UInt32)Qt::CustomContextMenu);
+
+
    // UiLoader API
    _uiLoaderApi.add_function ("load", _uiloader_load, _self);
 
@@ -1489,6 +1538,10 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_gpainter ();
    _init_gwidget ();
    _init_gwebview ();
+
+   _init_webview ();
+   _init_event ();
+   _init_mouse_event ();
 }
 
 
