@@ -258,7 +258,6 @@ dmz::JsModuleUiV8QtBasic::_object_event_filter (const v8::Arguments &Args) {
          QObject *qobject = jsObject->get_qobject ();
          if (qobject) {
 
-            self->_log.warn << "Installing event filter" << endl;
             V8Object src = v8_to_object (Args[0]);
             V8Function func = v8_to_function (Args[1]);
             jsObject->bind_event (src, func);
