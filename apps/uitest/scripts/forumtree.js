@@ -1,5 +1,6 @@
 var dmz =
        { module: require('dmz/runtime/module')
+       , message: require("dmz/runtime/messaging")
        , ui:
           { consts: require('dmz/ui/consts')
           , file: require("dmz/ui/fileDialog")
@@ -15,16 +16,25 @@ var dmz =
   , _main
   , _exports = {}
   , puts = require('sys').puts
+
+  // UI elements
   , form = dmz.ui.loader.load("./scripts/ForumTreeForm.ui")
   , tree = form.lookup ("treeWidget")
   , textBox = form.lookup ("textEdit")
   , replyTitleText = form.lookup("titleEdit")
   , postText = form.lookup("postTextEdit")
   , submitPostButton = form.lookup("submitButton")
+
+  // Global vars
+  , newPostMessage = dmz.message.create(
+       "NewPostMessage")
+
+  // Function decls
   , forumRoot
   , convertNewPost
   , testMessages
   , newPost
+  , collapseAll
   ;
 
 tree.observe (self, "currentItemChanged", function (curr) {
@@ -43,12 +53,15 @@ tree.observe (self, "currentItemChanged", function (curr) {
    submitPostButton.enabled(true);
    submitPostButton.observe(self, "clicked", function () {
 
-      newPost(data, postText.text(), "Obama", replyTitleText.text());
+      var post = postText.text()
+        , title = replyTitleText.text()
+        ;
       replyTitleText.clear();
       postText.clear();
       replyTitleText.enabled(false);
       postText.enabled(false);
       submitPostButton.enabled(false);
+      newPost(data, post, "Obama", title);
    });
 });
 
@@ -58,7 +71,7 @@ forumRoot =
    , poster: "Root"
    , title: "Root"
    , id: ""
-   , widget: tree
+   , widget: tree.root()
    };
 
 newPost = function (parent, text, poster, title) {
@@ -75,11 +88,13 @@ newPost = function (parent, text, poster, title) {
       , poster: poster // String username
       , title: title ? title: "Re: " + parent.title // String
       , id: parent.id + parent.children.length.toString() // String
-      , date: new Date()
+      , date: new Date() // Replace with additional argument -- need to take post date as another piece of data
       };
 
    result.widget = parent.widget.add ([result.title, result.poster, result.date, result.id]);
    result.widget.data(0, result);
+   parent.widget.expand();
+   tree.currentItem(result.widget);
    return result;
 };
 
@@ -93,15 +108,12 @@ convertNewPost = function (id, text, poster, title) {
 
   idx = 0;
 
-
-  puts ("Parsing:", id);
   while ((idx < id.length - 1) && currPost) {
 
      chr = parseInt(id.charAt(idx));
 
      if (chr !== "") {
 
-        puts ("chr:", chr, "length:", currPost.children.length);
         if (chr < currPost.children.length) { currPost = currPost.children[chr]; }
         else {
 
@@ -121,7 +133,7 @@ convertNewPost = function (id, text, poster, title) {
   if (currPost) {
 
      chr = parseInt(id.charAt(id.length - 1));
-     puts (id, "inserted to:", currPost.id);
+//     puts (id, "inserted to:", currPost.id);
      currPost.children[chr] = newPost(currPost, text, poster, title);
      result = true;
   }
@@ -171,6 +183,9 @@ testMessages.forEach (function (message) {
       puts (message.id + ": failed");
    }
 });
+
+tree.resizeColumnToContents(0);
+tree.collapseAll();
 
 
 dmz.module.subscribe(self, "main", function (Mode, module) {

@@ -379,6 +379,10 @@ namespace dmz {
          static V8Value _tree_take_item_at (const v8::Arguments &Args);
          static V8Value _tree_item_at (const v8::Arguments &Args);
          static V8Value _tree_item_count (const v8::Arguments &Args);
+         static V8Value _tree_root (const v8::Arguments &Args);
+         static V8Value _tree_expand_all (const v8::Arguments &Args);
+         static V8Value _tree_collapse_all (const v8::Arguments &Args);
+         static V8Value _tree_resize_col_contents (const v8::Arguments &Args);
          static V8Value _create_tree_widget (const v8::Arguments &Args);
 
          // QTreeWidgetItem bindings implemented in JsModuleUiV8QtBasicTreeWidget.cpp
@@ -396,6 +400,9 @@ namespace dmz {
          static V8Value _tree_item_tree_widget (const v8::Arguments &Args);
          static V8Value _tree_item_index_of (const v8::Arguments &Args);
          static V8Value _tree_item_disable (const v8::Arguments &Args);
+         static V8Value _tree_item_expand (const v8::Arguments &Args);
+         static V8Value _tree_item_collapse (const v8::Arguments &Args);
+         static V8Value _tree_item_is_expanded (const v8::Arguments &Args);
 
          // QTableWidget bindings implemented in JsModuleUiV8QtBasicTableWidget.cpp
          static V8Value _table_clear_spans (const v8::Arguments &Args);
