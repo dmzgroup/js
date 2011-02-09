@@ -250,6 +250,7 @@ namespace dmz {
          static V8Value _list_widget_item (const v8::Arguments &Args);
          static V8Value _list_widget_row (const v8::Arguments &Args);
          static V8Value _list_widget_take_item (const v8::Arguments &Args);
+         static V8Value _list_widget_remove_item (const v8::Arguments &Args);
          static V8Value _list_widget_find_items (const v8::Arguments &Args);
          static V8Value _create_list (const v8::Arguments &Args);
 

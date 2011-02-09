@@ -93,8 +93,17 @@ dmz::JsModuleUiV8QtBasic::_list_widget_add_item (const v8::Arguments &Args) {
 
          if (Args.Length ()) {
 
-            QString param = v8_to_qstring (Args[0]);
-            QListWidgetItem *item = new QListWidgetItem (param, lw);
+            QListWidgetItem *item (0);
+
+            if (Args[0]->IsString ()) {
+
+               QString param = v8_to_qstring (Args[0]);
+               item = new QListWidgetItem (param, lw);
+            }
+            else {
+
+               item = self->_to_qlistwidgetitem (Args[0]);
+            }
 
             if (Args.Length () >= 2) {
 
@@ -125,14 +134,35 @@ dmz::JsModuleUiV8QtBasic::_list_widget_take_item (const v8::Arguments &Args) {
 
          if (Args.Length ()) {
 
+            result =
+               self->create_v8_qlistwidgetitem (lw->takeItem (v8_to_uint32 (Args[0])));
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_list_widget_remove_item (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::False ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QListWidget *lw = self->v8_to_qobject<QListWidget> (Args.This ());
+      if (lw) {
+
+         if (Args.Length ()) {
+
             QListWidgetItem *item = self->_to_qlistwidgetitem (Args[0]);
             if (item) {
 
                item = lw->takeItem (lw->row (item));
-               if (item) {
-
-                  result = self->create_v8_qlistwidgetitem (item);
-               }
+               result = v8::Boolean::New (item ? true : false);
             }
          }
       }
@@ -399,6 +429,7 @@ dmz::JsModuleUiV8QtBasic::_init_list_widget () {
    proto->Set ("item", v8::FunctionTemplate::New (_list_widget_item, _self));
    proto->Set ("row", v8::FunctionTemplate::New (_list_widget_row, _self));
    proto->Set ("takeItem", v8::FunctionTemplate::New (_list_widget_take_item, _self));
+   proto->Set ("removeItem", v8::FunctionTemplate::New (_list_widget_remove_item, _self));
    proto->Set ("findItems", v8::FunctionTemplate::New (_list_widget_find_items, _self));
 
    _listApi.add_function ("create", _create_list, _self);
