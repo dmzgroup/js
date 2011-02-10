@@ -691,6 +691,18 @@ namespace dmz {
          static V8Value _mouse_event_x (const v8::Arguments &Args);
          static V8Value _mouse_event_y (const v8::Arguments &Args);
 
+         // QGraphicsSceneMouseEvent bindings implemented in dmzJsModuleUiV8QtBasicEvent.cpp
+         static V8Value _gscene_mouse_event_button (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_buttons (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_button_down_pos (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_button_down_scene_pos (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_button_down_screen_pos (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_last_pos (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_last_scene_pos (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_last_screen_pos (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_pos (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_scene_pos (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_screen_pos (const v8::Arguments &Args);
 
          bool eventFilter (QObject *watched, QEvent *event);
 
@@ -780,6 +792,7 @@ namespace dmz {
 
          void _init_event ();
          void _init_mouse_event ();
+         void _init_gscene_mouse_event ();
 
          void _init_layout ();
          void _init_box_layout ();
@@ -1018,6 +1031,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _mouseEventTemp;
          V8FunctionPersist _mouseEventCtor;
+
+         V8FunctionTemplatePersist _gsceneMouseEventTemp;
+         V8FunctionPersist _gsceneMouseEventCtor;
 
          V8StringPersist _allowMultipleStr;
          V8StringPersist _allowedAreasStr;

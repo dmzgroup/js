@@ -1,7 +1,7 @@
 #include <dmzJsModuleV8.h>
 #include "dmzV8QtObject.h"
 #include "dmzV8QtUtil.h"
-//#include <QtCore/QDebug>
+#include <QtCore/QDebug>
 
 dmz::V8QtObject::V8QtObject (
       const V8Object &Self,

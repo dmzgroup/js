@@ -13,10 +13,28 @@
 #include <QtGui/QPen>
 #include <QtWebKit/QGraphicsWebView>
 
-
 namespace {
 
 QMap<QGraphicsItem *, v8::Persistent<v8::Value> > _weakGItemsTable;
+
+QPointF
+v8_to_qpointf (const dmz::V8Value value) {
+
+   QPointF result;
+
+   if (!value.IsEmpty ()) {
+
+      dmz::V8Object obj = dmz::v8_to_object (value);
+      if (!obj.IsEmpty ()) {
+         qreal x, y;
+         x = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("x")));
+         y = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("y")));
+         result = QPointF(x, y);
+      }
+   }
+   return result;
+}
+
 
 dmz::V8Value
 qrectf_to_v8 (const QRectF &Value) {
@@ -1232,14 +1250,15 @@ dmz::JsModuleUiV8QtBasic::_gitem_data (const v8::Arguments &Args) {
 
          if (Args.Length ()) {
 
-            int index = 0;
-            index = v8_to_uint32 (Args[0]);
-            if (Args.Length () > 0) {
+            int index = v8_to_uint32 (Args[0]);
 
-               QVariant var = v8_to_qvariant (Args[1]);
+            if (Args.Length () > 1) {
+
+               QVariant var = self->_qvariant_wrap_v8 (Args[1]);
                item->setData (index, var);
             }
-            result = qvariant_to_v8 (item->data (index));
+
+            result = self->_qvariant_unwrap_v8 (item->data (index));
          }
       }
    }
@@ -3003,6 +3022,11 @@ dmz::JsModuleUiV8QtBasic::_gscene_items (const v8::Arguments &Args) {
             Qt::SortOrder sort = (Qt::SortOrder) v8_to_uint32 (Args[2]);
 
             if (path) { list = scene->items (*path, ism, sort); }
+            else {
+
+               list = scene->items (v8_to_qpointf (Args[0]));
+               self->_log.warn << "items at pos: " << list.count () << endl;
+            }
          }
          else if (Args.Length () == 4) {
 

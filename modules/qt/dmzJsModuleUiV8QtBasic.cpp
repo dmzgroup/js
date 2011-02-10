@@ -812,6 +812,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _mouseEventCtor = V8FunctionPersist::New (_mouseEventTemp->GetFunction ());
       }
 
+      if (!_gsceneMouseEventTemp.IsEmpty ()) {
+
+         _gsceneMouseEventCtor = V8FunctionPersist::New (_gsceneMouseEventTemp->GetFunction ());
+      }
+
       if (_state.core) {
 
          _state.core->register_interface ("dmz/ui/consts", _qtApi.get_new_instance ());
@@ -1109,8 +1114,10 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
       _webviewCtor.Dispose (); _webviewCtor.Clear ();
 
+      _gsceneMouseEventCtor.Dispose (); _gsceneMouseEventCtor.Clear ();
       _mouseEventCtor.Dispose (); _mouseEventCtor.Clear ();
       _eventCtor.Dispose (); _eventCtor.Clear ();
+
 
       _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
       _allowedAreasStr.Dispose (); _allowedAreasStr.Clear ();
@@ -1542,6 +1549,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_webview ();
    _init_event ();
    _init_mouse_event ();
+   _init_gscene_mouse_event ();
 }
 
 
