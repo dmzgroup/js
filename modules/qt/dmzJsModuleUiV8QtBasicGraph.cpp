@@ -396,20 +396,16 @@ dmz::JsModuleUiV8QtBasic::_create_gview (const v8::Arguments &Args) {
       QGraphicsScene *scene = 0;
       if (Args.Length ()) {
 
-         parent = self->_to_qwidget (Args[0]);
-         if (parent) {
-
-            if (Args.Length () > 1) {
-
-               scene = self->v8_to_qobject<QGraphicsScene> (Args[1]);
-            }
-         }
-         else { scene = self->v8_to_qobject<QGraphicsScene> (Args[0]); }
+         scene = self->v8_to_qobject<QGraphicsScene> (Args[0]);
+         if (scene && (Args.Length () > 1)) { parent = self->_to_qwidget (Args[1]); }
+         else if (!scene) { parent = self->_to_qwidget (Args[0]); }
       }
 
       QGraphicsView *view = 0;
       if (scene) { view = new QGraphicsView (scene, parent); }
       else { view = new QGraphicsView (parent); }
+
+      result = self->create_v8_qwidget (view);
    }
 
    return scope.Close (result);

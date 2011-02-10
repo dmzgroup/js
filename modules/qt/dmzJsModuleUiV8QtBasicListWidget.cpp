@@ -93,17 +93,14 @@ dmz::JsModuleUiV8QtBasic::_list_widget_add_item (const v8::Arguments &Args) {
 
          if (Args.Length ()) {
 
-            QListWidgetItem *item (0);
+            QListWidgetItem *item = self->_to_qlistwidgetitem (Args[0]);
 
-            if (Args[0]->IsString ()) {
+            if (!item) {
 
                QString param = v8_to_qstring (Args[0]);
                item = new QListWidgetItem (param, lw);
             }
-            else {
-
-               item = self->_to_qlistwidgetitem (Args[0]);
-            }
+            else { lw->addItem (item); }
 
             if (Args.Length () >= 2) {
 
