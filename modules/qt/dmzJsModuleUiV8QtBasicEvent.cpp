@@ -119,10 +119,7 @@ dmz::JsModuleUiV8QtBasic::_gscene_mouse_event_scene_pos (const v8::Arguments &Ar
 
       QGraphicsSceneMouseEvent *event =
          (QGraphicsSceneMouseEvent *)self->_to_qevent(Args.This ());
-      if (event) {
-
-         self->_log.warn << "Scene Pos: " << event->scenePos ().x () << ", " << event->scenePos ().y () << endl;
-         result = qpointf_to_v8 (event->scenePos ()); }
+      if (event) { result = qpointf_to_v8 (event->scenePos ()); }
    }
 
    return scope.Close (result);

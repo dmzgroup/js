@@ -3022,11 +3022,7 @@ dmz::JsModuleUiV8QtBasic::_gscene_items (const v8::Arguments &Args) {
             Qt::SortOrder sort = (Qt::SortOrder) v8_to_uint32 (Args[2]);
 
             if (path) { list = scene->items (*path, ism, sort); }
-            else {
-
-               list = scene->items (v8_to_qpointf (Args[0]));
-               self->_log.warn << "items at pos: " << list.count () << endl;
-            }
+            else { list = scene->items (v8_to_qpointf (Args[0])); }
          }
          else if (Args.Length () == 4) {
 
