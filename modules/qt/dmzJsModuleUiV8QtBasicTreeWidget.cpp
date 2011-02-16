@@ -714,6 +714,31 @@ dmz::JsModuleUiV8QtBasic::_tree_item_add (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_tree_item_background (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QTreeWidgetItem *item = self->_to_qtreewidgetitem (Args.This ());
+      if (item) {
+
+         if (Args.Length () > 1) {
+
+            int column = v8_to_uint32 (Args[0]);
+            QBrush *brush = self->_to_gbrush (Args[1]);
+            if (brush) { item->setBackground (column, *brush); }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_tree_item_child (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -1104,6 +1129,7 @@ dmz::JsModuleUiV8QtBasic::_init_tree_widget_item () {
 
    V8ObjectTemplate proto = _treeWidgetItemTemp->PrototypeTemplate ();
    proto->Set ("add", v8::FunctionTemplate::New (_tree_item_add, _self));
+   proto->Set ("background", v8::FunctionTemplate::New (_tree_item_background, _self));
    proto->Set ("child", v8::FunctionTemplate::New (_tree_item_child, _self));
    proto->Set ("childCount", v8::FunctionTemplate::New (_tree_item_child_count, _self));
    proto->Set ("columnCount", v8::FunctionTemplate::New (_tree_item_col_count, _self));

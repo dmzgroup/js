@@ -241,6 +241,7 @@ namespace dmz {
          static V8Value _list_widget_item_text (const v8::Arguments &Args);
          static V8Value _list_widget_item_data (const v8::Arguments &Args);
          static V8Value _list_widget_item_hidden (const v8::Arguments &Args);
+         static V8Value _list_widget_item_bg_brush (const v8::Arguments &Args);
 
          // QListWidget bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _list_widget_add_item (const v8::Arguments &Args);
@@ -389,6 +390,7 @@ namespace dmz {
 
          // QTreeWidgetItem bindings implemented in JsModuleUiV8QtBasicTreeWidget.cpp
          static V8Value _tree_item_add (const v8::Arguments &Args);
+         static V8Value _tree_item_background (const v8::Arguments &Args);
          static V8Value _tree_item_child (const v8::Arguments &Args);
          static V8Value _tree_item_child_count (const v8::Arguments &Args);
          static V8Value _tree_item_col_count (const v8::Arguments &Args);
@@ -675,7 +677,14 @@ namespace dmz {
          static V8Value _webview_zoom_factor (const v8::Arguments &Args);
          static V8Value _webview_url (const v8::Arguments &Args);
          static V8Value _webview_reload (const v8::Arguments &Args);
+         static V8Value _webview_page (const v8::Arguments &Args);
          static V8Value _create_webview (const v8::Arguments &Args);
+
+         // QWebPage bindings implemented in dmzJsModuleUiV8QtBasicWebView.cpp
+         static V8Value _webpage_mainframe (const v8::Arguments &Args);
+
+         // QWebFrame bindings implemented in dmzJsModuleUiV8QtBasicWebView.cpp
+         static V8Value _webframe_load (const v8::Arguments &Args);
 
          // QEvent bindings implemented in dmzJsModuleUiV8QtBasicEvent.cpp
          static V8Value _event_type (const v8::Arguments &Args);
@@ -789,6 +798,8 @@ namespace dmz {
          void _init_gwidget ();
          void _init_gwebview ();
          void _init_webview ();
+         void _init_webframe ();
+         void _init_webpage ();
 
          void _init_event ();
          void _init_mouse_event ();
@@ -1025,6 +1036,12 @@ namespace dmz {
 
          V8FunctionTemplatePersist _webviewTemp;
          V8FunctionPersist _webviewCtor;
+
+         V8FunctionTemplatePersist _webpageTemp;
+         V8FunctionPersist _webpageCtor;
+
+         V8FunctionTemplatePersist _webframeTemp;
+         V8FunctionPersist _webframeCtor;
 
          V8FunctionTemplatePersist _eventTemp;
          V8FunctionPersist _eventCtor;

@@ -239,6 +239,22 @@ dmz::JsModuleUiV8QtBasic::create_v8_qobject (QObject *value) {
                qobj = new V8QtObject (vobj, value, &_state);
             }
          }
+         else if (value->inherits ("QWebPage")) {
+
+            if (!_webpageCtor.IsEmpty ()) {
+
+               vobj = _webpageCtor->NewInstance ();
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
+         else if (value->inherits ("QWebFrame")) {
+
+            if (!_webframeCtor.IsEmpty ()) {
+
+               vobj = _webframeCtor->NewInstance ();
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
 
          if (qobj) { _objectMap.insert (value, qobj); }
       }
@@ -802,6 +818,16 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _webviewCtor = V8FunctionPersist::New (_webviewTemp->GetFunction ());
       }
 
+      if (!_webframeTemp.IsEmpty ()) {
+
+         _webframeCtor = V8FunctionPersist::New (_webframeTemp->GetFunction ());
+      }
+
+      if (!_webpageTemp.IsEmpty ()) {
+
+         _webpageCtor = V8FunctionPersist::New (_webpageTemp->GetFunction ());
+      }
+
       if (!_eventTemp.IsEmpty ()) {
 
          _eventCtor = V8FunctionPersist::New (_eventTemp->GetFunction ());
@@ -1113,6 +1139,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _gWebViewCtor.Dispose (); _gWebViewCtor.Clear ();
 
       _webviewCtor.Dispose (); _webviewCtor.Clear ();
+      _webframeCtor.Dispose (); _webframeCtor.Clear ();
+      _webpageCtor.Dispose (); _webpageCtor.Clear ();
 
       _gsceneMouseEventCtor.Dispose (); _gsceneMouseEventCtor.Clear ();
       _mouseEventCtor.Dispose (); _mouseEventCtor.Clear ();
@@ -1547,6 +1575,8 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_gwebview ();
 
    _init_webview ();
+   _init_webpage ();
+   _init_webframe ();
    _init_event ();
    _init_mouse_event ();
    _init_gscene_mouse_event ();
