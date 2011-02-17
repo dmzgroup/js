@@ -587,6 +587,74 @@ dmz::JsModuleUiV8QtBasic::_tree_item_count (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_tree_root (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QTreeWidget *tree = self->v8_to_qobject<QTreeWidget> (Args.This ());
+      if (tree) { result = self->create_v8_qtreewidgetitem (tree->invisibleRootItem ()); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_tree_collapse_all (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QTreeWidget *tree = self->v8_to_qobject<QTreeWidget> (Args.This ());
+      if (tree) { tree->collapseAll (); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_tree_expand_all (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QTreeWidget *tree = self->v8_to_qobject<QTreeWidget> (Args.This ());
+      if (tree) { tree->expandAll (); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_tree_resize_col_contents (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QTreeWidget *tree = self->v8_to_qobject<QTreeWidget> (Args.This ());
+      if (tree && Args.Length ()) { tree->resizeColumnToContents (v8_to_uint32 (Args[0])); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_tree_item_add (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -637,6 +705,31 @@ dmz::JsModuleUiV8QtBasic::_tree_item_add (const v8::Arguments &Args) {
 
                result = self->create_v8_qtreewidgetitem (child);
             }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_tree_item_background (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QTreeWidgetItem *item = self->_to_qtreewidgetitem (Args.This ());
+      if (item) {
+
+         if (Args.Length () > 1) {
+
+            int column = v8_to_uint32 (Args[0]);
+            QBrush *brush = self->_to_gbrush (Args[1]);
+            if (brush) { item->setBackground (column, *brush); }
          }
       }
    }
@@ -955,6 +1048,57 @@ dmz::JsModuleUiV8QtBasic::_tree_item_disable (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_tree_item_expand (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QTreeWidgetItem *item = self->_to_qtreewidgetitem (Args.This ());
+      if (item) { item->setExpanded (true); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_tree_item_collapse (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QTreeWidgetItem *item = self->_to_qtreewidgetitem (Args.This ());
+      if (item) { item->setExpanded (false); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_tree_item_is_expanded (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QTreeWidgetItem *item = self->_to_qtreewidgetitem (Args.This ());
+      if (item) { result = v8::Boolean::New (item->isExpanded ()); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_create_tree_widget (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -985,6 +1129,7 @@ dmz::JsModuleUiV8QtBasic::_init_tree_widget_item () {
 
    V8ObjectTemplate proto = _treeWidgetItemTemp->PrototypeTemplate ();
    proto->Set ("add", v8::FunctionTemplate::New (_tree_item_add, _self));
+   proto->Set ("background", v8::FunctionTemplate::New (_tree_item_background, _self));
    proto->Set ("child", v8::FunctionTemplate::New (_tree_item_child, _self));
    proto->Set ("childCount", v8::FunctionTemplate::New (_tree_item_child_count, _self));
    proto->Set ("columnCount", v8::FunctionTemplate::New (_tree_item_col_count, _self));
@@ -1002,6 +1147,9 @@ dmz::JsModuleUiV8QtBasic::_init_tree_widget_item () {
       v8::FunctionTemplate::New (_tree_item_take_children, _self));
    proto->Set ("treeWidget", v8::FunctionTemplate::New (_tree_item_tree_widget, _self));
    proto->Set ("disabled", v8::FunctionTemplate::New (_tree_item_disable, _self));
+   proto->Set ("expand", v8::FunctionTemplate::New (_tree_item_expand, _self));
+   proto->Set ("collapse", v8::FunctionTemplate::New (_tree_item_collapse, _self));
+   proto->Set ("isExpanded", v8::FunctionTemplate::New (_tree_item_is_expanded, _self));
 }
 
 
@@ -1039,6 +1187,10 @@ dmz::JsModuleUiV8QtBasic::_init_tree_widget () {
    proto->Set ("takeItemAt", v8::FunctionTemplate::New (_tree_take_item_at, _self));
    proto->Set ("itemAt", v8::FunctionTemplate::New (_tree_item_at, _self));
    proto->Set ("itemCount", v8::FunctionTemplate::New (_tree_item_count, _self));
+   proto->Set ("root", v8::FunctionTemplate::New (_tree_root, _self));
+   proto->Set ("expandAll", v8::FunctionTemplate::New (_tree_expand_all, _self));
+   proto->Set ("collapseAll", v8::FunctionTemplate::New (_tree_collapse_all, _self));
+   proto->Set ("resizeColumnToContents", v8::FunctionTemplate::New (_tree_resize_col_contents, _self));
 
    _treeApi.add_function ("create", _create_tree_widget, _self);
 }

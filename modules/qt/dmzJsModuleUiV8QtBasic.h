@@ -96,6 +96,8 @@ namespace dmz {
          virtual v8::Handle<v8::Value> create_v8_gpixmap (QPixmap *value);
          virtual v8::Handle<v8::Value> create_v8_gpaint_device (QPaintDevice *value);
 
+         virtual v8::Handle<v8::Value> create_v8_qevent (QEvent *value);
+
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
          virtual void update_js_context_v8 (v8::Handle<v8::Context> context);
@@ -137,6 +139,7 @@ namespace dmz {
          static V8Value _object_lookup (const v8::Arguments &Args);
          static V8Value _object_name (const v8::Arguments &Args);
          static V8Value _object_observe (const v8::Arguments &Args);
+         static V8Value _object_event_filter (const v8::Arguments &Args);
          static V8Value _object_parent (const v8::Arguments &Args);
          static V8Value _object_property (const v8::Arguments &Args);
          static V8Value _object_callback (const v8::Arguments &Args);
@@ -152,6 +155,7 @@ namespace dmz {
          static V8Value _widget_visible (const v8::Arguments &Args);
          static V8Value _widget_window (const v8::Arguments &Args);
          static V8Value _widget_rect (const v8::Arguments &Args);
+         static V8Value _widget_context_menu (const v8::Arguments &Args);
          static V8Value _create_widget (const v8::Arguments &Args);
 
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
@@ -219,6 +223,7 @@ namespace dmz {
          static V8Value _label_text (const v8::Arguments &Args);
          static V8Value _label_word_wrap (const v8::Arguments &Args);
          static V8Value _label_clear (const v8::Arguments &Args);
+         static V8Value _label_pixmap (const v8::Arguments &Args);
          static V8Value _create_label (const v8::Arguments &Args);
 
          // QProgressBar bindings implemented in JsModuleUiV8QtLabel.cpp
@@ -236,6 +241,8 @@ namespace dmz {
          // QListWidgetItem bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _list_widget_item_text (const v8::Arguments &Args);
          static V8Value _list_widget_item_data (const v8::Arguments &Args);
+         static V8Value _list_widget_item_hidden (const v8::Arguments &Args);
+         static V8Value _list_widget_item_bg_brush (const v8::Arguments &Args);
 
          // QListWidget bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _list_widget_add_item (const v8::Arguments &Args);
@@ -245,6 +252,7 @@ namespace dmz {
          static V8Value _list_widget_item (const v8::Arguments &Args);
          static V8Value _list_widget_row (const v8::Arguments &Args);
          static V8Value _list_widget_take_item (const v8::Arguments &Args);
+         static V8Value _list_widget_remove_item (const v8::Arguments &Args);
          static V8Value _list_widget_find_items (const v8::Arguments &Args);
          static V8Value _create_list (const v8::Arguments &Args);
 
@@ -375,10 +383,15 @@ namespace dmz {
          static V8Value _tree_take_item_at (const v8::Arguments &Args);
          static V8Value _tree_item_at (const v8::Arguments &Args);
          static V8Value _tree_item_count (const v8::Arguments &Args);
+         static V8Value _tree_root (const v8::Arguments &Args);
+         static V8Value _tree_expand_all (const v8::Arguments &Args);
+         static V8Value _tree_collapse_all (const v8::Arguments &Args);
+         static V8Value _tree_resize_col_contents (const v8::Arguments &Args);
          static V8Value _create_tree_widget (const v8::Arguments &Args);
 
          // QTreeWidgetItem bindings implemented in JsModuleUiV8QtBasicTreeWidget.cpp
          static V8Value _tree_item_add (const v8::Arguments &Args);
+         static V8Value _tree_item_background (const v8::Arguments &Args);
          static V8Value _tree_item_child (const v8::Arguments &Args);
          static V8Value _tree_item_child_count (const v8::Arguments &Args);
          static V8Value _tree_item_col_count (const v8::Arguments &Args);
@@ -392,6 +405,9 @@ namespace dmz {
          static V8Value _tree_item_tree_widget (const v8::Arguments &Args);
          static V8Value _tree_item_index_of (const v8::Arguments &Args);
          static V8Value _tree_item_disable (const v8::Arguments &Args);
+         static V8Value _tree_item_expand (const v8::Arguments &Args);
+         static V8Value _tree_item_collapse (const v8::Arguments &Args);
+         static V8Value _tree_item_is_expanded (const v8::Arguments &Args);
 
          // QTableWidget bindings implemented in JsModuleUiV8QtBasicTableWidget.cpp
          static V8Value _table_clear_spans (const v8::Arguments &Args);
@@ -494,6 +510,7 @@ namespace dmz {
          static V8Value _create_gtext_item (const v8::Arguments &Args);
          static V8Value _create_gline_item (const v8::Arguments &Args);
          static V8Value _create_gpath_item (const v8::Arguments &Args);
+         static V8Value _create_gwebview (const v8::Arguments &Args);
          static V8Value _create_gscene (const v8::Arguments &Args);
          static V8Value _create_gview (const v8::Arguments &Args);
          static V8Value _create_gbrush (const v8::Arguments &Args);
@@ -637,7 +654,67 @@ namespace dmz {
          static V8Value _gimage_save (const v8::Arguments &Args);
          static V8Value _gimage_scaled (const v8::Arguments &Args);
 
-         virtual bool eventFilter (QObject *watched, QEvent *event);
+         static V8Value _gwidget_actions (const v8::Arguments &Args);
+         static V8Value _gwidget_add_action (const v8::Arguments &Args);
+         static V8Value _gwidget_add_actions (const v8::Arguments &Args);
+         static V8Value _gwidget_adjust_size (const v8::Arguments &Args);
+         static V8Value _gwidget_window_active (const v8::Arguments &Args);
+         static V8Value _gwidget_rect (const v8::Arguments &Args);
+         static V8Value _gwidget_remove_action (const v8::Arguments &Args);
+         static V8Value _gwidget_window_title (const v8::Arguments &Args);
+
+         static V8Value _gweb_modified (const v8::Arguments &Args);
+         static V8Value _gweb_load (const v8::Arguments &Args);
+//         static V8Value _gweb_page (const v8::Arguments &Args);
+         static V8Value _gweb_reload (const v8::Arguments &Args);
+         static V8Value _gweb_url (const v8::Arguments &Args);
+
+         // QWebView bindings implemented in dmzJsModuleUiV8QtBasicWebView.cpp
+         static V8Value _webview_find_text (const v8::Arguments &Args);
+         static V8Value _webview_modified (const v8::Arguments &Args);
+         static V8Value _webview_load (const v8::Arguments &Args);
+         static V8Value _webview_selected_text (const v8::Arguments &Args);
+         static V8Value _webview_text_size_mult (const v8::Arguments &Args);
+         static V8Value _webview_zoom_factor (const v8::Arguments &Args);
+         static V8Value _webview_url (const v8::Arguments &Args);
+         static V8Value _webview_reload (const v8::Arguments &Args);
+         static V8Value _webview_page (const v8::Arguments &Args);
+         static V8Value _create_webview (const v8::Arguments &Args);
+
+         // QWebPage bindings implemented in dmzJsModuleUiV8QtBasicWebView.cpp
+         static V8Value _webpage_mainframe (const v8::Arguments &Args);
+
+         // QWebFrame bindings implemented in dmzJsModuleUiV8QtBasicWebView.cpp
+         static V8Value _webframe_load (const v8::Arguments &Args);
+
+         // QEvent bindings implemented in dmzJsModuleUiV8QtBasicEvent.cpp
+         static V8Value _event_type (const v8::Arguments &Args);
+
+         // QMouseEvent bindings implemented in dmzJsModuleUiV8QtBasicEvent.cpp
+         static V8Value _mouse_event_button (const v8::Arguments &Args);
+         static V8Value _mouse_event_buttons (const v8::Arguments &Args);
+         static V8Value _mouse_event_global_x (const v8::Arguments &Args);
+         static V8Value _mouse_event_global_y (const v8::Arguments &Args);
+         static V8Value _mouse_event_global_pos (const v8::Arguments &Args);
+         static V8Value _mouse_event_pos (const v8::Arguments &Args);
+         static V8Value _mouse_event_posf (const v8::Arguments &Args);
+         static V8Value _mouse_event_x (const v8::Arguments &Args);
+         static V8Value _mouse_event_y (const v8::Arguments &Args);
+
+         // QGraphicsSceneMouseEvent bindings implemented in dmzJsModuleUiV8QtBasicEvent.cpp
+         static V8Value _gscene_mouse_event_button (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_buttons (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_button_down_pos (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_button_down_scene_pos (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_button_down_screen_pos (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_last_pos (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_last_scene_pos (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_last_screen_pos (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_pos (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_scene_pos (const v8::Arguments &Args);
+         static V8Value _gscene_mouse_event_screen_pos (const v8::Arguments &Args);
+
+         bool eventFilter (QObject *watched, QEvent *event);
 
          QWidget *_to_qwidget (V8Value value) { return v8_to_qobject<QWidget>(value); }
          QObject *_to_qobject (V8Value value);
@@ -654,6 +731,8 @@ namespace dmz {
          QImage *_to_gimage (V8Value value);
          QPixmap *_to_gpixmap (V8Value value);
          QPaintDevice *_to_gpaint_device (V8Value value);
+
+         QEvent *_to_qevent (V8Value value);
 
          V8QtDialog *_to_v8_qt_dialog (V8Value value);
          V8QtWidget *_to_v8_qt_widget (V8Value value);
@@ -717,7 +796,15 @@ namespace dmz {
          void _init_gpainter ();
          void _init_gpixmap ();
          void _init_gimage ();
+         void _init_gwidget ();
+         void _init_gwebview ();
+         void _init_webview ();
+         void _init_webframe ();
+         void _init_webpage ();
 
+         void _init_event ();
+         void _init_mouse_event ();
+         void _init_gscene_mouse_event ();
 
          void _init_layout ();
          void _init_box_layout ();
@@ -781,6 +868,8 @@ namespace dmz {
          V8InterfaceHelper _widgetApi;
 
          V8InterfaceHelper _graphApi;
+         V8InterfaceHelper _webviewApi;
+         V8InterfaceHelper _eventApi;
 
 
          V8FunctionTemplatePersist _objectTemp;
@@ -939,6 +1028,30 @@ namespace dmz {
 
          V8FunctionTemplatePersist _gPaintDeviceTemp;
          V8FunctionPersist _gPaintDeviceCtor;
+
+         V8FunctionTemplatePersist _gWidgetTemp;
+         V8FunctionPersist _gWidgetCtor;
+
+         V8FunctionTemplatePersist _gWebViewTemp;
+         V8FunctionPersist _gWebViewCtor;
+
+         V8FunctionTemplatePersist _webviewTemp;
+         V8FunctionPersist _webviewCtor;
+
+         V8FunctionTemplatePersist _webpageTemp;
+         V8FunctionPersist _webpageCtor;
+
+         V8FunctionTemplatePersist _webframeTemp;
+         V8FunctionPersist _webframeCtor;
+
+         V8FunctionTemplatePersist _eventTemp;
+         V8FunctionPersist _eventCtor;
+
+         V8FunctionTemplatePersist _mouseEventTemp;
+         V8FunctionPersist _mouseEventCtor;
+
+         V8FunctionTemplatePersist _gsceneMouseEventTemp;
+         V8FunctionPersist _gsceneMouseEventCtor;
 
          V8StringPersist _allowMultipleStr;
          V8StringPersist _allowedAreasStr;

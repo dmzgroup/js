@@ -1,6 +1,7 @@
 #include "dmzJsModuleUiV8QtBasic.h"
 #include <dmzJsV8UtilConvert.h>
 #include "dmzV8QtUtil.h"
+#include <QtGui/QAction>
 #include <QtGui/QFrame>
 #include <QtGui/QBrush>
 #include <QtGui/QGraphicsLineItem>
@@ -10,11 +11,30 @@
 #include <QtGui/QGraphicsTextItem>
 #include <QtGui/QGraphicsView>
 #include <QtGui/QPen>
-
+#include <QtWebKit/QGraphicsWebView>
 
 namespace {
 
 QMap<QGraphicsItem *, v8::Persistent<v8::Value> > _weakGItemsTable;
+
+QPointF
+v8_to_qpointf (const dmz::V8Value value) {
+
+   QPointF result;
+
+   if (!value.IsEmpty ()) {
+
+      dmz::V8Object obj = dmz::v8_to_object (value);
+      if (!obj.IsEmpty ()) {
+         qreal x, y;
+         x = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("x")));
+         y = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("y")));
+         result = QPointF(x, y);
+      }
+   }
+   return result;
+}
+
 
 dmz::V8Value
 qrectf_to_v8 (const QRectF &Value) {
@@ -394,20 +414,16 @@ dmz::JsModuleUiV8QtBasic::_create_gview (const v8::Arguments &Args) {
       QGraphicsScene *scene = 0;
       if (Args.Length ()) {
 
-         parent = self->_to_qwidget (Args[0]);
-         if (parent) {
-
-            if (Args.Length () > 1) {
-
-               scene = self->v8_to_qobject<QGraphicsScene> (Args[1]);
-            }
-         }
-         else { scene = self->v8_to_qobject<QGraphicsScene> (Args[0]); }
+         scene = self->v8_to_qobject<QGraphicsScene> (Args[0]);
+         if (scene && (Args.Length () > 1)) { parent = self->_to_qwidget (Args[1]); }
+         else if (!scene) { parent = self->_to_qwidget (Args[0]); }
       }
 
       QGraphicsView *view = 0;
       if (scene) { view = new QGraphicsView (scene, parent); }
       else { view = new QGraphicsView (parent); }
+
+      result = self->create_v8_qwidget (view);
    }
 
    return scope.Close (result);
@@ -511,7 +527,7 @@ dmz::JsModuleUiV8QtBasic::_create_gpixmap (const v8::Arguments &Args) {
       if (Args.Length () == 1) { pix = new QPixmap (v8_to_qstring (Args[0])); }
       if (Args.Length () == 2) {
 
-         if (Args[1]->IsString ()) {
+         if (Args[0]->IsString ()) {
 
             dmz::String format = v8_to_string (Args[1]);
             pix = new QPixmap (v8_to_qstring (Args[0]), format.get_buffer ());
@@ -592,6 +608,26 @@ dmz::JsModuleUiV8QtBasic::_create_gpainter_path (const v8::Arguments &Args) {
       }
       else { path = new QPainterPath (); }
       result = self->create_v8_gpainter_path (path);
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_gwebview (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsWebView *web (0);
+      QGraphicsItem *parent (0);
+      if (Args.Length ()) { parent = self->_to_graphics_item (Args[0]); }
+      web = new QGraphicsWebView (parent);
+      result = self->create_v8_graphics_item (web);
    }
 
    return scope.Close (result);
@@ -827,6 +863,15 @@ dmz::JsModuleUiV8QtBasic::create_v8_graphics_item (QGraphicsItem *value) {
             result = obj;
          }
       }
+      else if (qgraphicsitem_cast<QGraphicsWebView *> (value)) {
+
+         if (!_gWebViewCtor.IsEmpty ()) { obj = _gWebViewCtor->NewInstance (); }
+         if (!obj.IsEmpty ()) {
+
+            obj->SetInternalField (0, v8::External::Wrap ((void *)value));
+            result = obj;
+         }
+      }
    }
 
    return scope.Close (result);
@@ -843,7 +888,8 @@ dmz::JsModuleUiV8QtBasic::_to_graphics_item (V8Value value) {
    if (!obj.IsEmpty ()) {
 
       if (_gRectTemp->HasInstance (obj) || _gTextTemp->HasInstance (obj) ||
-          _gLineTemp->HasInstance (obj) || _gPathTemp->HasInstance (obj)) {
+          _gLineTemp->HasInstance (obj) || _gPathTemp->HasInstance (obj) ||
+          _gWebViewTemp->HasInstance (obj)) {
 
          result = (QGraphicsItem *)v8::External::Unwrap (obj->GetInternalField (0));
       }
@@ -1204,14 +1250,15 @@ dmz::JsModuleUiV8QtBasic::_gitem_data (const v8::Arguments &Args) {
 
          if (Args.Length ()) {
 
-            int index = 0;
-            index = v8_to_uint32 (Args[0]);
-            if (Args.Length () > 0) {
+            int index = v8_to_uint32 (Args[0]);
 
-               QVariant var = v8_to_qvariant (Args[1]);
+            if (Args.Length () > 1) {
+
+               QVariant var = self->_qvariant_wrap_v8 (Args[1]);
                item->setData (index, var);
             }
-            result = qvariant_to_v8 (item->data (index));
+
+            result = self->_qvariant_unwrap_v8 (item->data (index));
          }
       }
    }
@@ -2975,6 +3022,7 @@ dmz::JsModuleUiV8QtBasic::_gscene_items (const v8::Arguments &Args) {
             Qt::SortOrder sort = (Qt::SortOrder) v8_to_uint32 (Args[2]);
 
             if (path) { list = scene->items (*path, ism, sort); }
+            else { list = scene->items (v8_to_qpointf (Args[0])); }
          }
          else if (Args.Length () == 4) {
 
@@ -4445,4 +4493,339 @@ dmz::JsModuleUiV8QtBasic::_init_gpainter () {
    proto->Set ("end", v8::FunctionTemplate::New (_gpainter_end, _self));
 
    _graphApi.add_function ("createPainter", _create_gpainter, _self);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gwidget_actions (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsWidget *widget = (QGraphicsWidget *)self->_to_graphics_item (Args.This ());
+      if (widget) {
+
+         QList<QAction *> list = widget->actions ();
+         QAction *action (0);
+         int Length = list.count ();
+         V8Array array = v8::Array::New (Length);
+         for (int ix = 0; ix < Length; ++ix) {
+
+            action = list.at (ix);
+            V8Value value = self->create_v8_qobject (action);
+            array->Set (v8::Integer::New (ix), value);
+         }
+         result = array;
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gwidget_add_action (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsWidget *widget = (QGraphicsWidget *)self->_to_graphics_item (Args.This ());
+      if (widget && Args.Length ()) {
+
+         widget->addAction (self->v8_to_qobject<QAction> (Args[0]));
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gwidget_add_actions (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsWidget *widget = (QGraphicsWidget *)self->_to_graphics_item (Args.This ());
+      if (widget) {
+
+         if (Args.Length ()) {
+
+            QList<QAction *> list;
+            QAction *action (0);
+            if (Args[0]->IsArray ()) {
+
+               V8Array array = v8_to_array (Args[0]);
+               int Length = array->Length ();
+               for (int ix = 0; ix < Length; ++ix) {
+
+                  action = self->v8_to_qobject<QAction> (Args[0]);
+                  if (action) { list.append (action); }
+               }
+               widget->addActions (list);
+            }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gwidget_adjust_size (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsWidget *widget = (QGraphicsWidget *)self->_to_graphics_item (Args.This ());
+      if (widget) { widget->adjustSize (); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gwidget_window_active (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsWidget *widget = (QGraphicsWidget *)self->_to_graphics_item (Args.This ());
+      if (widget) { result = v8::Boolean::New (widget->isActiveWindow ()); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gwidget_window_title (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsWidget *widget = (QGraphicsWidget *)self->_to_graphics_item (Args.This ());
+      if (widget) { result = v8::String::New (qPrintable (widget->windowTitle ())); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gwidget_rect (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsWidget *widget = (QGraphicsWidget *)self->_to_graphics_item (Args.This ());
+      if (widget) { result = qrectf_to_v8 (widget->rect ()); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gwidget_remove_action (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsWidget *widget = (QGraphicsWidget *)self->_to_graphics_item (Args.This ());
+      if (widget && Args.Length ()) {
+
+         QAction *action = self->v8_to_qobject<QAction> (Args[0]);
+         if (action) { widget->removeAction (action); }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+void
+dmz::JsModuleUiV8QtBasic::_init_gwidget () {
+
+   v8::HandleScope scope;
+
+   _gWidgetTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
+   _gWidgetTemp->Inherit (_graphTemp);
+
+   V8ObjectTemplate instance = _gWidgetTemp->InstanceTemplate ();
+   instance->SetInternalFieldCount (1);
+
+   V8ObjectTemplate proto = _gWidgetTemp->PrototypeTemplate ();
+   proto->Set ("actions", v8::FunctionTemplate::New (_gwidget_actions, _self));
+   proto->Set ("addAction", v8::FunctionTemplate::New (_gwidget_add_action, _self));
+   proto->Set ("addActions", v8::FunctionTemplate::New (_gwidget_add_actions, _self));
+   proto->Set ("adjustSize", v8::FunctionTemplate::New (_gwidget_adjust_size, _self));
+   proto->Set ("isActiveWindow", v8::FunctionTemplate::New (_gwidget_window_active, _self));
+   proto->Set ("rect", v8::FunctionTemplate::New (_gwidget_rect, _self));
+   proto->Set ("removeAction", v8::FunctionTemplate::New (_gwidget_remove_action, _self));
+   proto->Set ("windowTitle", v8::FunctionTemplate::New (_gwidget_window_title, _self));
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gweb_modified (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsWebView *web = (QGraphicsWebView *)self->_to_graphics_item (Args.This ());
+      if (web) { result = v8::Boolean::New (web->isModified ()); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gweb_load (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsWebView *web = (QGraphicsWebView *)self->_to_graphics_item (Args.This ());
+      if (web && Args.Length ()) {
+
+         QUrl url;
+         if (Args[0]->IsString ()) { url.setUrl (v8_to_qstring (Args[0])); }
+         else {
+
+            QString host, path, queryItem;
+            V8Object obj = v8_to_object (Args[0]);
+            host = v8_to_qstring (obj->Get (v8::String::NewSymbol ("host")));
+            path = v8_to_qstring (obj->Get (v8::String::NewSymbol ("path")));
+            url.setHost (host);
+            url.setPath (path);
+            V8Object queryObj = v8_to_object (obj->Get (v8::String::NewSymbol ("queryItems")));
+            url.addQueryItem ("SERVICE", v8_to_qstring (queryObj->Get(v8::String::NewSymbol ("SERVICE"))));
+            url.addQueryItem ("REQUEST", v8_to_qstring (queryObj->Get(v8::String::NewSymbol ("REQUEST"))));
+            url.addQueryItem ("VERSION", v8_to_qstring (queryObj->Get(v8::String::NewSymbol ("VERSION"))));
+            url.addQueryItem ("SRS", v8_to_qstring (queryObj->Get(v8::String::NewSymbol ("SRS"))));
+            url.addQueryItem ("LAYERS", v8_to_qstring (queryObj->Get(v8::String::NewSymbol ("LAYERS"))));
+            url.addQueryItem ("FORMAT", v8_to_qstring (queryObj->Get(v8::String::NewSymbol ("FORMAT"))));
+            url.addQueryItem ("STYLES", v8_to_qstring (queryObj->Get(v8::String::NewSymbol ("STYLES"))));
+         }
+         if (!url.isEmpty () && url.isValid ()) { web->load (url); }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gweb_reload (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsWebView *web = (QGraphicsWebView *)self->_to_graphics_item (Args.This ());
+      if (web) { web->reload (); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gweb_url (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsWebView *web = (QGraphicsWebView *)self->_to_graphics_item (Args.This ());
+      if (web) {
+
+         if (Args.Length ()) {
+
+            QUrl url;
+            if (Args[0]->IsString ()) { url.setUrl (v8_to_qstring (Args[0])); }
+            else {
+
+               QString host, path, queryItem;
+               V8Object obj = v8_to_object (Args[0]);
+               host = v8_to_qstring (obj->Get (v8::String::NewSymbol ("host")));
+               path = v8_to_qstring (obj->Get (v8::String::NewSymbol ("path")));
+               url.setHost (host);
+               url.setPath (path);
+               V8Object queryObj = v8_to_object (obj->Get (v8::String::NewSymbol ("queryItems")));
+               url.addQueryItem ("SERVICE", v8_to_qstring (queryObj->Get(v8::String::NewSymbol ("SERVICE"))));
+               url.addQueryItem ("REQUEST", v8_to_qstring (queryObj->Get(v8::String::NewSymbol ("REQUEST"))));
+               url.addQueryItem ("VERSION", v8_to_qstring (queryObj->Get(v8::String::NewSymbol ("VERSION"))));
+               url.addQueryItem ("SRS", v8_to_qstring (queryObj->Get(v8::String::NewSymbol ("SRS"))));
+               url.addQueryItem ("LAYERS", v8_to_qstring (queryObj->Get(v8::String::NewSymbol ("LAYERS"))));
+               url.addQueryItem ("FORMAT", v8_to_qstring (queryObj->Get(v8::String::NewSymbol ("FORMAT"))));
+               url.addQueryItem ("STYLES", v8_to_qstring (queryObj->Get(v8::String::NewSymbol ("STYLES"))));
+            }
+            web->setUrl (url);
+         }
+
+         result = v8::String::New (qPrintable (web->url ().toString ()));
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+void
+dmz::JsModuleUiV8QtBasic::_init_gwebview () {
+
+   v8::HandleScope scope;
+
+   _gWebViewTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
+   _gWebViewTemp->Inherit (_gWidgetTemp);
+
+   V8ObjectTemplate instance = _gWebViewTemp->InstanceTemplate ();
+   instance->SetInternalFieldCount (1);
+
+   V8ObjectTemplate proto = _gWebViewTemp->PrototypeTemplate ();
+   proto->Set ("isModified", v8::FunctionTemplate::New (_gweb_modified, _self));
+   proto->Set ("load", v8::FunctionTemplate::New (_gweb_load, _self));
+   proto->Set ("reload", v8::FunctionTemplate::New (_gweb_reload, _self));
+   proto->Set ("url", v8::FunctionTemplate::New (_gweb_url, _self));
+
+   _graphApi.add_function ("createWebView", _create_gwebview, _self);
 }

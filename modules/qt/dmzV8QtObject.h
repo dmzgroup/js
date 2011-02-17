@@ -35,10 +35,16 @@ namespace dmz {
             const V8Object &Self,
             const V8Function &Func);
 
+         virtual void bind_event (
+            const V8Object &Self,
+            const V8Function &Func);
+
          void release_callback (const Handle Observer);
          V8Value find_callback (const V8Object &Self, const String &Signal);
 
          void set_delete_object (const Boolean Value);
+
+         bool eventFilter (QObject *, QEvent *);
 
          V8ObjectPersist self;
 
@@ -74,6 +80,10 @@ namespace dmz {
             const V8Object &Self,
             const V8Function &Func);
 
+         void _register_event_callback (
+            const V8Object &Self,
+            const V8Function &Func);
+
          CallbackStruct *_get_first_callback (const String &Signal);
          CallbackStruct *_get_next_callback ();
          void _handle_exception (const Handle Source, v8::TryCatch &tc);
@@ -85,6 +95,7 @@ namespace dmz {
 
          V8Value _to_v8_value (const QVariant &Value);
 
+         HashTableHandleTemplate<CallbackStruct> _eventCallbackTable;
          QPointer<QObject> _object;
          JsModuleUiV8QtBasicState *_state;
          HashTableStringTemplate<CallbackTable> _cbTable;

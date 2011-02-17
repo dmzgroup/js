@@ -57,6 +57,53 @@ dmz::JsModuleUiV8QtBasic::_list_widget_item_data (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_list_widget_item_bg_brush (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QListWidgetItem *item = self->_to_qlistwidgetitem (Args.This ());
+      if (item) {
+
+         if (Args.Length ()) {
+
+            QBrush *brush = self->_to_gbrush (Args[0]);
+            if (brush) { item->setBackground (*brush); }
+         }
+
+         result = self->create_v8_gbrush (new QBrush (item->background ()));
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_list_widget_item_hidden (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QListWidgetItem *item = self->_to_qlistwidgetitem (Args.This ());
+      if (item) {
+
+         if (Args.Length ()) { item->setHidden (v8_to_boolean (Args[0])); }
+
+         result = v8::Boolean::New (item->isHidden ());
+      }
+   }
+
+   return scope.Close (result);
+}
+
 
 dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_list_widget_add_item (const v8::Arguments &Args) {
@@ -72,8 +119,14 @@ dmz::JsModuleUiV8QtBasic::_list_widget_add_item (const v8::Arguments &Args) {
 
          if (Args.Length ()) {
 
-            QString param = v8_to_qstring (Args[0]);
-            QListWidgetItem *item = new QListWidgetItem (param, lw);
+            QListWidgetItem *item = self->_to_qlistwidgetitem (Args[0]);
+
+            if (!item) {
+
+               QString param = v8_to_qstring (Args[0]);
+               item = new QListWidgetItem (param, lw);
+            }
+            else { lw->addItem (item); }
 
             if (Args.Length () >= 2) {
 
@@ -104,14 +157,35 @@ dmz::JsModuleUiV8QtBasic::_list_widget_take_item (const v8::Arguments &Args) {
 
          if (Args.Length ()) {
 
+            result =
+               self->create_v8_qlistwidgetitem (lw->takeItem (v8_to_uint32 (Args[0])));
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_list_widget_remove_item (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::False ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QListWidget *lw = self->v8_to_qobject<QListWidget> (Args.This ());
+      if (lw) {
+
+         if (Args.Length ()) {
+
             QListWidgetItem *item = self->_to_qlistwidgetitem (Args[0]);
             if (item) {
 
                item = lw->takeItem (lw->row (item));
-               if (item) {
-
-                  result = self->create_v8_qlistwidgetitem (item);
-               }
+               result = v8::Boolean::New (item ? true : false);
             }
          }
       }
@@ -351,6 +425,8 @@ dmz::JsModuleUiV8QtBasic::_init_list_widget_item () {
    V8ObjectTemplate proto = _listWidgetItemTemp->PrototypeTemplate ();
    proto->Set ("text", v8::FunctionTemplate::New (_list_widget_item_text, _self));
    proto->Set ("data", v8::FunctionTemplate::New (_list_widget_item_data, _self));
+   proto->Set ("background", v8::FunctionTemplate::New (_list_widget_item_bg_brush, _self));
+   proto->Set ("hidden", v8::FunctionTemplate::New (_list_widget_item_hidden, _self));
 }
 
 
@@ -377,6 +453,7 @@ dmz::JsModuleUiV8QtBasic::_init_list_widget () {
    proto->Set ("item", v8::FunctionTemplate::New (_list_widget_item, _self));
    proto->Set ("row", v8::FunctionTemplate::New (_list_widget_row, _self));
    proto->Set ("takeItem", v8::FunctionTemplate::New (_list_widget_take_item, _self));
+   proto->Set ("removeItem", v8::FunctionTemplate::New (_list_widget_remove_item, _self));
    proto->Set ("findItems", v8::FunctionTemplate::New (_list_widget_find_items, _self));
 
    _listApi.add_function ("create", _create_list, _self);
