@@ -79,6 +79,32 @@ dmz::JsModuleUiV8QtBasic::_label_clear (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_label_pixmap (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QLabel *label = self->v8_to_qobject<QLabel>(Args.This ());
+      if (label) {
+
+         if (Args.Length ()) {
+
+            QPixmap *pixmap = self->_to_gpixmap (Args[0]);
+            if (pixmap) { label->setPixmap (*pixmap); }
+         }
+
+         result = self->create_v8_gpixmap (new QPixmap (*label->pixmap ()));
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_create_label (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -123,6 +149,7 @@ dmz::JsModuleUiV8QtBasic::_init_label () {
    proto->Set ("text", v8::FunctionTemplate::New (_label_text, _self));
    proto->Set ("wordWrap", v8::FunctionTemplate::New (_label_word_wrap, _self));
    proto->Set ("clear", v8::FunctionTemplate::New (_label_clear, _self));
+   proto->Set ("pixmap", v8::FunctionTemplate::New (_label_pixmap, _self));
 
    _labelApi.add_function ("create", _create_label, _self);
 }

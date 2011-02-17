@@ -527,7 +527,7 @@ dmz::JsModuleUiV8QtBasic::_create_gpixmap (const v8::Arguments &Args) {
       if (Args.Length () == 1) { pix = new QPixmap (v8_to_qstring (Args[0])); }
       if (Args.Length () == 2) {
 
-         if (Args[1]->IsString ()) {
+         if (Args[0]->IsString ()) {
 
             dmz::String format = v8_to_string (Args[1]);
             pix = new QPixmap (v8_to_qstring (Args[0]), format.get_buffer ());

@@ -223,6 +223,7 @@ namespace dmz {
          static V8Value _label_text (const v8::Arguments &Args);
          static V8Value _label_word_wrap (const v8::Arguments &Args);
          static V8Value _label_clear (const v8::Arguments &Args);
+         static V8Value _label_pixmap (const v8::Arguments &Args);
          static V8Value _create_label (const v8::Arguments &Args);
 
          // QProgressBar bindings implemented in JsModuleUiV8QtLabel.cpp

@@ -277,7 +277,7 @@ dmz::JsModuleUiV8QtBasic::_create_webview (const v8::Arguments &Args) {
       view->settings ()->setAttribute (QWebSettings::JavascriptCanOpenWindows, true);
       view->settings ()->setAttribute (QWebSettings::PluginsEnabled, true);
       view->settings ()->setAttribute (QWebSettings::LocalContentCanAccessRemoteUrls, true);
-      result = self->create_v8_qobject (new QWebView (parent));
+      result = self->create_v8_qobject (view);
    }
 
    return scope.Close (result);
