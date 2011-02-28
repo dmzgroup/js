@@ -344,8 +344,8 @@ dmz::JsExtV8Input::_register_callback_static (
    v8::HandleScope scope;
    V8Value result = v8::Undefined ();
    JsExtV8Input *self = _to_self (Args);
-   if (self) { result = self->_register_callback (Args, Type); } 
-   
+   if (self) { result = self->_register_callback (Args, Type); }
+
    return scope.Close (result);
 }
 
@@ -447,7 +447,7 @@ dmz::JsExtV8Input::_input_channel_create (const v8::Arguments &Args) {
          result = v8::Integer::New (Channel);
       }
    }
- 
+
    return scope.Close (result);
 }
 

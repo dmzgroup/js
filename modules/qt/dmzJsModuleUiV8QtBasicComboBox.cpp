@@ -87,8 +87,42 @@ dmz::JsModuleUiV8QtBasic::_combobox_add_item (const v8::Arguments &Args) {
 
          if (Args.Length () > 0) {
 
-            QString item = v8_to_qstring(Args[0]);
-            cb->addItem (item);
+            if (Args.Length () > 1) {
+
+               QPixmap *pixmap = self->_to_gpixmap (Args[0]);
+               QString item = v8_to_qstring (Args[1]);
+               if (pixmap) { cb->addItem (*pixmap, item); }
+            }
+            else {
+
+               QString item = v8_to_qstring (Args[0]);
+               cb->addItem (item);
+            }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_combobox_insert_item (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QComboBox *cb = self->v8_to_qobject<QComboBox> (Args.This ());
+      if (cb) {
+
+         if (Args.Length () > 1) {
+
+            int index = v8_to_uint32 (Args[0]);
+            QString item = v8_to_qstring (Args[1]);
+            cb->insertItem (index, item);
          }
       }
    }
@@ -267,6 +301,7 @@ dmz::JsModuleUiV8QtBasic::_init_combobox () {
    proto->Set ("findText", v8::FunctionTemplate::New (_combobox_find_text, _self));
    proto->Set ("removeIndex", v8::FunctionTemplate::New (_combobox_remove_item, _self));
    proto->Set ("clear", v8::FunctionTemplate::New (_combobox_clear, _self));
+   proto->Set ("insertItem", v8::FunctionTemplate::New (_combobox_insert_item, _self));
 
    _comboBoxApi.add_function ("create", _create_comboBox, _self);
 }

@@ -189,6 +189,7 @@ namespace dmz {
          static V8Value _combobox_remove_item (const v8::Arguments &Args);
          static V8Value _combobox_clear (const v8::Arguments &Args);
          static V8Value _combobox_item_text (const v8::Arguments &Args);
+         static V8Value _combobox_insert_item (const v8::Arguments &Args);
          static V8Value _create_comboBox (const v8::Arguments &Args);
 
          // QSlider bindings implemented in JsModuleUiV8QtBasicSlider.cpp
@@ -286,6 +287,7 @@ namespace dmz {
          static V8Value _layout_enabled (const v8::Arguments &Args);
          static V8Value _layout_at (const v8::Arguments &Args);
          static V8Value _layout_count (const v8::Arguments &Args);
+         static V8Value _layout_remove_widget (const v8::Arguments &Args);
          static V8Value _layout_parent (const v8::Arguments &Args);
          static V8Value _layout_parent_widget (const v8::Arguments &Args);
 
