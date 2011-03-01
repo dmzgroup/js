@@ -720,14 +720,10 @@ dmz::JsModuleUiV8QtBasic::_form_layout_row_count (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QWidget *widget = self->_to_qwidget (Args[0]);
-      if (widget) {
+      QFormLayout *form = self->v8_to_qobject<QFormLayout> (Args.This ());
+      if (form) {
 
-         QFormLayout *layout = new QFormLayout (widget);
-         if (layout) {
-
-            result = v8::Number::New (layout->rowCount ());
-         }
+         result = v8::Number::New (form->rowCount ());
       }
    }
 
@@ -790,6 +786,36 @@ dmz::JsModuleUiV8QtBasic::_form_layout_spacing (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_form_layout_at (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QFormLayout *form = self->v8_to_qobject<QFormLayout> (Args.This ());
+      if (form) {
+
+         if (Args.Length () > 1) {
+
+            int index = v8_to_uint32 (Args[0]);
+            QFormLayout::ItemRole role = (QFormLayout::ItemRole) v8_to_uint32 (Args[1]);
+            QLayoutItem *item = form->itemAt (index, role);
+            if (item) {
+
+               if (item->layout ()) { result = self->create_v8_qobject (item->layout ()); }
+               else { result = self->create_v8_qwidget (item->widget ()); }
+            }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_create_form_layout (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -823,6 +849,7 @@ dmz::JsModuleUiV8QtBasic::_init_form_layout () {
    proto->Set ("addRow", v8::FunctionTemplate::New (_form_layout_add_row, _self));
    proto->Set ("insertRow", v8::FunctionTemplate::New (_form_layout_insert_row, _self));
    proto->Set ("rowCount", v8::FunctionTemplate::New (_form_layout_row_count, _self));
+   proto->Set ("at", v8::FunctionTemplate::New (_form_layout_at, _self));
 
    proto->Set (
       "verticalSpacing",
