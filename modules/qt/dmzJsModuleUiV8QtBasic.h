@@ -276,6 +276,7 @@ namespace dmz {
          static V8Value _tab_widget_index_of (const v8::Arguments &Args);
          static V8Value _tab_widget_tab_text (const v8::Arguments &Args);
          static V8Value _tab_widget_at (const v8::Arguments &Args);
+         static V8Value _tab_widget_clear (const v8::Arguments &Args);
          static V8Value _create_tab_widget (const v8::Arguments &Args);
 
          // QMessageBox bindings implemented in JsModuleUiV8QtBasicMessageBox.cpp

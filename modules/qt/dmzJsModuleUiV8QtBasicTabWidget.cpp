@@ -214,6 +214,23 @@ dmz::JsModuleUiV8QtBasic::_tab_widget_tab_text (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_tab_widget_clear (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QTabWidget *tw = self->v8_to_qobject<QTabWidget>(Args.This ());
+      if (tw) { tw->clear (); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_create_tab_widget (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -259,6 +276,7 @@ dmz::JsModuleUiV8QtBasic::_init_tab_widget () {
    proto->Set ("at", v8::FunctionTemplate::New (_tab_widget_at, _self));
    proto->Set ("indexOf", v8::FunctionTemplate::New (_tab_widget_index_of, _self));
    proto->Set ("tabText", v8::FunctionTemplate::New (_tab_widget_tab_text, _self));
+   proto->Set ("clear", v8::FunctionTemplate::New (_tab_widget_clear, _self));
 
    _tabApi.add_function ("create", _create_tab_widget, _self);
 }
