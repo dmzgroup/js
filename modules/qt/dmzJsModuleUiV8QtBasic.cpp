@@ -172,7 +172,7 @@ dmz::JsModuleUiV8QtBasic::create_v8_qobject (QObject *value) {
 
          if (value->isWidgetType ()) {
 
-            QWidget  *widget = qobject_cast<QWidget *>(value);
+            QWidget *widget = qobject_cast<QWidget *>(value);
             if (widget) { result = create_v8_qwidget (widget); }
          }
          else if (value->inherits ("QAction")) {
