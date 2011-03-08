@@ -69,8 +69,8 @@ dmz::V8QtTreeWidget::bind (
 
          connect (
             _widget,
-            SIGNAL (itemActivated (QTreeWidgetItem *)),
-            SLOT (on_itemActivated (QTreeWidgetItem *)),
+            SIGNAL (itemActivated (QTreeWidgetItem *, int)),
+            SLOT (on_itemActivated (QTreeWidgetItem *, int)),
             Qt::UniqueConnection);
 
          results = True;
@@ -137,7 +137,7 @@ dmz::V8QtTreeWidget::on_currentTextChanged (const QString &Value) {
 
 
 void
-dmz::V8QtTreeWidget::on_itemActivated (QTreeWidgetItem *item) {
+dmz::V8QtTreeWidget::on_itemActivated (QTreeWidgetItem *item, int column) {
 
    if (_state && _state->ui) {
 
@@ -146,6 +146,7 @@ dmz::V8QtTreeWidget::on_itemActivated (QTreeWidgetItem *item) {
 
       QList<V8Value> args;
       args.append (_state->ui->create_v8_qtreewidgetitem (item));
+      args.append (v8::Number::New (column));
 
       _do_callback (LocalSignalItemActivated, args);
    }

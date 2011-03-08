@@ -29,7 +29,7 @@ namespace dmz {
          void on_currentItemChanged (QTreeWidgetItem *current, QTreeWidgetItem *previous);
          void on_currentRowChanged (int value);
          void on_currentTextChanged (const QString &Value);
-         void on_itemActivated (QTreeWidgetItem *item);
+         void on_itemActivated (QTreeWidgetItem *item, int column);
          void on_itemExpanded (QTreeWidgetItem *item);
          void on_itemSelectionChanged (void);
    };
