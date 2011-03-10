@@ -184,6 +184,9 @@ namespace dmz {
          static V8Value _cancel_all_timers (const v8::Arguments &Args);
          static V8Value _get_frame_delta (const v8::Arguments &Args);
          static V8Value _get_frame_time (const v8::Arguments &Args);
+         static V8Value _set_frame_time (const v8::Arguments &Args);
+         static V8Value _get_time_factor (const v8::Arguments &Args);
+         static V8Value _set_time_factor (const v8::Arguments &Args);
          static V8Value _get_system_time (const v8::Arguments &Args);
 
          // Sphere binding implemened in dJsModuleRuntimeV8BasicSphere.cpp
@@ -268,16 +271,16 @@ namespace dmz {
 
          V8ValuePersist _self;
 
-         V8InterfaceHelper _configApi; 
-         V8InterfaceHelper _dataApi; 
-         V8InterfaceHelper _defsApi; 
-         V8InterfaceHelper _eventTypeApi; 
-         V8InterfaceHelper _logApi; 
-         V8InterfaceHelper _msgApi; 
+         V8InterfaceHelper _configApi;
+         V8InterfaceHelper _dataApi;
+         V8InterfaceHelper _defsApi;
+         V8InterfaceHelper _eventTypeApi;
+         V8InterfaceHelper _logApi;
+         V8InterfaceHelper _msgApi;
          V8InterfaceHelper _objTypeApi;
          V8InterfaceHelper _sphereApi;
-         V8InterfaceHelper _timeApi; 
-         V8InterfaceHelper _undoApi; 
+         V8InterfaceHelper _timeApi;
+         V8InterfaceHelper _undoApi;
 
          HashTableHandleTemplate<MessageStruct> _msgTable;
          HashTableHandleTemplate<TimerStruct> _timerTable;

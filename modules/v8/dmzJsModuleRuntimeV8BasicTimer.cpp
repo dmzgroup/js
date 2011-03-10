@@ -154,7 +154,7 @@ dmz::JsModuleRuntimeV8Basic::_set_base_timer (
 
       String msg ("Failed to register ");
       msg << (Repeating ? "repeating " : "") << "timer for instance: " << name;
-     
+
       V8String str = v8::String::New (msg.get_buffer ());
       return v8::ThrowException (v8::Exception::Error (str));
    }
@@ -231,6 +231,54 @@ dmz::JsModuleRuntimeV8Basic::_get_frame_time (const v8::Arguments &Args) {
    JsModuleRuntimeV8Basic *self = to_self (Args);
 
    if (self) { result = v8::Number::New (self->_time.get_frame_time ()); }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleRuntimeV8Basic::_set_frame_time (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self && Args.Length ()) {
+
+      self->_time.set_frame_time (v8_to_number (Args[0]));
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleRuntimeV8Basic::_get_time_factor (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self) { result = v8::Number::New (self->_time.get_time_factor ()); }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleRuntimeV8Basic::_set_time_factor (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   JsModuleRuntimeV8Basic *self = to_self (Args);
+
+   if (self && Args.Length ()) {
+
+      self->_time.set_time_factor (v8_to_number (Args[0]));
+   }
 
    return result.IsEmpty () ? result : scope.Close (result);
 }
@@ -321,6 +369,9 @@ dmz::JsModuleRuntimeV8Basic::_init_time () {
    _timeApi.add_function ("cancelAllTimers", _cancel_all_timers, _self);
    _timeApi.add_function ("getFrameDelta", _get_frame_delta, _self);
    _timeApi.add_function ("getFrameTime", _get_frame_time, _self);
+   _timeApi.add_function ("setFrameTime", _set_frame_time, _self);
+   _timeApi.add_function ("getTimeFactor", _get_time_factor, _self);
+   _timeApi.add_function ("setTimeFactor", _set_time_factor, _self);
    _timeApi.add_function ("getSystemTime", _get_system_time, _self);
 }
 
