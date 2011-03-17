@@ -75,7 +75,7 @@ exports.isUndefined = function (val) { var ud; return val === ud; };
 
 
 exports.hasFunction = function (obj, name) {
- 
+
    return typeof obj[name] === 'function';
 };
 
@@ -84,3 +84,14 @@ exports.createError = function (message) {
 
    return new Error (message);
 }
+
+exports.dateToTimeStamp = function (date) {
+
+   var result;
+   if (date instanceof Date) { result = date.valueOf() / 1000; }
+   else { result = new Error ("Input is not a Date"); }
+   return result;
+}
+
+exports.timeStampToDate = function (timeStamp) { return new Date(timeStamp * 1000); }
+
