@@ -228,8 +228,8 @@ dmz::JsExtV8Resources::_init (Config &local) {
    // Bind API
    _resourcesApi.add_function ("findFile", _rc_find_file, _self);
    _resourcesApi.add_function ("storeConfig", _rc_store_config, _self);
-   _resourcesApi.add_function ("lookupConfig", _rc_store_config, _self);
-   _resourcesApi.add_function ("removeConfig", _rc_store_config, _self);
+   _resourcesApi.add_function ("lookupConfig", _rc_lookup_config, _self);
+   _resourcesApi.add_function ("removeConfig", _rc_remove_config, _self);
 }
 
 
