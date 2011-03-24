@@ -17,7 +17,6 @@ var dmz =
 
 puts("Script: " + self.name);
 
-self.log.warn (source);
 dmz.ui.phonon.createPath(source, video);
 
 dmz.module.subscribe(self, "main", function (Mode, module) {
