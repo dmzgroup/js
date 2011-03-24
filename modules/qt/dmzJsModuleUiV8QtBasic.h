@@ -98,6 +98,8 @@ namespace dmz {
 
          virtual v8::Handle<v8::Value> create_v8_qevent (QEvent *value);
 
+
+
          // JsExtV8 Interface
          virtual void update_js_module_v8 (const ModeEnum Mode, JsModuleV8 &module);
          virtual void update_js_context_v8 (v8::Handle<v8::Context> context);
@@ -718,6 +720,27 @@ namespace dmz {
          static V8Value _gscene_mouse_event_scene_pos (const v8::Arguments &Args);
          static V8Value _gscene_mouse_event_screen_pos (const v8::Arguments &Args);
 
+         // Phonon::MediaObject bindings implemented in dmzJsModuleUiV8QtBasicPhonon.cpp
+         static V8Value _phonon_media_object_source (const v8::Arguments &Args);
+         static V8Value _phonon_media_object_has_video (const v8::Arguments &Args);
+//         static V8Value _phonon_media_object_err_str (const v8::Arguments &Args);
+//         static V8Value _phonon_media_object_err_type (const v8::Arguments &Args);
+         static V8Value _phonon_media_object_curr_time (const v8::Arguments &Args);
+         static V8Value _phonon_media_object_rem_time (const v8::Arguments &Args);
+         static V8Value _phonon_media_object_total_time (const v8::Arguments &Args);
+         static V8Value _phonon_media_object_tick_interval (const v8::Arguments &Args);
+         static V8Value _phonon_media_object_pause (const v8::Arguments &Args);
+         static V8Value _phonon_media_object_play (const v8::Arguments &Args);
+         static V8Value _create_phonon_media_object (const v8::Arguments &Args);
+
+         // Phonon::VideoWidget bindings implemented in dmzJsModuleUiV8QtBasicPhonon.cpp
+         static V8Value _phonon_video_enter_fullscreen (const v8::Arguments &Args);
+         static V8Value _phonon_video_exit_fullscreen (const v8::Arguments &Args);
+         static V8Value _create_phonon_video_widget (const v8::Arguments &Args);
+
+         // Phonon bindings implemented in dmzJsModuleUiV8QtBasicPhonon.cpp
+         static V8Value _phonon_create_path (const v8::Arguments &Args);
+
          bool eventFilter (QObject *watched, QEvent *event);
 
          QWidget *_to_qwidget (V8Value value) { return v8_to_qobject<QWidget>(value); }
@@ -810,6 +833,10 @@ namespace dmz {
          void _init_mouse_event ();
          void _init_gscene_mouse_event ();
 
+         void _init_phonon ();
+         void _init_media_object ();
+         void _init_video_player ();
+
          void _init_layout ();
          void _init_box_layout ();
          void _init_hbox_layout ();
@@ -874,6 +901,8 @@ namespace dmz {
          V8InterfaceHelper _graphApi;
          V8InterfaceHelper _webviewApi;
          V8InterfaceHelper _eventApi;
+
+         V8InterfaceHelper _phononApi;
 
 
          V8FunctionTemplatePersist _objectTemp;
@@ -1056,6 +1085,12 @@ namespace dmz {
 
          V8FunctionTemplatePersist _gsceneMouseEventTemp;
          V8FunctionPersist _gsceneMouseEventCtor;
+
+         V8FunctionTemplatePersist _mediaObjectTemp;
+         V8FunctionPersist _mediaObjectCtor;
+
+         V8FunctionTemplatePersist _videoWidgetTemp;
+         V8FunctionPersist _videoWidgetCtor;
 
          V8StringPersist _allowMultipleStr;
          V8StringPersist _allowedAreasStr;

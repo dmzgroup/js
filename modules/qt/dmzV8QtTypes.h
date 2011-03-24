@@ -11,6 +11,7 @@
 #include <dmzV8QtInputDialog.h>
 #include <dmzV8QtLineEdit.h>
 #include <dmzV8QtListWidget.h>
+#include <dmzV8QtMediaObject.h>
 #include <dmzV8QtMessageBox.h>
 #include <dmzV8QtObject.h>
 #include <dmzV8QtProgressBar.h>
