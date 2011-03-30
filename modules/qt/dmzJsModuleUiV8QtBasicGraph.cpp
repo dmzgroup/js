@@ -539,7 +539,7 @@ dmz::JsModuleUiV8QtBasic::_create_gpixmap (const v8::Arguments &Args) {
             pix = new QPixmap (width, height);
          }
       }
-      result = self->create_v8_gpixmap (pix);
+      if (pix && !pix->isNull ()) { result = self->create_v8_gpixmap (pix); }
    }
 
    return scope.Close (result);

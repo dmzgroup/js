@@ -96,7 +96,9 @@ dmz::JsModuleUiV8QtBasic::_label_pixmap (const v8::Arguments &Args) {
             if (pixmap) { label->setPixmap (*pixmap); }
          }
 
-         result = self->create_v8_gpixmap (new QPixmap (*label->pixmap ()));
+         const QPixmap *pixmap (0);
+         pixmap = label->pixmap ();
+         if (pixmap) { result = self->create_v8_gpixmap (new QPixmap (*pixmap)); }
       }
    }
 
