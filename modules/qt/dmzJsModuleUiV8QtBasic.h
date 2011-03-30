@@ -165,6 +165,7 @@ namespace dmz {
          static V8Value _button_is_checked (const v8::Arguments &Args);
          static V8Value _button_set_checked (const v8::Arguments &Args);
          static V8Value _button_click (const v8::Arguments &Args);
+         static V8Value _button_std_icon (const v8::Arguments &Args);
          static V8Value _create_push_button (const v8::Arguments &Args);
          static V8Value _create_radio_button (const v8::Arguments &Args);
          static V8Value _create_check_box (const v8::Arguments &Args);
@@ -552,6 +553,7 @@ namespace dmz {
          static V8Value _gitem_spos (const v8::Arguments &Args);
          static V8Value _gitem_stack_before (const v8::Arguments &Args);
          static V8Value _gitem_rotation (const v8::Arguments &Args);
+         static V8Value _gitem_cursor (const v8::Arguments &Args);
 
          static V8Value _gabs_brush (const v8::Arguments &Args);
          static V8Value _gabs_pen (const v8::Arguments &Args);
@@ -731,6 +733,7 @@ namespace dmz {
          static V8Value _phonon_media_object_tick_interval (const v8::Arguments &Args);
          static V8Value _phonon_media_object_pause (const v8::Arguments &Args);
          static V8Value _phonon_media_object_play (const v8::Arguments &Args);
+         static V8Value _phonon_media_object_stop (const v8::Arguments &Args);
          static V8Value _create_phonon_media_object (const v8::Arguments &Args);
 
          // Phonon::VideoWidget bindings implemented in dmzJsModuleUiV8QtBasicPhonon.cpp

@@ -13,11 +13,13 @@ var dmz =
    , puts = require('sys').puts
    , video = dmz.ui.phonon.createVideoPlayer()
    , source = dmz.ui.phonon.createMediaObject("http://www.chds.us/media/viewpoints/mov/chds_viewpoints%2029_rodrigo_gomez.mov")
+   , source2 = dmz.ui.phonon.createMediaObject("http://www.chds.us/coursefiles/DA3210/videos/obsession/obsession_radical_islam.mov")
    ;
 
 puts("Script: " + self.name);
 
 dmz.ui.phonon.createPath(source, video);
+dmz.ui.phonon.createPath(source2, video);
 
 dmz.module.subscribe(self, "main", function (Mode, module) {
 
@@ -26,6 +28,7 @@ dmz.module.subscribe(self, "main", function (Mode, module) {
       _main = module
       _main.addPage (self.name, video);
       source.play();
+      source2.play();
    }
 });
 

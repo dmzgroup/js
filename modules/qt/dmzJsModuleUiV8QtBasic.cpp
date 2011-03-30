@@ -191,6 +191,14 @@ dmz::JsModuleUiV8QtBasic::create_v8_qobject (QObject *value) {
                qobj = new V8QtAction (vobj, value, &_state);
             }
          }
+         else if (value->inherits ("QFormLayout")) {
+
+            if (!_formLayoutCtor.IsEmpty ()) {
+
+               vobj = _formLayoutCtor->NewInstance ();
+               qobj = new V8QtObject (vobj, value, &_state);
+            }
+         }
          else if (value->inherits ("QHBoxLayout")) {
 
             if (!_hBoxLayoutCtor.IsEmpty ()) {
@@ -220,14 +228,6 @@ dmz::JsModuleUiV8QtBasic::create_v8_qobject (QObject *value) {
             if (!_gridLayoutCtor.IsEmpty ()) {
 
                vobj = _gridLayoutCtor->NewInstance ();
-               qobj = new V8QtObject (vobj, value, &_state);
-            }
-         }
-         else if (value->inherits ("QFormLayout")) {
-
-            if (!_formLayoutCtor.IsEmpty ()) {
-
-               vobj = _formLayoutCtor->NewInstance ();
                qobj = new V8QtObject (vobj, value, &_state);
             }
          }
@@ -1548,6 +1548,26 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _qtApi.add_constant ("ActionsContextMenu", (UInt32)Qt::ActionsContextMenu);
    _qtApi.add_constant ("CustomContextMenu", (UInt32)Qt::CustomContextMenu);
 
+   // enum Qt::CursorShape
+   _qtApi.add_constant ("ArrowCursor", (UInt32)Qt::ArrowCursor);
+   _qtApi.add_constant ("UpArrowCursor", (UInt32)Qt::UpArrowCursor);
+   _qtApi.add_constant ("CrossCursor", (UInt32)Qt::CrossCursor);
+   _qtApi.add_constant ("WaitCursor", (UInt32)Qt::WaitCursor);
+   _qtApi.add_constant ("IBeamCursor", (UInt32)Qt::IBeamCursor);
+   _qtApi.add_constant ("SizeVerCursor", (UInt32)Qt::SizeVerCursor);
+   _qtApi.add_constant ("SizeHorCursor", (UInt32)Qt::SizeHorCursor);
+   _qtApi.add_constant ("SizeBDiagCursor", (UInt32)Qt::SizeBDiagCursor);
+   _qtApi.add_constant ("SizeFDiagCursor", (UInt32)Qt::SizeFDiagCursor);
+   _qtApi.add_constant ("SizeAllCursor", (UInt32)Qt::SizeAllCursor);
+   _qtApi.add_constant ("BlankCursor", (UInt32)Qt::BlankCursor);
+   _qtApi.add_constant ("SplitVCursor", (UInt32)Qt::SplitVCursor);
+   _qtApi.add_constant ("SplitHCursor", (UInt32)Qt::SplitHCursor);
+   _qtApi.add_constant ("PointingHandCursor", (UInt32)Qt::PointingHandCursor);
+   _qtApi.add_constant ("ForbiddenCursor", (UInt32)Qt::ForbiddenCursor);
+   _qtApi.add_constant ("OpenHandCursor", (UInt32)Qt::OpenHandCursor);
+   _qtApi.add_constant ("ClosedHandCursor", (UInt32)Qt::ClosedHandCursor);
+   _qtApi.add_constant ("WhatsThisCursor", (UInt32)Qt::WhatsThisCursor);
+   _qtApi.add_constant ("BusyCursor", (UInt32)Qt::BusyCursor);
 
    // UiLoader API
    _uiLoaderApi.add_function ("load", _uiloader_load, _self);

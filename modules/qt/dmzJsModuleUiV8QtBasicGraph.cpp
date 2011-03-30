@@ -1615,6 +1615,30 @@ dmz::JsModuleUiV8QtBasic::_gitem_flag (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gitem_cursor (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsItem *item = self->_to_graphics_item (Args.This ());
+      if (item) {
+
+         if (Args.Length ()) {
+
+            Qt::CursorShape cursor = (Qt::CursorShape)v8_to_uint32 (Args[0]);
+            item->setCursor (cursor);
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_graph () {
 
@@ -1651,6 +1675,7 @@ dmz::JsModuleUiV8QtBasic::_init_graph () {
    proto->Set ("scenePos", v8::FunctionTemplate::New (_gitem_spos, _self));
    proto->Set ("rotation", v8::FunctionTemplate::New (_gitem_rotation, _self));
    proto->Set ("flag", v8::FunctionTemplate::New (_gitem_flag, _self));
+   proto->Set ("cursor", v8::FunctionTemplate::New (_gitem_cursor, _self));
 
    _graphApi.add_constant ("ItemIsMovable", (UInt32)QGraphicsItem::ItemIsMovable);
    _graphApi.add_constant ("ItemIsSelectable", (UInt32)QGraphicsItem::ItemIsSelectable);

@@ -220,6 +220,23 @@ dmz::JsModuleUiV8QtBasic::_phonon_media_object_play (const v8::Arguments &Args) 
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_phonon_media_object_stop (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      Phonon::MediaObject *media = self->v8_to_qobject<Phonon::MediaObject>(Args.This ());
+      if (media) { media->stop (); }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_media_object () {
 
@@ -242,6 +259,7 @@ dmz::JsModuleUiV8QtBasic::_init_media_object () {
    proto->Set ("tickInterval", v8::FunctionTemplate::New (_phonon_media_object_tick_interval, _self));
    proto->Set ("pause", v8::FunctionTemplate::New (_phonon_media_object_pause, _self));
    proto->Set ("play", v8::FunctionTemplate::New (_phonon_media_object_play, _self));
+   proto->Set ("stop", v8::FunctionTemplate::New (_phonon_media_object_stop, _self));
 
    _phononApi.add_function ("createMediaObject", _create_phonon_media_object, _self);
 }

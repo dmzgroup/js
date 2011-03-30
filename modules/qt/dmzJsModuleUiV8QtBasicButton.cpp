@@ -6,6 +6,7 @@
 #include <QtGui/QRadioButton>
 #include <QtGui/QCheckBox>
 #include <QtGui/QToolButton>
+#include <QtGui/QStyle>
 
 
 dmz::V8Value
@@ -95,6 +96,27 @@ dmz::JsModuleUiV8QtBasic::_button_click (const v8::Arguments &Args) {
    return scope.Close (result);
 }
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_button_std_icon (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QAbstractButton *button = self->v8_to_qobject<QAbstractButton> (Args.This ());
+      if (button && Args.Length ()) {
+
+
+         button->setIcon (
+            button->style ()->standardIcon (
+               (QStyle::StandardPixmap)v8_to_uint32 (Args[0])));
+      }
+   }
+
+   return scope.Close (result);
+}
 
 dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_create_push_button (const v8::Arguments &Args) {
@@ -213,9 +235,19 @@ dmz::JsModuleUiV8QtBasic::_init_button () {
    proto->Set ("isChecked", v8::FunctionTemplate::New (_button_is_checked, _self));
    proto->Set ("setChecked", v8::FunctionTemplate::New (_button_set_checked, _self));
    proto->Set ("click", v8::FunctionTemplate::New (_button_click, _self));
+   proto->Set ("standardIcon", v8::FunctionTemplate::New (_button_std_icon, _self));
 
    _buttonApi.add_function ("createPushButton", _create_push_button, _self);
    _buttonApi.add_function ("createRadioButton", _create_radio_button, _self);
    _buttonApi.add_function ("createCheckBox", _create_check_box, _self);
 //   _buttonApi.add_function ("createToolButton", _create_tool_button, _self);
+
+   // enum QStyle::StandardPixmap
+   _buttonApi.add_constant ("MediaPlay", (UInt32)QStyle::SP_MediaPlay);
+   _buttonApi.add_constant ("MediaStop", (UInt32)QStyle::SP_MediaStop);
+   _buttonApi.add_constant ("MediaPause", (UInt32)QStyle::SP_MediaPause);
+   _buttonApi.add_constant ("MediaSkipForward", (UInt32)QStyle::SP_MediaSkipForward);
+   _buttonApi.add_constant ("MediaSkipBackward", (UInt32)QStyle::SP_MediaSkipBackward);
+   _buttonApi.add_constant ("MediaSeekForward", (UInt32)QStyle::SP_MediaSeekForward);
+   _buttonApi.add_constant ("MediaSeekBackward", (UInt32)QStyle::SP_MediaSeekBackward);
 }
