@@ -774,7 +774,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _gPathCtor = V8FunctionPersist::New (_gPathTemp->GetFunction ());
       }
 
-      if (!_gPixmapItemCtor.IsEmpty ()) {
+      if (!_gPixmapItemTemp.IsEmpty ()) {
 
          _gPixmapItemCtor = V8FunctionPersist::New (_gPixmapItemTemp->GetFunction ());
       }
