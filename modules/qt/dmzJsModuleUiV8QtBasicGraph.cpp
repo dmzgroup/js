@@ -372,6 +372,24 @@ dmz::JsModuleUiV8QtBasic::_create_gpath_item (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_gwidget (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsItem *parent = 0;
+      if (Args.Length ()) { parent = self->_to_graphics_item (Args[0]); }
+
+      result = self->create_v8_graphics_item (new QGraphicsWidget (parent));
+   }
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_create_gscene (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -831,6 +849,23 @@ dmz::JsModuleUiV8QtBasic::create_v8_graphics_item (QGraphicsItem *value) {
          if (!_gRectCtor.IsEmpty ()) { obj = _gRectCtor->NewInstance (); }
          if (!obj.IsEmpty ()) {
 
+            obj->SetInternalField (0, v8::External::Wrap ((void *)value));
+            result = obj;
+         }
+      }
+      else if (qgraphicsitem_cast<QGraphicsWidget *> (value)) {
+
+         if (!_gWidgetCtor.IsEmpty ()) { obj = _gWidgetCtor->NewInstance (); }
+         if (!obj.IsEmpty ()) {
+
+            obj->SetInternalField (0, v8::External::Wrap ((void *)value));
+            result = obj;
+         }
+      }
+      else if (qgraphicsitem_cast<QGraphicsPixmapItem *> (value)) {
+
+         if (!_gPixmapItemCtor.IsEmpty ()) { obj = _gPixmapItemCtor->NewInstance (); }
+         if (!obj.IsEmpty ()) {
 
             obj->SetInternalField (0, v8::External::Wrap ((void *)value));
             result = obj;
@@ -889,7 +924,7 @@ dmz::JsModuleUiV8QtBasic::_to_graphics_item (V8Value value) {
 
       if (_gRectTemp->HasInstance (obj) || _gTextTemp->HasInstance (obj) ||
           _gLineTemp->HasInstance (obj) || _gPathTemp->HasInstance (obj) ||
-          _gWebViewTemp->HasInstance (obj)) {
+          _gWebViewTemp->HasInstance (obj) || _gPixmapItemTemp->HasInstance (obj)) {
 
          result = (QGraphicsItem *)v8::External::Unwrap (obj->GetInternalField (0));
       }
@@ -2128,6 +2163,51 @@ dmz::JsModuleUiV8QtBasic::_init_gline_item () {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gpixitem_pixmap (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsPixmapItem *item =
+         (QGraphicsPixmapItem *)self->_to_graphics_item (Args.This ());
+      if (item) {
+
+         if (Args.Length ()) {
+
+            QPixmap *pix = self->_to_gpixmap (Args[0]);
+            if (pix) { item->setPixmap (*pix); }
+         }
+         result = self->create_v8_gpixmap (new QPixmap (item->pixmap ()));
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+void
+dmz::JsModuleUiV8QtBasic::_init_gpixmap_item () {
+
+   v8::HandleScope scope;
+
+   _gAbsItemTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
+   _gAbsItemTemp->Inherit (_graphTemp);
+
+   _gPixmapItemTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
+   _gPixmapItemTemp->Inherit (_graphTemp);
+
+   V8ObjectTemplate instance = _gPixmapItemTemp->InstanceTemplate ();
+   instance->SetInternalFieldCount (1);
+
+   V8ObjectTemplate proto = _gPixmapItemTemp->PrototypeTemplate ();
+   proto->Set ("pixmap", v8::FunctionTemplate::New (_gpixitem_pixmap, _self));
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_gview_alignment (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -2880,6 +2960,46 @@ dmz::JsModuleUiV8QtBasic::_gscene_add_text (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gscene_add_pixmap (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsScene *scene = self->v8_to_qobject<QGraphicsScene> (Args.This ());
+      if (scene) {
+
+         if (Args.Length ()) {
+
+            QGraphicsPixmapItem *item (0);
+            QPixmap *pix = self->_to_gpixmap (Args[0]);
+            if (pix) {
+
+               item = new QGraphicsPixmapItem (*pix);
+               result = self->create_v8_graphics_item (item);
+            }
+            else {
+
+               item =
+                  qgraphicsitem_cast<QGraphicsPixmapItem *>(
+                     self->_to_graphics_item (Args[0]));
+
+               if (item) {
+
+                  scene->addItem (item);
+                  result = Args[0];
+               }
+            }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_gscene_bg_brush (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -3215,6 +3335,7 @@ dmz::JsModuleUiV8QtBasic::_init_gscene () {
    proto->Set ("addPath", v8::FunctionTemplate::New (_gscene_add_path, _self));
    proto->Set ("addRect", v8::FunctionTemplate::New (_gscene_add_rect, _self));
    proto->Set ("addText", v8::FunctionTemplate::New (_gscene_add_text, _self));
+   proto->Set ("addPixmap", v8::FunctionTemplate::New (_gscene_add_pixmap, _self));
    proto->Set ("backgroundBrush", v8::FunctionTemplate::New (_gscene_bg_brush, _self));
    proto->Set ("clearFocus", v8::FunctionTemplate::New (_gscene_clear_focus, _self));
    proto->Set ("collidingItems", v8::FunctionTemplate::New (_gscene_colliding_items, _self));
@@ -4715,6 +4836,8 @@ dmz::JsModuleUiV8QtBasic::_init_gwidget () {
    proto->Set ("rect", v8::FunctionTemplate::New (_gwidget_rect, _self));
    proto->Set ("removeAction", v8::FunctionTemplate::New (_gwidget_remove_action, _self));
    proto->Set ("windowTitle", v8::FunctionTemplate::New (_gwidget_window_title, _self));
+
+   _graphApi.add_function ("createGraphicsWidget", _create_gwidget, _self);
 }
 
 

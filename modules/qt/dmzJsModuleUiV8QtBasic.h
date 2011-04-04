@@ -517,6 +517,8 @@ namespace dmz {
          static V8Value _create_gtext_item (const v8::Arguments &Args);
          static V8Value _create_gline_item (const v8::Arguments &Args);
          static V8Value _create_gpath_item (const v8::Arguments &Args);
+         static V8Value _create_gpixmap_item (const v8::Arguments &Args);
+         static V8Value _create_gwidget (const v8::Arguments &Args);
          static V8Value _create_gwebview (const v8::Arguments &Args);
          static V8Value _create_gscene (const v8::Arguments &Args);
          static V8Value _create_gview (const v8::Arguments &Args);
@@ -573,6 +575,8 @@ namespace dmz {
          static V8Value _gline_line (const v8::Arguments &Args);
          static V8Value _gline_pen (const v8::Arguments &Args);
 
+         static V8Value _gpixitem_pixmap (const v8::Arguments &Args);
+
          static V8Value _gview_alignment (const v8::Arguments &Args);
          static V8Value _gview_bg_brush (const v8::Arguments &Args);
          static V8Value _gview_cache (const v8::Arguments &Args);
@@ -596,6 +600,7 @@ namespace dmz {
          static V8Value _gscene_add_path (const v8::Arguments &Args);
          static V8Value _gscene_add_rect (const v8::Arguments &Args);
          static V8Value _gscene_add_text (const v8::Arguments &Args);
+         static V8Value _gscene_add_pixmap (const v8::Arguments &Args);
          static V8Value _gscene_bg_brush (const v8::Arguments &Args);
          static V8Value _gscene_clear_focus (const v8::Arguments &Args);
          static V8Value _gscene_colliding_items (const v8::Arguments &Args);
@@ -817,6 +822,7 @@ namespace dmz {
          void _init_gpath_item ();
          void _init_gtext_item ();
          void _init_gline_item ();
+         void _init_gpixmap_item ();
          void _init_gview ();
          void _init_gscene ();
          void _init_gbrush ();
@@ -1034,6 +1040,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _gPathTemp;
          V8FunctionPersist _gPathCtor;
+
+         V8FunctionTemplatePersist _gPixmapItemTemp;
+         V8FunctionPersist _gPixmapItemCtor;
 
          V8FunctionTemplatePersist _gSceneTemp;
          V8FunctionPersist _gSceneCtor;
