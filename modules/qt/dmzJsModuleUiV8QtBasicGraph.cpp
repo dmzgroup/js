@@ -2193,9 +2193,6 @@ dmz::JsModuleUiV8QtBasic::_init_gpixmap_item () {
 
    v8::HandleScope scope;
 
-   _gAbsItemTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
-   _gAbsItemTemp->Inherit (_graphTemp);
-
    _gPixmapItemTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
    _gPixmapItemTemp->Inherit (_graphTemp);
 
@@ -2977,7 +2974,7 @@ dmz::JsModuleUiV8QtBasic::_gscene_add_pixmap (const v8::Arguments &Args) {
             QPixmap *pix = self->_to_gpixmap (Args[0]);
             if (pix) {
 
-               item = new QGraphicsPixmapItem (*pix);
+               item = scene->addPixmap (*pix);
                result = self->create_v8_graphics_item (item);
             }
             else {
