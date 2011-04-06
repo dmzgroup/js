@@ -100,6 +100,28 @@ dmz::JsModuleUiV8QtBasic::_lineEdit_redo (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_lineEdit_readonly (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+
+   if (self) {
+
+      QLineEdit *line = self->v8_to_qobject<QLineEdit>(Args.This ());
+      if (line) {
+
+         if (Args.Length ()) { line->setReadOnly (v8_to_boolean (Args[0])); }
+         result = v8::Boolean::New (line->isReadOnly ());
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_create_line_edit (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -145,6 +167,7 @@ dmz::JsModuleUiV8QtBasic::_init_lineEdit () {
    proto->Set ("clear", v8::FunctionTemplate::New (_lineEdit_clear, _self));
    proto->Set ("undo", v8::FunctionTemplate::New (_lineEdit_undo, _self));
    proto->Set ("redo", v8::FunctionTemplate::New (_lineEdit_redo, _self));
+   proto->Set ("readOnly", v8::FunctionTemplate::New (_lineEdit_readonly, _self));
 
    _lineEditApi.add_function ("create", _create_line_edit, _self);
 }
