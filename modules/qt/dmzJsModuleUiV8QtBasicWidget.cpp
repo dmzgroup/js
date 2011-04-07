@@ -103,6 +103,12 @@ dmz::JsModuleUiV8QtBasic::_widget_layout (const v8::Arguments &Args) {
          QLayout *layout = self->v8_to_qobject<QLayout> (Args[0]);
          if (layout) {
 
+            if (v8_to_boolean (Args[1])) { // delete current layout
+
+               QLayout *currentLayout = widget->layout ();
+               if (currentLayout) { delete currentLayout; }
+            }
+
             widget->setLayout (layout);
          }
       }
