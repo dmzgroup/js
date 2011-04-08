@@ -260,6 +260,12 @@ namespace dmz {
          static V8Value _list_widget_find_items (const v8::Arguments &Args);
          static V8Value _create_list (const v8::Arguments &Args);
 
+         // QScrollArea bindings implemented in JsModuleUiV8QtBasicScrollArea.cpp
+         static V8Value _scroll_area_widget (const v8::Arguments &Args);
+         static V8Value _scroll_area_ensure_visible (const v8::Arguments &Args);
+         static V8Value _scroll_area_widget_resizable (const v8::Arguments &Args);
+         static V8Value _create_scroll_area (const v8::Arguments &Args);
+
          // QStackedWidget bindings implemented in JsModuleUiV8QtBasicStackedWidget.cpp
          static V8Value _stacked_widget_add (const v8::Arguments &Args);
          static V8Value _stacked_widget_remove (const v8::Arguments &Args);
@@ -291,14 +297,17 @@ namespace dmz {
          static V8Value _layout_enabled (const v8::Arguments &Args);
          static V8Value _layout_at (const v8::Arguments &Args);
          static V8Value _layout_count (const v8::Arguments &Args);
+         static V8Value _layout_remove_item (const v8::Arguments &Args);
          static V8Value _layout_remove_widget (const v8::Arguments &Args);
          static V8Value _layout_parent (const v8::Arguments &Args);
          static V8Value _layout_parent_widget (const v8::Arguments &Args);
 
          // QBoxLayout bindings implemented in JsModuleUiV8QtBasicLayout.cpp
          static V8Value _box_layout_add_layout (const v8::Arguments &Args);
+         static V8Value _box_layout_insert_layout (const v8::Arguments &Args);
          static V8Value _box_layout_add_stretch (const v8::Arguments &Args);
          static V8Value _box_layout_add_widget (const v8::Arguments &Args);
+         static V8Value _box_layout_insert_widget (const v8::Arguments &Args);
          static V8Value _box_layout_direction (const v8::Arguments &Args);
          static V8Value _create_box_layout (const v8::Arguments &Args);
          static V8Value _create_hbox_layout (const v8::Arguments &Args);
@@ -806,6 +815,7 @@ namespace dmz {
          void _init_dialog ();
          void _init_message_box ();
          void _init_lcdNumber ();
+         void _init_scroll_area ();
          void _init_stacked_widget ();
          void _init_tab_widget ();
          void _init_file_dialog ();
@@ -897,6 +907,7 @@ namespace dmz {
          V8InterfaceHelper _lineEditApi;
          V8InterfaceHelper _listApi;
          V8InterfaceHelper _pbarApi;
+         V8InterfaceHelper _scrollAreaApi;
          V8InterfaceHelper _sliderApi;
          V8InterfaceHelper _spinBoxApi;
          V8InterfaceHelper _stackApi;
@@ -958,6 +969,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _lcdNumberTemp;
          V8FunctionPersist _lcdNumberCtor;
+
+         V8FunctionTemplatePersist _scrollAreaTemp;
+         V8FunctionPersist _scrollAreaCtor;
 
          V8FunctionTemplatePersist _stackedWidgetTemp;
          V8FunctionPersist _stackedCtor;

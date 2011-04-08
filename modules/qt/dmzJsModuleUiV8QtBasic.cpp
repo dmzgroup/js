@@ -377,6 +377,16 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
                qobj = new V8QtGroupBox (vobj, value, &_state);
             }
          }
+         else if (value->inherits ("QScrollArea")) {
+
+            if (!_scrollAreaCtor.IsEmpty ()) {
+
+               vobj = _scrollAreaCtor->NewInstance ();
+
+               // QScrollArea has no signals so it can be wrapped in a V8QtWidget -ss
+               qobj = new V8QtWidget (vobj, value, &_state);
+            }
+         }
          else if (value->inherits ("QStackedWidget")) {
 
             if (!_stackedCtor.IsEmpty ()) {
@@ -482,9 +492,7 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
             if (!_labelCtor.IsEmpty ()) {
 
                vobj = _labelCtor->NewInstance ();
-
-               // QLabel has no signals so it can be wrapped in a V8QtWidget -ss
-               qobj = new V8QtWidget (vobj, value, &_state);
+               qobj = new V8QtLabel (vobj, value, &_state);
             }
          }
          else if (value->inherits ("QLCDNumber")) {
@@ -672,6 +680,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       if (!_lcdNumberTemp.IsEmpty ()) {
 
          _lcdNumberCtor = V8FunctionPersist::New (_lcdNumberTemp->GetFunction ());
+      }
+
+      if (!_scrollAreaTemp.IsEmpty ()) {
+
+         _scrollAreaCtor = V8FunctionPersist::New (_scrollAreaTemp->GetFunction ());
       }
 
       if (!_stackedWidgetTemp.IsEmpty ()) {
@@ -971,6 +984,10 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
             _spinBoxApi.get_new_instance ());
 
          _state.core->register_interface (
+            "dmz/ui/scrollArea",
+            _scrollAreaApi.get_new_instance ());
+
+         _state.core->register_interface (
             "dmz/ui/stackedWidget",
             _stackApi.get_new_instance ());
 
@@ -1134,6 +1151,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _progressBarCtor.Dispose (); _progressBarCtor.Clear ();
       _dialogCtor.Dispose (); _dialogCtor.Clear ();
       _lcdNumberCtor.Dispose (); _lcdNumberCtor.Clear ();
+      _scrollAreaCtor.Dispose (); _scrollAreaCtor.Clear ();
       _stackedCtor.Dispose (); _stackedCtor.Clear ();
       _tabCtor.Dispose (); _tabCtor.Clear ();
       _hBoxLayoutCtor.Dispose (); _hBoxLayoutCtor.Clear ();
@@ -1245,6 +1263,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _pbarApi.clear ();
       _sliderApi.clear ();
       _spinBoxApi.clear ();
+      _scrollAreaApi.clear ();
       _stackApi.clear ();
       _tabApi.clear ();
       _tableApi.clear ();
@@ -1602,6 +1621,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_dialog ();
    _init_message_box ();
    _init_lcdNumber ();
+   _init_scroll_area ();
    _init_stacked_widget ();
    _init_tab_widget ();
    _init_layout ();

@@ -143,7 +143,7 @@ dmz::JsExtV8Object::_register_observer (
    }
 
    V8Function func = v8_to_function (Args[Length > 2 ? 2 : 1]);
-   
+
    if (_core && attr && (src.IsEmpty () == false) && (func.IsEmpty () == false)) {
 
       Boolean doDump (False);
@@ -429,6 +429,25 @@ dmz::JsExtV8Object::_object_is_link (const v8::Arguments &Args) {
    if (self && objMod && Link) {
 
       result = v8::Boolean::New (objMod->is_link (Link));
+   }
+
+   return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_dump_object_attributes (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result;
+
+   JsExtV8Object *self = to_self (Args);
+   ObjectModule *objMod = (self ? self->get_object_module () : 0);
+   const Handle Object = v8_to_handle (Args[0]);
+
+   if (self && objMod && Object) {
+
+      objMod->dump_object_attributes (Object, *self);
    }
 
    return result.IsEmpty () ? result : scope.Close (result);
@@ -989,7 +1008,7 @@ dmz::JsExtV8Object::_object_counter (const v8::Arguments &Args) {
    ObjectModule *objMod (0);
    JsModuleTypesV8 *types (0);
    Handle obj (0), attr (0);
-   
+
    if (_get_params (Args, objMod, types, obj, attr)) {
 
       if (Args.Length () > 2) {
@@ -1045,7 +1064,7 @@ dmz::JsExtV8Object::_object_counter_min (const v8::Arguments &Args) {
    ObjectModule *objMod (0);
    JsModuleTypesV8 *types (0);
    Handle obj (0), attr (0);
-   
+
    if (_get_params (Args, objMod, types, obj, attr)) {
 
       if (Args.Length () > 2) {
@@ -1101,7 +1120,7 @@ dmz::JsExtV8Object::_object_counter_max (const v8::Arguments &Args) {
    ObjectModule *objMod (0);
    JsModuleTypesV8 *types (0);
    Handle obj (0), attr (0);
-   
+
    if (_get_params (Args, objMod, types, obj, attr)) {
 
       if (Args.Length () > 2) {
@@ -1157,7 +1176,7 @@ dmz::JsExtV8Object::_object_counter_rollover (const v8::Arguments &Args) {
    ObjectModule *objMod (0);
    JsModuleTypesV8 *types (0);
    Handle obj (0), attr (0);
-   
+
    if (_get_params (Args, objMod, types, obj, attr)) {
 
       if (Args.Length () > 2) {
@@ -1193,7 +1212,7 @@ dmz::JsExtV8Object::_object_add_to_counter (const v8::Arguments &Args) {
    ObjectModule *objMod (0);
    JsModuleTypesV8 *types (0);
    Handle obj (0), attr (0);
-   
+
    if (_get_params (Args, objMod, types, obj, attr)) {
 
       if (Args.Length () > 2) {
@@ -1220,7 +1239,7 @@ dmz::JsExtV8Object::_object_alt_type (const v8::Arguments &Args) {
    ObjectModule *objMod (0);
    JsModuleTypesV8 *types (0);
    Handle obj (0), attr (0);
-   
+
    if (runtime && _get_params (Args, objMod, types, obj, attr)) {
 
       if (Args.Length () > 2) {
@@ -1277,7 +1296,7 @@ dmz::JsExtV8Object::_object_state (const v8::Arguments &Args) {
    ObjectModule *objMod (0);
    JsModuleTypesV8 *types (0);
    Handle obj (0), attr (0);
-   
+
    if (_get_params (Args, objMod, types, obj, attr)) {
 
       if (Args.Length () > 2) {
@@ -1341,7 +1360,7 @@ dmz::JsExtV8Object::_object_flag (const v8::Arguments &Args) {
    ObjectModule *objMod (0);
    JsModuleTypesV8 *types (0);
    Handle obj (0), attr (0);
-   
+
    if (_get_params (Args, objMod, types, obj, attr)) {
 
       if (Args.Length () > 2) {
@@ -1392,7 +1411,7 @@ dmz::JsExtV8Object::_object_time_stamp (const v8::Arguments &Args) {
    ObjectModule *objMod (0);
    JsModuleTypesV8 *types (0);
    Handle obj (0), attr (0);
-   
+
    if (_get_params (Args, objMod, types, obj, attr)) {
 
       if (Args.Length () > 2) {
@@ -1448,7 +1467,7 @@ dmz::JsExtV8Object::_object_position (const v8::Arguments &Args) {
    ObjectModule *objMod (0);
    JsModuleTypesV8 *types (0);
    Handle obj (0), attr (0);
-   
+
    if (_get_params (Args, objMod, types, obj, attr)) {
 
       if (Args.Length () > 2) {
@@ -1504,7 +1523,7 @@ dmz::JsExtV8Object::_object_orientation (const v8::Arguments &Args) {
    ObjectModule *objMod (0);
    JsModuleTypesV8 *types (0);
    Handle obj (0), attr (0);
-   
+
    if (_get_params (Args, objMod, types, obj, attr)) {
 
       if (Args.Length () > 2) {
@@ -1560,7 +1579,7 @@ dmz::JsExtV8Object::_object_velocity (const v8::Arguments &Args) {
    ObjectModule *objMod (0);
    JsModuleTypesV8 *types (0);
    Handle obj (0), attr (0);
-   
+
    if (_get_params (Args, objMod, types, obj, attr)) {
 
       if (Args.Length () > 2) {
@@ -1616,7 +1635,7 @@ dmz::JsExtV8Object::_object_acceleration (const v8::Arguments &Args) {
    ObjectModule *objMod (0);
    JsModuleTypesV8 *types (0);
    Handle obj (0), attr (0);
-   
+
    if (_get_params (Args, objMod, types, obj, attr)) {
 
       if (Args.Length () > 2) {
@@ -1672,7 +1691,7 @@ dmz::JsExtV8Object::_object_scale (const v8::Arguments &Args) {
    ObjectModule *objMod (0);
    JsModuleTypesV8 *types (0);
    Handle obj (0), attr (0);
-   
+
    if (_get_params (Args, objMod, types, obj, attr)) {
 
       if (Args.Length () > 2) {
@@ -1728,7 +1747,7 @@ dmz::JsExtV8Object::_object_vector (const v8::Arguments &Args) {
    ObjectModule *objMod (0);
    JsModuleTypesV8 *types (0);
    Handle obj (0), attr (0);
-   
+
    if (_get_params (Args, objMod, types, obj, attr)) {
 
       if (Args.Length () > 2) {
@@ -1784,7 +1803,7 @@ dmz::JsExtV8Object::_object_scalar (const v8::Arguments &Args) {
    ObjectModule *objMod (0);
    JsModuleTypesV8 *types (0);
    Handle obj (0), attr (0);
-   
+
    if (_get_params (Args, objMod, types, obj, attr)) {
 
       if (Args.Length () > 2) {
@@ -1840,7 +1859,7 @@ dmz::JsExtV8Object::_object_text (const v8::Arguments &Args) {
    ObjectModule *objMod (0);
    JsModuleTypesV8 *types (0);
    Handle obj (0), attr (0);
-   
+
    if (_get_params (Args, objMod, types, obj, attr)) {
 
       if (Args.Length () > 2) {
@@ -1895,7 +1914,7 @@ dmz::JsExtV8Object::_object_data (const v8::Arguments &Args) {
    ObjectModule *objMod (0);
    JsModuleTypesV8 *types (0);
    Handle obj (0), attr (0);
-   
+
    if (runtime && _get_params (Args, objMod, types, obj, attr)) {
 
       if (Args.Length () > 2) {
@@ -2831,7 +2850,7 @@ dmz::JsExtV8Object::_create_callback (
       const Handle ObsHandle,
       const Handle Attr,
       const Mask &AttrMask,
-      HashTableHandleTemplate<CallbackTable> &table, 
+      HashTableHandleTemplate<CallbackTable> &table,
       Boolean &doDump) {
 
    CallbackStruct *result (0);
@@ -2909,7 +2928,7 @@ dmz::JsExtV8Object::_do_callback (
 
       argv[argc - 1] = cb->self;
 
-      // Copy func and ObsHandle onto the stack in case the CallbackStruct is deleted 
+      // Copy func and ObsHandle onto the stack in case the CallbackStruct is deleted
       // in the callback.
       V8Function localFunc = v8::Local<v8::Function>::New (cb->func);
       const Handle ObsHandle = cb->ObsHandle;
@@ -3000,6 +3019,7 @@ dmz::JsExtV8Object::_init (Config &local) {
    _objectApi.add_function ("isObject", _object_is_object, _self);
    _objectApi.add_function ("isActivated", _object_is_activated, _self);
    _objectApi.add_function ("isLink", _object_is_link, _self);
+   _objectApi.add_function ("dumpObjectAttributes", _object_dump_object_attributes, _self);
    _objectApi.add_function ("getObjects", _object_objects, _self);
    _objectApi.add_function ("create", _object_create, _self);
    _objectApi.add_function ("create.observe", _object_create_observe, _self);
@@ -3077,8 +3097,8 @@ dmz::JsExtV8Object::_init (Config &local) {
    _objectApi.add_function ("scalar.observe", _object_scalar_observe, _self);
    _objectApi.add_function ("scalar.remove", _object_scalar_remove, _self);
    _objectApi.add_function ("text", _object_text, _self);
-	_objectApi.add_function ("text.observe", _object_text_observe, _self);
-	_objectApi.add_function ("text.remove", _object_text_remove, _self);
+   _objectApi.add_function ("text.observe", _object_text_observe, _self);
+   _objectApi.add_function ("text.remove", _object_text_remove, _self);
    _objectApi.add_function ("data", _object_data, _self);
    _objectApi.add_function ("data.observe", _object_data_observe, _self);
    _objectApi.add_function ("data.remove", _object_data_remove, _self);

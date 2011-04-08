@@ -9,6 +9,7 @@
 #include <dmzV8QtDockWidget.h>
 #include <dmzV8QtGroupBox.h>
 #include <dmzV8QtInputDialog.h>
+#include <dmzV8QtLabel.h>
 #include <dmzV8QtLineEdit.h>
 #include <dmzV8QtListWidget.h>
 #include <dmzV8QtMediaObject.h>

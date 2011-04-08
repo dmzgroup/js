@@ -1,5 +1,6 @@
 #include "dmzJsModuleUiV8QtBasic.h"
 #include <dmzJsV8UtilConvert.h>
+#include <QtGui/QLayoutItem>
 #include <QtGui/QBoxLayout>
 #include <QtGui/QGridLayout>
 #include <QtGui/QFormLayout>
@@ -104,6 +105,30 @@ dmz::JsModuleUiV8QtBasic::_layout_count (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_layout_remove_item (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QLayout *layout = self->v8_to_qobject<QLayout> (Args.This ());
+      if (layout) {
+
+         if (Args.Length ()) {
+
+            QLayout *item = self->v8_to_qobject<QLayout> (Args[0]);
+            if (item) { layout->removeItem (item); }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_layout_remove_widget (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -143,6 +168,7 @@ dmz::JsModuleUiV8QtBasic::_init_layout () {
    proto->Set ("enabled", v8::FunctionTemplate::New (_layout_enabled, _self));
    proto->Set ("at", v8::FunctionTemplate::New (_layout_at, _self));
    proto->Set ("count", v8::FunctionTemplate::New (_layout_count, _self));
+   proto->Set ("removeLayout", v8::FunctionTemplate::New (_layout_remove_item, _self));
    proto->Set ("removeWidget", v8::FunctionTemplate::New (_layout_remove_widget, _self));
 }
 
@@ -162,10 +188,31 @@ dmz::JsModuleUiV8QtBasic::_box_layout_add_layout (const v8::Arguments &Args) {
          if (Args.Length () > 0) {
 
             QLayout *newLayout = self->v8_to_qobject<QLayout> (Args[0]);
-            if (newLayout) {
+            if (newLayout) { layout->addLayout (newLayout); }
+         }
+      }
+   }
 
-               layout->addLayout (newLayout);
-            }
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_box_layout_insert_layout (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QBoxLayout *layout = self->v8_to_qobject<QBoxLayout> (Args.This ());
+      if (layout) {
+
+         if (Args.Length () > 1) {
+
+            QLayout *newLayout = self->v8_to_qobject<QLayout> (Args[1]);
+            if (newLayout) { layout->insertLayout (v8_to_int32 (Args[0]), newLayout); }
          }
       }
    }
@@ -222,6 +269,30 @@ dmz::JsModuleUiV8QtBasic::_box_layout_add_widget (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_box_layout_insert_widget (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QBoxLayout *layout = self->v8_to_qobject<QBoxLayout> (Args.This ());
+      if (layout) {
+
+         if (Args.Length () > 1) {
+
+            QWidget *widget = self->_to_qwidget (Args[1]);
+            if (widget) { layout->insertWidget (v8_to_int32 (Args[0]), widget); }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_box_layout_direction (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -263,8 +334,10 @@ dmz::JsModuleUiV8QtBasic::_init_box_layout () {
 
    V8ObjectTemplate proto = _boxLayoutTemp->PrototypeTemplate ();
    proto->Set ("addLayout", v8::FunctionTemplate::New (_box_layout_add_layout, _self));
+   proto->Set ("insertLayout", v8::FunctionTemplate::New (_box_layout_insert_layout, _self));
    proto->Set ("addStretch", v8::FunctionTemplate::New (_box_layout_add_stretch, _self));
    proto->Set ("addWidget", v8::FunctionTemplate::New (_box_layout_add_widget, _self));
+   proto->Set ("insertWidget", v8::FunctionTemplate::New (_box_layout_insert_widget, _self));
    proto->Set ("direction", v8::FunctionTemplate::New (_box_layout_direction, _self));
 
    _layoutApi.add_constant ("LeftToRight", (UInt32)QBoxLayout::LeftToRight);

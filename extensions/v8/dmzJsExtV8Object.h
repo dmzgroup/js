@@ -296,6 +296,7 @@ namespace dmz {
          static V8Value _object_is_object (const v8::Arguments &Args);
          static V8Value _object_is_activated (const v8::Arguments &Args);
          static V8Value _object_is_link (const v8::Arguments &Args);
+         static V8Value _object_dump_object_attributes(const v8::Arguments &Args);
          static V8Value _object_objects (const v8::Arguments &Args);
          static V8Value _object_create (const v8::Arguments &Args);
          static V8Value _object_create_observe (const v8::Arguments &Args);
@@ -380,7 +381,7 @@ namespace dmz {
          static V8Value _object_unselect_all (const v8::Arguments &Args);
          // Sphere bindings
          static V8Value _object_find (const v8::Arguments &Args);
-         
+
          // JsExtV8Object Interface
          Handle _to_handle (V8Value value);
          Handle _to_object_handle (V8Value value);
