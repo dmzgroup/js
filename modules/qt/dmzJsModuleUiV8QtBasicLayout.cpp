@@ -152,6 +152,30 @@ dmz::JsModuleUiV8QtBasic::_layout_remove_widget (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_layout_take_at (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QLayout *layout = self->v8_to_qobject<QLayout> (Args.This ());
+      if (layout) {
+
+         if (Args.Length ()) {
+
+            QLayoutItem *item = layout->takeAt (v8_to_uint32(Args[0]));
+            if (item) { result = self->create_v8_qwidget (item->widget ()); }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_layout () {
 
@@ -170,6 +194,7 @@ dmz::JsModuleUiV8QtBasic::_init_layout () {
    proto->Set ("count", v8::FunctionTemplate::New (_layout_count, _self));
    proto->Set ("removeLayout", v8::FunctionTemplate::New (_layout_remove_item, _self));
    proto->Set ("removeWidget", v8::FunctionTemplate::New (_layout_remove_widget, _self));
+   proto->Set ("takeAt", v8::FunctionTemplate::New (_layout_take_at, _self));
 }
 
 

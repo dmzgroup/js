@@ -317,6 +317,32 @@ dmz::JsModuleUiV8QtBasic::_create_gtext_item (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_gpixmap_item (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      if (Args.Length ()) {
+
+         QGraphicsPixmapItem *item (0);
+         QPixmap *pix = self->_to_gpixmap (Args[0]);
+         QGraphicsItem *parent (0);
+
+         if (Args.Length () > 1) { parent = self->_to_graphics_item (Args[1]); }
+         if (pix) {
+
+            result = self->create_v8_graphics_item (new QGraphicsPixmapItem (*pix, parent));
+         }
+      }
+   }
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_create_gline_item (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -2201,6 +2227,8 @@ dmz::JsModuleUiV8QtBasic::_init_gpixmap_item () {
 
    V8ObjectTemplate proto = _gPixmapItemTemp->PrototypeTemplate ();
    proto->Set ("pixmap", v8::FunctionTemplate::New (_gpixitem_pixmap, _self));
+
+   _graphApi.add_function ("createPixmapItem", _create_gpixmap_item, _self);
 }
 
 

@@ -212,6 +212,7 @@ namespace dmz {
          static V8Value _lineEdit_clear (const v8::Arguments &Args);
          static V8Value _lineEdit_undo (const v8::Arguments &Args);
          static V8Value _lineEdit_redo (const v8::Arguments &Args);
+         static V8Value _lineEdit_readonly (const v8::Arguments &Args);
          static V8Value _create_line_edit (const v8::Arguments &Args);
 
          // QTextEdit bindings implemented in JsModuleUiV8QtBasicTextEdit.cpp
@@ -299,6 +300,7 @@ namespace dmz {
          static V8Value _layout_count (const v8::Arguments &Args);
          static V8Value _layout_remove_item (const v8::Arguments &Args);
          static V8Value _layout_remove_widget (const v8::Arguments &Args);
+         static V8Value _layout_take_at (const v8::Arguments &Args);
          static V8Value _layout_parent (const v8::Arguments &Args);
          static V8Value _layout_parent_widget (const v8::Arguments &Args);
 
