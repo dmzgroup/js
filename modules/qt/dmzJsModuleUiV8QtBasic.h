@@ -301,6 +301,7 @@ namespace dmz {
          static V8Value _layout_remove_item (const v8::Arguments &Args);
          static V8Value _layout_remove_widget (const v8::Arguments &Args);
          static V8Value _layout_take_at (const v8::Arguments &Args);
+         static V8Value _layout_contents_margins (const v8::Arguments &Args);
          static V8Value _layout_parent (const v8::Arguments &Args);
          static V8Value _layout_parent_widget (const v8::Arguments &Args);
 
@@ -1153,6 +1154,11 @@ namespace dmz {
          V8StringPersist _valueStr;
          V8StringPersist _shortcutStr;
          V8StringPersist _iconStr;
+         V8StringPersist _leftStr;
+         V8StringPersist _topStr;
+         V8StringPersist _rightStr;
+         V8StringPersist _bottomStr;
+
 
       private:
          JsModuleUiV8QtBasic ();

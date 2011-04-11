@@ -1059,6 +1059,10 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _shortcutStr = V8StringPersist::New (v8::String::NewSymbol ("shortcut"));
       _iconStr = V8StringPersist::New (v8::String::NewSymbol ("icon"));
       _editableStr = V8StringPersist::New (v8::String::NewSymbol ("editable"));
+      _leftStr = V8StringPersist::New (v8::String::NewSymbol ("left"));
+      _topStr = V8StringPersist::New (v8::String::NewSymbol ("top"));
+      _rightStr = V8StringPersist::New (v8::String::NewSymbol ("right"));
+      _bottomStr = V8StringPersist::New (v8::String::NewSymbol ("bottom"));
 
       // create v8 wrapper for the main window and set delete object to false -ss
       if (_state.mainWindowModule) {
@@ -1233,6 +1237,10 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _shortcutStr.Dispose (); _shortcutStr.Clear ();
       _iconStr.Dispose (); _iconStr.Clear ();
       _editableStr.Dispose (); _editableStr.Clear ();
+      _leftStr.Dispose (); _editableStr.Clear ();
+      _topStr.Dispose (); _topStr.Clear ();
+      _rightStr.Dispose (); _rightStr.Clear ();
+      _bottomStr.Dispose (); _bottomStr.Clear ();
 
       _self.Dispose (); _self.Clear ();
 

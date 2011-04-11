@@ -119,7 +119,11 @@ dmz::JsModuleUiV8QtBasic::_layout_remove_item (const v8::Arguments &Args) {
          if (Args.Length ()) {
 
             QLayout *item = self->v8_to_qobject<QLayout> (Args[0]);
-            if (item) { layout->removeItem (item); }
+            if (item) {
+
+               layout->removeItem (item);
+               item->setParent (0);
+            }
          }
       }
    }
@@ -176,6 +180,54 @@ dmz::JsModuleUiV8QtBasic::_layout_take_at (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_layout_contents_margins (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QLayout *layout = self->v8_to_qobject<QLayout> (Args.This ());
+      if (layout) {
+
+         Int32 left, top, right, bottom;
+
+         if (Args.Length () > 0) {
+
+            V8Object params = v8_to_object (Args[0]);
+            if (!params.IsEmpty ()) {
+
+               layout->getContentsMargins (&left, &top, &right, &bottom);
+
+               if (params->Has (self->_leftStr)) { left = v8_to_int32 (params->Get (self->_leftStr)); }
+               if (params->Has (self->_topStr)) { top = v8_to_int32 (params->Get (self->_topStr)); }
+               if (params->Has (self->_rightStr)) { right = v8_to_int32 (params->Get (self->_rightStr)); }
+               if (params->Has (self->_bottomStr)) { bottom = v8_to_int32 (params->Get (self->_bottomStr)); }
+            }
+            else { left = top = right = bottom = v8_to_int32(Args[0]); }
+
+            layout->setContentsMargins (left, top, right, bottom);
+         }
+
+         layout->getContentsMargins (&left, &top, &right, &bottom);
+
+         V8Object obj = v8::Object::New ();
+         obj->Set (self->_leftStr, v8::Integer::New (left));
+         obj->Set(self->_topStr, v8::Integer::New (top));
+         obj->Set(self->_rightStr, v8::Integer::New (right));
+         obj->Set(self->_bottomStr, v8::Integer::New (bottom));
+
+         result = obj;
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_layout () {
 
@@ -195,6 +247,7 @@ dmz::JsModuleUiV8QtBasic::_init_layout () {
    proto->Set ("removeLayout", v8::FunctionTemplate::New (_layout_remove_item, _self));
    proto->Set ("removeWidget", v8::FunctionTemplate::New (_layout_remove_widget, _self));
    proto->Set ("takeAt", v8::FunctionTemplate::New (_layout_take_at, _self));
+   proto->Set ("margins", v8::FunctionTemplate::New (_layout_contents_margins, _self));
 }
 
 
@@ -750,7 +803,7 @@ dmz::JsModuleUiV8QtBasic::_init_grid_layout () {
    proto->Set ("addWidget", v8::FunctionTemplate::New (_grid_layout_add_widget, _self));
 
    proto->Set (
-      " columnMinimumWidth",
+      "columnMinimumWidth",
       v8::FunctionTemplate::New (_grid_layout_column_min, _self));
 
    proto->Set (
@@ -766,7 +819,6 @@ dmz::JsModuleUiV8QtBasic::_init_grid_layout () {
    proto->Set (
       "rowStretch",
       v8::FunctionTemplate::New (_grid_layout_row_stretch, _self));
-
 
    proto->Set (
       "rowMinimumHeight",
