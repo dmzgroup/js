@@ -629,6 +629,35 @@ dmz::JsModuleUiV8QtBasic::_grid_layout_column_stretch (const v8::Arguments &Args
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_grid_layout_column_min (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGridLayout *grid = self->v8_to_qobject<QGridLayout> (Args.This ());
+      if (grid) {
+
+         if (Args.Length () > 1) {
+
+            int column = v8_to_int32 (Args[0]);
+            int size = v8_to_int32 (Args[1]);
+            grid->setColumnMinimumWidth (column, size);
+         }
+         else if (Args.Length () == 1){
+
+            result = v8::Number::New (grid->columnMinimumWidth (v8_to_int32 (Args[0])));
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_grid_layout_row_stretch (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -649,6 +678,35 @@ dmz::JsModuleUiV8QtBasic::_grid_layout_row_stretch (const v8::Arguments &Args) {
          else if (Args.Length () == 1) {
 
             result = v8::Number::New (grid->rowStretch (v8_to_int32 (Args[0])));
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_grid_layout_row_min (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGridLayout *grid = self->v8_to_qobject<QGridLayout> (Args.This ());
+      if (grid) {
+
+         if (Args.Length () > 1) {
+
+            int row = v8_to_int32 (Args[0]);
+            int size = v8_to_int32 (Args[1]);
+            grid->setRowMinimumHeight (row, size);
+         }
+         else if (Args.Length () == 1) {
+
+            result = v8::Number::New (grid->rowMinimumHeight (v8_to_int32 (Args[0])));
          }
       }
    }
@@ -692,10 +750,15 @@ dmz::JsModuleUiV8QtBasic::_init_grid_layout () {
    proto->Set ("addWidget", v8::FunctionTemplate::New (_grid_layout_add_widget, _self));
 
    proto->Set (
+      " columnMinimumWidth",
+      v8::FunctionTemplate::New (_grid_layout_column_min, _self));
+
+   proto->Set (
       "columnCount",
       v8::FunctionTemplate::New (_grid_layout_column_count, _self));
 
    proto->Set ("rowCount", v8::FunctionTemplate::New (_grid_layout_row_count, _self));
+
    proto->Set (
       "columnStretch",
       v8::FunctionTemplate::New (_grid_layout_column_stretch, _self));
@@ -703,6 +766,11 @@ dmz::JsModuleUiV8QtBasic::_init_grid_layout () {
    proto->Set (
       "rowStretch",
       v8::FunctionTemplate::New (_grid_layout_row_stretch, _self));
+
+
+   proto->Set (
+      "rowMinimumHeight",
+      v8::FunctionTemplate::New (_grid_layout_row_min, _self));
 
    _layoutApi.add_function ("createGridLayout", _create_grid_layout, _self);
 }

@@ -322,6 +322,8 @@ namespace dmz {
          static V8Value _grid_layout_row_count (const v8::Arguments &Args);
          static V8Value _grid_layout_column_stretch (const v8::Arguments &Args);
          static V8Value _grid_layout_row_stretch (const v8::Arguments &Args);
+         static V8Value _grid_layout_column_min (const v8::Arguments &Args);
+         static V8Value _grid_layout_row_min (const v8::Arguments &Args);
          static V8Value _create_grid_layout (const v8::Arguments &Args);
 
          // QFormLayout bindings implemented in JsModuleUiV8QtBasicLayout.cpp
