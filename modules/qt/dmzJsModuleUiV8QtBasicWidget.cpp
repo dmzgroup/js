@@ -273,6 +273,23 @@ dmz::JsModuleUiV8QtBasic::_widget_context_menu (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_set_focus (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qwidget (Args.This ());
+      if (widget) { widget->setFocus (Qt::OtherFocusReason); }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_widget () {
 
@@ -295,6 +312,7 @@ dmz::JsModuleUiV8QtBasic::_init_widget () {
    proto->Set ("window", v8::FunctionTemplate::New (_widget_window, _self));
    proto->Set ("rect", v8::FunctionTemplate::New (_widget_rect, _self));
    proto->Set ("contextMenuPolicy", v8::FunctionTemplate::New (_widget_context_menu, _self));
+   proto->Set ("setFocus", v8::FunctionTemplate::New (_widget_set_focus, _self));
 
    _widgetApi.add_function ("create", _create_widget, _self);
 }
