@@ -46,7 +46,7 @@ dmz::JsModuleUiV8QtBasic::_event_type (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QEvent *event = self->_to_qevent(Args.This ());
+      QEvent *event = self->_to_qevent (Args.This ());
       if (event) { result = v8::Number::New (event->type ()); }
    }
 
@@ -64,7 +64,7 @@ dmz::JsModuleUiV8QtBasic::_gscene_mouse_event_button (const v8::Arguments &Args)
    if (self) {
 
       QGraphicsSceneMouseEvent *event =
-         (QGraphicsSceneMouseEvent *)self->_to_qevent(Args.This ());
+         (QGraphicsSceneMouseEvent *)self->_to_qevent (Args.This ());
       if (event) { result = v8::Number::New (event->button ()); }
    }
 
@@ -82,7 +82,7 @@ dmz::JsModuleUiV8QtBasic::_gscene_mouse_event_buttons (const v8::Arguments &Args
    if (self) {
 
       QGraphicsSceneMouseEvent *event =
-         (QGraphicsSceneMouseEvent *)self->_to_qevent(Args.This ());
+         (QGraphicsSceneMouseEvent *)self->_to_qevent (Args.This ());
       if (event) { result = v8::Integer::New (event->buttons ()); }
    }
 
@@ -100,7 +100,7 @@ dmz::JsModuleUiV8QtBasic::_gscene_mouse_event_pos (const v8::Arguments &Args) {
    if (self) {
 
       QGraphicsSceneMouseEvent *event =
-         (QGraphicsSceneMouseEvent *)self->_to_qevent(Args.This ());
+         (QGraphicsSceneMouseEvent *)self->_to_qevent (Args.This ());
       if (event) { result = qpointf_to_v8 (event->pos ()); }
    }
 
@@ -118,7 +118,7 @@ dmz::JsModuleUiV8QtBasic::_gscene_mouse_event_scene_pos (const v8::Arguments &Ar
    if (self) {
 
       QGraphicsSceneMouseEvent *event =
-         (QGraphicsSceneMouseEvent *)self->_to_qevent(Args.This ());
+         (QGraphicsSceneMouseEvent *)self->_to_qevent (Args.This ());
       if (event) { result = qpointf_to_v8 (event->scenePos ()); }
    }
 
@@ -136,7 +136,7 @@ dmz::JsModuleUiV8QtBasic::_gscene_mouse_event_screen_pos (const v8::Arguments &A
    if (self) {
 
       QGraphicsSceneMouseEvent *event =
-         (QGraphicsSceneMouseEvent *)self->_to_qevent(Args.This ());
+         (QGraphicsSceneMouseEvent *)self->_to_qevent (Args.This ());
       if (event) { result = qpoint_to_v8 (event->screenPos ()); }
    }
 
@@ -154,7 +154,7 @@ dmz::JsModuleUiV8QtBasic::_gscene_mouse_event_button_down_pos (const v8::Argumen
    if (self) {
 
       QGraphicsSceneMouseEvent *event =
-         (QGraphicsSceneMouseEvent *)self->_to_qevent(Args.This ());
+         (QGraphicsSceneMouseEvent *)self->_to_qevent (Args.This ());
       if (event) {
 
          if (Args.Length ()) {
@@ -179,7 +179,7 @@ dmz::JsModuleUiV8QtBasic::_gscene_mouse_event_button_down_scene_pos (const v8::A
    if (self) {
 
       QGraphicsSceneMouseEvent *event =
-         (QGraphicsSceneMouseEvent *)self->_to_qevent(Args.This ());
+         (QGraphicsSceneMouseEvent *)self->_to_qevent (Args.This ());
       if (event) {
 
          if (Args.Length ()) {
@@ -204,7 +204,7 @@ dmz::JsModuleUiV8QtBasic::_gscene_mouse_event_button_down_screen_pos (const v8::
    if (self) {
 
       QGraphicsSceneMouseEvent *event =
-         (QGraphicsSceneMouseEvent *)self->_to_qevent(Args.This ());
+         (QGraphicsSceneMouseEvent *)self->_to_qevent (Args.This ());
       if (event) {
 
          if (Args.Length ()) {
@@ -229,7 +229,7 @@ dmz::JsModuleUiV8QtBasic::_gscene_mouse_event_last_pos (const v8::Arguments &Arg
    if (self) {
 
       QGraphicsSceneMouseEvent *event =
-         (QGraphicsSceneMouseEvent *)self->_to_qevent(Args.This ());
+         (QGraphicsSceneMouseEvent *)self->_to_qevent (Args.This ());
       if (event) { result = qpointf_to_v8 (event->lastPos ()); }
    }
 
@@ -247,7 +247,7 @@ dmz::JsModuleUiV8QtBasic::_gscene_mouse_event_last_scene_pos (const v8::Argument
    if (self) {
 
       QGraphicsSceneMouseEvent *event =
-         (QGraphicsSceneMouseEvent *)self->_to_qevent(Args.This ());
+         (QGraphicsSceneMouseEvent *)self->_to_qevent (Args.This ());
       if (event) { result = qpointf_to_v8 (event->lastScenePos ()); }
    }
 
@@ -265,7 +265,7 @@ dmz::JsModuleUiV8QtBasic::_gscene_mouse_event_last_screen_pos (const v8::Argumen
    if (self) {
 
       QGraphicsSceneMouseEvent *event =
-         (QGraphicsSceneMouseEvent *)self->_to_qevent(Args.This ());
+         (QGraphicsSceneMouseEvent *)self->_to_qevent (Args.This ());
       if (event) { result = qpoint_to_v8 (event->lastScreenPos ()); }
    }
 
@@ -282,7 +282,7 @@ dmz::JsModuleUiV8QtBasic::_mouse_event_button (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QMouseEvent *event = (QMouseEvent *)self->_to_qevent(Args.This ());
+      QMouseEvent *event = (QMouseEvent *)self->_to_qevent (Args.This ());
       if (event) { result = v8::Number::New (event->button ()); }
    }
 
@@ -299,7 +299,7 @@ dmz::JsModuleUiV8QtBasic::_mouse_event_buttons (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QMouseEvent *event = (QMouseEvent *)self->_to_qevent(Args.This ());
+      QMouseEvent *event = (QMouseEvent *)self->_to_qevent (Args.This ());
       if (event) { result = v8::Integer::New (event->buttons ()); }
    }
 
@@ -316,7 +316,7 @@ dmz::JsModuleUiV8QtBasic::_mouse_event_global_pos (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QMouseEvent *event = (QMouseEvent *)self->_to_qevent(Args.This ());
+      QMouseEvent *event = (QMouseEvent *)self->_to_qevent (Args.This ());
       if (event) {
 
          QPoint pos = event->globalPos ();
@@ -339,7 +339,7 @@ dmz::JsModuleUiV8QtBasic::_mouse_event_global_x (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QMouseEvent *event = (QMouseEvent *)self->_to_qevent(Args.This ());
+      QMouseEvent *event = (QMouseEvent *)self->_to_qevent (Args.This ());
       if (event) { result = v8::Number::New (event->globalX ()); }
    }
 
@@ -356,7 +356,7 @@ dmz::JsModuleUiV8QtBasic::_mouse_event_global_y (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QMouseEvent *event = (QMouseEvent *)self->_to_qevent(Args.This ());
+      QMouseEvent *event = (QMouseEvent *)self->_to_qevent (Args.This ());
       if (event) { result = v8::Number::New (event->globalY ()); }
    }
 
@@ -373,7 +373,7 @@ dmz::JsModuleUiV8QtBasic::_mouse_event_pos (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QMouseEvent *event = (QMouseEvent *)self->_to_qevent(Args.This ());
+      QMouseEvent *event = (QMouseEvent *)self->_to_qevent (Args.This ());
       if (event) {
 
          QPoint pos = event->pos ();
@@ -396,7 +396,7 @@ dmz::JsModuleUiV8QtBasic::_mouse_event_posf (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QMouseEvent *event = (QMouseEvent *)self->_to_qevent(Args.This ());
+      QMouseEvent *event = (QMouseEvent *)self->_to_qevent (Args.This ());
       if (event) {
 
          QPointF pos = event->posF ();
@@ -419,7 +419,7 @@ dmz::JsModuleUiV8QtBasic::_mouse_event_x (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QMouseEvent *event = (QMouseEvent *)self->_to_qevent(Args.This ());
+      QMouseEvent *event = (QMouseEvent *)self->_to_qevent (Args.This ());
       if (event) { result = v8::Number::New (event->x ()); }
    }
 
@@ -436,7 +436,7 @@ dmz::JsModuleUiV8QtBasic::_mouse_event_y (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QMouseEvent *event = (QMouseEvent *)self->_to_qevent(Args.This ());
+      QMouseEvent *event = (QMouseEvent *)self->_to_qevent (Args.This ());
       if (event) { result = v8::Number::New (event->y ()); }
    }
 
@@ -475,6 +475,9 @@ dmz::JsModuleUiV8QtBasic::create_v8_qevent (QEvent *value) {
 
             obj = _gsceneMouseEventCtor->NewInstance ();
          }
+         break;
+      case QEvent::Resize:
+         if (!_resizeEventCtor.IsEmpty ()) { obj = _resizeEventCtor->NewInstance (); }
          break;
       }
 
@@ -561,6 +564,59 @@ dmz::JsModuleUiV8QtBasic::_init_mouse_event () {
    proto->Set ("posF", v8::FunctionTemplate::New (_mouse_event_posf, _self));
    proto->Set ("x", v8::FunctionTemplate::New (_mouse_event_x, _self));
    proto->Set ("y", v8::FunctionTemplate::New (_mouse_event_y, _self));
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_resize_event_old_size (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QResizeEvent *event = (QResizeEvent *)self->_to_qevent (Args.This ());
+      if (event) { result = v8::Number::New (event->y ()); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_mouse_event_y (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QMouseEvent *event = (QMouseEvent *)self->_to_qevent (Args.This ());
+      if (event) { result = v8::Number::New (event->y ()); }
+   }
+
+   return scope.Close (result);
+}
+
+
+void
+dmz::JsModuleUiV8QtBasic::_init_resize_event () {
+
+   v8::HandleScope scope;
+
+   _resizeEventTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
+   _resizeEventTemp->Inherit (_resizeTemp);
+
+   V8ObjectTemplate instance = _resizeEventTemp->InstanceTemplate ();
+   instance->SetInternalFieldCount (1);
+
+   V8ObjectTemplate proto = _resizeEventTemp->PrototypeTemplate ();
+   proto->Set ("oldSize", v8::FunctionTemplate::New (_resize_event_old_size, _self));
+   proto->Set ("size", v8::FunctionTemplate::New (_resize_event_size, _self));
+
+   _eventApi.add_constant ("Resize", (UInt32)QEvent::Resize);
 }
 
 

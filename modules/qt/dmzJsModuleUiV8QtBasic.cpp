@@ -887,6 +887,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _videoWidgetCtor = V8FunctionPersist::New (_videoWidgetTemp->GetFunction ());
       }
 
+      if (!_resizeEventTemp.IsEmpty ()) {
+
+         _resizeEventCtor = V8FunctionPersist::New (_resizeEventTemp->GetFunction ());
+      }
+
       if (_state.core) {
 
          _state.core->register_interface ("dmz/ui/consts", _qtApi.get_new_instance ());
@@ -1202,6 +1207,7 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
       _gsceneMouseEventCtor.Dispose (); _gsceneMouseEventCtor.Clear ();
       _mouseEventCtor.Dispose (); _mouseEventCtor.Clear ();
+      _resizeEventCtor.Dispose (); _resizeEventCtor.Clear ();
       _eventCtor.Dispose (); _eventCtor.Clear ();
 
       _mediaObjectCtor.Dispose (); _mediaObjectCtor.Clear ();
@@ -1670,6 +1676,7 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_event ();
    _init_mouse_event ();
    _init_gscene_mouse_event ();
+   _init_resize_event ();
 
    _init_media_object ();
    _init_video_player ();

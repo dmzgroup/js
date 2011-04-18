@@ -742,6 +742,10 @@ namespace dmz {
          static V8Value _gscene_mouse_event_scene_pos (const v8::Arguments &Args);
          static V8Value _gscene_mouse_event_screen_pos (const v8::Arguments &Args);
 
+         // QResizeEvent bindings implemented in dmzJsModuleUiV8QtBasicEvent.cpp
+         static V8Value _resize_event_old_size (const v8::Arguments &Args);
+         static V8Value _resize_event_size (const v8::Arguments &Args);
+
          // Phonon::MediaObject bindings implemented in dmzJsModuleUiV8QtBasicPhonon.cpp
          static V8Value _phonon_media_object_source (const v8::Arguments &Args);
          static V8Value _phonon_media_object_has_video (const v8::Arguments &Args);
@@ -857,6 +861,7 @@ namespace dmz {
          void _init_event ();
          void _init_mouse_event ();
          void _init_gscene_mouse_event ();
+         void _init_resize_event ();
 
          void _init_phonon ();
          void _init_media_object ();
@@ -1123,6 +1128,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _videoWidgetTemp;
          V8FunctionPersist _videoWidgetCtor;
+
+         V8FunctionTemplatePersist _resizeEventTemp;
+         V8FunctionPersist _resizeEventCtor;
 
          V8StringPersist _allowMultipleStr;
          V8StringPersist _allowedAreasStr;
