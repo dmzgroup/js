@@ -4414,21 +4414,22 @@ dmz::JsModuleUiV8QtBasic::_gpixmap_scaled (const v8::Arguments &Args) {
 
             int width = v8_to_uint32 (Args[0]);
             int height = v8_to_uint32 (Args[1]);
-            Qt::AspectRatioMode aspectRatioMode = Qt::IgnoreAspectRatio;
-            Qt::TransformationMode transformMode = Qt::FastTransformation;
-            if (length > 2) {
+//            Qt::AspectRatioMode aspectRatioMode = Qt::IgnoreAspectRatio;
+//            Qt::TransformationMode transformMode = Qt::FastTransformation;
+//            if (length > 2) {
 
-               aspectRatioMode = (Qt::AspectRatioMode)v8_to_uint32 (Args[2]);
-            }
-            if (length > 3) {
+//               aspectRatioMode = (Qt::AspectRatioMode)v8_to_uint32 (Args[2]);
+//            }
+//            if (length > 3) {
 
-               transformMode = (Qt::TransformationMode)v8_to_uint32 (Args[3]);
-            }
+//               transformMode = (Qt::TransformationMode)v8_to_uint32 (Args[3]);
+//            }
 
-            result =
-               self->create_v8_gpixmap (
-                  new QPixmap (
-                     pix->scaled (width, height, aspectRatioMode, transformMode)));
+//            result =
+//               self->create_v8_gpixmap (
+//                  new QPixmap (
+//                     pix->scaled (width, height, aspectRatioMode, transformMode)));
+
          }
       }
    }
