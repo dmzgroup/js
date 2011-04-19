@@ -1608,6 +1608,15 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _qtApi.add_constant ("WhatsThisCursor", (UInt32)Qt::WhatsThisCursor);
    _qtApi.add_constant ("BusyCursor", (UInt32)Qt::BusyCursor);
 
+   // enum Qt::AspectRatioMode
+   _qtApi.add_constant ("IgnoreAspectRatio", (UInt32)Qt::IgnoreAspectRatio);
+   _qtApi.add_constant ("KeepAspectRatio", (UInt32)Qt::KeepAspectRatio);
+   _qtApi.add_constant ("KeepAspectRatioByExpanding", (UInt32)Qt::KeepAspectRatioByExpanding);
+
+   // enum Qt::TransformationMode
+   _qtApi.add_constant ("FastTransformation", (UInt32)Qt::FastTransformation);
+   _qtApi.add_constant ("SmoothTransformation", (UInt32)Qt::SmoothTransformation);
+
    // UiLoader API
    _uiLoaderApi.add_function ("load", _uiloader_load, _self);
 

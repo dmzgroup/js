@@ -34,6 +34,38 @@ qpointf_to_v8 (QPointF pos) {
    return scope.Close (result);
 }
 
+dmz::V8Value
+qsize_to_v8 (const QSize &Value) {
+
+   v8::HandleScope scope;
+   dmz::V8Object result;
+
+   result = v8::Object::New ();
+   result->Set (v8::String::NewSymbol ("width"), v8::Number::New (Value.width ()));
+   result->Set (v8::String::NewSymbol ("height"), v8::Number::New (Value.height ()));
+
+   return scope.Close (result);
+}
+
+
+QSize
+v8_to_qsize (dmz::V8Value value) {
+
+   QSize result;
+
+   if (!value.IsEmpty ()) {
+
+      dmz::V8Object obj = dmz::v8_to_object (value);
+      if (!obj.IsEmpty ()) {
+         qreal w, h;
+         w = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("width")));
+         h = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("height")));
+         result = QSize(w, h);
+      }
+   }
+   return result;
+}
+
 };
 
 
@@ -501,8 +533,8 @@ dmz::JsModuleUiV8QtBasic::_to_qevent (V8Value value) {
    V8Object obj = v8_to_object (value);
    if (!obj.IsEmpty ()) {
 
-      if (_eventTemp->HasInstance (obj) || _mouseEventTemp->HasInstance (obj) ||
-          _gsceneMouseEventTemp->HasInstance (obj)) {
+      if (_eventTemp->HasInstance (obj) || _gsceneMouseEventTemp->HasInstance (obj) ||
+         _mouseEventTemp->HasInstance (obj) || _resizeEventTemp->HasInstance (obj)) {
 
          result = (QEvent *)v8::External::Unwrap (obj->GetInternalField (0));
       }
@@ -577,7 +609,7 @@ dmz::JsModuleUiV8QtBasic::_resize_event_old_size (const v8::Arguments &Args) {
    if (self) {
 
       QResizeEvent *event = (QResizeEvent *)self->_to_qevent (Args.This ());
-      if (event) { result = v8::Number::New (event->y ()); }
+      if (event) { result = qsize_to_v8 (event->oldSize ()); }
    }
 
    return scope.Close (result);
@@ -585,7 +617,7 @@ dmz::JsModuleUiV8QtBasic::_resize_event_old_size (const v8::Arguments &Args) {
 
 
 dmz::V8Value
-dmz::JsModuleUiV8QtBasic::_mouse_event_y (const v8::Arguments &Args) {
+dmz::JsModuleUiV8QtBasic::_resize_event_size (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result = v8::Undefined ();
@@ -593,8 +625,8 @@ dmz::JsModuleUiV8QtBasic::_mouse_event_y (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QMouseEvent *event = (QMouseEvent *)self->_to_qevent (Args.This ());
-      if (event) { result = v8::Number::New (event->y ()); }
+      QResizeEvent *event = (QResizeEvent *)self->_to_qevent (Args.This ());
+      if (event) { result = qsize_to_v8 (event->size ()); }
    }
 
    return scope.Close (result);
@@ -607,7 +639,7 @@ dmz::JsModuleUiV8QtBasic::_init_resize_event () {
    v8::HandleScope scope;
 
    _resizeEventTemp = V8FunctionTemplatePersist::New (v8::FunctionTemplate::New ());
-   _resizeEventTemp->Inherit (_resizeTemp);
+   _resizeEventTemp->Inherit (_eventTemp);
 
    V8ObjectTemplate instance = _resizeEventTemp->InstanceTemplate ();
    instance->SetInternalFieldCount (1);
