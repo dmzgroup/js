@@ -17,6 +17,43 @@ namespace {
 
 QMap<QGraphicsItem *, v8::Persistent<v8::Value> > _weakGItemsTable;
 
+QFont
+v8_to_qfont (const dmz::V8Value value) {
+
+   QFont result;
+
+   if (!value.IsEmpty ()) {
+
+      dmz::V8Object obj = dmz::v8_to_object (value);
+      if (!obj.IsEmpty ()) {
+         QString family;
+         qreal size, weight;
+         bool italic;
+         family = dmz::v8_to_qstring (obj->Get (v8::String::NewSymbol ("font")));
+         size = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("size")));
+         weight = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("weight")));
+         italic = dmz::v8_to_boolean (obj->Get (v8::String::NewSymbol ("italic")));
+         result = QFont (family, size, weight, italic);
+      }
+   }
+   return result;
+}
+
+dmz::V8Value
+qfont_to_v8 (const QFont &Value) {
+
+   v8::HandleScope scope;
+   dmz::V8Object result;
+   result = v8::Object::New ();
+   result->Set (
+      v8::String::NewSymbol ("font"),
+      v8::String::New (qPrintable (Value.family ())));
+   result->Set (v8::String::NewSymbol ("size"), v8::Number::New (Value.pointSize ()));
+   result->Set (v8::String::NewSymbol ("weight"), v8::Number::New (Value.weight ()));
+   result->Set (v8::String::NewSymbol ("italic"), v8::Boolean::New (Value.italic ()));
+   return scope.Close (result);
+}
+
 QPointF
 v8_to_qpointf (const dmz::V8Value value) {
 
@@ -2035,6 +2072,28 @@ dmz::JsModuleUiV8QtBasic::_gtext_width (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gtext_font (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsTextItem *item =
+         (QGraphicsTextItem *)self->_to_graphics_item (Args.This ());
+      if (item) {
+
+         if (Args.Length ()) { item->setFont (v8_to_qfont (Args[0])); }
+         result = qfont_to_v8 (item->font ());
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_gtext_text_interact_flags (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -2074,6 +2133,7 @@ dmz::JsModuleUiV8QtBasic::_init_gtext_item () {
    V8ObjectTemplate proto = _gTextTemp->PrototypeTemplate ();
 
    proto->Set ("adjustSize", v8::FunctionTemplate::New (_gtext_adjust_size, _self));
+   proto->Set ("font", v8::FunctionTemplate::New (_gtext_font, _self));
    proto->Set ("textColor", v8::FunctionTemplate::New (_gtext_text_color, _self));
    proto->Set ("plainText", v8::FunctionTemplate::New (_gtext_plain_text, _self));
    proto->Set ("htmlText", v8::FunctionTemplate::New (_gtext_html_text, _self));

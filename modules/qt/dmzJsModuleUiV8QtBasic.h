@@ -581,7 +581,7 @@ namespace dmz {
 
          static V8Value _gtext_adjust_size (const v8::Arguments &Args);
          static V8Value _gtext_text_color (const v8::Arguments &Args);
-//         static V8Value _gtext_font (const v8::Arguments &Args);
+         static V8Value _gtext_font (const v8::Arguments &Args);
          static V8Value _gtext_plain_text (const v8::Arguments &Args);
          static V8Value _gtext_html_text (const v8::Arguments &Args);
          static V8Value _gtext_width (const v8::Arguments &Args);
