@@ -30,6 +30,7 @@ lmk.add_files ({
    "dmzV8QtTextEdit.h",
    "dmzV8QtToolBox.h",
    "dmzV8QtTreeWidget.h",
+   "dmzV8QtWebView.h",
    "dmzV8QtWidget.h",
 },{src="moc"})
 
@@ -92,6 +93,7 @@ lmk.add_files {
    "dmzV8QtToolBox.cpp",
    "dmzV8QtTreeWidget.cpp",
    "dmzV8QtUtil.cpp",
+   "dmzV8QtWebView.cpp",
    "dmzV8QtWidget.cpp",
 }
 

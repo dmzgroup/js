@@ -711,6 +711,7 @@ namespace dmz {
 
          // QWebPage bindings implemented in dmzJsModuleUiV8QtBasicWebView.cpp
          static V8Value _webpage_mainframe (const v8::Arguments &Args);
+         static V8Value _webpage_link_delegation (const v8::Arguments &Args);
 
          // QWebFrame bindings implemented in dmzJsModuleUiV8QtBasicWebView.cpp
          static V8Value _webframe_load (const v8::Arguments &Args);

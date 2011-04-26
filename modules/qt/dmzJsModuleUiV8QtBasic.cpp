@@ -309,7 +309,7 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
          else if (value->inherits ("QWebView")) {
 
             vobj = _webviewCtor->NewInstance ();
-            qobj = new V8QtWidget (vobj, value, &_state);
+            qobj = new V8QtWebView (vobj, value, &_state);
          }
          else if (value->inherits ("QTreeWidget")) {
 

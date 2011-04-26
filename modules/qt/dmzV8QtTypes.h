@@ -24,6 +24,7 @@
 #include <dmzV8QtTextEdit.h>
 #include <dmzV8QtToolBox.h>
 #include <dmzV8QtTreeWidget.h>
+#include <dmzV8QtWebView.h>
 #include <dmzV8QtWidget.h>
 
 #endif // DMZ_V8_QT_TYPES_DOT_H

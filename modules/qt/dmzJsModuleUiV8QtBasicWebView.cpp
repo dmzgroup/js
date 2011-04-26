@@ -384,6 +384,29 @@ dmz::JsModuleUiV8QtBasic::_webpage_mainframe (const v8::Arguments &Args) {
    return scope.Close (result);
 }
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_webpage_link_delegation (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWebPage *page = self->v8_to_qobject<QWebPage>(Args.This ());
+      if (page) {
+
+         if (Args.Length ()) {
+            page->setLinkDelegationPolicy (
+               (QWebPage::LinkDelegationPolicy)v8_to_uint32 (Args[0]));
+         }
+
+         result = v8::Number::New (page->linkDelegationPolicy ());
+      }
+   }
+
+   return scope.Close (result);
+}
 
 void
 dmz::JsModuleUiV8QtBasic::_init_webpage () {
@@ -398,5 +421,10 @@ dmz::JsModuleUiV8QtBasic::_init_webpage () {
 
    V8ObjectTemplate proto = _webpageTemp->PrototypeTemplate ();
    proto->Set ("mainFrame", v8::FunctionTemplate::New (_webpage_mainframe, _self));
+   proto->Set ("linkDelegation", v8::FunctionTemplate::New (_webpage_link_delegation, _self));
+
+   _webviewApi.add_constant ("DontDelegateLinks", (UInt32)QWebPage::DontDelegateLinks);
+   _webviewApi.add_constant ("DelegateExternalLinks", (UInt32)QWebPage::DelegateExternalLinks);
+   _webviewApi.add_constant ("DelegateAllLinks", (UInt32)QWebPage::DelegateAllLinks);
 }
 
