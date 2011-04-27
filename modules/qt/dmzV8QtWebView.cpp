@@ -50,5 +50,5 @@ dmz::V8QtWebView::bind (
 void
 dmz::V8QtWebView::on_linkClicked (const QUrl &Link) {
 
-   _do_callback (LocalSignalLinkClicked, Link);
+   _do_callback (LocalSignalLinkClicked, Link.toString ());
 }

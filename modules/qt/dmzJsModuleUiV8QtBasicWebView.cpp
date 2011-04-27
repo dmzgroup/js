@@ -261,6 +261,40 @@ dmz::JsModuleUiV8QtBasic::_webview_reload (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_webview_back (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWebView *view = self->v8_to_qobject<QWebView>(Args.This ());
+      if (view) { view->back (); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_webview_forward (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWebView *view = self->v8_to_qobject<QWebView>(Args.This ());
+      if (view) { view->forward (); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_create_webview (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -305,6 +339,8 @@ dmz::JsModuleUiV8QtBasic::_init_webview () {
    proto->Set ("url", v8::FunctionTemplate::New (_webview_url, _self));
    proto->Set ("load", v8::FunctionTemplate::New (_webview_reload, _self));
    proto->Set ("page", v8::FunctionTemplate::New (_webview_page, _self));
+   proto->Set ("back", v8::FunctionTemplate::New (_webview_back, _self));
+   proto->Set ("forward", v8::FunctionTemplate::New (_webview_forward, _self));
 
    _webviewApi.add_function ("create", _create_webview, _self);
 }

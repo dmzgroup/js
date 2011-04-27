@@ -707,6 +707,8 @@ namespace dmz {
          static V8Value _webview_url (const v8::Arguments &Args);
          static V8Value _webview_reload (const v8::Arguments &Args);
          static V8Value _webview_page (const v8::Arguments &Args);
+         static V8Value _webview_back (const v8::Arguments &Args);
+         static V8Value _webview_forward (const v8::Arguments &Args);
          static V8Value _create_webview (const v8::Arguments &Args);
 
          // QWebPage bindings implemented in dmzJsModuleUiV8QtBasicWebView.cpp
