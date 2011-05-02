@@ -7,6 +7,7 @@
 #include <dmzJsV8UtilTypes.h>
 #include <dmzRuntimeConfig.h>
 #include <dmzRuntimeDefinitions.h>
+#include <dmzRuntimeExit.h>
 #include <dmzRuntimeHandle.h>
 #include <dmzRuntimeLog.h>
 #include <dmzRuntimePlugin.h>
@@ -200,6 +201,7 @@ namespace dmz {
          void _init (Config &local, Config &global);
 
          Log _log;
+         Exit _exit;
          StreamLog _out;
          Resources _rc;
          Definitions _defs;

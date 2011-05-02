@@ -69,6 +69,34 @@ local_print (const v8::Arguments &Args) {
    return scope.Close (v8::Undefined());
 }
 
+v8::Handle<v8::Value>
+local_exit (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+
+   dmz::Exit *exit = (dmz::Exit *)v8::External::Unwrap (Args.Data ());
+
+   if (exit) {
+
+      dmz::ExitStatusEnum status = dmz::ExitStatusNormal;
+      dmz::String reason;
+
+      if (Args.Length ()) {
+
+         dmz::String statusStr = dmz::v8_to_string(Args[0]);
+         statusStr = statusStr.to_lower ();
+
+         if (statusStr == "error") { status = dmz::ExitStatusError; }
+         else if (statusStr == "forced") { status = dmz::ExitStatusForced; }
+
+         if (Args.Length () > 1) { reason = dmz::v8_to_string(Args[1]); }
+      }
+
+      exit->request_exit (status, reason);
+   }
+
+   return scope.Close (v8::Undefined());
+}
 
 v8::Handle<v8::Value>
 local_create_uuid (const v8::Arguments &Args) {
@@ -134,6 +162,7 @@ dmz::JsModuleV8Basic::JsModuleV8Basic (
       JsModule (Info),
       JsModuleV8 (Info),
       _log (Info),
+      _exit (Info),
       _out ("", LogLevelOut, Info.get_context ()),
       _rc (Info),
       _defs (Info, &_log),
@@ -707,7 +736,7 @@ dmz::JsModuleV8Basic::get_v8_context () { return _context; }
 
 
 dmz::Boolean
-dmz::JsModuleV8Basic::register_interface (            
+dmz::JsModuleV8Basic::register_interface (
       const String &Name,
       v8::Persistent<v8::Object> object) {
 
@@ -762,7 +791,7 @@ dmz::JsModuleV8Basic::require (const String &Value) {
       v8::String::ExternalAsciiStringResource *sptr (0);
 
       if (scriptPath) {
-      
+
          sptr = new V8FileString (scriptPath, LocalRequireHeader, LocalFooter);
       }
       else if (Value.contains_sub ("dmz/")) {
@@ -991,7 +1020,7 @@ dmz::JsModuleV8Basic::set_external_instance_handle_and_name (
 
             obj->SetHiddenValue (_instanceAttrName, v8::External::Wrap ((void *)is));
             V8ObjectPersist dtor = V8ObjectPersist::New (obj);
-            dtor.MakeWeak ((void *)is, local_instance_struct_delete); 
+            dtor.MakeWeak ((void *)is, local_instance_struct_delete);
             result = True;
          }
       }
@@ -1207,6 +1236,12 @@ dmz::JsModuleV8Basic::_init_builtins () {
          v8::FunctionTemplate::New (local_create_uuid)->GetFunction ());
 
       (*ptr)->Set (
+         v8::String::NewSymbol ("requestExit"),
+         v8::FunctionTemplate::New (
+            local_exit,
+            v8::External::Wrap (&_exit))->GetFunction ());
+
+      (*ptr)->Set (
          v8::String::NewSymbol ("createSelf"),
          v8::FunctionTemplate::New (
             _create_self,
@@ -1294,7 +1329,7 @@ dmz::JsModuleV8Basic::_reload_script (ScriptStruct &info) {
    }
 
    info.clear ();
-      
+
    v8::TryCatch tc;
 
    v8::String::ExternalAsciiStringResource *sptr (0);
