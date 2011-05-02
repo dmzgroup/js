@@ -26,6 +26,7 @@ namespace dmz {
 
       public Q_SLOTS:
          void on_currentIndexChanged (int value);
+         void on_currentIndexChanged (const QString &value);
    };
 };
 

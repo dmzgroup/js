@@ -7,7 +7,7 @@
 namespace {
 
    static const dmz::String CurrentIndexChanged ("currentIndexChanged");
-
+   static const dmz::String CurrentTextChanged ("currentTextChanged");
 };
 
 
@@ -41,6 +41,16 @@ dmz::V8QtComboBox::bind (
 
          results = True;
       }
+      else if (Signal == CurrentTextChanged) {
+
+         connect (
+            _widget,
+            SIGNAL (currentIndexChanged (const QString &)),
+            SLOT (on_currentIndexChanged (const QString &)),
+            Qt::UniqueConnection);
+
+         results = True;
+      }
    }
 
    if (results) { _register_callback (Signal, Self, Func); }
@@ -55,3 +65,9 @@ dmz::V8QtComboBox::on_currentIndexChanged (int val) {
    _do_callback (CurrentIndexChanged, val);
 }
 
+
+void
+dmz::V8QtComboBox::on_currentIndexChanged (const QString &val) {
+
+   _do_callback (CurrentTextChanged, val);
+}
