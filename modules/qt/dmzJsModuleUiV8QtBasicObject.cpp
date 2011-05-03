@@ -270,6 +270,27 @@ dmz::JsModuleUiV8QtBasic::_object_event_filter (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_object_delete_event_filter (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      V8QtObject *jsObject = self->_to_v8_qt_object (Args.This ());
+      if (jsObject) {
+
+         QObject *qobject = jsObject->get_qobject ();
+         if (qobject) { qobject->removeEventFilter (jsObject); }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 QObject *
 dmz::JsModuleUiV8QtBasic::_to_qobject (V8Value value) {
 
@@ -295,6 +316,7 @@ dmz::JsModuleUiV8QtBasic::_init_object () {
    proto->Set ("name", v8::FunctionTemplate::New (_object_name, _self));
    proto->Set ("observe", v8::FunctionTemplate::New (_object_observe, _self));
    proto->Set ("eventFilter", v8::FunctionTemplate::New (_object_event_filter, _self));
+   proto->Set ("removeEventFilter", v8::FunctionTemplate::New (_object_delete_event_filter, _self));
    proto->Set ("parent", v8::FunctionTemplate::New (_object_parent, _self));
    proto->Set ("property", v8::FunctionTemplate::New (_object_property, _self));
    proto->Set ("callback", v8::FunctionTemplate::New (_object_callback, _self));

@@ -142,6 +142,7 @@ namespace dmz {
          static V8Value _object_name (const v8::Arguments &Args);
          static V8Value _object_observe (const v8::Arguments &Args);
          static V8Value _object_event_filter (const v8::Arguments &Args);
+         static V8Value _object_delete_event_filter (const v8::Arguments &Args);
          static V8Value _object_parent (const v8::Arguments &Args);
          static V8Value _object_property (const v8::Arguments &Args);
          static V8Value _object_callback (const v8::Arguments &Args);
