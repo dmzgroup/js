@@ -2,9 +2,6 @@
 #include "dmzJsModuleUiV8QtBasic.h"
 #include <dmzJsV8UtilConvert.h>
 #include "dmzV8QtUtil.h"
-//#include <QtWebKit/QWebView>
-//#include <QtWebKit/QWebFrame>
-//#include <QtWebKit/QWebPage>
 #include <QtCore/QUrl>
 
 #include <phonon/MediaObject>
