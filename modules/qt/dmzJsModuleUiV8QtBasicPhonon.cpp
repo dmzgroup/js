@@ -43,7 +43,7 @@ dmz::JsModuleUiV8QtBasic::_create_phonon_media_object (const v8::Arguments &Args
       }
       else { media->setCurrentSource (Phonon::MediaSource (location)); }
 
-//      Phonon::createPath(media, new Phonon::AudioOutput (Phonon::VideoCategory));
+      Phonon::createPath(media, new Phonon::AudioOutput (Phonon::VideoCategory));
       result = self->create_v8_qobject (media);
    }
 
