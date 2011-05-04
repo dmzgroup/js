@@ -180,7 +180,8 @@ dmz::JsModuleUiV8QtBasic::create_v8_qobject (QObject *value) {
             if (!_mediaObjectCtor.IsEmpty ()) {
 
                vobj = _mediaObjectCtor->NewInstance();
-               qobj = new V8QtMediaObject (vobj, value, &_state);
+               qobj = new V8QtObject (vobj, value, &_state);
+//               qobj = new V8QtMediaObject (vobj, value, &_state);
             }
          }
          else if (value->inherits ("QAction")) {
