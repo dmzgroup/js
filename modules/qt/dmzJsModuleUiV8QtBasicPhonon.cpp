@@ -2,13 +2,43 @@
 #include "dmzJsModuleUiV8QtBasic.h"
 #include <dmzJsV8UtilConvert.h>
 #include "dmzV8QtUtil.h"
-#include <QtWebKit/QWebView>
-#include <QtWebKit/QWebFrame>
-#include <QtWebKit/QWebPage>
+//#include <QtWebKit/QWebView>
+//#include <QtWebKit/QWebFrame>
+//#include <QtWebKit/QWebPage>
+#include <QtCore/QUrl>
 
 #include <phonon/MediaObject>
 #include <phonon/VideoWidget>
 #include <phonon/AudioOutput>
+#include <phonon/Path>
+
+namespace {
+
+   QList<Phonon::AudioOutput *> _audioOutputList;
+};
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_phonon_clear_paths (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QMutableListIterator<Phonon::AudioOutput *> itor (_audioOutputList);
+
+      while (itor.hasNext ()) {
+
+         Phonon::AudioOutput *output = itor.next ();
+         delete output;
+         itor.remove ();
+      }
+   }
+
+   return scope.Close (result);
+}
 
 
 dmz::V8Value
@@ -43,7 +73,9 @@ dmz::JsModuleUiV8QtBasic::_create_phonon_media_object (const v8::Arguments &Args
       }
       else { media->setCurrentSource (Phonon::MediaSource (location)); }
 
-      Phonon::createPath(media, new Phonon::AudioOutput (Phonon::VideoCategory));
+      Phonon::AudioOutput *output = new Phonon::AudioOutput (Phonon::VideoCategory);
+      Phonon::Path path = Phonon::createPath(media, output);
+      if (path.isValid ()) { _audioOutputList.append (output); }
       result = self->create_v8_qobject (media);
    }
 
@@ -370,4 +402,5 @@ dmz::JsModuleUiV8QtBasic::_init_phonon () {
    v8::HandleScope scope;
 
    _phononApi.add_function ("createPath", _phonon_create_path, _self);
+   _phononApi.add_function ("clearPaths", _phonon_clear_paths, _self);
 }

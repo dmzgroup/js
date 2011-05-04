@@ -771,6 +771,7 @@ namespace dmz {
 
          // Phonon bindings implemented in dmzJsModuleUiV8QtBasicPhonon.cpp
          static V8Value _phonon_create_path (const v8::Arguments &Args);
+         static V8Value _phonon_clear_paths (const v8::Arguments &Args);
 
          bool eventFilter (QObject *watched, QEvent *event);
 
