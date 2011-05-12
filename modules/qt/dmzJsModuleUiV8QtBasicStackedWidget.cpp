@@ -114,7 +114,7 @@ dmz::JsModuleUiV8QtBasic::_stacked_widget_current_widget (const v8::Arguments &A
       QStackedWidget *sw = self->v8_to_qobject<QStackedWidget>(Args.This ());
       if (sw) {
 
-         QWidget *qw;
+         QWidget *qw (0);
 
          if (Args.Length () > 0) {
 

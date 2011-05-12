@@ -85,13 +85,30 @@ dmz::JsModuleUiV8QtBasic::_combobox_add_item (const v8::Arguments &Args) {
       QComboBox *cb = self->v8_to_qobject<QComboBox> (Args.This ());;
       if (cb) {
 
-         if (Args.Length () > 0) {
+         int length = Args.Length ();
+         if (length) {
 
-            if (Args.Length () > 1) {
+            if (length == 3) {
 
-               QPixmap *pixmap = self->_to_gpixmap (Args[0]);
-               QString item = v8_to_qstring (Args[1]);
-               if (pixmap) { cb->addItem (*pixmap, item); }
+                  QPixmap *pixmap = self->_to_gpixmap (Args[0]);
+                  QString item = v8_to_qstring (Args[1]);
+                  QVariant variant = self->_qvariant_wrap_v8 (Args[2]);
+                  if (pixmap) { cb->addItem (*pixmap, item, variant); }
+            }
+            else if (length == 2) {
+
+               if (Args[0]->IsString ()) {
+
+                  QString item = v8_to_qstring (Args[0]);
+                  QVariant variant = self->_qvariant_wrap_v8 (Args[1]);
+                  cb->addItem (item, variant);
+               }
+               else {
+
+                  QPixmap *pixmap = self->_to_gpixmap (Args[0]);
+                  QString item = v8_to_qstring (Args[1]);
+                  if (pixmap) { cb->addItem (*pixmap, item); }
+               }
             }
             else {
 
@@ -255,6 +272,34 @@ dmz::JsModuleUiV8QtBasic::_combobox_clear (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_combobox_item_data (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QComboBox *cb = self->v8_to_qobject<QComboBox> (Args.This ());;
+      if (cb) {
+
+         if (Args.Length ()) {
+
+            int col = v8_to_uint32 (Args[0]);
+            if (Args.Length () > 1) {
+
+               cb->setItemData (col, self->_qvariant_wrap_v8 (Args[1]));
+            }
+            result = self->_qvariant_unwrap_v8 (cb->itemData (col));
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_create_comboBox (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -302,6 +347,7 @@ dmz::JsModuleUiV8QtBasic::_init_combobox () {
    proto->Set ("removeIndex", v8::FunctionTemplate::New (_combobox_remove_item, _self));
    proto->Set ("clear", v8::FunctionTemplate::New (_combobox_clear, _self));
    proto->Set ("insertItem", v8::FunctionTemplate::New (_combobox_insert_item, _self));
+   proto->Set ("itemData", v8::FunctionTemplate::New (_combobox_item_data, _self));
 
    _comboBoxApi.add_function ("create", _create_comboBox, _self);
 }
