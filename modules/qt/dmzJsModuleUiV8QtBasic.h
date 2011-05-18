@@ -15,6 +15,7 @@
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
 #include <QtGui/QGraphicsItem>
+#include <QtCore/QCryptographicHash>
 #include <v8.h>
 
 class QInputDialog;
@@ -95,6 +96,7 @@ namespace dmz {
          virtual v8::Handle<v8::Value> create_v8_gimage (QImage *value);
          virtual v8::Handle<v8::Value> create_v8_gpixmap (QPixmap *value);
          virtual v8::Handle<v8::Value> create_v8_gpaint_device (QPaintDevice *value);
+         virtual v8::Handle<v8::Value> create_v8_crypto_hash (QCryptographicHash *value);
 
          virtual v8::Handle<v8::Value> create_v8_qevent (QEvent *value);
 
@@ -774,6 +776,13 @@ namespace dmz {
          static V8Value _phonon_create_path (const v8::Arguments &Args);
          static V8Value _phonon_clear_paths (const v8::Arguments &Args);
 
+         // Crypto bindings implemented in dmzJsModuleUiV8QtBasicCrypto.cpp
+         static V8Value _crypto_add_data (const v8::Arguments &Args);
+         static V8Value _crypto_reset (const v8::Arguments &Args);
+         static V8Value _crypto_result (const v8::Arguments &Args);
+         static V8Value _create_crypto (const v8::Arguments &Args);
+         static V8Value _crypto_hash (const v8::Arguments &Args);
+
          bool eventFilter (QObject *watched, QEvent *event);
 
          QWidget *_to_qwidget (V8Value value) { return v8_to_qobject<QWidget>(value); }
@@ -791,6 +800,8 @@ namespace dmz {
          QImage *_to_gimage (V8Value value);
          QPixmap *_to_gpixmap (V8Value value);
          QPaintDevice *_to_gpaint_device (V8Value value);
+
+         QCryptographicHash *_to_crypto_hash (V8Value value);
 
          QEvent *_to_qevent (V8Value value);
 
@@ -873,6 +884,8 @@ namespace dmz {
          void _init_media_object ();
          void _init_video_player ();
 
+         void _init_crypto ();
+
          void _init_layout ();
          void _init_box_layout ();
          void _init_hbox_layout ();
@@ -940,6 +953,8 @@ namespace dmz {
          V8InterfaceHelper _eventApi;
 
          V8InterfaceHelper _phononApi;
+
+         V8InterfaceHelper _cryptoApi;
 
 
          V8FunctionTemplatePersist _objectTemp;
@@ -1137,6 +1152,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _resizeEventTemp;
          V8FunctionPersist _resizeEventCtor;
+
+         V8FunctionTemplatePersist _cryptoTemp;
+         V8FunctionPersist _cryptoCtor;
 
          V8StringPersist _allowMultipleStr;
          V8StringPersist _allowedAreasStr;

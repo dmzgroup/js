@@ -892,6 +892,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _resizeEventCtor = V8FunctionPersist::New (_resizeEventTemp->GetFunction ());
       }
 
+      if (!_cryptoTemp.IsEmpty ()) {
+
+         _cryptoCtor = V8FunctionPersist::New (_cryptoTemp->GetFunction ());
+      }
+
       if (_state.core) {
 
          _state.core->register_interface ("dmz/ui/consts", _qtApi.get_new_instance ());
@@ -1027,6 +1032,10 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _state.core->register_interface (
             "dmz/ui/phonon",
             _phononApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/crypto",
+            _cryptoApi.get_new_instance ());
 
       }
 
@@ -1213,6 +1222,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _mediaObjectCtor.Dispose (); _mediaObjectCtor.Clear ();
       _videoWidgetCtor.Dispose (); _videoWidgetCtor.Clear ();
 
+      _cryptoCtor.Dispose (); _cryptoCtor.Clear ();
+
       _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
       _allowedAreasStr.Dispose (); _allowedAreasStr.Clear ();
       _areaStr.Dispose (); _areaStr.Clear ();
@@ -1287,6 +1298,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _webviewApi.clear ();
 
       _phononApi.clear ();
+
+      _cryptoApi.clear ();
 
       _widgetApi.clear ();
 
@@ -1690,6 +1703,8 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_media_object ();
    _init_video_player ();
    _init_phonon ();
+
+   _init_crypto ();
 }
 
 

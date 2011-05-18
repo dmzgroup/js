@@ -39,6 +39,7 @@ lmk.add_files {
    "dmzJsModuleUiV8QtBasicAction.cpp",
    "dmzJsModuleUiV8QtBasicButton.cpp",
    "dmzJsModuleUiV8QtBasicComboBox.cpp",
+   "dmzJsModuleUiV8QtBasicCrypto.cpp",
    "dmzJsModuleUiV8QtBasicDateTimeEdit.cpp",
    "dmzJsModuleUiV8QtBasicDialog.cpp",
    "dmzJsModuleUiV8QtBasicDockWidget.cpp",

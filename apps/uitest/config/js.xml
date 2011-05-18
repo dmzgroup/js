@@ -20,10 +20,11 @@
    <path value="./ui"/>
    <instance name="log"/>
    <instance name="main"/>
-   <instance name="phonon"/>
+<!--   <instance name="phonon"/>-->
 <!--   <instance name="graphics"/> -->
-   <instance name="forumtree"/>
-   <instance name="webview"/>
+<!--   <instance name="forumtree"/>-->
+<!--   <instance name="webview"/>-->
+   <instance name="crypto"/>
    <!-- <instance name="createTest"/> -->
 <!--   <instance name="button"/>
    <instance name="comboBox"/>
