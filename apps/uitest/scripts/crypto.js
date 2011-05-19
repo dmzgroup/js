@@ -8,6 +8,8 @@ var dmz =
    , test =
         [ "mq2thez@gmail.com"
         , "sangster@me.com"
+        , "benjamin.e.sangster@gmail.com"
+        , "techsupport@chds.us"
         , "cwtrusko@nps.edu"
         ]
    ;
