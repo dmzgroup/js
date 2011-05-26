@@ -212,7 +212,8 @@ dmz::JsModuleUiV8QtBasic::_tree_add (const v8::Arguments &Args) {
                QTreeWidgetItem *prev = self->_to_qtreewidgetitem (Args[0]);
                if (prev) {
 
-                  item = new QTreeWidgetItem (tree, prev);
+//                  item = new QTreeWidgetItem (tree, prev);
+                  tree->addTopLevelItem (prev);
                }
                else {
 
@@ -1099,6 +1100,45 @@ dmz::JsModuleUiV8QtBasic::_tree_item_is_expanded (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_tree_item (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QTreeWidgetItem *item (0);
+      int length = Args.Length ();
+      if (length) {
+
+         if (Args[0]->IsArray ()) {
+
+            item = new QTreeWidgetItem (v8_to_qstringlist (Args[0]));
+         }
+         else if (length > 1) {
+
+            QTreeWidget *parentTree = self->v8_to_qobject<QTreeWidget> (Args[0]);
+            QTreeWidgetItem *parentItem = self->_to_qtreewidgetitem (Args[0]);
+            if (Args[1]->IsArray ()) {
+
+               QStringList list = v8_to_qstringlist (Args[1]);
+               if (parentTree) { item = new QTreeWidgetItem (parentTree, list); }
+               else if (parentItem) { item = new QTreeWidgetItem (parentItem, list); }
+               else { item = new QTreeWidgetItem (list); }
+            }
+         }
+      }
+      else { item = new QTreeWidgetItem (); }
+
+      result = self->create_v8_qtreewidgetitem (item);
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_create_tree_widget (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -1150,6 +1190,8 @@ dmz::JsModuleUiV8QtBasic::_init_tree_widget_item () {
    proto->Set ("expand", v8::FunctionTemplate::New (_tree_item_expand, _self));
    proto->Set ("collapse", v8::FunctionTemplate::New (_tree_item_collapse, _self));
    proto->Set ("isExpanded", v8::FunctionTemplate::New (_tree_item_is_expanded, _self));
+
+   _treeApi.add_function ("createItem", _create_tree_item, _self);
 }
 
 

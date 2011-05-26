@@ -434,6 +434,7 @@ namespace dmz {
          static V8Value _tree_item_expand (const v8::Arguments &Args);
          static V8Value _tree_item_collapse (const v8::Arguments &Args);
          static V8Value _tree_item_is_expanded (const v8::Arguments &Args);
+         static V8Value _create_tree_item (const v8::Arguments &Args);
 
          // QTableWidget bindings implemented in JsModuleUiV8QtBasicTableWidget.cpp
          static V8Value _table_clear_spans (const v8::Arguments &Args);
