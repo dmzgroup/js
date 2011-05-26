@@ -892,10 +892,7 @@ dmz::JsModuleUiV8QtBasic::_tree_item_text (const v8::Arguments &Args) {
          if (Args.Length ()) {
 
             int col = v8_to_uint32 (Args[0]);
-            if (Args.Length () > 1) {
-
-               item->setText (col, v8_to_qstring (Args[1]));
-            }
+            if (Args.Length () > 1) { item->setText (col, v8_to_qstring (Args[1])); }
             result = v8::String::New (qPrintable (item->text (col)));
          }
       }
