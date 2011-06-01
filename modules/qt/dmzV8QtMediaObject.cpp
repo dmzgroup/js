@@ -50,6 +50,8 @@ dmz::V8QtMediaObject::bind (
             SIGNAL (tick ()),
             SLOT (on_tick ()),
             Qt::UniqueConnection);
+
+         results = True;
       }
       else if (Signal == HasVideoChangedSignal) {
 
@@ -58,6 +60,8 @@ dmz::V8QtMediaObject::bind (
             SIGNAL (hasVideoChanged (bool)),
             SLOT (on_has_video_changed (bool)),
             Qt::UniqueConnection);
+
+         results = True;
       }
    }
 
