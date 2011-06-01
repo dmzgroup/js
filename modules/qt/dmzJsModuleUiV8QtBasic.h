@@ -766,6 +766,7 @@ namespace dmz {
          static V8Value _phonon_media_object_pause (const v8::Arguments &Args);
          static V8Value _phonon_media_object_play (const v8::Arguments &Args);
          static V8Value _phonon_media_object_stop (const v8::Arguments &Args);
+         static V8Value _phonon_media_object_state (const v8::Arguments &Args);
          static V8Value _create_phonon_media_object (const v8::Arguments &Args);
 
          // Phonon::VideoWidget bindings implemented in dmzJsModuleUiV8QtBasicPhonon.cpp
