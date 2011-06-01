@@ -25,6 +25,7 @@ namespace dmz {
       public Q_SLOTS:
          void on_finished ();
          void on_tick ();
+         void on_has_video_changed (bool b);
    };
 };
 

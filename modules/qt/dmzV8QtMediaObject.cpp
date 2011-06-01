@@ -9,6 +9,7 @@ namespace {
 
    static const dmz::String FinishedSignal ("finished");
    static const dmz::String TickSignal ("tick");
+   static const dmz::String HasVideoChangedSignal ("hasVideoChanged");
 };
 
 
@@ -50,6 +51,14 @@ dmz::V8QtMediaObject::bind (
             SLOT (on_tick ()),
             Qt::UniqueConnection);
       }
+      else if (Signal == HasVideoChangedSignal) {
+
+         connect (
+            _object,
+            SIGNAL (hasVideoChanged (bool)),
+            SLOT (on_has_video_changed (bool)),
+            Qt::UniqueConnection);
+      }
    }
 
    if (results) { _register_callback (Signal, Self, Func); }
@@ -69,4 +78,10 @@ void
 dmz::V8QtMediaObject::on_finished () {
 
    _do_callback (FinishedSignal);
+}
+
+void
+dmz::V8QtMediaObject::on_has_video_changed (bool b) {
+
+   _do_callback (HasVideoChangedSignal, b);
 }
