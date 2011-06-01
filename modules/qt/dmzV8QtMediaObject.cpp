@@ -63,6 +63,8 @@ dmz::V8QtMediaObject::bind (
             Qt::UniqueConnection);
 
          results = True;
+
+         qDebug() << "bind: " << Signal.get_buffer () << endl;
       }
    }
 
