@@ -109,9 +109,11 @@ dmz::JsModuleUiV8QtBasic::_phonon_media_object_source (const v8::Arguments &Args
 
             case Phonon::MediaSource::LocalFile:
                str = media->currentSource ().fileName ();
+               qDebug () << "Source: LocalFile: " << str << endl;
                break;
             case Phonon::MediaSource::Url:
                str = media->currentSource ().url ().toString ();
+               qDebug () << "Source: Url: " << str << endl;
                break;
 //            case Phonon::MediaSource::Invalid: break;
 //            case Phonon::MediaSource::Empty: break;
