@@ -280,6 +280,10 @@ dmz::JsModuleUiV8QtBasic::_phonon_media_object_state (const v8::Arguments &Args)
 
          Phonon::State state = media->state ();
          self->_log.warn << "media state: " << state << endl;
+         if (state == Phonon::ErrorState) {
+
+            self->_log.warn << "error: " << media->errorType () << " str: " << qPrintable(media->errorString ()) << endl;
+         }
       }
    }
 
