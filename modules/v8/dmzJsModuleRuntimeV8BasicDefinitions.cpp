@@ -20,7 +20,7 @@ dmz::JsModuleRuntimeV8Basic::_create_named_handle (const v8::Arguments &Args) {
       const String Name = v8_to_string (Args[0]);
 
       if (Name) {
- 
+
          Handle val = self->_defs.create_named_handle (Name);
          result = v8::Number::New ((double)val);
       }
@@ -43,7 +43,7 @@ dmz::JsModuleRuntimeV8Basic::_lookup_named_handle (const v8::Arguments &Args) {
       const String Name = v8_to_string (Args[0]);
 
       if (Name) {
- 
+
          result = v8::Number::New ((double)self->_defs.lookup_named_handle (Name));
       }
    }
@@ -65,7 +65,7 @@ dmz::JsModuleRuntimeV8Basic::_lookup_named_handle_name (const v8::Arguments &Arg
       const UInt32 Value = v8_to_uint32 (Args[0]);
 
       if (Value) {
- 
+
          const String Name = self->_defs.lookup_named_handle_name (Value);
 
          if (Name) { result = v8::String::New (Name.get_buffer ()); }
@@ -136,4 +136,15 @@ dmz::JsModuleRuntimeV8Basic::_init_definitions () {
    _defsApi.add_function ("lookupNamedHandleName", _lookup_named_handle_name, _self);
    _defsApi.add_function ("lookupState", _lookup_state, _self);
    _defsApi.add_function ("lookupStateName", _lookup_state_name, _self);
+
+   UInt32 OS = 0;
+#ifdef _WIN32
+   OS = 1;
+#endif
+#ifdef __APPLE__
+   OS = 2;
+#endif
+   _defsApi.add_constant ("operatingSystem", OS);
+   _defsApi.add_constant ("Win32", (UInt32)1);
+   _defsApi.add_constant ("OSX", (UInt32)2);
 }
