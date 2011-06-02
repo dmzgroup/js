@@ -8,6 +8,7 @@
 #include <phonon/VideoWidget>
 #include <phonon/AudioOutput>
 #include <phonon/Path>
+#include <phonon/BackendCapabilities>
 
 namespace {
 

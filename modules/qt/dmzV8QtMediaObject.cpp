@@ -63,8 +63,6 @@ dmz::V8QtMediaObject::bind (
             Qt::UniqueConnection);
 
          results = True;
-
-         qDebug() << "bind: " << Signal.get_buffer () << endl;
       }
    }
 
@@ -90,6 +88,5 @@ dmz::V8QtMediaObject::on_finished () {
 void
 dmz::V8QtMediaObject::on_has_video_changed (bool b) {
 
-   qDebug () << "onHasVideoChanged: " << b << endl;
    _do_callback (HasVideoChangedSignal, b);
 }
