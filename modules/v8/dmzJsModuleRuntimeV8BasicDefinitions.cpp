@@ -144,7 +144,7 @@ dmz::JsModuleRuntimeV8Basic::_init_definitions () {
 #ifdef __APPLE__
    OS = 2;
 #endif
-   _defsApi.add_constant ("operatingSystem", OS);
+   _defsApi.add_constant ("OperatingSystem", OS);
    _defsApi.add_constant ("Win32", (UInt32)1);
    _defsApi.add_constant ("OSX", (UInt32)2);
 }
