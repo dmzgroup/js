@@ -281,7 +281,6 @@ dmz::V8QtObject::_do_callback (const String &Signal, const QList<V8Value> &Value
       v8::HandleScope scope;
 
       CallbackStruct *cs = _get_first_callback (Signal);
-      qDebug () << "_do_callback: " << Signal.get_buffer () << " cs: " << cs << endl;
       while (cs) {
 
          if (!(cs->func.IsEmpty ()) && !(cs->self.IsEmpty ())) {
