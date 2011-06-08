@@ -6,6 +6,7 @@
 namespace {
 
    static const dmz::String LocalSignalLinkClicked("linkClicked");
+   static const dmz::String LocalSignalLoadFinished("loadFinished");
 };
 
 
@@ -39,6 +40,16 @@ dmz::V8QtWebView::bind (
 
          results = True;
       }
+      else if (Signal == LocalSignalLoadFinished) {
+
+         connect (
+            _widget,
+            SIGNAL (loadFinished (bool)),
+            SLOT (on_load_finished (bool)),
+            Qt::UniqueConnection);
+
+         results = True;
+      }
    }
 
    if (results) { _register_callback (Signal, Self, Func); }
@@ -51,4 +62,10 @@ void
 dmz::V8QtWebView::on_linkClicked (const QUrl &Link) {
 
    _do_callback (LocalSignalLinkClicked, Link.toString ());
+}
+
+void
+dmz::V8QtWebView::on_load_finished (bool ok) {
+
+   _do_callback (LocalSignalLoadFinished, ok);
 }

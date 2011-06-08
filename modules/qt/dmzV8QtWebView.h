@@ -26,6 +26,7 @@ namespace dmz {
 
       public Q_SLOTS:
          void on_linkClicked (const QUrl &);
+         void on_load_finished (bool);
    };
 };
 
