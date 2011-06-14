@@ -35,10 +35,12 @@ dmz::JsModuleUiV8QtBasic::_uiloader_load (const v8::Arguments &Args) {
 
       if (FileName) {
 
+         QWidget *parent (0);
+         if (Args.Length () > 1) { parent = self->_to_qwidget (Args[1]); }
          QUiLoader loader;
          QFile file (FileName.get_buffer ());
          file.open (QFile::ReadOnly);
-         QWidget *widget = loader.load (&file, 0);
+         QWidget *widget = loader.load (&file, parent);
          file.close ();
 
          if (widget) {
