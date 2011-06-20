@@ -46,6 +46,42 @@ dmz::JsModuleUiV8QtBasic::_dialog_open (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_dialog_accept (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+
+   if (self) {
+
+      QDialog *dialog = self->v8_to_qobject<QDialog>(Args.This ());
+      if (dialog) { dialog->accept (); }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_dialog_reject (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+
+   if (self) {
+
+      QDialog *dialog = self->v8_to_qobject<QDialog>(Args.This ());
+      if (dialog) { dialog->reject (); }
+   }
+
+   return scope.Close (result);
+}
+
+
 dmz::V8QtDialog *
 dmz::JsModuleUiV8QtBasic::_to_v8_qt_dialog (V8Value value) {
 
@@ -69,4 +105,6 @@ dmz::JsModuleUiV8QtBasic::_init_dialog () {
 
    V8ObjectTemplate proto = _dialogTemp->PrototypeTemplate ();
    proto->Set ("open", v8::FunctionTemplate::New (_dialog_open, _self));
+   proto->Set ("accept", v8::FunctionTemplate::New (_dialog_accept, _self));
+   proto->Set ("reject", v8::FunctionTemplate::New (_dialog_reject, _self));
 }
