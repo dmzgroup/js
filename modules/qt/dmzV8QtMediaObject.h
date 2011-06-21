@@ -2,6 +2,7 @@
 #define DMZ_V8_QT_MEDIA_OBJECT_DOT_H
 
 #include <dmzV8QtObject.h>
+#include <phonon/MediaObject>
 
 namespace dmz {
 
@@ -26,6 +27,7 @@ namespace dmz {
          void on_finished ();
          void on_tick ();
          void on_has_video_changed (bool b);
+         void on_state_changed (Phonon::State, Phonon::State);
    };
 };
 

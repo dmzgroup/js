@@ -759,7 +759,7 @@ namespace dmz {
          // Phonon::MediaObject bindings implemented in dmzJsModuleUiV8QtBasicPhonon.cpp
          static V8Value _phonon_media_object_source (const v8::Arguments &Args);
          static V8Value _phonon_media_object_has_video (const v8::Arguments &Args);
-//         static V8Value _phonon_media_object_err_str (const v8::Arguments &Args);
+         static V8Value _phonon_media_object_err_str (const v8::Arguments &Args);
 //         static V8Value _phonon_media_object_err_type (const v8::Arguments &Args);
          static V8Value _phonon_media_object_curr_time (const v8::Arguments &Args);
          static V8Value _phonon_media_object_rem_time (const v8::Arguments &Args);

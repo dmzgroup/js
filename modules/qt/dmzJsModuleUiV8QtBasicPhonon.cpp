@@ -277,15 +277,24 @@ dmz::JsModuleUiV8QtBasic::_phonon_media_object_state (const v8::Arguments &Args)
    if (self) {
 
       Phonon::MediaObject *media = self->v8_to_qobject<Phonon::MediaObject>(Args.This ());
-      if (media) {
+      if (media) { result = v8::Int32::New ((UInt32)media->state ()); }
+   }
 
-         Phonon::State state = media->state ();
-         self->_log.warn << "media state: " << state << endl;
-         if (state == Phonon::ErrorState) {
+   return scope.Close (result);
+}
 
-            self->_log.warn << "error: " << media->errorType () << " str: " << qPrintable(media->errorString ()) << endl;
-         }
-      }
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_phonon_media_object_err_str (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      Phonon::MediaObject *media = self->v8_to_qobject<Phonon::MediaObject>(Args.This ());
+      if (media) { result = v8::String::New (qPrintable (media->errorString ())); }
    }
 
    return scope.Close (result);
@@ -306,7 +315,7 @@ dmz::JsModuleUiV8QtBasic::_init_media_object () {
    V8ObjectTemplate proto = _mediaObjectTemp->PrototypeTemplate ();
    proto->Set ("currentSource", v8::FunctionTemplate::New (_phonon_media_object_source, _self));
    proto->Set ("hasVideo", v8::FunctionTemplate::New (_phonon_media_object_has_video, _self));
-//   proto->Set ("errorString", v8::FunctionTemplate::New (_phonon_media_object_err_str, _self));
+   proto->Set ("errorString", v8::FunctionTemplate::New (_phonon_media_object_err_str, _self));
 //   proto->Set ("errorType", v8::FunctionTemplate::New (_phonon_media_object_err_type, _self));
    proto->Set ("currentTime", v8::FunctionTemplate::New (_phonon_media_object_curr_time, _self));
    proto->Set ("remainingTime", v8::FunctionTemplate::New (_phonon_media_object_rem_time, _self));
