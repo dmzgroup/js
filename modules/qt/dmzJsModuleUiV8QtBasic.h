@@ -578,6 +578,8 @@ namespace dmz {
          static V8Value _gitem_stack_before (const v8::Arguments &Args);
          static V8Value _gitem_rotation (const v8::Arguments &Args);
          static V8Value _gitem_cursor (const v8::Arguments &Args);
+         static V8Value _gitem_tooltip (const v8::Arguments &Args);
+         static V8Value _gitem_hover_events (const v8::Arguments &Args);
 
          static V8Value _gabs_brush (const v8::Arguments &Args);
          static V8Value _gabs_pen (const v8::Arguments &Args);
@@ -636,6 +638,7 @@ namespace dmz {
          static V8Value _gscene_selected_items (const v8::Arguments &Args);
          static V8Value _gscene_width (const v8::Arguments &Args);
          static V8Value _gscene_height (const v8::Arguments &Args);
+         static V8Value _gscene_clear (const v8::Arguments &Args);
 
          static V8Value _gbrush_color (const v8::Arguments &Args);
          static V8Value _gbrush_style (const v8::Arguments &Args);

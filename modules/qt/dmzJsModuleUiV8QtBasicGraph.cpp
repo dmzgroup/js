@@ -1737,6 +1737,48 @@ dmz::JsModuleUiV8QtBasic::_gitem_cursor (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gitem_tooltip (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsItem *item = self->_to_graphics_item (Args.This ());
+      if (item) {
+
+         if (Args.Length ()) { item->setToolTip (v8_to_qstring (Args[0])); }
+         result = v8::String::New (qPrintable (item->toolTip ()));
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gitem_hover_events (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsItem *item = self->_to_graphics_item (Args.This ());
+      if (item) {
+
+         if (Args.Length ()) { item->setAcceptHoverEvents (v8_to_boolean (Args[0])); }
+         result = v8::Boolean::New (item->acceptsHoverEvents ());
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_graph () {
 
@@ -1774,6 +1816,8 @@ dmz::JsModuleUiV8QtBasic::_init_graph () {
    proto->Set ("rotation", v8::FunctionTemplate::New (_gitem_rotation, _self));
    proto->Set ("flag", v8::FunctionTemplate::New (_gitem_flag, _self));
    proto->Set ("cursor", v8::FunctionTemplate::New (_gitem_cursor, _self));
+   proto->Set ("toolTip", v8::FunctionTemplate::New (_gitem_tooltip, _self));
+   proto->Set ("acceptHoverEvents", v8::FunctionTemplate::New (_gitem_hover_events, _self));
 
    _graphApi.add_constant ("ItemIsMovable", (UInt32)QGraphicsItem::ItemIsMovable);
    _graphApi.add_constant ("ItemIsSelectable", (UInt32)QGraphicsItem::ItemIsSelectable);
@@ -3403,6 +3447,23 @@ dmz::JsModuleUiV8QtBasic::_gscene_width (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gscene_clear (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsScene *scene = self->v8_to_qobject<QGraphicsScene> (Args.This ());
+      if (scene) { scene->clear (); }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_gscene () {
 
@@ -3433,6 +3494,7 @@ dmz::JsModuleUiV8QtBasic::_init_gscene () {
    proto->Set ("selectedItems", v8::FunctionTemplate::New (_gscene_selected_items, _self));
    proto->Set ("width", v8::FunctionTemplate::New (_gscene_width, _self));
    proto->Set ("height", v8::FunctionTemplate::New (_gscene_height, _self));
+   proto->Set ("clear", v8::FunctionTemplate::New (_gscene_clear, _self));
 
    _graphApi.add_function ("createScene", _create_gscene, _self);
 
