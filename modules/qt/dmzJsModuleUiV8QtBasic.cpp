@@ -1632,6 +1632,15 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _qtApi.add_constant ("FastTransformation", (UInt32)Qt::FastTransformation);
    _qtApi.add_constant ("SmoothTransformation", (UInt32)Qt::SmoothTransformation);
 
+   // enum QSizePolicy::Policy
+   _qtApi.add_constant ("SPFixed", (UInt32)QSizePolicy::Fixed);
+   _qtApi.add_constant ("SPMinimum", (UInt32)QSizePolicy::Minimum);
+   _qtApi.add_constant ("SPMaximum", (UInt32)QSizePolicy::Maximum);
+   _qtApi.add_constant ("SPMinimumExpanding", (UInt32)QSizePolicy::MinimumExpanding);
+   _qtApi.add_constant ("SPPreferred", (UInt32)QSizePolicy::Preferred);
+   _qtApi.add_constant ("SPExpanding", (UInt32)QSizePolicy::Expanding);
+   _qtApi.add_constant ("SPIgnored", (UInt32)QSizePolicy::Ignored);
+
    // UiLoader API
    _uiLoaderApi.add_function ("load", _uiloader_load, _self);
 
