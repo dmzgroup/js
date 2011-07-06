@@ -119,6 +119,36 @@ dmz::JsModuleUiV8QtBasic::_layout_remove_item (const v8::Arguments &Args) {
          if (Args.Length ()) {
 
             QLayout *item = self->v8_to_qobject<QLayout> (Args[0]);
+
+            if (item) { layout->removeItem (item); }
+            else {
+
+               QWidget *widget = self->v8_to_qobject<QWidget> (Args[0]);
+               if (widget) { layout->removeWidget (widget); }
+            }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_layout_remove_layout (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QLayout *layout = self->v8_to_qobject<QLayout> (Args.This ());
+      if (layout) {
+
+         if (Args.Length ()) {
+
+            QLayout *item = self->v8_to_qobject<QLayout> (Args[0]);
             if (item) {
 
                layout->removeItem (item);
@@ -171,7 +201,11 @@ dmz::JsModuleUiV8QtBasic::_layout_take_at (const v8::Arguments &Args) {
          if (Args.Length ()) {
 
             QLayoutItem *item = layout->takeAt (v8_to_uint32(Args[0]));
-            if (item) { result = self->create_v8_qwidget (item->widget ()); }
+            if (item) {
+
+               if (item->layout ()) { result = self->create_v8_qobject (item->layout ()); }
+               else { result = self->create_v8_qwidget (item->widget ()); }
+            }
          }
       }
    }
@@ -227,7 +261,6 @@ dmz::JsModuleUiV8QtBasic::_layout_contents_margins (const v8::Arguments &Args) {
 }
 
 
-
 void
 dmz::JsModuleUiV8QtBasic::_init_layout () {
 
@@ -244,8 +277,9 @@ dmz::JsModuleUiV8QtBasic::_init_layout () {
    proto->Set ("enabled", v8::FunctionTemplate::New (_layout_enabled, _self));
    proto->Set ("at", v8::FunctionTemplate::New (_layout_at, _self));
    proto->Set ("count", v8::FunctionTemplate::New (_layout_count, _self));
-   proto->Set ("removeLayout", v8::FunctionTemplate::New (_layout_remove_item, _self));
+   proto->Set ("removeLayout", v8::FunctionTemplate::New (_layout_remove_layout, _self));
    proto->Set ("removeWidget", v8::FunctionTemplate::New (_layout_remove_widget, _self));
+   proto->Set ("removeItem", v8::FunctionTemplate::New (_layout_remove_item, _self));
    proto->Set ("takeAt", v8::FunctionTemplate::New (_layout_take_at, _self));
    proto->Set ("margins", v8::FunctionTemplate::New (_layout_contents_margins, _self));
 }

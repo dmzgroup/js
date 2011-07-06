@@ -220,7 +220,7 @@ dmz::JsModuleUiV8QtBasic::_create_widget (const v8::Arguments &Args) {
    JsModuleUiV8QtBasic *self = _to_self (Args);
    if (self) {
 
-      QWidget *parent = 0;
+      QWidget *parent (0);
       if (Args.Length ()) { parent = self->_to_qwidget (Args[0]); }
       QWidget *widget = new QWidget (parent);
       result = self->create_v8_qobject (widget);

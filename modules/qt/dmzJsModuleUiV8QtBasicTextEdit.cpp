@@ -140,6 +140,27 @@ dmz::JsModuleUiV8QtBasic::_textEdit_allow_undo (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_textEdit_read_only (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QTextEdit *text = self->v8_to_qobject<QTextEdit>(Args.This ());
+      if (text) {
+
+         if (Args.Length ()) { text->setReadOnly (v8_to_boolean (Args[0])); }
+         result = v8::Boolean::New (text->isReadOnly ());
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_create_text_edit (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -187,6 +208,7 @@ dmz::JsModuleUiV8QtBasic::_init_textEdit () {
    proto->Set ("undo", v8::FunctionTemplate::New (_textEdit_undo, _self));
    proto->Set ("redo", v8::FunctionTemplate::New (_textEdit_redo, _self));
    proto->Set ("allowUndo", v8::FunctionTemplate::New (_textEdit_allow_undo, _self));
+   proto->Set ("readOnly", v8::FunctionTemplate::New (_textEdit_read_only, _self));
 
-   _textEditApi.add_function ("create", _create_line_edit, _self);
+   _textEditApi.add_function ("create", _create_text_edit, _self);
 }

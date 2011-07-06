@@ -222,6 +222,31 @@ dmz::JsModuleUiV8QtBasic::_object_to_string (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_object_inherits (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      V8QtObject *object = self->_to_v8_qt_object (Args.This ());
+      if (object) {
+
+         QObject *qobject = object->get_qobject ();
+         if (qobject && Args.Length ()) {
+
+            QString name (v8_to_qstring (Args[0]));
+            result = v8::Boolean::New (qobject->inherits (qPrintable (name)));
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_object_callback (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -321,5 +346,6 @@ dmz::JsModuleUiV8QtBasic::_init_object () {
    proto->Set ("property", v8::FunctionTemplate::New (_object_property, _self));
    proto->Set ("callback", v8::FunctionTemplate::New (_object_callback, _self));
    proto->Set ("toString", v8::FunctionTemplate::New (_object_to_string, _self));
+   proto->Set ("inherits", v8::FunctionTemplate::New (_object_inherits, _self));
 }
 

@@ -148,6 +148,7 @@ namespace dmz {
          static V8Value _object_parent (const v8::Arguments &Args);
          static V8Value _object_property (const v8::Arguments &Args);
          static V8Value _object_callback (const v8::Arguments &Args);
+         static V8Value _object_inherits (const v8::Arguments &Args);
          static V8Value _object_to_string (const v8::Arguments &Args);
 
          // QWidget bindings implemented in JsModuleUiV8QtBasicWidget.cpp
@@ -229,6 +230,7 @@ namespace dmz {
          static V8Value _textEdit_undo (const v8::Arguments &Args);
          static V8Value _textEdit_text (const v8::Arguments &Args);
          static V8Value _textEdit_allow_undo (const v8::Arguments &Args);
+         static V8Value _textEdit_read_only (const v8::Arguments &Args);
          static V8Value _create_text_edit (const v8::Arguments &Args);
 
          // QLabel bindings implemented in JsModuleUiV8QtLabel.cpp
@@ -305,6 +307,7 @@ namespace dmz {
          static V8Value _layout_enabled (const v8::Arguments &Args);
          static V8Value _layout_at (const v8::Arguments &Args);
          static V8Value _layout_count (const v8::Arguments &Args);
+         static V8Value _layout_remove_layout (const v8::Arguments &Args);
          static V8Value _layout_remove_item (const v8::Arguments &Args);
          static V8Value _layout_remove_widget (const v8::Arguments &Args);
          static V8Value _layout_take_at (const v8::Arguments &Args);
