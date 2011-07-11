@@ -717,6 +717,7 @@ namespace dmz {
          static V8Value _webview_modified (const v8::Arguments &Args);
          static V8Value _webview_load (const v8::Arguments &Args);
          static V8Value _webview_selected_text (const v8::Arguments &Args);
+         static V8Value _webview_set_html (const v8::Arguments &Args);
          static V8Value _webview_text_size_mult (const v8::Arguments &Args);
          static V8Value _webview_zoom_factor (const v8::Arguments &Args);
          static V8Value _webview_url (const v8::Arguments &Args);

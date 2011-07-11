@@ -106,6 +106,29 @@ dmz::JsModuleUiV8QtBasic::_webview_selected_text (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_webview_set_html (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWebView *view = self->v8_to_qobject<QWebView>(Args.This ());
+      if (view) {
+
+         if (Args.Length ()) {
+
+            view->setHtml (v8_to_qstring (Args[0]));
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_webview_text_size_mult (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -334,6 +357,7 @@ dmz::JsModuleUiV8QtBasic::_init_webview () {
    proto->Set ("isModified", v8::FunctionTemplate::New (_webview_modified, _self));
    proto->Set ("load", v8::FunctionTemplate::New (_webview_load, _self));
    proto->Set ("selectedText", v8::FunctionTemplate::New (_webview_selected_text, _self));
+   proto->Set ("setHtml", v8::FunctionTemplate::New (_webview_set_html, _self));
    proto->Set ("textSizeMultiplier", v8::FunctionTemplate::New (_webview_text_size_mult, _self));
    proto->Set ("zoomFactor", v8::FunctionTemplate::New (_webview_zoom_factor, _self));
    proto->Set ("url", v8::FunctionTemplate::New (_webview_url, _self));
