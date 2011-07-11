@@ -71,10 +71,11 @@ dmz::JsModuleUiV8QtBasic::_layout_at (const v8::Arguments &Args) {
 
          if (Args.Length () > 0) {
 
-            QWidget *widget = layout->itemAt (v8_to_int32 (Args[0]))->widget ();
-            if (widget) {
+            QLayoutItem *item = layout->itemAt (v8_to_uint32(Args[0]));
+            if (item) {
 
-               result = self->create_v8_qwidget (widget);
+               if (item->layout ()) { result = self->create_v8_qobject (item->layout ()); }
+               else { result = self->create_v8_qwidget (item->widget ()); }
             }
          }
       }
@@ -647,6 +648,31 @@ dmz::JsModuleUiV8QtBasic::_grid_layout_add_widget (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_grid_layout_item_at (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGridLayout *grid = self->v8_to_qobject<QGridLayout> (Args.This ());
+      if (grid && (Args.Length () >= 2)) {
+
+         QLayoutItem *item = grid->itemAtPosition (v8_to_uint32 (Args[0]), v8_to_uint32 (Args[1]));
+         if (item) {
+
+            if (item->layout ()) { result = self->create_v8_qobject (item->layout ()); }
+            else { result = self->create_v8_qwidget (item->widget ()); }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_grid_layout_column_count (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -833,6 +859,7 @@ dmz::JsModuleUiV8QtBasic::_init_grid_layout () {
    instance->SetInternalFieldCount (1);
 
    V8ObjectTemplate proto = _gridLayoutTemp->PrototypeTemplate ();
+   proto->Set ("itemAtPosition", v8::FunctionTemplate::New (_grid_layout_item_at));
    proto->Set ("addLayout", v8::FunctionTemplate::New (_grid_layout_add_layout, _self));
    proto->Set ("addWidget", v8::FunctionTemplate::New (_grid_layout_add_widget, _self));
 
