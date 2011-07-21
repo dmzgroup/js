@@ -312,6 +312,57 @@ dmz::JsModuleUiV8QtBasic::_widget_size_policy (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_size (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qwidget (Args.This ());
+      if (widget) {
+
+         if (Args.Length () == 2) {
+
+            widget->resize (v8_to_uint32 (Args[0]), v8_to_uint32 (Args[1]));
+         }
+         QSize size = widget->size ();
+         V8Array array = v8::Array::New (2);
+         array->Set (v8::Integer::New (0), v8::Uint32::New (size.width ()));
+         array->Set (v8::Integer::New (1), v8::Uint32::New (size.height ()));
+         result = array;
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_fixed_size (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qwidget (Args.This ());
+      if (widget) {
+
+         if (Args.Length () == 2) {
+
+            widget->setFixedSize (v8_to_uint32 (Args[0]), v8_to_uint32 (Args[1]));
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_widget () {
 
@@ -336,6 +387,8 @@ dmz::JsModuleUiV8QtBasic::_init_widget () {
    proto->Set ("contextMenuPolicy", v8::FunctionTemplate::New (_widget_context_menu, _self));
    proto->Set ("setFocus", v8::FunctionTemplate::New (_widget_set_focus, _self));
    proto->Set ("sizePolicy", v8::FunctionTemplate::New (_widget_size_policy, _self));
+   proto->Set ("size", v8::FunctionTemplate::New (_widget_size, _self));
+   proto->Set ("fixedSize", v8::FunctionTemplate::New (_widget_fixed_size, _self));
 
    _widgetApi.add_function ("create", _create_widget, _self);
 }
