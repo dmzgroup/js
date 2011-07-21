@@ -9,6 +9,7 @@
 #include <QtGui/QAction>
 #include <QtGui/QMainWindow>
 #include <QtGui/QDockWidget>
+#include <QtGui/QStatusBar>
 
 namespace {
 
@@ -371,6 +372,27 @@ dmz::JsModuleUiV8QtBasic::_main_window_window (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_main_window_status_bar (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QtModuleMainWindow *module (self->_state.mainWindowModule);
+      QMainWindow *mainWindow = module ? module->get_qt_main_window () : 0;
+      if (mainWindow) {
+
+         result = self->create_v8_qwidget (mainWindow->statusBar ());
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_main_window () {
 
@@ -396,6 +418,7 @@ dmz::JsModuleUiV8QtBasic::_init_main_window () {
    _mainWindowApi.add_function ("createDock", _main_window_create_dock_widget, _self);
    _mainWindowApi.add_function ("removeDock", _main_window_remove_dock_widget, _self);
 
+   _mainWindowApi.add_function ("statusBar", _main_window_status_bar, _self);
    _mainWindowApi.add_function ("addMenu", _main_window_add_menu, _self);
    _mainWindowApi.add_function ("addSeparator", _main_window_add_separator, _self);
 //    _mainWindowApi.add_function ("lookupMenu", _main_window_lookup_menu, _self);
