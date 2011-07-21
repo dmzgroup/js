@@ -164,6 +164,7 @@ namespace dmz {
          static V8Value _widget_context_menu (const v8::Arguments &Args);
          static V8Value _widget_set_focus (const v8::Arguments &Args);
          static V8Value _widget_size_policy (const v8::Arguments &Args);
+         static V8Value _widget_set_style_sheet (const v8::Arguments &Args);
          static V8Value _create_widget (const v8::Arguments &Args);
 
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
