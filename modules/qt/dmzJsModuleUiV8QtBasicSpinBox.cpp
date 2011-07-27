@@ -140,7 +140,7 @@ dmz::JsModuleUiV8QtBasic::_spinbox_text (const v8::Arguments &Args) {
 
 
 dmz::V8Value
-dmz::JsModuleUiV8QtBasic::_spinbox_set_singe_step (const v8::Arguments &Args) {
+dmz::JsModuleUiV8QtBasic::_spinbox_set_single_step (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
    V8Value result = v8::Undefined ();
@@ -227,7 +227,7 @@ dmz::JsModuleUiV8QtBasic::_init_spinbox () {
    proto->Set ("minimum", v8::FunctionTemplate::New (_spinbox_minimum, _self));
    proto->Set ("value", v8::FunctionTemplate::New (_spinbox_value, _self));
    proto->Set ("text", v8::FunctionTemplate::New (_spinbox_text, _self));
-   proto->Set ("setSingleStep", v8::FunctionTemplate::New (_spinbox_set_singe_step, _self));
+   proto->Set ("setSingleStep", v8::FunctionTemplate::New (_spinbox_set_single_step, _self));
 
    _spinBoxApi.add_function ("createSpinBox", _create_spinbox, _self);
    _spinBoxApi.add_function ("createDoubleSpinBox", _create_dspinbox, _self);
