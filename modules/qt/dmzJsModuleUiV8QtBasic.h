@@ -191,6 +191,7 @@ namespace dmz {
          static V8Value _spinbox_value (const v8::Arguments &Args);
          static V8Value _spinbox_text (const v8::Arguments &Args);
          static V8Value _spinbox_set_single_step (const v8::Arguments &Args);
+         static V8Value _spinbox_set_suffix (const v8::Arguments &Args);
          static V8Value _create_spinbox (const v8::Arguments &Args);
          static V8Value _create_dspinbox (const v8::Arguments &Args);
 

@@ -174,6 +174,40 @@ dmz::JsModuleUiV8QtBasic::_spinbox_set_single_step (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_spinbox_set_suffix (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QSpinBox *spinbox = self->v8_to_qobject<QSpinBox>(Args.This ());
+      if (spinbox) {
+
+         if (Args.Length ()) {
+
+            spinbox->setSuffix (v8_to_qstring (Args[0]));
+         }
+      }
+   }
+   else {
+
+      QDoubleSpinBox *dspinbox = self->v8_to_qobject<QDoubleSpinBox>(Args.This ());
+      if (dspinbox) {
+
+         if (Args.Length ()) {
+
+            dspinbox->setSuffix (v8_to_qstring (Args[0]));
+         }
+      }
+   }
+
+   return scope.Close(result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_create_spinbox (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -228,6 +262,7 @@ dmz::JsModuleUiV8QtBasic::_init_spinbox () {
    proto->Set ("value", v8::FunctionTemplate::New (_spinbox_value, _self));
    proto->Set ("text", v8::FunctionTemplate::New (_spinbox_text, _self));
    proto->Set ("setSingleStep", v8::FunctionTemplate::New (_spinbox_set_single_step, _self));
+   proto->Set ("setSuffix", v8::FunctionTemplate::New (_spinbox_set_suffix, _self));
 
    _spinBoxApi.add_function ("createSpinBox", _create_spinbox, _self);
    _spinBoxApi.add_function ("createDoubleSpinBox", _create_dspinbox, _self);
