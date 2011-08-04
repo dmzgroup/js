@@ -78,17 +78,18 @@ dmz::JsExtV8Object::_get_params (
       else { attr = self->_defaultAttr; }
    }
 
+
    return objMod && types && obj && attr;
 }
 
 
-dmz::V8Function
+dmz::V8Value
 dmz::JsExtV8Object::_register_observer_static (
       const v8::Arguments &Args,
       const Mask &AttrMask) {
 
    v8::HandleScope scope;
-   V8Function result;
+   V8Value result;
 
    JsExtV8Object *self = to_self (Args);
    if (self) { result = self->_register_observer (Args, AttrMask); }
@@ -112,20 +113,26 @@ dmz::JsExtV8Object::_remove_attribute (
 
    if (_get_params (Args, objMod, types, obj, attr)) {
 
-      result = v8::Boolean::New (objMod->remove_attribute (obj, attr, AttrMask));
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else { result = v8::Boolean::New (objMod->remove_attribute (obj, attr, AttrMask)); }
    }
 
    return scope.Close (result);
 }
 
 
-dmz::V8Function
+dmz::V8Value
 dmz::JsExtV8Object::_register_observer (
       const v8::Arguments &Args,
       const Mask &AttrMask) {
 
    v8::HandleScope scope;
-   V8Function result;
+//   V8Function result;
+   V8Value result;
 
    const int Length = Args.Length ();
 
@@ -138,13 +145,24 @@ dmz::JsExtV8Object::_register_observer (
       if (arg->IsNumber ()) { attr = arg->Uint32Value (); }
       else if (arg->IsString ()) {
 
-         attr = _defs.create_named_handle (*(v8::String::AsciiValue (arg)));
+         if (_allowDefaultAttribute) {
+
+            attr = _defs.create_named_handle (*(v8::String::AsciiValue (arg)));
+         }
+         else {
+
+            attr =  _defs.lookup_named_handle (*(v8::String::AsciiValue (arg)));
+            if (!attr) {
+
+               result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+            }
+         }
       }
    }
 
    V8Function func = v8_to_function (Args[Length > 2 ? 2 : 1]);
 
-   if (_core && attr && (src.IsEmpty () == false) && (func.IsEmpty () == false)) {
+   if (result.IsEmpty () && _core && attr && (src.IsEmpty () == false) && (func.IsEmpty () == false)) {
 
       Boolean doDump (False);
 
@@ -360,6 +378,24 @@ dmz::JsExtV8Object::_object_release (const v8::Arguments &Args) {
    }
 
    return result.IsEmpty () ? result : scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsExtV8Object::_object_allow_default_attribute (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsExtV8Object *self = to_self (Args);
+
+   if (self) {
+
+      if (Args.Length ()) { self->_allowDefaultAttribute = v8_to_boolean (Args[0]); }
+      result = v8::Boolean::New (self->_allowDefaultAttribute);
+   }
+
+   return scope.Close (result);
 }
 
 
@@ -1011,7 +1047,12 @@ dmz::JsExtV8Object::_object_counter (const v8::Arguments &Args) {
 
    if (_get_params (Args, objMod, types, obj, attr)) {
 
-      if (Args.Length () > 2) {
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else if (Args.Length () > 2) {
 
          const Int64 Value = v8_to_int64 (Args[2]);
 
@@ -1067,7 +1108,12 @@ dmz::JsExtV8Object::_object_counter_min (const v8::Arguments &Args) {
 
    if (_get_params (Args, objMod, types, obj, attr)) {
 
-      if (Args.Length () > 2) {
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else if (Args.Length () > 2) {
 
          const Int64 Value = v8_to_int64 (Args[2]);
 
@@ -1123,7 +1169,12 @@ dmz::JsExtV8Object::_object_counter_max (const v8::Arguments &Args) {
 
    if (_get_params (Args, objMod, types, obj, attr)) {
 
-      if (Args.Length () > 2) {
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else if (Args.Length () > 2) {
 
          const Int64 Value = v8_to_int64 (Args[2]);
 
@@ -1179,7 +1230,12 @@ dmz::JsExtV8Object::_object_counter_rollover (const v8::Arguments &Args) {
 
    if (_get_params (Args, objMod, types, obj, attr)) {
 
-      if (Args.Length () > 2) {
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else if (Args.Length () > 2) {
 
          const Boolean Value = v8_to_boolean (Args[2]);
 
@@ -1215,7 +1271,12 @@ dmz::JsExtV8Object::_object_add_to_counter (const v8::Arguments &Args) {
 
    if (_get_params (Args, objMod, types, obj, attr)) {
 
-      if (Args.Length () > 2) {
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else if (Args.Length () > 2) {
 
          const Int64 Value = v8_to_int64 (Args[2]);
 
@@ -1242,7 +1303,12 @@ dmz::JsExtV8Object::_object_alt_type (const v8::Arguments &Args) {
 
    if (runtime && _get_params (Args, objMod, types, obj, attr)) {
 
-      if (Args.Length () > 2) {
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else if (Args.Length () > 2) {
 
          ObjectType value;
 
@@ -1299,7 +1365,12 @@ dmz::JsExtV8Object::_object_state (const v8::Arguments &Args) {
 
    if (_get_params (Args, objMod, types, obj, attr)) {
 
-      if (Args.Length () > 2) {
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else if (Args.Length () > 2) {
 
          Mask value;
 
@@ -1363,7 +1434,12 @@ dmz::JsExtV8Object::_object_flag (const v8::Arguments &Args) {
 
    if (_get_params (Args, objMod, types, obj, attr)) {
 
-      if (Args.Length () > 2) {
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else if (Args.Length () > 2) {
 
          const Boolean Value = v8_to_boolean (Args[2]);
 
@@ -1414,7 +1490,12 @@ dmz::JsExtV8Object::_object_time_stamp (const v8::Arguments &Args) {
 
    if (_get_params (Args, objMod, types, obj, attr)) {
 
-      if (Args.Length () > 2) {
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else if (Args.Length () > 2) {
 
          const Float64 Value = v8_to_number (Args[2]);
 
@@ -1470,7 +1551,12 @@ dmz::JsExtV8Object::_object_position (const v8::Arguments &Args) {
 
    if (_get_params (Args, objMod, types, obj, attr)) {
 
-      if (Args.Length () > 2) {
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else if (Args.Length () > 2) {
 
          Vector value = types->to_dmz_vector (Args[2]);
 
@@ -1526,7 +1612,12 @@ dmz::JsExtV8Object::_object_orientation (const v8::Arguments &Args) {
 
    if (_get_params (Args, objMod, types, obj, attr)) {
 
-      if (Args.Length () > 2) {
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else if (Args.Length () > 2) {
 
          Matrix value = types->to_dmz_matrix (Args[2]);
 
@@ -1582,7 +1673,12 @@ dmz::JsExtV8Object::_object_velocity (const v8::Arguments &Args) {
 
    if (_get_params (Args, objMod, types, obj, attr)) {
 
-      if (Args.Length () > 2) {
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else if (Args.Length () > 2) {
 
          Vector value = types->to_dmz_vector (Args[2]);
 
@@ -1638,7 +1734,12 @@ dmz::JsExtV8Object::_object_acceleration (const v8::Arguments &Args) {
 
    if (_get_params (Args, objMod, types, obj, attr)) {
 
-      if (Args.Length () > 2) {
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else if (Args.Length () > 2) {
 
          Vector value = types->to_dmz_vector (Args[2]);
 
@@ -1694,7 +1795,12 @@ dmz::JsExtV8Object::_object_scale (const v8::Arguments &Args) {
 
    if (_get_params (Args, objMod, types, obj, attr)) {
 
-      if (Args.Length () > 2) {
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else if (Args.Length () > 2) {
 
          Vector value = types->to_dmz_vector (Args[2]);
 
@@ -1750,7 +1856,12 @@ dmz::JsExtV8Object::_object_vector (const v8::Arguments &Args) {
 
    if (_get_params (Args, objMod, types, obj, attr)) {
 
-      if (Args.Length () > 2) {
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else if (Args.Length () > 2) {
 
          Vector value = types->to_dmz_vector (Args[2]);
 
@@ -1806,7 +1917,12 @@ dmz::JsExtV8Object::_object_scalar (const v8::Arguments &Args) {
 
    if (_get_params (Args, objMod, types, obj, attr)) {
 
-      if (Args.Length () > 2) {
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else if (Args.Length () > 2) {
 
          const Float64 Value = v8_to_number (Args[2]);
 
@@ -1862,7 +1978,12 @@ dmz::JsExtV8Object::_object_text (const v8::Arguments &Args) {
 
    if (_get_params (Args, objMod, types, obj, attr)) {
 
-      if (Args.Length () > 2) {
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else if (Args.Length () > 2) {
 
          const String Value = v8_to_string (Args[2]);
 
@@ -1917,7 +2038,12 @@ dmz::JsExtV8Object::_object_data (const v8::Arguments &Args) {
 
    if (runtime && _get_params (Args, objMod, types, obj, attr)) {
 
-      if (Args.Length () > 2) {
+      JsExtV8Object *self = to_self (Args);
+      if (!self->_allowDefaultAttribute && (attr == self->_defaultAttr)) {
+
+         result = v8::ThrowException (v8::Exception::Error (v8::String::New ("Invalid attribute handle.")));
+      }
+      else if (Args.Length () > 2) {
 
          Data value;
 
@@ -2086,6 +2212,7 @@ dmz::JsExtV8Object::JsExtV8Object (const PluginInfo &Info, Config &local) :
       ObjectObserverUtil (Info, local),
       _log (Info),
       _defs (Info),
+      _allowDefaultAttribute (true),
       _defaultAttr (0),
       _hilAttr (0),
       _hil (0),
@@ -3014,6 +3141,7 @@ dmz::JsExtV8Object::_init (Config &local) {
       "HideAttribute",
       _defs.create_named_handle (ObjectAttributeHideName));
    // Functions
+   _objectApi.add_function ("allowDefaultAttribute", _object_allow_default_attribute, _self);
    _objectApi.add_function ("hil", _object_hil, _self);
    _objectApi.add_function ("release", _object_release, _self);
    _objectApi.add_function ("isObject", _object_is_object, _self);

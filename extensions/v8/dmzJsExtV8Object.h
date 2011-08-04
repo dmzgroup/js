@@ -283,7 +283,11 @@ namespace dmz {
             Handle &obj,
             Handle &attr);
 
-         static V8Function _register_observer_static (
+//         static V8Function _register_observer_static (
+//            const v8::Arguments &Args,
+//            const Mask &AttrMask);
+
+         static V8Value _register_observer_static (
             const v8::Arguments &Args,
             const Mask &AttrMask);
 
@@ -291,6 +295,7 @@ namespace dmz {
             const v8::Arguments &Args,
             const Mask &AttrMask);
 
+         static V8Value _object_allow_default_attribute (const v8::Arguments &Args);
          static V8Value _object_hil (const v8::Arguments &Args);
          static V8Value _object_release (const v8::Arguments &Args);
          static V8Value _object_is_object (const v8::Arguments &Args);
@@ -385,7 +390,11 @@ namespace dmz {
          // JsExtV8Object Interface
          Handle _to_handle (V8Value value);
          Handle _to_object_handle (V8Value value);
-         V8Function _register_observer (
+//         V8Function _register_observer (
+//            const v8::Arguments &Args,
+//            const Mask &AttrMask);
+
+         V8Value _register_observer (
             const v8::Arguments &Args,
             const Mask &AttrMask);
 
@@ -415,6 +424,7 @@ namespace dmz {
          v8::Handle<v8::Context> _v8Context;
          V8ValuePersist _self;
 
+         Boolean _allowDefaultAttribute;
          Handle _defaultAttr;
          Handle _hilAttr;
          Handle _hil;
