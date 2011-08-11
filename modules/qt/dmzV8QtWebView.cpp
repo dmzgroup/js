@@ -14,7 +14,7 @@ dmz::V8QtWebView::V8QtWebView (
       const V8Object &Self,
       QWidget *widget,
       JsModuleUiV8QtBasicState *state) :
-      V8QtWidget (Self, widget, state) {;}
+      V8QtWidget (Self, widget, state) {QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);}
 
 
 dmz::V8QtWebView::~V8QtWebView () {;}
