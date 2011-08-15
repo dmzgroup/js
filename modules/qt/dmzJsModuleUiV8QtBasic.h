@@ -771,30 +771,6 @@ namespace dmz {
          static V8Value _resize_event_old_size (const v8::Arguments &Args);
          static V8Value _resize_event_size (const v8::Arguments &Args);
 
-         // Phonon::MediaObject bindings implemented in dmzJsModuleUiV8QtBasicPhonon.cpp
-         static V8Value _phonon_media_object_source (const v8::Arguments &Args);
-         static V8Value _phonon_media_object_has_video (const v8::Arguments &Args);
-         static V8Value _phonon_media_object_err_str (const v8::Arguments &Args);
-//         static V8Value _phonon_media_object_err_type (const v8::Arguments &Args);
-         static V8Value _phonon_media_object_curr_time (const v8::Arguments &Args);
-         static V8Value _phonon_media_object_rem_time (const v8::Arguments &Args);
-         static V8Value _phonon_media_object_total_time (const v8::Arguments &Args);
-         static V8Value _phonon_media_object_tick_interval (const v8::Arguments &Args);
-         static V8Value _phonon_media_object_pause (const v8::Arguments &Args);
-         static V8Value _phonon_media_object_play (const v8::Arguments &Args);
-         static V8Value _phonon_media_object_stop (const v8::Arguments &Args);
-         static V8Value _phonon_media_object_state (const v8::Arguments &Args);
-         static V8Value _create_phonon_media_object (const v8::Arguments &Args);
-
-         // Phonon::VideoWidget bindings implemented in dmzJsModuleUiV8QtBasicPhonon.cpp
-         static V8Value _phonon_video_enter_fullscreen (const v8::Arguments &Args);
-         static V8Value _phonon_video_exit_fullscreen (const v8::Arguments &Args);
-         static V8Value _create_phonon_video_widget (const v8::Arguments &Args);
-
-         // Phonon bindings implemented in dmzJsModuleUiV8QtBasicPhonon.cpp
-         static V8Value _phonon_create_path (const v8::Arguments &Args);
-         static V8Value _phonon_clear_paths (const v8::Arguments &Args);
-
          // Crypto bindings implemented in dmzJsModuleUiV8QtBasicCrypto.cpp
          static V8Value _crypto_add_data (const v8::Arguments &Args);
          static V8Value _crypto_reset (const v8::Arguments &Args);
@@ -899,10 +875,6 @@ namespace dmz {
          void _init_gscene_mouse_event ();
          void _init_resize_event ();
 
-         void _init_phonon ();
-         void _init_media_object ();
-         void _init_video_player ();
-
          void _init_crypto ();
 
          void _init_layout ();
@@ -970,8 +942,6 @@ namespace dmz {
          V8InterfaceHelper _graphApi;
          V8InterfaceHelper _webviewApi;
          V8InterfaceHelper _eventApi;
-
-         V8InterfaceHelper _phononApi;
 
          V8InterfaceHelper _cryptoApi;
 
@@ -1162,12 +1132,6 @@ namespace dmz {
 
          V8FunctionTemplatePersist _gsceneMouseEventTemp;
          V8FunctionPersist _gsceneMouseEventCtor;
-
-         V8FunctionTemplatePersist _mediaObjectTemp;
-         V8FunctionPersist _mediaObjectCtor;
-
-         V8FunctionTemplatePersist _videoWidgetTemp;
-         V8FunctionPersist _videoWidgetCtor;
 
          V8FunctionTemplatePersist _resizeEventTemp;
          V8FunctionPersist _resizeEventCtor;

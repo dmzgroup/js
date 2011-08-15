@@ -18,7 +18,6 @@ lmk.add_files ({
    "dmzV8QtLabel.h",
    "dmzV8QtLineEdit.h",
    "dmzV8QtListWidget.h",
-   "dmzV8QtMediaObject.h",
    "dmzV8QtMessageBox.h",
    "dmzV8QtObject.h",
    "dmzV8QtProgressBar.h",
@@ -57,7 +56,6 @@ lmk.add_files {
    "dmzJsModuleUiV8QtBasicMainWindow.cpp",
    "dmzJsModuleUiV8QtBasicMessageBox.cpp",
    "dmzJsModuleUiV8QtBasicObject.cpp",
-   "dmzJsModuleUiV8QtBasicPhonon.cpp",
    "dmzJsModuleUiV8QtBasicProgressBar.cpp",
    "dmzJsModuleUiV8QtBasicScrollArea.cpp",
    "dmzJsModuleUiV8QtBasicSlider.cpp",
@@ -81,7 +79,6 @@ lmk.add_files {
    "dmzV8QtLabel.cpp",
    "dmzV8QtLineEdit.cpp",
    "dmzV8QtListWidget.cpp",
-   "dmzV8QtMediaObject.cpp",
    "dmzV8QtMessageBox.cpp",
    "dmzV8QtObject.cpp",
    "dmzV8QtProgressBar.cpp",
@@ -109,5 +106,5 @@ lmk.add_preqs {
 }
 
 lmkV8.add_libs ()
-lmkQt.add_libs {"QtCore", "QtGui", "QtWebKit", "Phonon"}
+lmkQt.add_libs {"QtCore", "QtGui", "QtWebKit"}
 lmkQt.add_uitools ()

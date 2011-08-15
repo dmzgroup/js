@@ -177,14 +177,6 @@ dmz::JsModuleUiV8QtBasic::create_v8_qobject (QObject *value) {
             QWidget *widget = qobject_cast<QWidget *>(value);
             if (widget) { result = create_v8_qwidget (widget); }
          }
-         else if (value->inherits ("Phonon::MediaObject")) {
-
-            if (!_mediaObjectCtor.IsEmpty ()) {
-
-               vobj = _mediaObjectCtor->NewInstance();
-               qobj = new V8QtMediaObject (vobj, value, &_state);
-            }
-         }
          else if (value->inherits ("QAction")) {
 
             if (!_actionCtor.IsEmpty ()) {
@@ -298,14 +290,6 @@ dmz::JsModuleUiV8QtBasic::create_v8_qwidget (QWidget *value) {
                vobj = _gViewCtor->NewInstance ();
                //qobj = new V8QtGraphicsView (vobj, value, &_state);
                qobj = new V8QtObject (vobj, value, &_state);
-            }
-         }
-         else if (value->inherits ("Phonon::VideoWidget")) {
-
-            if (!_videoWidgetCtor.IsEmpty ()) {
-
-               vobj = _videoWidgetCtor->NewInstance ();
-               qobj = new V8QtWidget (vobj, value, &_state);
             }
          }
          else if (value->inherits ("QWebView")) {
@@ -879,16 +863,6 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _gsceneMouseEventCtor = V8FunctionPersist::New (_gsceneMouseEventTemp->GetFunction ());
       }
 
-      if (!_mediaObjectTemp.IsEmpty ()) {
-
-         _mediaObjectCtor = V8FunctionPersist::New (_mediaObjectTemp->GetFunction ());
-      }
-
-      if (!_videoWidgetTemp.IsEmpty ()) {
-
-         _videoWidgetCtor = V8FunctionPersist::New (_videoWidgetTemp->GetFunction ());
-      }
-
       if (!_resizeEventTemp.IsEmpty ()) {
 
          _resizeEventCtor = V8FunctionPersist::New (_resizeEventTemp->GetFunction ());
@@ -1030,10 +1004,6 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _state.core->register_interface (
             "dmz/ui/event",
             _eventApi.get_new_instance ());
-
-         _state.core->register_interface (
-            "dmz/ui/phonon",
-            _phononApi.get_new_instance ());
 
          _state.core->register_interface (
             "dmz/ui/crypto",
@@ -1221,9 +1191,6 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _resizeEventCtor.Dispose (); _resizeEventCtor.Clear ();
       _eventCtor.Dispose (); _eventCtor.Clear ();
 
-      _mediaObjectCtor.Dispose (); _mediaObjectCtor.Clear ();
-      _videoWidgetCtor.Dispose (); _videoWidgetCtor.Clear ();
-
       _cryptoCtor.Dispose (); _cryptoCtor.Clear ();
 
       _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
@@ -1298,8 +1265,6 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _toolBoxApi.clear ();
       _treeApi.clear ();
       _webviewApi.clear ();
-
-      _phononApi.clear ();
 
       _cryptoApi.clear ();
 
@@ -1710,10 +1675,6 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_mouse_event ();
    _init_gscene_mouse_event ();
    _init_resize_event ();
-
-   _init_media_object ();
-   _init_video_player ();
-   _init_phonon ();
 
    _init_crypto ();
 }
