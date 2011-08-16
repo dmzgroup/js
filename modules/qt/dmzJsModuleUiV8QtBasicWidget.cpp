@@ -378,7 +378,48 @@ dmz::JsModuleUiV8QtBasic::_widget_set_style_sheet (const v8::Arguments &Args) {
          widget->setStyleSheet (v8_to_qstring(Args[0]));
       }
    }
+
    return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_width (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qwidget (Args.This ());
+      if (widget) {
+
+         result = v8::Integer::New (widget->width ());
+      }
+   }
+
+   return scope.Close(result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_height (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qwidget (Args.This ());
+      if (widget) {
+
+         result = v8::Integer::New (widget->height ());
+      }
+   }
+
+   return scope.Close(result);
 }
 
 
@@ -409,6 +450,8 @@ dmz::JsModuleUiV8QtBasic::_init_widget () {
    proto->Set ("size", v8::FunctionTemplate::New (_widget_size, _self));
    proto->Set ("fixedSize", v8::FunctionTemplate::New (_widget_fixed_size, _self));
    proto->Set ("setStyleSheet", v8::FunctionTemplate::New (_widget_set_style_sheet, _self));
+   proto->Set ("width", v8::FunctionTemplate::New (_widget_width, _self));
+   proto->Set ("height", v8::FunctionTemplate::New (_widget_height, _self));
 
    _widgetApi.add_function ("create", _create_widget, _self);
 }
