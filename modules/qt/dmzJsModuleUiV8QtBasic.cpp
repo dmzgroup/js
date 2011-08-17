@@ -873,6 +873,11 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _cryptoCtor = V8FunctionPersist::New (_cryptoTemp->GetFunction ());
       }
 
+      if (!_paletteTemp.IsEmpty ()) {
+
+         _paletteCtor = V8FunctionPersist::New (_paletteTemp->GetFunction ());
+      }
+
       if (_state.core) {
 
          _state.core->register_interface ("dmz/ui/consts", _qtApi.get_new_instance ());
@@ -1008,6 +1013,10 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
          _state.core->register_interface (
             "dmz/ui/crypto",
             _cryptoApi.get_new_instance ());
+
+         _state.core->register_interface (
+            "dmz/ui/palette",
+            _paletteApi.get_new_instance ());
 
       }
 
@@ -1193,6 +1202,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
 
       _cryptoCtor.Dispose (); _cryptoCtor.Clear ();
 
+      _paletteCtor.Dispose (); _paletteCtor.Clear ();
+
       _allowMultipleStr.Dispose (); _allowMultipleStr.Clear ();
       _allowedAreasStr.Dispose (); _allowedAreasStr.Clear ();
       _areaStr.Dispose (); _areaStr.Clear ();
@@ -1267,6 +1278,8 @@ dmz::JsModuleUiV8QtBasic::update_js_ext_v8_state (const StateEnum State) {
       _webviewApi.clear ();
 
       _cryptoApi.clear ();
+
+      _paletteApi.clear ();
 
       _widgetApi.clear ();
 
@@ -1677,6 +1690,8 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _init_resize_event ();
 
    _init_crypto ();
+
+   _init_palette ();
 }
 
 

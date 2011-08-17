@@ -1,72 +1,9 @@
 #include "dmzJsModuleUiV8QtBasic.h"
 #include <dmzJsV8UtilConvert.h>
+#include "dmzV8QtUtil.h"
 #include <QtCore/QEvent>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QGraphicsSceneMouseEvent>
-
-
-namespace {
-
-dmz::V8Value
-qpoint_to_v8 (QPoint pos) {
-
-   v8::HandleScope scope;
-   dmz::V8Object result;
-
-   result = v8::Object::New ();
-   result->Set(v8::String::NewSymbol ("x"), v8::Number::New (pos.x ()));
-   result->Set(v8::String::NewSymbol ("y"), v8::Number::New (pos.y ()));
-
-   return scope.Close (result);
-}
-
-
-dmz::V8Value
-qpointf_to_v8 (QPointF pos) {
-
-   v8::HandleScope scope;
-   dmz::V8Object result;
-
-   result = v8::Object::New ();
-   result->Set(v8::String::NewSymbol ("x"), v8::Number::New (pos.x ()));
-   result->Set(v8::String::NewSymbol ("y"), v8::Number::New (pos.y ()));
-
-   return scope.Close (result);
-}
-
-dmz::V8Value
-qsize_to_v8 (const QSize &Value) {
-
-   v8::HandleScope scope;
-   dmz::V8Object result;
-
-   result = v8::Object::New ();
-   result->Set (v8::String::NewSymbol ("width"), v8::Number::New (Value.width ()));
-   result->Set (v8::String::NewSymbol ("height"), v8::Number::New (Value.height ()));
-
-   return scope.Close (result);
-}
-
-
-QSize
-v8_to_qsize (dmz::V8Value value) {
-
-   QSize result;
-
-   if (!value.IsEmpty ()) {
-
-      dmz::V8Object obj = dmz::v8_to_object (value);
-      if (!obj.IsEmpty ()) {
-         qreal w, h;
-         w = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("width")));
-         h = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("height")));
-         result = QSize(w, h);
-      }
-   }
-   return result;
-}
-
-};
 
 
 dmz::V8Value

@@ -3,6 +3,216 @@
 
 
 dmz::V8Value
+dmz::qpoint_to_v8 (QPoint pos) {
+
+   v8::HandleScope scope;
+   dmz::V8Object result;
+
+   result = v8::Object::New ();
+   result->Set(v8::String::NewSymbol ("x"), v8::Number::New (pos.x ()));
+   result->Set(v8::String::NewSymbol ("y"), v8::Number::New (pos.y ()));
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::qpointf_to_v8 (QPointF pos) {
+
+   v8::HandleScope scope;
+   dmz::V8Object result;
+
+   result = v8::Object::New ();
+   result->Set(v8::String::NewSymbol ("x"), v8::Number::New (pos.x ()));
+   result->Set(v8::String::NewSymbol ("y"), v8::Number::New (pos.y ()));
+
+   return scope.Close (result);
+}
+
+dmz::V8Value
+dmz::qsize_to_v8 (const QSize &Value) {
+
+   v8::HandleScope scope;
+   dmz::V8Object result;
+
+   result = v8::Object::New ();
+   result->Set (v8::String::NewSymbol ("width"), v8::Number::New (Value.width ()));
+   result->Set (v8::String::NewSymbol ("height"), v8::Number::New (Value.height ()));
+
+   return scope.Close (result);
+}
+
+
+QSize
+dmz::v8_to_qsize (dmz::V8Value value) {
+
+   QSize result;
+
+   if (!value.IsEmpty ()) {
+
+      dmz::V8Object obj = dmz::v8_to_object (value);
+      if (!obj.IsEmpty ()) {
+
+         qreal w, h;
+         w = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("width")));
+         h = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("height")));
+         result = QSize(w, h);
+      }
+   }
+   return result;
+}
+
+QFont
+dmz::v8_to_qfont (const dmz::V8Value value) {
+
+   QFont result;
+
+   if (!value.IsEmpty ()) {
+
+      dmz::V8Object obj = dmz::v8_to_object (value);
+      if (!obj.IsEmpty ()) {
+         QString family;
+         qreal size, weight;
+         bool italic;
+         family = dmz::v8_to_qstring (obj->Get (v8::String::NewSymbol ("font")));
+         size = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("size")));
+         weight = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("weight")));
+         italic = dmz::v8_to_boolean (obj->Get (v8::String::NewSymbol ("italic")));
+         result = QFont (family, size, weight, italic);
+      }
+   }
+   return result;
+}
+
+dmz::V8Value
+dmz::qfont_to_v8 (const QFont &Value) {
+
+   v8::HandleScope scope;
+   dmz::V8Object result;
+   result = v8::Object::New ();
+   result->Set (
+      v8::String::NewSymbol ("font"),
+      v8::String::New (qPrintable (Value.family ())));
+   result->Set (v8::String::NewSymbol ("size"), v8::Number::New (Value.pointSize ()));
+   result->Set (v8::String::NewSymbol ("weight"), v8::Number::New (Value.weight ()));
+   result->Set (v8::String::NewSymbol ("italic"), v8::Boolean::New (Value.italic ()));
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::qrectf_to_v8 (const QRectF &Value) {
+
+   v8::HandleScope scope;
+   dmz::V8Object result;
+
+   result = v8::Object::New ();
+   result->Set (v8::String::NewSymbol ("x"), v8::Number::New (Value.x ()));
+   result->Set (v8::String::NewSymbol ("y"), v8::Number::New (Value.y ()));
+   result->Set (v8::String::NewSymbol ("width"), v8::Number::New (Value.width ()));
+   result->Set (v8::String::NewSymbol ("height"), v8::Number::New (Value.height ()));
+
+   return scope.Close (result);
+}
+
+
+QRectF
+dmz::v8_to_qrectf (dmz::V8Value value) {
+
+   QRectF result;
+
+   if (!value.IsEmpty ()) {
+
+      dmz::V8Object obj = dmz::v8_to_object (value);
+      if (!obj.IsEmpty ()) {
+
+         qreal x, y, w, h;
+         x = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("x")));
+         y = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("y")));
+         w = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("width")));
+         h = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("height")));
+         result = QRectF(x, y, w, h);
+      }
+   }
+   return result;
+}
+
+
+dmz::V8Value
+dmz::qrect_to_v8 (const QRect &Value) {
+
+   v8::HandleScope scope;
+   dmz::V8Object result;
+
+   result = v8::Object::New ();
+   result->Set (v8::String::NewSymbol ("x"), v8::Number::New (Value.x ()));
+   result->Set (v8::String::NewSymbol ("y"), v8::Number::New (Value.y ()));
+   result->Set (v8::String::NewSymbol ("width"), v8::Number::New (Value.width ()));
+   result->Set (v8::String::NewSymbol ("height"), v8::Number::New (Value.height ()));
+
+   return scope.Close (result);
+}
+
+
+QRect
+dmz::v8_to_qrect (dmz::V8Value value) {
+
+   QRect result;
+
+   if (!value.IsEmpty ()) {
+
+      dmz::V8Object obj = dmz::v8_to_object (value);
+      if (!obj.IsEmpty ()) {
+
+         qreal x, y, w, h;
+         x = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("x")));
+         y = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("y")));
+         w = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("width")));
+         h = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("height")));
+         result = QRect(x, y, w, h);
+      }
+   }
+   return result;
+}
+
+
+dmz::V8Value
+dmz::qcolor_to_v8 (const QColor &Value) {
+
+   v8::HandleScope scope;
+   dmz::V8Object result;
+
+   result = v8::Object::New ();
+   result->Set (v8::String::NewSymbol ("r"), v8::Number::New (Value.redF ()));
+   result->Set (v8::String::NewSymbol ("g"), v8::Number::New (Value.greenF ()));
+   result->Set (v8::String::NewSymbol ("b"), v8::Number::New (Value.blueF ()));
+
+   return scope.Close (result);
+}
+
+
+QColor
+dmz::v8_to_qcolor (dmz::V8Value value) {
+
+   QColor result;
+
+   if (!value.IsEmpty ()) {
+
+      dmz::V8Object obj = dmz::v8_to_object (value);
+      if (!obj.IsEmpty ()) {
+
+         qreal r, g, b;
+         r = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("r")));
+         g = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("g")));
+         b = dmz::v8_to_number (obj->Get (v8::String::NewSymbol ("b")));
+         result.setRgbF (r, g, b);
+      }
+   }
+   return result;
+}
+
+
+dmz::V8Value
 dmz::qvariant_to_v8 (const QVariant &Value) {
 
    V8Value newValue = v8::Undefined ();

@@ -4,10 +4,16 @@
 #include <dmzJsV8UtilConvert.h>
 #include <dmzJsV8UtilTypes.h>
 #include <dmzSystemRefCount.h>
+#include <QtCore/QRect>
+#include <QtCore/QRectF>
 #include <QtCore/QVariant>
 #include <QtCore/QString>
 #include <QtCore/QDateTime>
 #include <QtCore/QStringList>
+#include <QtCore/QPoint>
+#include <QtCore/QPointF>
+#include <QtGui/QColor>
+#include <QtGui/QFont>
 #include <QtGui/QKeySequence>
 #include <v8.h>
 
@@ -17,11 +23,23 @@ namespace dmz {
    V8Value qstring_to_v8 (const QString &Value);
    V8Value qdatetime_to_v8 (const QDateTime &value);
    V8Value qstringlist_to_v8 (const QStringList &Value);
+   V8Value qcolor_to_v8 (const QColor &Value);
+   V8Value qfont_to_v8 (const QFont &Value);
+   V8Value qrectf_to_v8 (const QRectF &Value);
+   V8Value qrect_to_v8 (const QRect &Value);
+   V8Value qpoint_to_v8 (const QPoint pos);
+   V8Value qpointf_to_v8 (const QPointF pos);
+   V8Value qsize_to_v8 (const QSize &Value);
 
    QVariant v8_to_qvariant (V8Value value);
    QString v8_to_qstring (V8Value value);
    QDateTime v8_to_qdatetime (V8Value value);
    QStringList v8_to_qstringlist (V8Value value);
+   QColor v8_to_qcolor (V8Value value);
+   QFont v8_to_qfont (V8Value value);
+   QRectF v8_to_qrectf (V8Value value);
+   QRect v8_to_qrect (V8Value value);
+   QSize v8_to_qsize (V8Value value);
 
    QKeySequence v8_to_qkeysequence (V8Value value);
 

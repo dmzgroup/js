@@ -8,23 +8,6 @@
 
 #include <QtGui/QPushButton>
 
-namespace {
-dmz::V8Value
-qrect_to_v8 (const QRect &Value) {
-
-   v8::HandleScope scope;
-   dmz::V8Object result;
-
-   result = v8::Object::New ();
-   result->Set (v8::String::NewSymbol ("x"), v8::Number::New (Value.x ()));
-   result->Set (v8::String::NewSymbol ("y"), v8::Number::New (Value.y ()));
-   result->Set (v8::String::NewSymbol ("width"), v8::Number::New (Value.width ()));
-   result->Set (v8::String::NewSymbol ("height"), v8::Number::New (Value.height ()));
-
-   return scope.Close (result);
-}
-};
-
 dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_widget_close (const v8::Arguments &Args) {
 
@@ -430,6 +413,52 @@ dmz::JsModuleUiV8QtBasic::_widget_height (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_palette (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qwidget (Args.This ());
+      if (widget) {
+
+         if (Args.Length ()) {
+
+            QPalette *pal = self->_to_qpalette (Args[0]);
+            if (pal) { widget->setPalette (*pal); }
+         }
+         result = self->create_v8_palette (new QPalette (widget->palette ()));
+      }
+   }
+
+   return scope.Close(result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_fill_bg (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qwidget (Args.This ());
+      if (widget) {
+
+         if (Args.Length ()) { widget->setAutoFillBackground (v8_to_boolean (Args[0])); }
+         result = v8::Boolean::New (widget->autoFillBackground ());
+      }
+   }
+
+   return scope.Close(result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_widget () {
 
@@ -459,6 +488,8 @@ dmz::JsModuleUiV8QtBasic::_init_widget () {
    proto->Set ("styleSheet", v8::FunctionTemplate::New (_widget_style_sheet, _self));
    proto->Set ("width", v8::FunctionTemplate::New (_widget_width, _self));
    proto->Set ("height", v8::FunctionTemplate::New (_widget_height, _self));
+   proto->Set ("palette", v8::FunctionTemplate::New (_widget_palette, _self));
+   proto->Set ("autoFillBackground", v8::FunctionTemplate::New (_widget_fill_bg, _self));
 
    _widgetApi.add_function ("create", _create_widget, _self);
 }

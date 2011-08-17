@@ -16,6 +16,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QGraphicsItem>
 #include <QtCore/QCryptographicHash>
+#include <QtGui/QPalette>
 #include <v8.h>
 
 class QInputDialog;
@@ -97,6 +98,7 @@ namespace dmz {
          virtual v8::Handle<v8::Value> create_v8_gpixmap (QPixmap *value);
          virtual v8::Handle<v8::Value> create_v8_gpaint_device (QPaintDevice *value);
          virtual v8::Handle<v8::Value> create_v8_crypto_hash (QCryptographicHash *value);
+         virtual v8::Handle<v8::Value> create_v8_palette (QPalette *value);
 
          virtual v8::Handle<v8::Value> create_v8_qevent (QEvent *value);
 
@@ -169,6 +171,8 @@ namespace dmz {
          static V8Value _widget_style_sheet (const v8::Arguments &Args);
          static V8Value _widget_width (const v8::Arguments &Args);
          static V8Value _widget_height (const v8::Arguments &Args);
+         static V8Value _widget_palette (const v8::Arguments &Args);
+         static V8Value _widget_fill_bg (const v8::Arguments &Args);
          static V8Value _create_widget (const v8::Arguments &Args);
 
          // QAbstractButton bindings implemented in JsModuleUiV8QtBasicButton.cpp
@@ -780,6 +784,10 @@ namespace dmz {
          static V8Value _create_crypto (const v8::Arguments &Args);
          static V8Value _crypto_hash (const v8::Arguments &Args);
 
+         // Palette bindings implemented in dmzJsModuleUiV8QtBasicColor.cpp
+         static V8Value _palette_brush (const v8::Arguments &Args);
+         static V8Value _palette_color (const v8::Arguments &Args);
+
          bool eventFilter (QObject *watched, QEvent *event);
 
          QWidget *_to_qwidget (V8Value value) { return v8_to_qobject<QWidget>(value); }
@@ -799,6 +807,7 @@ namespace dmz {
          QPaintDevice *_to_gpaint_device (V8Value value);
 
          QCryptographicHash *_to_crypto_hash (V8Value value);
+         QPalette *_to_qpalette (V8Value value);
 
          QEvent *_to_qevent (V8Value value);
 
@@ -879,6 +888,8 @@ namespace dmz {
 
          void _init_crypto ();
 
+         void _init_palette ();
+
          void _init_layout ();
          void _init_box_layout ();
          void _init_hbox_layout ();
@@ -946,6 +957,8 @@ namespace dmz {
          V8InterfaceHelper _eventApi;
 
          V8InterfaceHelper _cryptoApi;
+
+         V8InterfaceHelper _paletteApi;
 
 
          V8FunctionTemplatePersist _objectTemp;
@@ -1140,6 +1153,9 @@ namespace dmz {
 
          V8FunctionTemplatePersist _cryptoTemp;
          V8FunctionPersist _cryptoCtor;
+
+         V8FunctionTemplatePersist _paletteTemp;
+         V8FunctionPersist _paletteCtor;
 
          V8StringPersist _allowMultipleStr;
          V8StringPersist _allowedAreasStr;
