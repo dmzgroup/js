@@ -56,7 +56,7 @@ dmz::JsModuleUiV8QtBasic::_palette_brush (const v8::Arguments &Args) {
          QBrush *brush (0);
          if (Args.Length () == 1) {
 
-            brush = new QBrush (pal->brush ((QPalette::ColorRole) v8_to_number (Args[0])));
+            brush = new QBrush (pal->brush ((QPalette::ColorRole) v8_to_uint32 ((Args[0])));
          }
          else if (Args.Length () == 2) {
 
@@ -75,7 +75,7 @@ dmz::JsModuleUiV8QtBasic::_palette_brush (const v8::Arguments &Args) {
 
                   pal->setBrush ((QPalette::ColorRole) v8_to_uint32 (Args[0]), *brush);
                }
-               brush = new QBrush (pal->brush ((QPalette::ColorRole) v8_to_number (Args[0])));
+               brush = new QBrush (pal->brush ((QPalette::ColorRole) v8_to_uint32 (Args[0])));
             }
          }
          else if (Args.Length () == 3) {
@@ -119,7 +119,7 @@ dmz::JsModuleUiV8QtBasic::_palette_color (const v8::Arguments &Args) {
          int length = Args.Length ();
          if (length == 1) {
 
-            result = qcolor_to_v8 (pal->color ((QPalette::ColorRole) v8_to_number (Args[0])));
+            result = qcolor_to_v8 (pal->color ((QPalette::ColorRole) v8_to_uint32 (Args[0])));
          }
          else if (length == 2) {
 
@@ -136,7 +136,7 @@ dmz::JsModuleUiV8QtBasic::_palette_color (const v8::Arguments &Args) {
                pal->setColor (
                   (QPalette::ColorRole) v8_to_uint32 (Args[0]),
                   v8_to_qcolor (Args[1]));
-               result = qcolor_to_v8 (pal->color ((QPalette::ColorRole) v8_to_number (Args[0])));
+               result = qcolor_to_v8 (pal->color ((QPalette::ColorRole) v8_to_uint32 (Args[0])));
             }
          }
          else if (length == 3) {
