@@ -56,7 +56,7 @@ dmz::JsModuleUiV8QtBasic::_palette_brush (const v8::Arguments &Args) {
          QBrush *brush (0);
          if (Args.Length () == 1) {
 
-            brush = new QBrush (pal->brush ((QPalette::ColorRole) v8_to_uint32 ((Args[0])));
+            brush = new QBrush (pal->brush ((QPalette::ColorRole) v8_to_uint32 ((Args[0]))));
          }
          else if (Args.Length () == 2) {
 
