@@ -347,6 +347,52 @@ dmz::JsModuleUiV8QtBasic::_widget_fixed_size (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_fixed_width (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qwidget (Args.This ());
+      if (widget) {
+
+         if (Args.Length () == 1) {
+
+            widget->setFixedWidth (v8_to_uint32 (Args[0]));
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_fixed_heigth (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qwidget (Args.This ());
+      if (widget) {
+
+         if (Args.Length () == 1) {
+
+            widget->setFixedHeight (v8_to_uint32 (Args[0]));
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_widget_style_sheet (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -485,6 +531,8 @@ dmz::JsModuleUiV8QtBasic::_init_widget () {
    proto->Set ("sizePolicy", v8::FunctionTemplate::New (_widget_size_policy, _self));
    proto->Set ("size", v8::FunctionTemplate::New (_widget_size, _self));
    proto->Set ("fixedSize", v8::FunctionTemplate::New (_widget_fixed_size, _self));
+   proto->Set ("fixedWidth", v8::FunctionTemplate::New (_widget_fixed_width, _self));
+   proto->Set ("fixedHeigth", v8::FunctionTemplate::New (_widget_fixed_heigth, _self));
    proto->Set ("styleSheet", v8::FunctionTemplate::New (_widget_style_sheet, _self));
    proto->Set ("width", v8::FunctionTemplate::New (_widget_width, _self));
    proto->Set ("height", v8::FunctionTemplate::New (_widget_height, _self));
