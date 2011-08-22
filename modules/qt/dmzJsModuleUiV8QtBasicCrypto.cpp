@@ -133,7 +133,7 @@ dmz::JsModuleUiV8QtBasic::_crypto_result (const v8::Arguments &Args) {
    if (self) {
 
       QCryptographicHash *hash = self->_to_crypto_hash (Args.This ());
-      if (hash) { result = v8::String::New (qPrintable(QString(hash->result ().toHex ()))); }
+      if (hash) { result = v8::String::New (qPrintable (QString (hash->result ().toHex ()))); }
    }
 
    return scope.Close (result);
@@ -156,7 +156,7 @@ dmz::JsModuleUiV8QtBasic::_crypto_hash (const v8::Arguments &Args) {
                v8_to_qstring (Args[0]).toLocal8Bit (),
                (QCryptographicHash::Algorithm)v8_to_uint32 (Args[1]));
 
-         result = v8::String::New (qPrintable(QString(ba.toHex ())));
+         result = v8::String::New (qPrintable (QString (ba.toHex ())));
       }
    }
 
