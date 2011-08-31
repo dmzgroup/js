@@ -197,6 +197,7 @@ namespace dmz {
          static V8Value _dialog_open (const v8::Arguments &Args);
          static V8Value _dialog_accept (const v8::Arguments &Args);
          static V8Value _dialog_reject (const v8::Arguments &Args);
+         static V8Value _dialog_set_windows_hint (const v8::Arguments &Args);
 
          // QSpinBox bindings implemented in JsModuleUiV8QtBasicSpinBox.cpp
          static V8Value _spinbox_maximum (const v8::Arguments &Args);
