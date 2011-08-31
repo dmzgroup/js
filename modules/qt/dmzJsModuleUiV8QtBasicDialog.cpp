@@ -98,6 +98,12 @@ dmz::JsModuleUiV8QtBasic::_dialog_set_windows_hint (const v8::Arguments &Args) {
          Qt::WindowFlags flags = dialog->windowFlags ();
          flags |= Qt::FramelessWindowHint;
          dialog->setWindowFlags (flags);
+
+         QPoint pos = dialog->pos ();
+         if (pos.x () < 0) { pos.setX (0); }
+         if (pos.y () < 0) { pos.setY (0); }
+         dialog->move (pos);
+         dialog->show ();
       }
    }
 
