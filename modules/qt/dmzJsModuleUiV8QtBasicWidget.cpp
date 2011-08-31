@@ -542,6 +542,29 @@ dmz::JsModuleUiV8QtBasic::_widget_update_geometry (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_move (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qwidget (Args.This ());
+      if (widget) {
+
+         if (Args.Length () == 2) {
+
+            widget->move (v8_to_uint32 (Args[0]), v8_to_uint32 (Args[1]));
+         }
+      }
+   }
+
+   return scope.Close(result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_widget () {
 
@@ -577,6 +600,7 @@ dmz::JsModuleUiV8QtBasic::_init_widget () {
    proto->Set ("autoFillBackground", v8::FunctionTemplate::New (_widget_fill_bg, _self));
    proto->Set ("update", v8::FunctionTemplate::New (_widget_update, _self));
    proto->Set ("updateGeometry", v8::FunctionTemplate::New (_widget_update_geometry, _self));
+   proto->Set ("move", v8::FunctionTemplate::New (_widget_move, _self));
 
    _widgetApi.add_function ("create", _create_widget, _self);
 }
