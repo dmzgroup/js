@@ -565,6 +565,34 @@ dmz::JsModuleUiV8QtBasic::_widget_move (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_max_size (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qwidget (Args.This ());
+      if (widget) {
+
+         if (Args.Length () == 2) {
+
+            widget->setMaximumSize (v8_to_uint32 (Args[0]), v8_to_uint32 (Args[1]));
+         }
+         QSize size = widget->maximumSize ();
+         V8Array array = v8::Array::New (2);
+         array->Set (v8::Integer::New (0), v8::Uint32::New (size.width ()));
+         array->Set (v8::Integer::New (1), v8::Uint32::New (size.height ()));
+         result = array;
+      }
+   }
+
+   return scope.Close(result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_widget () {
 
@@ -601,6 +629,7 @@ dmz::JsModuleUiV8QtBasic::_init_widget () {
    proto->Set ("update", v8::FunctionTemplate::New (_widget_update, _self));
    proto->Set ("updateGeometry", v8::FunctionTemplate::New (_widget_update_geometry, _self));
    proto->Set ("move", v8::FunctionTemplate::New (_widget_move, _self));
+   proto->Set ("maximumSize", v8::FunctionTemplate::New (_widget_max_size, _self));
 
    _widgetApi.add_function ("create", _create_widget, _self);
 }
