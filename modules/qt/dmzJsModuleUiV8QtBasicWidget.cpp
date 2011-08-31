@@ -593,6 +593,30 @@ dmz::JsModuleUiV8QtBasic::_widget_max_size (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_pos (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qwidget (Args.This ());
+      if (widget) {
+
+         QPoint p = widget->pos ();
+         V8Array array = v8::Array::New (2);
+         array->Set (v8::Integer::New (0), v8::Number::New (p.x ()));
+         array->Set (v8::Integer::New (1), v8::Number::New (p.y ()));
+         result = array;
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_widget () {
 
@@ -630,6 +654,7 @@ dmz::JsModuleUiV8QtBasic::_init_widget () {
    proto->Set ("updateGeometry", v8::FunctionTemplate::New (_widget_update_geometry, _self));
    proto->Set ("move", v8::FunctionTemplate::New (_widget_move, _self));
    proto->Set ("maximumSize", v8::FunctionTemplate::New (_widget_max_size, _self));
+   proto->Set ("pos", v8::FunctionTemplate::New (_widget_pos, _self));
 
    _widgetApi.add_function ("create", _create_widget, _self);
 }
