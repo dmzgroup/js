@@ -96,7 +96,8 @@ dmz::JsModuleUiV8QtBasic::_dialog_set_windows_hint (const v8::Arguments &Args) {
       if (dialog) {
 
          Qt::WindowFlags flags = dialog->windowFlags ();
-         dialog->setWindowFlags (flags | Qt::MSWindowsFixedSizeDialogHint);
+         flags |= Qt::MSWindowsFixedSizeDialogHint;
+         dialog->setWindowFlags (flags);
       }
    }
 
