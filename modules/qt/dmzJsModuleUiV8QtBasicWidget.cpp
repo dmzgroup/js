@@ -337,7 +337,10 @@ dmz::JsModuleUiV8QtBasic::_widget_fixed_size (const v8::Arguments &Args) {
 
          if (Args.Length () == 2) {
 
-            widget->setFixedSize (v8_to_uint32 (Args[0]), v8_to_uint32 (Args[1]));
+            int width = v8_to_uint32 (Args[0]);
+            int height = v8_to_uint32 (Args[1]);
+            widget->resize (width, height);
+            widget->setFixedSize (width, height);
          }
       }
    }
