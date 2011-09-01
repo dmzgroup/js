@@ -169,7 +169,7 @@ namespace dmz {
          static V8Value _widget_size (const v8::Arguments &Args);
          static V8Value _widget_fixed_size (const v8::Arguments &Args);
          static V8Value _widget_fixed_width (const v8::Arguments &Args);
-         static V8Value _widget_fixed_heigth (const v8::Arguments &Args);
+         static V8Value _widget_fixed_height (const v8::Arguments &Args);
          static V8Value _widget_style_sheet (const v8::Arguments &Args);
          static V8Value _widget_width (const v8::Arguments &Args);
          static V8Value _widget_height (const v8::Arguments &Args);
