@@ -765,65 +765,40 @@ dmz::JsModuleUiV8QtBasic::create_v8_graphics_item (QGraphicsItem *value) {
       if (qgraphicsitem_cast<QGraphicsRectItem *> (value)) {
 
          if (!_gRectCtor.IsEmpty ()) { obj = _gRectCtor->NewInstance (); }
-         if (!obj.IsEmpty ()) {
-
-            obj->SetInternalField (0, v8::External::Wrap ((void *)value));
-            result = obj;
-         }
       }
       else if (qgraphicsitem_cast<QGraphicsWidget *> (value)) {
 
          if (!_gWidgetCtor.IsEmpty ()) { obj = _gWidgetCtor->NewInstance (); }
-         if (!obj.IsEmpty ()) {
-
-            obj->SetInternalField (0, v8::External::Wrap ((void *)value));
-            result = obj;
-         }
       }
       else if (qgraphicsitem_cast<QGraphicsPixmapItem *> (value)) {
 
          if (!_gPixmapItemCtor.IsEmpty ()) { obj = _gPixmapItemCtor->NewInstance (); }
-         if (!obj.IsEmpty ()) {
-
-            obj->SetInternalField (0, v8::External::Wrap ((void *)value));
-            result = obj;
-         }
       }
       else if (qgraphicsitem_cast<QGraphicsTextItem *> (value)) {
 
          if (!_gTextCtor.IsEmpty ()) { obj = _gTextCtor->NewInstance (); }
-         if (!obj.IsEmpty ()) {
-
-            obj->SetInternalField (0, v8::External::Wrap ((void *)value));
-            result = obj;
-         }
       }
       else if (qgraphicsitem_cast<QGraphicsLineItem *> (value)) {
 
          if (!_gLineCtor.IsEmpty ()) { obj = _gLineCtor->NewInstance (); }
-         if (!obj.IsEmpty ()) {
-
-            obj->SetInternalField (0, v8::External::Wrap ((void *)value));
-            result = obj;
-         }
       }
       else if (qgraphicsitem_cast<QGraphicsPathItem *> (value)) {
 
          if (!_gPathCtor.IsEmpty ()) { obj = _gPathCtor->NewInstance (); }
-         if (!obj.IsEmpty ()) {
-
-            obj->SetInternalField (0, v8::External::Wrap ((void *)value));
-            result = obj;
-         }
       }
       else if (qgraphicsitem_cast<QGraphicsWebView *> (value)) {
 
          if (!_gWebViewCtor.IsEmpty ()) { obj = _gWebViewCtor->NewInstance (); }
-         if (!obj.IsEmpty ()) {
+      }
+      else if (qgraphicsitem_cast<QAbstractGraphicsShapeItem *> (value)) {
 
-            obj->SetInternalField (0, v8::External::Wrap ((void *)value));
-            result = obj;
-         }
+         if (!_gAbsItemCtor.IsEmpty ()) { obj = _gAbsItemCtor->NewInstance (); }
+      }
+
+      if (!obj.IsEmpty ()) {
+
+         obj->SetInternalField (0, v8::External::Wrap ((void *)value));
+         result = obj;
       }
    }
 
@@ -842,7 +817,8 @@ dmz::JsModuleUiV8QtBasic::_to_graphics_item (V8Value value) {
 
       if (_gRectTemp->HasInstance (obj) || _gTextTemp->HasInstance (obj) ||
           _gLineTemp->HasInstance (obj) || _gPathTemp->HasInstance (obj) ||
-          _gWebViewTemp->HasInstance (obj) || _gPixmapItemTemp->HasInstance (obj)) {
+          _gWebViewTemp->HasInstance (obj) || _gPixmapItemTemp->HasInstance (obj) ||
+          _gAbsItemTemp->HasInstance (obj)) {
 
          result = (QGraphicsItem *)v8::External::Unwrap (obj->GetInternalField (0));
       }
@@ -2904,6 +2880,60 @@ dmz::JsModuleUiV8QtBasic::_gscene_add_rect (const v8::Arguments &Args) {
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_gscene_add_ellipse (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QGraphicsScene *scene = self->v8_to_qobject<QGraphicsScene> (Args.This ());
+      if (scene) {
+
+         if (Args.Length () == 1) {
+
+            QGraphicsItem *item = self->_to_graphics_item (Args[0]);
+            if (item) {
+            scene->addItem (item); }
+            result = Args[0];
+         }
+         if (Args.Length () >= 6) {
+
+            QGraphicsEllipseItem *item (0);
+            qreal x, y, w, h;
+            int startAngle, spanAngle;
+            x = v8_to_number (Args[0]);
+            y = v8_to_number (Args[1]);
+            w = v8_to_number (Args[2]);
+            h = v8_to_number (Args[3]);
+            startAngle = v8_to_int32 (Args[4]);
+            spanAngle = v8_to_int32 (Args[5]);
+
+            QPen *pen (0);
+            QBrush *brush (0);
+            if (Args.Length () >= 7) { pen = self->_to_gpen (Args[6]); }
+            if (Args.Length () >= 8) { brush = self->_to_gbrush (Args[7]); }
+            item = scene->addEllipse (
+               x,
+               y,
+               w,
+               h,
+               pen ? *pen : QPen (),
+               brush ? *brush : QBrush ());
+            item->setStartAngle (startAngle);
+            item->setSpanAngle (spanAngle);
+
+            if (item) { result = self->create_v8_graphics_item (item); }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_gscene_add_text (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -3336,6 +3366,7 @@ dmz::JsModuleUiV8QtBasic::_init_gscene () {
    proto->Set ("addPath", v8::FunctionTemplate::New (_gscene_add_path, _self));
    proto->Set ("addRect", v8::FunctionTemplate::New (_gscene_add_rect, _self));
    proto->Set ("addText", v8::FunctionTemplate::New (_gscene_add_text, _self));
+   proto->Set ("addEllipse", v8::FunctionTemplate::New (_gscene_add_ellipse, _self));
    proto->Set ("addPixmap", v8::FunctionTemplate::New (_gscene_add_pixmap, _self));
    proto->Set ("backgroundBrush", v8::FunctionTemplate::New (_gscene_bg_brush, _self));
    proto->Set ("clearFocus", v8::FunctionTemplate::New (_gscene_clear_focus, _self));

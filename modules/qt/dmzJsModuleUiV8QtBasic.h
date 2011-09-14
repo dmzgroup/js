@@ -651,6 +651,7 @@ namespace dmz {
          static V8Value _gscene_add_rect (const v8::Arguments &Args);
          static V8Value _gscene_add_text (const v8::Arguments &Args);
          static V8Value _gscene_add_pixmap (const v8::Arguments &Args);
+         static V8Value _gscene_add_ellipse (const v8::Arguments &Args);
          static V8Value _gscene_bg_brush (const v8::Arguments &Args);
          static V8Value _gscene_clear_focus (const v8::Arguments &Args);
          static V8Value _gscene_colliding_items (const v8::Arguments &Args);
