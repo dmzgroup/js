@@ -84,6 +84,32 @@ dmz::JsModuleUiV8QtBasic::_list_widget_item_bg_brush (const v8::Arguments &Args)
 
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_list_widget_item_fg_brush (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QListWidgetItem *item = self->_to_qlistwidgetitem (Args.This ());
+      if (item) {
+
+         if (Args.Length ()) {
+
+            QBrush *brush = self->_to_gbrush (Args[0]);
+            if (brush) { item->setForeground (*brush); }
+         }
+
+         result = self->create_v8_gbrush (new QBrush (item->foreground ()));
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_list_widget_item_hidden (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -426,6 +452,7 @@ dmz::JsModuleUiV8QtBasic::_init_list_widget_item () {
    proto->Set ("text", v8::FunctionTemplate::New (_list_widget_item_text, _self));
    proto->Set ("data", v8::FunctionTemplate::New (_list_widget_item_data, _self));
    proto->Set ("background", v8::FunctionTemplate::New (_list_widget_item_bg_brush, _self));
+   proto->Set ("foreground", v8::FunctionTemplate::New (_list_widget_item_fg_brush, _self));
    proto->Set ("hidden", v8::FunctionTemplate::New (_list_widget_item_hidden, _self));
 }
 

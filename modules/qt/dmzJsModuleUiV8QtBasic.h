@@ -278,6 +278,7 @@ namespace dmz {
          static V8Value _list_widget_item_data (const v8::Arguments &Args);
          static V8Value _list_widget_item_hidden (const v8::Arguments &Args);
          static V8Value _list_widget_item_bg_brush (const v8::Arguments &Args);
+         static V8Value _list_widget_item_fg_brush (const v8::Arguments &Args);
 
          // QListWidget bindings implemented in JsModuleUiV8QtBasicListWidget.cpp
          static V8Value _list_widget_add_item (const v8::Arguments &Args);
