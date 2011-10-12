@@ -119,6 +119,31 @@ dmz::JsModuleUiV8QtBasic::_button_std_icon (const v8::Arguments &Args) {
 }
 
 dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_button_set_icon (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+
+   if (self) {
+
+      QAbstractButton *button = self->v8_to_qobject<QAbstractButton> (Args.This ());
+      if (button && Args.Length ()) {
+
+         QPixmap *pixmap = self->_to_gpixmap (Args[0]);
+         if (pixmap) {
+
+            QIcon *icon = new QIcon(*pixmap);
+            if (icon) { button->setIcon (*icon); }
+         }
+      }
+   }
+
+   return scope.Close (result);
+}
+
+dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_create_push_button (const v8::Arguments &Args) {
 
    v8::HandleScope scope;
@@ -236,6 +261,7 @@ dmz::JsModuleUiV8QtBasic::_init_button () {
    proto->Set ("setChecked", v8::FunctionTemplate::New (_button_set_checked, _self));
    proto->Set ("click", v8::FunctionTemplate::New (_button_click, _self));
    proto->Set ("standardIcon", v8::FunctionTemplate::New (_button_std_icon, _self));
+   proto->Set ("setIcon", v8::FunctionTemplate::New (_button_set_icon, _self));
 
    _buttonApi.add_function ("createPushButton", _create_push_button, _self);
    _buttonApi.add_function ("createRadioButton", _create_radio_button, _self);
