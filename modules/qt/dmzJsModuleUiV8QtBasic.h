@@ -174,6 +174,7 @@ namespace dmz {
          static V8Value _widget_width (const v8::Arguments &Args);
          static V8Value _widget_height (const v8::Arguments &Args);
          static V8Value _widget_palette (const v8::Arguments &Args);
+         static V8Value _widget_raise (const v8::Arguments &Args);
          static V8Value _widget_fill_bg (const v8::Arguments &Args);
          static V8Value _widget_update (const v8::Arguments &Args);
          static V8Value _widget_update_geometry (const v8::Arguments &Args);
@@ -189,6 +190,7 @@ namespace dmz {
          static V8Value _button_set_checked (const v8::Arguments &Args);
          static V8Value _button_click (const v8::Arguments &Args);
          static V8Value _button_std_icon (const v8::Arguments &Args);
+         static V8Value _button_set_icon (const v8::Arguments &Args);
          static V8Value _create_push_button (const v8::Arguments &Args);
          static V8Value _create_radio_button (const v8::Arguments &Args);
          static V8Value _create_check_box (const v8::Arguments &Args);
@@ -753,6 +755,8 @@ namespace dmz {
          // QWebPage bindings implemented in dmzJsModuleUiV8QtBasicWebView.cpp
          static V8Value _webpage_mainframe (const v8::Arguments &Args);
          static V8Value _webpage_link_delegation (const v8::Arguments &Args);
+         static V8Value _webpage_width (const v8::Arguments &Args);
+         static V8Value _webpage_height (const v8::Arguments &Args);
 
          // QWebFrame bindings implemented in dmzJsModuleUiV8QtBasicWebView.cpp
          static V8Value _webframe_load (const v8::Arguments &Args);

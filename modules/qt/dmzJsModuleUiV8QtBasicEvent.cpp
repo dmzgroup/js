@@ -433,6 +433,8 @@ dmz::JsModuleUiV8QtBasic::create_v8_qevent (QEvent *value) {
       case QEvent::MouseButtonDblClick:
       case QEvent::MouseButtonPress:
       case QEvent::MouseButtonRelease:
+      case QEvent::Enter:
+      case QEvent::Leave:
       case QEvent::MouseMove:
          if (!_mouseEventCtor.IsEmpty ()) { obj = _mouseEventCtor->NewInstance (); }
          break;
@@ -607,4 +609,6 @@ dmz::JsModuleUiV8QtBasic::_init_event () {
    _eventApi.add_constant ("MouseButtonPress", (UInt32)QEvent::MouseButtonPress);
    _eventApi.add_constant ("MouseButtonRelease", (UInt32)QEvent::MouseButtonRelease);
    _eventApi.add_constant ("MouseMove", (UInt32)QEvent::MouseMove);
+   _eventApi.add_constant ("Enter", (UInt32)QEvent::Enter);
+   _eventApi.add_constant ("Leave", (UInt32)QEvent::Leave);
 }
