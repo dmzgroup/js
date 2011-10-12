@@ -1619,6 +1619,16 @@ dmz::JsModuleUiV8QtBasic::_init (Config &local) {
    _qtApi.add_constant ("SPExpanding", (UInt32)QSizePolicy::Expanding);
    _qtApi.add_constant ("SPIgnored", (UInt32)QSizePolicy::Ignored);
 
+   // enum Qt::ItemFlags
+   _qtApi.add_constant ("NoItemFlags", (UInt32)Qt::NoItemFlags);
+   _qtApi.add_constant ("ItemIsSelectable", (UInt32)Qt::ItemIsSelectable);
+   _qtApi.add_constant ("ItemIsEditable", (UInt32)Qt::ItemIsEditable);
+   _qtApi.add_constant ("ItemIsDragEnabled", (UInt32)Qt::ItemIsDragEnabled);
+   _qtApi.add_constant ("ItemIsDropEnabled", (UInt32)Qt::ItemIsDropEnabled);
+   _qtApi.add_constant ("ItemIsUserCheckable", (UInt32)Qt::ItemIsUserCheckable);
+   _qtApi.add_constant ("ItemIsEnabled", (UInt32)Qt::ItemIsEnabled);
+   _qtApi.add_constant ("ItemIsTristate", (UInt32)Qt::ItemIsTristate);
+
    // UiLoader API
    _uiLoaderApi.add_function ("load", _uiloader_load, _self);
 
