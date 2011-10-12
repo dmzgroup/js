@@ -34,8 +34,8 @@ dmz::V8QtButton::bind (
 
          connect (
             _widget,
-            SIGNAL (clicked ()),
-            SLOT (on_clicked ()),
+            SIGNAL (clicked (bool)),
+            SLOT (on_clicked (bool)),
             Qt::UniqueConnection);
 
          results = True;
@@ -60,9 +60,9 @@ dmz::V8QtButton::bind (
 
 
 void
-dmz::V8QtButton::on_clicked () {
+dmz::V8QtButton::on_clicked (bool clicked) {
 
-   _do_callback (LocalSignalClicked);
+   _do_callback (LocalSignalClicked, clicked);
 }
 
 

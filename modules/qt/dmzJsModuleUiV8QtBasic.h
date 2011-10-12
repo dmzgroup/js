@@ -516,6 +516,7 @@ namespace dmz {
          static V8Value _table_item_data (const v8::Arguments &Args);
          static V8Value _table_item_selected (const v8::Arguments &Args);
          static V8Value _table_item_text (const v8::Arguments &Args);
+         static V8Value _create_table_widget_item (const v8::Arguments &Args);
 
          // QTableWidgetSelectionRange bindings implemented in
          // JsModuleUiV8QtBasicTableWidget.cpp

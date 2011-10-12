@@ -1340,6 +1340,43 @@ dmz::JsModuleUiV8QtBasic::_create_table_widget (const v8::Arguments &Args) {
    return scope.Close (result);
 }
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_create_table_widget_item (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QString text;
+      if (Args.Length () >= 1) { text = v8_to_qstring (Args[0]); }
+      QTableWidgetItem *item = new QTableWidgetItem (text);
+
+      if (Args.Length () >= 2) {
+
+         V8Array flagArray = v8_to_array (Args[1]);
+         if (!flagArray.IsEmpty ()) {
+
+            Qt::ItemFlags flags;
+            const uint32_t Length = flagArray->Length ();
+            for (uint32_t ix = 0; ix < Length; ix++) {
+
+               const UInt32 flagValue =
+                  v8_to_uint32 (flagArray->Get (v8::Integer::NewFromUnsigned (ix)));
+
+               flags |= (Qt::ItemFlag)flagValue;
+            }
+            if (item) { item->setFlags (flags); }
+         }
+      }
+
+      result = self->create_v8_qtablewidgetitem (item);
+   }
+
+   return scope.Close (result);
+}
+
 
 void
 dmz::JsModuleUiV8QtBasic::_init_table_selection () {
@@ -1378,6 +1415,8 @@ dmz::JsModuleUiV8QtBasic::_init_table_widget_item () {
    proto->Set ("data", v8::FunctionTemplate::New (_table_item_data, _self));
    proto->Set ("selected", v8::FunctionTemplate::New (_table_item_selected, _self));
    proto->Set ("text", v8::FunctionTemplate::New (_table_item_text, _self));
+
+   _tableApi.add_function ("createItem", _create_table_widget_item, _self);
 }
 
 

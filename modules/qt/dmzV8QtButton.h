@@ -24,7 +24,7 @@ namespace dmz {
             const V8Function &Func);
 
       public Q_SLOTS:
-         void on_clicked ();
+         void on_clicked (bool clicked);
          void on_toggle (bool checked);
    };
 };

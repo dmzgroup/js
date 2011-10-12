@@ -276,4 +276,5 @@ dmz::JsModuleUiV8QtBasic::_init_button () {
    _buttonApi.add_constant ("MediaSkipBackward", (UInt32)QStyle::SP_MediaSkipBackward);
    _buttonApi.add_constant ("MediaSeekForward", (UInt32)QStyle::SP_MediaSeekForward);
    _buttonApi.add_constant ("MediaSeekBackward", (UInt32)QStyle::SP_MediaSeekBackward);
+   _buttonApi.add_constant ("Close", (UInt32)QStyle::SP_TitleBarCloseButton);
 }
