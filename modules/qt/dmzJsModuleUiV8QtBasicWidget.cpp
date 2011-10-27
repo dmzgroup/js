@@ -504,6 +504,30 @@ dmz::JsModuleUiV8QtBasic::_widget_raise (const v8::Arguments &Args) {
 }
 
 
+
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_parent (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qwidget(Args.This ());
+      if (widget) {
+
+         QWidget *parent = widget->parentWidget();
+         if (parent) {
+
+            result = self->create_v8_qwidget(parent);
+         }
+      }
+   }
+   return result;
+}
+
+
 dmz::V8Value
 dmz::JsModuleUiV8QtBasic::_widget_fill_bg (const v8::Arguments &Args) {
 
@@ -688,6 +712,7 @@ dmz::JsModuleUiV8QtBasic::_init_widget () {
    proto->Set ("height", v8::FunctionTemplate::New (_widget_height, _self));
    proto->Set ("palette", v8::FunctionTemplate::New (_widget_palette, _self));
    proto->Set ("raise", v8::FunctionTemplate::New (_widget_raise, _self));
+   proto->Set ("parent", v8::FunctionTemplate::New (_widget_parent, _self));
    proto->Set ("autoFillBackground", v8::FunctionTemplate::New (_widget_fill_bg, _self));
    proto->Set ("update", v8::FunctionTemplate::New (_widget_update, _self));
    proto->Set ("updateGeometry", v8::FunctionTemplate::New (_widget_update_geometry, _self));
