@@ -133,6 +133,7 @@ dmz::JsModuleUiV8QtBasic::_palette_color (const v8::Arguments &Args) {
             }
             else {
 
+               QColor c = pal->color ((QPalette::ColorRole) v8_to_uint32 (Args[0]));
                pal->setColor (
                   (QPalette::ColorRole) v8_to_uint32 (Args[0]),
                   v8_to_qcolor (Args[1]));
