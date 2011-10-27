@@ -175,6 +175,7 @@ namespace dmz {
          static V8Value _widget_height (const v8::Arguments &Args);
          static V8Value _widget_palette (const v8::Arguments &Args);
          static V8Value _widget_raise (const v8::Arguments &Args);
+         static V8Value _widget_parent (const v8::Arguments &Args);
          static V8Value _widget_fill_bg (const v8::Arguments &Args);
          static V8Value _widget_update (const v8::Arguments &Args);
          static V8Value _widget_update_geometry (const v8::Arguments &Args);
