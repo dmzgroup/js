@@ -679,6 +679,27 @@ dmz::JsModuleUiV8QtBasic::_widget_geometry (const v8::Arguments &Args) {
 }
 
 
+dmz::V8Value
+dmz::JsModuleUiV8QtBasic::_widget_opacity (const v8::Arguments &Args) {
+
+   v8::HandleScope scope;
+   V8Value result = v8::Undefined ();
+
+   JsModuleUiV8QtBasic *self = _to_self (Args);
+   if (self) {
+
+      QWidget *widget = self->_to_qwidget (Args.This ());
+      if (widget) {
+
+         if (Args.Length ()) { widget->setWindowOpacity (v8_to_number (Args[0])); }
+         result = v8::Number::New (widget->windowOpacity ());
+      }
+   }
+
+   return scope.Close (result);
+}
+
+
 void
 dmz::JsModuleUiV8QtBasic::_init_widget () {
 
@@ -720,6 +741,7 @@ dmz::JsModuleUiV8QtBasic::_init_widget () {
    proto->Set ("maximumSize", v8::FunctionTemplate::New (_widget_max_size, _self));
    proto->Set ("pos", v8::FunctionTemplate::New (_widget_pos, _self));
    proto->Set ("geometry", v8::FunctionTemplate::New (_widget_geometry, _self));
+   proto->Set ("opacity", v8::FunctionTemplate::New (_widget_opacity, _self));
 
    _widgetApi.add_function ("create", _create_widget, _self);
 }
