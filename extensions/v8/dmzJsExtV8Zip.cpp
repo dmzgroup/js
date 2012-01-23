@@ -297,7 +297,7 @@ self->_log.warn << "About to create archive" << endl;
 
                      if (current->data->IsExternalAscii ()) {
 
-                        v8::String::ExternalAsciiStringResource *rc =
+                        const v8::String::ExternalAsciiStringResource *rc =
                            current->data->GetExternalAsciiStringResource ();
 
                         if (rc) {

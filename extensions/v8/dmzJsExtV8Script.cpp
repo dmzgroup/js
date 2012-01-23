@@ -535,7 +535,7 @@ dmz::JsExtV8Script::_script_compile (const v8::Arguments &Args) {
 
          if (str->IsExternalAscii ()) {
 
-            v8::String::ExternalAsciiStringResource *rc =
+            const v8::String::ExternalAsciiStringResource *rc =
                str->GetExternalAsciiStringResource ();
 
             if (rc) {
