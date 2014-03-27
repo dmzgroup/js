@@ -141,7 +141,7 @@ dmz::JsExtV8HTTPCurl::Upload::read_func (
 
    size_t result (0);
 
-   const size_t OutSize = 6; size * nmemb;
+   const size_t OutSize = size * nmemb;
 
    Upload *ul = (Upload *)stream;
 
